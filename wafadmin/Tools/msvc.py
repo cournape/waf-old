@@ -710,10 +710,7 @@ def apply_manifest(self):
 		out_node = self.link_task.outputs[0]
 		man_node = out_node.parent.find_or_declare(out_node.name + '.manifest')
 		self.link_task.outputs.append(man_node)
-
-		# will overwrite the node signature of man_node, on purpose
-		tsk = self.create_task('msvc_manifest', out_node, man_node)
-		tsk.set_run_after(self.link_task)
+		self.link_task.do_manifest = True
 
 def exec_mf(self):
 	env = self.env
@@ -721,8 +718,10 @@ def exec_mf(self):
 	if not mtool:
 		return 0
 
-	outfile = self.inputs[0].bldpath(env)
-	manifest = self.outputs[0].bldpath(env)
+	self.do_manifest = False
+
+	outfile = self.outputs[0].bldpath(env)
+	manifest = self.outputs[1].bldpath(env)
 
 	# embedding mode. Different for EXE's and DLL's.
 	# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
@@ -747,9 +746,6 @@ def exec_mf(self):
 	lst = [lst]
 	return self.exec_command(*lst)
 
-cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_out='.bin')
-cls.quiet = 1
-
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 
 def exec_command_msvc(self, *k, **kw):
@@ -770,7 +766,11 @@ def exec_command_msvc(self, *k, **kw):
 		env.update(PATH = ';'.join(self.env['PATH']))
 		kw['env'] = env
 
-	return self.generator.bld.exec_command(*k, **kw)
+	ret = self.generator.bld.exec_command(*k, **kw)
+	if ret: return ret
+	if getattr(self, 'do_manifest', None):
+		ret = exec_mf(self)
+	return ret
 
 for k in 'cc cxx winrc cc_link cxx_link static_link qxx'.split():
 	cls = Task.TaskBase.classes.get(k, None)
