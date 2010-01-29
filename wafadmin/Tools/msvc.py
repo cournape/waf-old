@@ -721,7 +721,7 @@ def exec_mf(self):
 	self.do_manifest = False
 
 	outfile = self.outputs[0].bldpath(env)
-	manifest = self.outputs[1].bldpath(env)
+	manifest = self.outputs[-1].bldpath(env)
 
 	# embedding mode. Different for EXE's and DLL's.
 	# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
