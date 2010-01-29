@@ -787,7 +787,7 @@ class BuildContext(Utils.Context):
 		path = path.replace('/', os.sep)
 		destpath = Utils.subst_vars(path, env)
 		if destdir:
-			destpath = os.path.join(destdir, red.sub('', destpath))
+			destpath = os.path.join(destdir, self.red.sub('', destpath))
 		return destpath
 
 	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False, cwd=None):
