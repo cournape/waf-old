@@ -4,6 +4,7 @@ NEW IN WAF 1.5.12
 * exclude the python3 waf cache folders from 'dist' archives
 * removing build dir folders should no longer cause problems (#581)
 * fix for absolute win32 paths and DESTDIR
+* fix for msvc apps and unit tests
 
 NEW IN WAF 1.5.11
 -----------------
