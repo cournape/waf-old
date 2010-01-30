@@ -28,7 +28,7 @@
 ##      * the rest of the code has not really been tried
 #       * make certain a demo is provided (in demos/adv for example)
 
-# TODO: boost.py will be removed in waf 1.6
+# TODO: bad and underdocumented code -> boost.py will be removed in waf 1.6 to be rewritten later
 
 import os.path, glob, types, re, sys
 import Configure, config_c, Options, Utils, Logs
@@ -75,7 +75,7 @@ def libfiles(lib, pattern, lib_paths):
 	result = []
 	for lib_path in lib_paths:
 		libname = pattern % ('boost_' + lib + '*')
-		result += glob.glob(lib_path + '/' + libname)
+		result += glob.glob(os.path.join(lib_path, libname))
 	return result
 
 @conf
