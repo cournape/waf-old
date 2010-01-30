@@ -297,12 +297,13 @@ def gather_icl_versions(conf, versions):
 
 @conf
 def get_msvc_versions(conf):
-	if not conf.env['MSVC_INSTALLED_VERSIONS']:
-		conf.env['MSVC_INSTALLED_VERSIONS'] = []
-		conf.gather_msvc_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
-		conf.gather_wsdk_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
-		conf.gather_icl_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
-	return conf.env['MSVC_INSTALLED_VERSIONS']
+	if not conf.env.MSVC_INSTALLED_VERSIONS:
+		lst = []
+		conf.gather_msvc_versions(lst)
+		conf.gather_wsdk_versions(lst)
+		conf.gather_icl_versions(lst)
+		conf.env.MSVC_INSTALLED_VERSIONS = lst
+	return conf.env.MSVC_INSTALLED_VERSIONS
 
 @conf
 def print_all_msvc_detected(conf):
