@@ -178,7 +178,84 @@ Waf: Leaving directory `/tmp/rule/out'
 	<section id="make_like_shell">
 		<title>Shell usage</title>
 		<para>
-shell = False + output of waf --zones=action
+			The attribute <emphasis>shell</emphasis> is used to enable the system shell for command execution. A few points are worth keeping in mind when declaring rule-based task generators:
+			<itemizedlist>
+				<listitem>The Waf tools do not use the shell for executing commands</listitem>
+				<listitem>The shell is used by default for user commands and custom task generators</listitem>
+				<listitem>String expressions containing the following symbols <emphasis>&gt;</emphasis>, <emphasis>&lt;</emphasis> or <emphasis>&amp;</emphasis> cannot be transformed into functions to execute commands without a shell, even if told to</listitem>
+				<listitem>In general, it is better to avoid the shell whenever possible to avoid quoting problems (paths having blank characters in the name for example)</listitem>
+				<listitem>The shell is creating a performance penalty which is more visible on win32 systems.</listitem>
+			</itemizedlist>
+
+			Here is an example:
+
+			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f2.txt', shell=False)
+    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f1.txt', shell=True)
+			</programlisting>
+
+			Upon execution, the results will be similar to the following:
+
+			<programlisting language="sh">
+waf distclean configure build --zones=runner,action <co id="rulb1-co" linkends="rulb1"/>
+'distclean' finished successfully (0.004s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/rule/out'
+23:11:23 action <co id="rulb2-co" linkends="rulb2"/>
+def f(task):
+        env = task.env
+        wd = getattr(task, 'cwd', None)
+        def to_list(xx):
+                if isinstance(xx, str): return [xx]
+                return xx
+        lst = []
+        lst.extend(['cp'])
+        lst.extend([a.srcpath(env) for a in task.inputs])
+        lst.extend([a.bldpath(env) for a in task.outputs])
+        lst = [x for x in lst if x]
+        return task.exec_command(lst, cwd=wd)
+
+23:11:23 action
+def f(task): <co id="rulb3-co" linkends="rulb3"/>
+        env = task.env
+        wd = getattr(task, 'cwd', None)
+        p = env.get_flat
+        cmd = ''' cp %s %s ''' % (" ".join([a.srcpath(env) for a in task.inputs]),
+                " ".join([a.bldpath(env) for a in task.outputs]))
+        return task.exec_command(cmd, cwd=wd)
+
+[1/2] f2.txt: wscript -> out/default/f2.txt
+23:11:23 runner system command -> ['cp', '../wscript', 'default/f2.txt'] <co id="rulb4-co" linkends="rulb4"/>
+[2/2] f1.txt: wscript -> out/default/f1.txt
+23:11:23 runner system command ->  cp ../wscript default/f1.txt
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.017s)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="rulb1-co" id="rulb1">
+					<para>The <emphasis>debugging zones</emphasis> enable the display of specific debugging information (comma-separated values) for the string expression conversion, and <emphasis>runner</emphasis> for command execution</para>
+				</callout>
+				<callout arearefs="rulb2-co" id="rulb2">
+					<para>String expressions are converted to functions (here, without the shell).</para>
+				</callout>
+				<callout arearefs="rulb3-co" id="rulb3">
+					<para>Command execution by the shell. Notice the heavy use of string concatenation.</para>
+				</callout>
+				<callout arearefs="rulb4-co" id="rulb4">
+					<para>Commands to execute are displayed by calling <emphasis>waf --zones=runner</emphasis>. When called without the shell, the arguments are displayed as a list.</para>
+				</callout>
+			</calloutlist>
+
+			<note>In general, it is better to try avoiding the shell whenever possible</note>
+
 		</para>
 	</section>
 
