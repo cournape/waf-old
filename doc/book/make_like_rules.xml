@@ -254,7 +254,7 @@ Waf: Leaving directory `/tmp/rule/out'
 				</callout>
 			</calloutlist>
 
-			<note>In general, it is better to try avoiding the shell whenever possible</note>
+			<note>Whenever possible, avoid using the shell to improve both performance and maintainability</note>
 
 		</para>
 	</section>
@@ -262,8 +262,17 @@ Waf: Leaving directory `/tmp/rule/out'
 	<section id="make_like_io">
 		<title>Inputs and outputs</title>
 		<para>
-			The source and target arguments are optional:
+			Source and target arguments are optional for make-like task generators.
+
 			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+
 	bld( <co id="tg2-co" linkends="tg2"/>
 		source='wscript',
 		rule='echo ${SRC}'
