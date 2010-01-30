@@ -1,0 +1,296 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="make_like">
+	<title>Rule-based task generators (Make-like)</title>
+	<para>
+		Rule-based task generators are a particular category of task generators producing exactly one task at a time.
+	</para>
+
+	<section id="make_like_decl">
+		<title>Declaration and usage</title>
+		<para>
+			The following example presents a simple example of a task generator producing the file <filename>foobar.txt</filename> from the <filename>wscript</filename> by executing a copy (the command 'cp'). Let's create a new project in the folder <filename>/tmp/rule/</filename> containing the following <filename>wscript</filename> file:
+			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld( <co id="rule1-co" linkends="rule1"/>
+		rule   = 'cp ${SRC} ${TGT}', <co id="rule2-co" linkends="rule2"/>
+		source = 'wscript', <co id="rule3-co" linkends="rule3"/>
+		target = 'foobar.txt', <co id="rule4-co" linkends="rule4"/>
+	)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="rule1-co" id="rule1">
+					<para>To instantiate a new task generator, remember that all arguments have the form <emphasis>key=value</emphasis></para>
+				</callout>
+				<callout arearefs="rule2-co" id="rule2">
+					<para>The attribute <emphasis>rule</emphasis> is mandatory here. It represents the command to execute in a readable manner (more on this in the next chapters).</para>
+				</callout>
+				<callout arearefs="rule3-co" id="rule3">
+					<para>Source files, to give in a space-separated list<para>
+				</callout>
+				<callout arearefs="rule4-co" id="rule4">
+					<para>Target files, to give in a space-separated list</para>
+				</callout>
+			</calloutlist>
+
+			Upon execution, the following output will be observed:
+
+			<programlisting language="sh">
+$ waf distclean configure build -v
+'distclean' finished successfully (0.000s)
+'configure' finished successfully (0.021s)
+Waf: Entering directory `/tmp/rule/out'
+[1/1] foobar.txt: wscript -> out/default/foobar.txt <co id="rulo1-co" linkends="rulo1"/>
+16:24:21 runner system command ->  cp ../wscript default/foobar.txt <co id="rulo2-co" linkends="rulo2"/>
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.016s)
+
+$ tree
+.
+|-- out
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+|       `-- foobar.txt
+`-- wscript
+
+$ waf <co id="rulo3-co" linkends="rulo3"/>
+Waf: Entering directory `/tmp/rule/out'
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.006s)
+
+$ echo " " >> wscript <co id="rulo4-co" linkends="rulo4"/>
+
+$ waf
+Waf: Entering directory `/tmp/rule/out'
+[1/1] foobar.txt: wscript -> out/default/foobar.txt <co id="rulo5-co" linkends="rulo5"/>
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.013s)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="rulo1-co" id="rulo1">
+					<para>In the first execution, the target is correctly created</para>
+				</callout>
+				<callout arearefs="rulo2-co" id="rulo2">
+					<para>Command-lines are only displayed in <emphasis>verbose mode</emphasis> by using the option <emphasis>-v</emphasis></para>
+				</callout>
+				<callout arearefs="rulo3-co" id="rulo3">
+					<para>The target are up-to-date, there is nothing to do</para>
+				</callout>
+				<callout arearefs="rulo4-co" id="rulo4">
+					<para>Modify the source file in place by appending a space character</para>
+				</callout>
+				<callout arearefs="rulo5-co" id="rulo5">
+					<para>Since the source has changed, the target is created once again.</para>
+				</callout>
+			</calloutlist>
+		</para>
+		The target is created once again whenever the source files or the rule change. This is achieved by computing a signature for the targets, and storing that signature between executions. By default, the signature is computed by hashing the rule and the source files (MD5 by default).
+	</section>
+
+
+	<section id="make_like_funs">
+		<title>Rule functions</title>
+		<para>
+			Rules may be given as expression strings or as python function. Let's modify the previous project file with a python function:
+
+			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	def run(task): <co id="rula1-co" linkends="rula1"/>
+		print (' # source is ' + task.generator.source) <co id="rula2-co" linkends="rula2"/>
+
+		src = task.inputs[0].srcpath(task.env) <co id="rula3-co" linkends="rula3"/>
+		tgt = task.outputs[0].bldpath(task.env) <co id="rula4-co" linkends="rula4"/>
+
+		import Utils
+		cmd = "cp %s %s" % (src, tgt)
+		print(cmd)
+		return Utils.exec_command(cmd) <co id="rula5-co" linkends="rula5"/>
+
+	bld(
+		rule   = run, <co id="rula6-co" linkends="rula6"/>
+		source = 'wscript',
+		target = 'same.txt',
+	)
+			</programlisting>
+
+			The execution trace will be similar to the following:
+
+			<calloutlist>
+				<callout arearefs="rula1-co" id="rula1">
+					<para>Rule functions take the task instance as parameter.</para>
+				</callout>
+				<callout arearefs="rula2-co" id="rula2">
+					<para>Task instances may access their task generator through the attribute <emphasis>generator</emphasis></para>
+				</callout>
+				<callout arearefs="rula3-co" id="rula3">
+					<para>Sources and targets are represented internally as Node objects bound to the task instance.</para>
+				</callout>
+				<callout arearefs="rula4-co" id="rula4">
+					<para>Commands are executed from the root of the build directory. Node methods such as <emphasis>bldpath</emphasis> ease the command line creation.</para>
+				</callout>
+				<callout arearefs="rula5-co" id="rula5">
+					<para>The return code is a non-0 value to indicate failure</para>
+				</callout>
+				<callout arearefs="rula6-co" id="rula6">
+					<para>Use a function instead of a string expression</para>
+				</callout>
+			</calloutlist>
+
+			<programlisting language="sh">
+$ waf distclean configure build
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/rule/out'
+[1/1] same.txt: wscript -> out/default/same.txt
+ # source is wscript
+cp ../wscript default/same.txt
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.010s)
+			</programlisting>
+
+			The rule function must return <emphasis>0</emphasis> to indicate success, and must generate the files corresponding to the outputs. The rule function must also access the task object in a read-only manner, and avoid node creation or attribute modification.
+
+			<note>The string expression <emphasis>cp ${SRC} ${TGT}</emphasis> from the previous example is converted internally to a function similar to <emphasis>run</emphasis></note>
+			<note>While a string expression may execute only one system command, functions may execute various commands at once.</note>
+		</para>
+	</section>
+
+
+	<section id="make_like_shell">
+		<title>Shell usage</title>
+		<para>
+shell = False + output of waf --zones=action
+		</para>
+	</section>
+
+	<section id="make_like_io">
+		<title>Inputs and outputs</title>
+		<para>
+			The source and target arguments are optional:
+			<programlisting language="python">
+	bld( <co id="tg2-co" linkends="tg2"/>
+		source='wscript',
+		rule='echo ${SRC}'
+	)
+
+	bld( <co id="tg3-co" linkends="tg3"/>
+		target='test.k3',
+		rule='echo ${PREFIX} > ${TGT}',
+	)
+
+	bld( <co id="tg4-co" linkends="tg4"/>
+		rule='echo 1337'
+	)
+			</programlisting>
+
+			<calloutlist>
+				<!--
+				<callout arearefs="tg1-co" id="tg1">
+					<para>A basic example with an input and an output. The task is run whenever the input or the rule change</para>
+				</callout> -->
+				<callout arearefs="tg2-co" id="tg2">
+					<para>The task will run whenever the input or the rule change, but there is no output</para>
+				</callout>
+				<callout arearefs="tg3-co" id="tg3">
+					<para>Creates a task with no input, the output is regenerated whenever the PREFIX variable changes</para>
+				</callout>
+				<callout arearefs="tg4-co" id="tg4">
+					<para>Creates a task without inputs our outputs, it is run whenever the rule text changes</para>
+				</callout>
+			</calloutlist>
+
+
+		</para>
+	</section>
+
+	<section id="make_like_data">
+		<title>Sharing data</title>
+		<para>
+conf.env.FOO
+		</para>
+	</section>
+
+
+		The next examples illustrate various attributes which may be used to alter task execution.
+		<programlisting language="python">
+	bld( <co id="tg5-co" linkends="tg5"/>
+		rule="echo 'task always run'",
+		always=True
+	)
+
+	bld( <co id="tg6-co" linkends="tg6"/>
+		source = 'wscript',
+		target = 'test.k',
+		rule = './create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
+		cwd = bld.path.abspath(),
+		before = 'test.k1'
+	)
+
+	def run(self):
+		print('hi there')
+
+	bld( <co id="tg7-co" linkends="tg7"/>
+		name = 'hi',
+		rule = run
+	)
+
+	bld( <co id="tg8-co" linkends="tg8"/>
+		name = 'svnversion',
+		target = 'ver.h',
+		rule = 'svnversion > ${TGT[0].abspath(env)}',
+		cwd = bld.path.abspath(),
+		always = True,
+		on_results = True
+	)
+
+	bld(
+		name = 'copy_svnversion',
+		after = 'svnversion',
+		source = 'ver.h',
+		target = 'ver2.h',
+		rule = 'cp ${SRC} ${TGT}'
+	)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="tg5-co" id="tg5">
+					<para>Make a task which is always run (attribute <emphasis>always</emphasis>)</para>
+				</callout>
+				<callout arearefs="tg6-co" id="tg6">
+					<para>Demonstrates how to add an ordering constraint (attribute <emphasis>before</emphasis>) to execute the rule before the one that produces test.k1. It also demonstrates how to set the directory from which the command is run (attribute <emphasis>cwd</emphasis>)</para>
+				</callout>
+				<callout arearefs="tg7-co" id="tg7">
+					<para>Rules may be given as functions. In this case the task has no input or output files</para>
+				</callout>
+				<callout arearefs="tg8-co" id="tg8">
+					<para>the dependant task copy_svnversion is executed when the actual output of svnversion changes (attribute <emphasis>on_results</emphasis>)</para>
+				</callout>
+			</calloutlist>
+		</para>
+		</sect2>
+		<para>
+			By binding the rule to the actual declaration, <emphasis>this system limits code reuse</emphasis>. For this reason, it is recommended for solving very specific problems in which a library would not make sense. The creation of lots of small rules may also impact performance negatively.
+		</para>
+	</section>
+
+</chapter>
+
