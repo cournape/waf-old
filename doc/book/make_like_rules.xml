@@ -263,7 +263,7 @@ Waf: Leaving directory `/tmp/rule/out'
 	<section id="make_like_io">
 		<title>Inputs and outputs</title>
 		<para>
-			Source and target arguments are optional for make-like task generators. Here are a few examples:
+			Source and target arguments are optional for make-like task generators, and may point at one or several files at once. Here are a few examples:
 
 			<programlisting language="python">
 srcdir='.'
@@ -350,14 +350,120 @@ Waf: Leaving directory `/tmp/rule/out'
 	<section id="make_like_data">
 		<title>Sharing data</title>
 		<para>
-conf.env.FOO
+			Data sharing is performed through the configuration set. The following example illustrates how to use it.
+
+			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+import Options
+
+def configure(conf):
+    print('prefix: %r' % conf.env.PREFIX)
+	print('jobs:   %r' % Options.options.jobs)
+
+def build(bld):
+	bld(
+		target = 't1.txt',
+		rule   = 'echo ${PREFIX} > ${TGT}' <co id="ruled1-co" linkends="ruled1"/>
+	)
+
+	obj = bld(
+		target = 't2.txt',
+		rule   = 'echo ${TEST_VAR} > ${TGT}', <co id="ruled2-co" linkends="ruled2"/>
+	)
+	obj.env.TEST_VAR <co id="ruled3-co" linkends="ruled3"/>= str(Options.options.jobs) <co id="ruled4-co" linkends="ruled4"/>
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="ruled1-co" id="ruled1">
+					<para>The <emphasis>PREFIX</emphasis> is one of the few predefined variables. It is necessary for computing the default installation path.</para>
+				</callout>
+				<callout arearefs="ruled2-co" id="ruled2">
+					<para>The following rule will create the file <filename>t2.txt</filename> with the contents of <emphasis>TEST_VAR</emphasis></para>
+				</callout>
+				<callout arearefs="ruled3-co" id="ruled3">
+					<para>The value of <emphasis>TEST_VAR</emphasis> will be defined now</para>
+				</callout>
+				<callout arearefs="ruled4-co" id="ruled4">
+					<para>Use the value of a predefined command-line option (the jobs control the amount of commands which may be executed in parallel)</para>
+				</callout>
+			</calloutlist>
+
+			By turning the debugging flags on, it will be easier to understand what is happening during the build:
+
+			<programlisting language="sh">
+$ waf distclean configure build --zones=runner,action
+'distclean' finished successfully (0.003s)
+prefix: '/usr/local' <co id="ruledd1-co" linkends="ruledd1"/>
+jobs:   2
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/rule/out'
+15:21:29 action
+def f(task):
+        env = task.env
+        wd = getattr(task, 'cwd', None)
+        p = env.get_flat
+        cmd = ''' echo %s > %s ''' % (p('PREFIX'), <co id="ruledd2-co" linkends="ruledd2"/>
+                " ".join([a.bldpath(env) for a in task.outputs]))
+        return task.exec_command(cmd, cwd=wd)
+
+15:21:29 action
+def f(task):
+        env = task.env
+        wd = getattr(task, 'cwd', None)
+        p = env.get_flat
+        cmd = ''' echo %s > %s ''' % (p('TEST_VAR'),
+                " ".join([a.bldpath(env) for a in task.outputs]))
+        return task.exec_command(cmd, cwd=wd)
+
+[1/2] t2.txt:  -> out/default/t2.txt
+15:21:29 runner system command ->  echo 2 > default/t2.txt
+[2/2] t1.txt:  -> out/default/t1.txt
+15:21:29 runner system command ->  echo /usr/local > default/t1.txt <co id="ruledd3-co" linkends="ruledd3"/>
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.052s)
+
+$ waf
+Waf: Entering directory `/tmp/rule/out'
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.007s)
+
+$ waf --jobs=17 --zones=runner
+Waf: Entering directory `/tmp/rule/out'
+[1/2] t2.txt:  -> out/default/t2.txt
+15:23:24 runner system command ->  echo 17 > default/t2.txt <co id="ruledd4-co" linkends="ruledd4"/>
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.014s)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="ruledd1-co" id="ruledd1">
+					<para>The default values for prefix and jobs</para>
+				</callout>
+				<callout arearefs="ruledd2-co" id="ruledd2">
+					<para>The function generated from the string expression will use the <emphasis>PREFIX</emphasis> value</para>
+				</callout>
+				<callout arearefs="ruledd3-co" id="ruledd3">
+					<para>The expression <emphasis>${PREFIX}</emphasis> was substituted by its value</para>
+				</callout>
+				<callout arearefs="ruledd4-co" id="ruledd4">
+					<para>The target is created whenever the value of a variable changes, even though the string expression has not changed</para>
+				</callout>
+			</calloutlist>
 		</para>
 	</section>
 
-	<section id="make_like_data">
-		<title>Order of execution and dependencies</title>
+	<section id="make_like_order">
+		<title>Execution order and dependencies</title>
 		<para>
-after, before, on_results, etc
+			Although task generators will create the tasks in the relevant order, tasks are executed in parallel and the compilation order may not be the order expected. In the example from the previous section, the target <filename>t2.txt</filename> was processed before the target <filename>t1.txt</filename>. We will now illustrate two important concepts used for the build specification:
+			<itemizedlist>
+				<listitem>order: sequential constraints between the tasks being executed (here, the commands)</listitem>
+				<listitem>dependency: executing a task if another task is executed</listitem>
+			</itemizedlist>
+
+<!--after, before, on_results, etc-->
 
 			<programlisting language="python">
 	bld(
