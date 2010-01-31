@@ -35,7 +35,7 @@ def build(bld):
 					<para>The attribute <emphasis>rule</emphasis> is mandatory here. It represents the command to execute in a readable manner (more on this in the next chapters).</para>
 				</callout>
 				<callout arearefs="rule3-co" id="rule3">
-					<para>Source files, to give in a space-separated list<para>
+					<para>Source files, to give in a space-separated list</para>
 				</callout>
 				<callout arearefs="rule4-co" id="rule4">
 					<para>Target files, to give in a space-separated list</para>
@@ -621,7 +621,7 @@ Waf: Leaving directory `/tmp/rule/out'
 					<para>Notice the date and time</para>
 				</callout>
 				<callout arearefs="ruleff3-co" id="ruleff3">
-					<para>The second build was executed at the same date and time, so <filename>r1.txt</filename> has not changed, therefore </filename>r2.txt</filename> is up to date</para>
+					<para>The second build was executed at the same date and time, so <filename>r1.txt</filename> has not changed, therefore <filename>r2.txt</filename> is up to date</para>
 				</callout>
 				<callout arearefs="ruleff4-co" id="ruleff4">
 					<para>The third build is executed at another date and time. Since <filename>r1.txt</filename> has changed, <filename>r2.txt</filename> is created once again</para>
@@ -641,6 +641,7 @@ Waf: Leaving directory `/tmp/rule/out'
 		<warning>
 			Using many rule-based task generators <emphasis>may lead to spaghetti code</emphasis> and <emphasis>may impact performance negatively</emphasis>. The next chapters explain how to make more re-usable task generators.
 		</warning>
+		</para>
 	</section>
 
 </chapter>
