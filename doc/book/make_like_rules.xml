@@ -171,6 +171,7 @@ Waf: Leaving directory `/tmp/rule/out'
 
 			<note>The string expression <emphasis>cp ${SRC} ${TGT}</emphasis> from the previous example is converted internally to a function similar to <emphasis>run</emphasis></note>
 			<note>While a string expression may execute only one system command, functions may execute various commands at once.</note>
+			<!-- note>Like for string expressions, changing the function will trigger the target creation (functions can be hashed too)</note -->
 		</para>
 	</section>
 
@@ -197,8 +198,8 @@ def configure(conf):
 	pass
 
 def build(bld):
-    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f2.txt', shell=False)
-    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f1.txt', shell=True)
+    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f1.txt', shell=False)
+    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f2.txt', shell=True)
 			</programlisting>
 
 			Upon execution, the results will be similar to the following:
@@ -231,10 +232,10 @@ def f(task): <co id="rulb3-co" linkends="rulb3"/>
                 " ".join([a.bldpath(env) for a in task.outputs]))
         return task.exec_command(cmd, cwd=wd)
 
-[1/2] f2.txt: wscript -> out/default/f2.txt
-23:11:23 runner system command -> ['cp', '../wscript', 'default/f2.txt'] <co id="rulb4-co" linkends="rulb4"/>
-[2/2] f1.txt: wscript -> out/default/f1.txt
-23:11:23 runner system command ->  cp ../wscript default/f1.txt
+[1/2] f1.txt: wscript -> out/default/f1.txt
+23:11:23 runner system command -> ['cp', '../wscript', 'default/f1.txt'] <co id="rulb4-co" linkends="rulb4"/>
+[2/2] f2.txt: wscript -> out/default/f2.txt
+23:11:23 runner system command ->  cp ../wscript default/f2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.017s)
 			</programlisting>
@@ -262,7 +263,7 @@ Waf: Leaving directory `/tmp/rule/out'
 	<section id="make_like_io">
 		<title>Inputs and outputs</title>
 		<para>
-			Source and target arguments are optional for make-like task generators.
+			Source and target arguments are optional for make-like task generators. Here are a few examples:
 
 			<programlisting language="python">
 srcdir='.'
@@ -272,38 +273,76 @@ def configure(conf):
 	pass
 
 def build(bld):
-
-	bld( <co id="tg2-co" linkends="tg2"/>
-		source='wscript',
-		rule='echo ${SRC}'
+    bld( <co id="rulec1-co" linkends="rulec1"/>
+		rule   = 'cp ${SRC} ${TGT[0].abspath(env)} &amp;&amp; cp ${SRC} ${TGT[1].abspath(env)}',
+		source = 'wscript',
+		target = 'f1.txt f2.txt',
+		shell  = True
 	)
 
-	bld( <co id="tg3-co" linkends="tg3"/>
-		target='test.k3',
-		rule='echo ${PREFIX} > ${TGT}',
+	bld( <co id="rulec2-co" linkends="rulec2"/>
+		source = 'wscript',
+		rule   = 'echo ${SRC}'
 	)
 
-	bld( <co id="tg4-co" linkends="tg4"/>
-		rule='echo 1337'
+	bld( <co id="rulec3-co" linkends="rulec3"/>
+		target = 'test.k3',
+		rule   = 'echo "test" > ${TGT}',
+	)
+
+	bld( <co id="rulec4-co" linkends="rulec4"/>
+		rule   = 'echo 1337'
+	)
+
+	bld( <co id="rulec5-co" linkends="rulec5"/>
+		rule   = "echo 'task always run'",
+		always = True
 	)
 			</programlisting>
 
 			<calloutlist>
-				<!--
-				<callout arearefs="tg1-co" id="tg1">
-					<para>A basic example with an input and an output. The task is run whenever the input or the rule change</para>
-				</callout> -->
-				<callout arearefs="tg2-co" id="tg2">
-					<para>The task will run whenever the input or the rule change, but there is no output</para>
+				<callout arearefs="rulec1-co" id="rulec1">
+					<para>Generate <emphasis>two files</emphasis> whenever the input or the rule change. Likewise, a rule-based task generator may have multiple input files.</para>
 				</callout>
-				<callout arearefs="tg3-co" id="tg3">
-					<para>Creates a task with no input, the output is regenerated whenever the PREFIX variable changes</para>
+				<callout arearefs="rulec2-co" id="rulec2">
+					<para>The command is executed whenever the input or the rule change. There are no declared outputs.</para>
 				</callout>
-				<callout arearefs="tg4-co" id="tg4">
-					<para>Creates a task without inputs our outputs, it is run whenever the rule text changes</para>
+				<callout arearefs="rulec3-co" id="rulec3">
+					<para>No input, the command is executed whenever it changes</para>
+				</callout>
+				<callout arearefs="rulec4-co" id="rulec4">
+					<para>No input and no output, the command is executed only when the string expression changes</para>
+				</callout>
+				<callout arearefs="rulec5-co" id="rulec5">
+					<para>No input and no output, the command is executed each time the build is called</para>
 				</callout>
 			</calloutlist>
 
+			For the record, here is the output of the build:
+
+			<programlisting language="sh">
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.093s)
+Waf: Entering directory `/tmp/rule/out'
+[1/5] echo 1337:
+1337
+[2/5] echo 'task always run':
+[3/5] echo ${SRC}: wscript
+../wscript
+[4/5] f1.txt f2.txt: wscript -> out/default/f1.txt out/default/f2.txt
+task always run
+[5/5] test.k3:  -> out/default/test.k3
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.049s)
+
+$ waf
+Waf: Entering directory `/tmp/rule/out'
+[2/5] echo 'task always run':
+task always run
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.014s)
+			</programlisting>
 
 		</para>
 	</section>
@@ -315,35 +354,16 @@ conf.env.FOO
 		</para>
 	</section>
 
+	<section id="make_like_data">
+		<title>Order of execution and dependencies</title>
+		<para>
+after, before, on_results, etc
 
-		The next examples illustrate various attributes which may be used to alter task execution.
-		<programlisting language="python">
-	bld( <co id="tg5-co" linkends="tg5"/>
-		rule="echo 'task always run'",
-		always=True
-	)
-
-	bld( <co id="tg6-co" linkends="tg6"/>
-		source = 'wscript',
-		target = 'test.k',
-		rule = './create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
-		cwd = bld.path.abspath(),
-		before = 'test.k1'
-	)
-
-	def run(self):
-		print('hi there')
-
-	bld( <co id="tg7-co" linkends="tg7"/>
-		name = 'hi',
-		rule = run
-	)
-
-	bld( <co id="tg8-co" linkends="tg8"/>
+			<programlisting language="python">
+	bld(
 		name = 'svnversion',
 		target = 'ver.h',
 		rule = 'svnversion > ${TGT[0].abspath(env)}',
-		cwd = bld.path.abspath(),
 		always = True,
 		on_results = True
 	)
@@ -355,6 +375,24 @@ conf.env.FOO
 		target = 'ver2.h',
 		rule = 'cp ${SRC} ${TGT}'
 	)
+			</programlisting>
+
+		</para>
+	</section>
+
+
+
+
+		The next examples illustrate various attributes which may be used to alter task execution.
+		<programlisting language="python">
+	bld( <co id="tg6-co" linkends="tg6"/>
+		source = 'wscript',
+		target = 'test.k',
+		rule = './create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
+		cwd = bld.path.abspath(),
+		before = 'test.k1'
+	)
+
 			</programlisting>
 
 			<calloutlist>
@@ -373,9 +411,11 @@ conf.env.FOO
 			</calloutlist>
 		</para>
 		</sect2>
-		<para>
-			By binding the rule to the actual declaration, <emphasis>this system limits code reuse</emphasis>. For this reason, it is recommended for solving very specific problems in which a library would not make sense. The creation of lots of small rules may also impact performance negatively.
-		</para>
+
+
+		<warning>
+			Using many rule-based task generators <emphasis>may lead to spaghetti code</emphasis> and <emphasis>may impact performance negatively</emphasis>. The next chapters explain how to make more re-usable task generators.
+		</warning>
 	</section>
 
 </chapter>
