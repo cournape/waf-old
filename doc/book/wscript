@@ -2,27 +2,52 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='wafdocs'
 
-# these variables are mandatory ('/' are converted automatically)
+import os, re, shutil
+import Utils, Options
+
 srcdir = '.'
 blddir = 'build'
+
+re_xi = re.compile('''<xi:include[^>]+href=['"]([^'">]+)['"][^>]+>''', re.M)
+def xmlscan(self):
+	p = self.inputs[0].parent
+	node_lst = [self.inputs[0]]
+	seen = []
+	depnodes = []
+	while node_lst:
+		nd = node_lst.pop(0)
+		if nd.id in seen: continue
+		seen.append(nd.id)
+
+		code = nd.read(self.env)
+		for m in re_xi.finditer(code):
+			name = m.group(1)
+			k = p.find_resource(name)
+			if k: depnodes.append(k)
+	return [depnodes, ()]
 
 def set_options(opt):
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(conf):
+
 	conf.check_tool('docbook', tooldir='.')
+	conf.find_program('java', var='JAVA', mandatory=True)
+
+	return
+
+
 	conf.check_tool('misc')
 	conf.env['XSLTPROC_ST'] = '''
-%(XSLTPROC)s --output default/
+%(XSLTPROC)s --output default/waf.html
 --stringparam callout.graphics.path ""
 --stringparam admon.graphics.path ""
 --stringparam admon.graphics 1
 --stringparam html.stylesheet waf.css
---xinclude %(STYLESHEET)s %(SRC)s > %(TGT)s'''.replace('\n', ' ')
+--xinclude %(STYLESHEET)s %(SRC)s #> %(TGT)s'''.replace('\n', ' ')
 
 	return
 	conf.env['XSLTPROC'] = 'java'
@@ -75,9 +100,57 @@ callout.graphics.path="./"
 #%s
 #--xinclude %s %s > %s'''.replace('\n', ' ')
 
+def jars(ctx):
+	try:
+		os.makedirs('book_root')
+	except:
+		pass
+
+	try:
+		for x in "docbook-xsl-snapshot.zip docbook-xml-4.3.zip resolver.jar saxon.jar xercesImpl.jar xslthl-2.0.0.jar".split():
+			Utils.cmd_output('cd book_root && wget http://freehackers.org/~tnagy/book/%s' % x)
+
+		Utils.cmd_output('cd book_root && unzip *.zip')
+	except:
+		shutil.rmtree('book_root')
 
 def build(bld):
-	import os
+
+	book_root = os.environ.get('BOOK_ROOT', 'book_root')
+	cp = os.path.abspath('book_root')
+
+	try:
+		os.listdir(cp)
+	except:
+		raise Utils.WafError('no jars no cookie')
+
+	dct = {'doc_root': cp}
+
+	cat = """catalogs=catalog.xml;%(doc_root)s/docbook.cat
+relative-catalogs=false
+static-catalog=yes
+catalog-class-name=org.apache.xml.resolver.Resolver
+#verbosity=2
+""" % dct
+
+	defaultcp = """%(doc_root)s/saxon.jar
+%(doc_root)s/docbook-xsl-snapshot/extensions/saxon65.jar
+%(doc_root)s/xercesImpl.jar
+%(doc_root)s/xslthl-2.0.0.jar
+%(doc_root)s/resolver.jar
+%(doc_root)s/
+default
+.
+""" % dct
+
+	defaultcp = defaultcp.replace("\n", ":")
+
+	bld(
+		rule   = 'echo -e %r > ${TGT}' % cat,
+		target = 'CatalogManager.properties',
+		name   = 'catalog'
+	)
+
 	for k in ['pics', 'callouts']:
 		files = os.listdir(k)
 		for x in files:
@@ -85,23 +158,46 @@ def build(bld):
 				continue
 			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
 
-	# now the files are copied ..
 
-	obj = bld.new_task_gen('docbook')
-	obj.source = 'waf.xml'
+	# docbook processing is horribly complicated
 
-	obj.type = 'html'
-	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
-	obj.stylesheet='/home/waf/Escritorio/docbook/docbook-xsl-snapshot/html/chunk.xsl'
-	#obj.stylesheet='/usr/share/sgml/docbook/xsl-stylesheets/html/chunk.xsl'
-	obj.stylesheet = '/home/tnagy/docbook-xsl-snapshot/html/chunk.xsl'
-	obj.stylesheet = '/home/tnagy/docbook-xsl-snapshot/html/docbook.xsl'
+	r1 = """
+${JAVA} -cp %(cp)s
+-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
+-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl
+-Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration
+-Dxslthl.config=file://%(book_root)s/highlighters/xslthl-config.xml
+com.icl.saxon.StyleSheet
 
-	#obj.type = 'pdf'
-	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
+-x org.apache.xml.resolver.tools.ResolvingXMLReader
+-y org.apache.xml.resolver.tools.ResolvingXMLReader
+-r org.apache.xml.resolver.tools.CatalogResolver
+-u
 
-def shutdown():
-	import os
-	import Options
+-o ${TGT}
+${SRC} %(book_root)s/docbook-xsl-snapshot/html/docbook.xsl
+
+html.stylesheet=waf.css
+base.dir=default/
+highlight.source=true
+admon.graphics=1
+admon.graphics.path="./"
+callout.graphics.path="./"
+""" % {'book_root' : cp, 'cp': defaultcp}
+
+	bld(
+		source = 'waf.xml',
+		scan   = xmlscan,
+		target = 'single.html',
+		rule = r1.replace('\n', ' '),
+		after = 'catalog'
+	)
+
 	if Options.options.exe:
-		os.popen('konqueror $PWD/build/default/index.html')
+		print "heheyy"
+		def exe(ctx):
+			p = Utils.pproc.Popen('konqueror build/default/single.html', shell=True)
+			p.wait()
+		bld.add_post_fun(exe)
+
+
