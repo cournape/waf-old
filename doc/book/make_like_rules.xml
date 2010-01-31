@@ -171,7 +171,7 @@ Waf: Leaving directory `/tmp/rule/out'
 
 			<note>The string expression <emphasis>cp ${SRC} ${TGT}</emphasis> from the previous example is converted internally to a function similar to <emphasis>run</emphasis></note>
 			<note>While a string expression may execute only one system command, functions may execute various commands at once.</note>
-			<!-- note>Like for string expressions, changing the function will trigger the target creation (functions can be hashed too)</note -->
+			<warning>Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing a function will trigger a rebuild only if it is defined in a waf tool (not in wscript files).</warning>
 		</para>
 	</section>
 
