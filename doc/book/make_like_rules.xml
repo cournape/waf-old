@@ -198,8 +198,8 @@ def configure(conf):
 	pass
 
 def build(bld):
-    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f1.txt', shell=False)
-    bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f2.txt', shell=True)
+	bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f1.txt', shell=False)
+	bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f2.txt', shell=True)
 			</programlisting>
 
 			Upon execution, the results will be similar to the following:
@@ -211,26 +211,26 @@ waf distclean configure build --zones=runner,action <co id="rulb1-co" linkends="
 Waf: Entering directory `/tmp/rule/out'
 23:11:23 action <co id="rulb2-co" linkends="rulb2"/>
 def f(task):
-        env = task.env
-        wd = getattr(task, 'cwd', None)
-        def to_list(xx):
-                if isinstance(xx, str): return [xx]
-                return xx
-        lst = []
-        lst.extend(['cp'])
-        lst.extend([a.srcpath(env) for a in task.inputs])
-        lst.extend([a.bldpath(env) for a in task.outputs])
-        lst = [x for x in lst if x]
-        return task.exec_command(lst, cwd=wd)
+	env = task.env
+	wd = getattr(task, 'cwd', None)
+	def to_list(xx):
+		if isinstance(xx, str): return [xx]
+		return xx
+	lst = []
+	lst.extend(['cp'])
+	lst.extend([a.srcpath(env) for a in task.inputs])
+	lst.extend([a.bldpath(env) for a in task.outputs])
+	lst = [x for x in lst if x]
+	return task.exec_command(lst, cwd=wd)
 
 23:11:23 action
 def f(task): <co id="rulb3-co" linkends="rulb3"/>
-        env = task.env
-        wd = getattr(task, 'cwd', None)
-        p = env.get_flat
-        cmd = ''' cp %s %s ''' % (" ".join([a.srcpath(env) for a in task.inputs]),
-                " ".join([a.bldpath(env) for a in task.outputs]))
-        return task.exec_command(cmd, cwd=wd)
+	env = task.env
+	wd = getattr(task, 'cwd', None)
+	p = env.get_flat
+	cmd = ''' cp %s %s ''' % (" ".join([a.srcpath(env) for a in task.inputs]),
+		" ".join([a.bldpath(env) for a in task.outputs]))
+	return task.exec_command(cmd, cwd=wd)
 
 [1/2] f1.txt: wscript -> out/default/f1.txt
 23:11:23 runner system command -> ['cp', '../wscript', 'default/f1.txt'] <co id="rulb4-co" linkends="rulb4"/>
@@ -273,7 +273,7 @@ def configure(conf):
 	pass
 
 def build(bld):
-    bld( <co id="rulec1-co" linkends="rulec1"/>
+	bld( <co id="rulec1-co" linkends="rulec1"/>
 		rule   = 'cp ${SRC} ${TGT[0].abspath(env)} &amp;&amp; cp ${SRC} ${TGT[1].abspath(env)}',
 		source = 'wscript',
 		target = 'f1.txt f2.txt',
@@ -359,7 +359,7 @@ blddir='out'
 import Options
 
 def configure(conf):
-    print('prefix: %r' % conf.env.PREFIX)
+	print('prefix: %r' % conf.env.PREFIX)
 	print('jobs:   %r' % Options.options.jobs)
 
 def build(bld):
@@ -413,12 +413,12 @@ jobs:   2
 Waf: Entering directory `/tmp/rule/out'
 15:21:29 action
 def f(task):
-        env = task.env
-        wd = getattr(task, 'cwd', None)
-        p = env.get_flat
-        cmd = ''' echo %s > %s ''' % (p('PREFIX'), <co id="ruledd2-co" linkends="ruledd2"/>
-                " ".join([a.bldpath(env) for a in task.outputs]))
-        return task.exec_command(cmd, cwd=wd)
+	env = task.env
+	wd = getattr(task, 'cwd', None)
+	p = env.get_flat
+	cmd = ''' echo %s > %s ''' % (p('PREFIX'), <co id="ruledd2-co" linkends="ruledd2"/>
+		" ".join([a.bldpath(env) for a in task.outputs]))
+	return task.exec_command(cmd, cwd=wd)
 
 [...] <co id="ruledd3-co" linkends="ruledd3"/>
 
@@ -486,7 +486,7 @@ srcdir='.'
 blddir='out'
 
 def configure(conf):
-    pass
+	pass
 
 def build(bld):
 	bld(
@@ -561,7 +561,7 @@ srcdir='.'
 blddir='out'
 
 def configure(conf):
-    pass
+	pass
 
 def build(bld):
 	bld(

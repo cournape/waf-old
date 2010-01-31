@@ -3,125 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="task_gen">
-	<title>Task encapsulation using task generators</title>
-	<para>
-		Although task instances may be created directly, they act like global variables in the scripts, and they may lead to the creation of spaghetti code. The containers named task generators are used for creating the tasks and keeping track of them.
-	</para>
-
-	<section id="make_like">
-		<title>Explicit rules for simple transformations (Make-like)</title>
-		<para>
-			For simple transformations, a make-like scheme enables the creation of tasks by means of task generators. The task is created lazily, for example only if waf is called from a subdirectory of the project containing the declaration.
-		</para>
-
-		<sect2>
-			<title>Simple rules</title>
-		<para>
-			The following examples illustrate how to perform simple rule-based transformations, the attribute <emphasis>rule</emphasis> is mandatory, but the input or output files are optional:
-		<programlisting language="python">
-	bld( <co id="tg1-co" linkends="tg1"/>
-		source='wscript',
-		target='test.k1',
-		rule='cp ${SRC} ${TGT}'
-	)
-
-	bld( <co id="tg2-co" linkends="tg2"/>
-		source='wscript',
-		rule='echo ${SRC}'
-	)
-
-	bld( <co id="tg3-co" linkends="tg3"/>
-		target='test.k3',
-		rule='echo ${PREFIX} > ${TGT}',
-	)
-
-	bld( <co id="tg4-co" linkends="tg4"/>
-		rule='echo 1337'
-	)
-		</programlisting>
-			<calloutlist>
-				<callout arearefs="tg1-co" id="tg1">
-					<para>A basic example with an input and an output. The task is run whenever the input or the rule change</para>
-				</callout>
-				<callout arearefs="tg2-co" id="tg2">
-					<para>The task will run whenever the input or the rule change, but there is no output</para>
-				</callout>
-				<callout arearefs="tg3-co" id="tg3">
-					<para>Creates a task with no input, the output is regenerated whenever the PREFIX variable changes</para>
-				</callout>
-				<callout arearefs="tg4-co" id="tg4">
-					<para>Creates a task without inputs our outputs, it is run whenever the rule text changes</para>
-				</callout>
-			</calloutlist>
-		</para>
-		</sect2>
-
-		<sect2>
-			<title>Advanced features</title>
-		<para>
-			The next examples illustrate various attributes which may be used to alter task execution.
-
-		<programlisting language="python">
-	bld( <co id="tg5-co" linkends="tg5"/>
-		rule="echo 'task always run'",
-		always=True
-	)
-
-	bld( <co id="tg6-co" linkends="tg6"/>
-		source = 'wscript',
-		target = 'test.k',
-		rule = './create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
-		cwd = bld.path.abspath(),
-		before = 'test.k1'
-	)
-
-	def run(self):
-		print('hi there')
-
-	bld( <co id="tg7-co" linkends="tg7"/>
-		name = 'hi',
-		rule = run
-	)
-
-	bld( <co id="tg8-co" linkends="tg8"/>
-		name = 'svnversion',
-		target = 'ver.h',
-		rule = 'svnversion > ${TGT[0].abspath(env)}',
-		cwd = bld.path.abspath(),
-		always = True,
-		on_results = True
-	)
-
-	bld(
-		name = 'copy_svnversion',
-		after = 'svnversion',
-		source = 'ver.h',
-		target = 'ver2.h',
-		rule = 'cp ${SRC} ${TGT}'
-	)
-			</programlisting>
-
-			<calloutlist>
-				<callout arearefs="tg5-co" id="tg5">
-					<para>Make a task which is always run (attribute <emphasis>always</emphasis>)</para>
-				</callout>
-				<callout arearefs="tg6-co" id="tg6">
-					<para>Demonstrates how to add an ordering constraint (attribute <emphasis>before</emphasis>) to execute the rule before the one that produces test.k1. It also demonstrates how to set the directory from which the command is run (attribute <emphasis>cwd</emphasis>)</para>
-				</callout>
-				<callout arearefs="tg7-co" id="tg7">
-					<para>Rules may be given as functions. In this case the task has no input or output files</para>
-				</callout>
-				<callout arearefs="tg8-co" id="tg8">
-					<para>the dependant task copy_svnversion is executed when the actual output of svnversion changes (attribute <emphasis>on_results</emphasis>)</para>
-				</callout>
-			</calloutlist>
-		</para>
-		</sect2>
-		<para>
-			By binding the rule to the actual declaration, <emphasis>this system limits code reuse</emphasis>. For this reason, it is recommended for solving very specific problems in which a library would not make sense. The creation of lots of small rules may also impact performance negatively.
-		</para>
-	</section>
-
+	<title>General purpose task generators</title>
 
 	<section id="processing_chains">
 		<title>Task chaining</title>
@@ -133,12 +15,12 @@
 			<programlisting language="python">
 import TaskGen
 TaskGen.declare_chain(
-    name    = 'luac',
-    rule    = '${LUAC} -s -o ${TGT} ${SRC}',
-    ext_in  = '.lua',
-    ext_out = '.luac',
+	name    = 'luac',
+	rule    = '${LUAC} -s -o ${TGT} ${SRC}',
+	ext_in  = '.lua',
+	ext_out = '.luac',
 	install = '${LUADIR}', # env variable
-    reentrant = 0,
+	reentrant = 0,
 )
 
 def build(bld):
@@ -166,9 +48,9 @@ from TaskGen import extension
 
 @extension('.c')
 def c_hook(self, node):
-    task         = self.create_task('cc')
-    task.inputs  = [node]
-    task.outputs = [node.change_ext(obj_ext)]
+	task         = self.create_task('cc')
+	task.inputs  = [node]
+	task.outputs = [node.change_ext(obj_ext)]
 		</programlisting>
 		</para>
 		<para>
@@ -281,12 +163,12 @@ from TaskGen import taskgen, feature
 @taskgen
 @feature('TEST')
 def print_tst(self):
-    print('processing the tst attribute: %r' % self.tst)
+	print('processing the tst attribute: %r' % self.tst)
 
 def build(bld):
-    foo = bld()
-    foo.features = ['TEST']
-    foo.tst = 'hello, world'
+	foo = bld()
+	foo.features = ['TEST']
+	foo.tst = 'hello, world'
 			</programlisting>
 		</para>
 
@@ -300,14 +182,14 @@ from TaskGen import taskgen, feature
 @taskgen
 @feature('*')
 def print_tst(self):
-    print('processing the tst attribute: %r' % self.tst)
+	print('processing the tst attribute: %r' % self.tst)
 
 def build(bld):
-    foo = bld()
-    foo.tst = 'hello, world'
+	foo = bld()
+	foo.tst = 'hello, world'
 
 def configure(conf):
-    pass
+	pass
 			</programlisting>
 			Upon execution, this produces the following output:
 			<programlisting language="sh">
