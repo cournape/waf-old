@@ -42,10 +42,10 @@ def jars(ctx):
 		pass
 
 	try:
-		for x in "docbook-xsl-snapshot.zip docbook-xml-4.3.zip resolver.jar saxon.jar xercesImpl.jar xslthl-2.0.0.jar".split():
+		for x in "snap.tar.bz2 docbook-xml-4.3.zip resolver.jar saxon.jar xercesImpl.jar xslthl-2.0.1.zip".split():
 			Utils.cmd_output('cd book_root && wget http://freehackers.org/~tnagy/book/%s' % x)
 
-		Utils.cmd_output('cd book_root && unzip *.zip')
+		Utils.cmd_output('cd book_root && unzip xslthl-2.0.1.zip && unzip docbook-xml-4.3.zip && tar xjvf snap.tar.bz2')
 	except:
 		shutil.rmtree('book_root')
 
@@ -71,10 +71,10 @@ catalog-class-name=org.apache.xml.resolver.Resolver
 	defaultcp = """%(doc_root)s/saxon.jar
 %(doc_root)s/docbook-xsl-snapshot/extensions/saxon65.jar
 %(doc_root)s/xercesImpl.jar
-%(doc_root)s/xslthl-2.0.0.jar
-%(doc_root)s/resolver.jar
+%(doc_root)s/xslthl-2.0.1.jar
+default/
 %(doc_root)s/
-default
+%(doc_root)s/resolver.jar
 .
 """ % dct
 
@@ -129,7 +129,6 @@ callout.graphics.path="./"
 	)
 
 	if Options.options.exe:
-		print "heheyy"
 		def exe(ctx):
 			p = Utils.pproc.Popen('konqueror build/default/single.html', shell=True)
 			p.wait()
