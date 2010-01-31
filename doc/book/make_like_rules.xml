@@ -463,61 +463,164 @@ Waf: Leaving directory `/tmp/rule/out'
 				<listitem>dependency: executing a task if another task is executed</listitem>
 			</itemizedlist>
 
-<!--after, before, on_results, etc-->
+			For illustation purposes, let's create a file named <filename>r1.txt</filename> containing the date. It will be updated each time the build is executed. A second file named <filename>r2.txt</filename> will be created from <filename>r1.txt</filename>.
 
 			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+    pass
+
+def build(bld):
 	bld(
-		name = 'svnversion',
-		target = 'ver.h',
-		rule = 'svnversion > ${TGT[0].abspath(env)}',
-		always = True,
-		on_results = True
+		name   = 'r1', <co id="rulef1-co" linkends="rulef1"/>
+		target = 'r1.txt',
+		rule   = '(date &gt; ${TGT}) &amp;&amp; cat ${TGT}', <co id="rulef2-co" linkends="rulef2"/>
+		always = True, <co id="rulef3-co" linkends="rulef3"/>
 	)
 
 	bld(
-		name = 'copy_svnversion',
-		after = 'svnversion',
-		source = 'ver.h',
-		target = 'ver2.h',
-		rule = 'cp ${SRC} ${TGT}'
+		name   = 'r2', <co id="rulef4-co" linkends="rulef4"/>
+		target = 'r2.txt',
+		rule   = 'cp ${SRC} ${TGT}',
+		source = 'r1.txt', <co id="rulef5-co" linkends="rulef5"/>
+		after  = 'r1', <co id="rulef6-co" linkends="rulef6"/>
 	)
 			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="rulef1-co" id="rulef1">
+					<para>Give the task generator a name, it will create a task class of the same name to execute the command</para>
+				</callout>
+				<callout arearefs="rulef2-co" id="rulef2">
+					<para>Create <filename>r1.txt</filename> with the date</para>
+				</callout>
+				<callout arearefs="rulef3-co" id="rulef3">
+					<para>There is no source file to depend on and the rule never changes. The task is then set to be executed each time the build is started by using the attribute <emphasis>always</emphasis></para>
+				</callout>
+				<callout arearefs="rulef4-co" id="rulef4">
+					<para>If no name is provided, the rule is used as a name for the task class</para>
+				</callout>
+				<callout arearefs="rulef5-co" id="rulef5">
+					<para>Use <filename>r1.txt</filename> as a source for <filename>r2.txt</filename>. Since <filename>r1.txt</filename> was declared before, the dependency will be added automatically (<filename>r2.txt</filename> will be re-created whenever <filename>r1.txt</filename> changes)</para>
+				</callout>
+				<callout arearefs="rulef6-co" id="rulef6">
+					<para>Set the command generating <emphasis>r2.txt</emphasis> to be executed after the command generating <emphasis>r1.txt</emphasis>. The attribute <emphasis>after</emphasis> references task class names, not task generators. Here it will work because rule-based task generator tasks inherit the <emphasis>name</emphasis> attribute</para>
+				</callout>
+			</calloutlist>
+
+			The execution output will be the following:
+
+			<programlisting language="sh">
+$ waf distclean configure build -v
+'distclean' finished successfully (0.003s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/rule/out'
+[1/2] r1:  -> out/default/r1.txt
+16:44:39 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+dom ene 31 16:44:39 CET 2010
+[2/2] r2: out/default/r1.txt -> out/default/r2.txt
+16:44:39 runner system command ->  cp default/r1.txt default/r2.txt
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.021s)
+
+$ waf -v
+Waf: Entering directory `/tmp/rule/out'
+[1/2] r1:  -> out/default/r1.txt
+16:44:41 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+dom ene 31 16:44:41 CET 2010
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.016s)
+			</programlisting>
+
+			Although r2 <emphasis>depends</emphasis> on <filename>r1.txt</filename>, r2 was not executed in the second build. As a matter of fact, the signature of the task r1 has not changed, and r1 was only set to be executed each time, regardless of its signature. Since the signature of the <filename>r1.txt</filename> does not change, the signature of r2 will not change either, and <filename>r2.txt</filename> is considered up-to-date.
+
+		</para>
+
+		<para>
+			We will now illustrate how to make certain that the outputs reflect the file contents and trigger the rebuild for dependent tasks by enabling the attribute <emphasis>on_results</emphasis>:
+			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+    pass
+
+def build(bld):
+	bld(
+		name   = 'r1',
+		target = 'r1.txt',
+		rule   = '(date &gt; ${TGT}) &amp;&amp; cat ${TGT}',
+		always = True,
+		on_results = True,
+	)
+
+	bld(
+		target = 'r2.txt',
+		rule   = 'cp ${SRC} ${TGT}',
+		source = 'r1.txt',
+		after  = 'r1',
+	)
+			</programlisting>
+
+			Here <filename>r2.txt</filename> will be re-created each time:
+
+			<programlisting language="sh">
+$ waf distclean configure build -v; waf -v
+'distclean' finished successfully (0.003s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/rule/out'
+[1/2] r1:  -> out/default/r1.txt
+16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt <co id="ruleff1-co" linkends="ruleff1"/>
+dom ene 31 16:59:49 CET 2010 <co id="ruleff2-co" linkends="ruleff2"/>
+[2/2] r2: out/default/r1.txt -> out/default/r2.txt
+16:59:49 runner system command ->  cp default/r1.txt default/r2.txt
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.020s)
+
+Waf: Entering directory `/tmp/rule/out'
+[1/2] r1:  -> out/default/r1.txt
+16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+dom ene 31 16:59:49 CET 2010 <co id="ruleff3-co" linkends="ruleff3"/>
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.016s)
+
+$ waf -v
+Waf: Entering directory `/tmp/rule/out'
+[1/2] r1:  -> out/default/r1.txt
+16:59:53 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+dom ene 31 16:59:53 CET 2010 <co id="ruleff4-co" linkends="ruleff4"/>
+[2/2] r2: out/default/r1.txt -> out/default/r2.txt
+16:59:53 runner system command ->  cp default/r1.txt default/r2.txt
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.022s)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="ruleff1-co" id="ruleff1">
+					<para>Start with a clean build, both <filename>r1.txt</filename> and <filename>r2.txt</filename> are created</para>
+				</callout>
+				<callout arearefs="ruleff2-co" id="ruleff2">
+					<para>Notice the date and time</para>
+				</callout>
+				<callout arearefs="ruleff3-co" id="ruleff3">
+					<para>The second build was executed at the same date and time, so <filename>r1.txt</filename> has not changed, therefore </filename>r2.txt</filename> is up to date</para>
+				</callout>
+				<callout arearefs="ruleff4-co" id="ruleff4">
+					<para>The third build is executed at another date and time. Since <filename>r1.txt</filename> has changed, <filename>r2.txt</filename> is created once again</para>
+				</callout>
+			</calloutlist>
 
 		</para>
 	</section>
 
 
+	<section id="make_like_example">
+		<title>A more complicated example</title>
+		<para>
 
-
-		The next examples illustrate various attributes which may be used to alter task execution.
-		<programlisting language="python">
-	bld( <co id="tg6-co" linkends="tg6"/>
-		source = 'wscript',
-		target = 'test.k',
-		rule = './create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
-		cwd = bld.path.abspath(),
-		before = 'test.k1'
-	)
-
-			</programlisting>
-
-			<calloutlist>
-				<callout arearefs="tg5-co" id="tg5">
-					<para>Make a task which is always run (attribute <emphasis>always</emphasis>)</para>
-				</callout>
-				<callout arearefs="tg6-co" id="tg6">
-					<para>Demonstrates how to add an ordering constraint (attribute <emphasis>before</emphasis>) to execute the rule before the one that produces test.k1. It also demonstrates how to set the directory from which the command is run (attribute <emphasis>cwd</emphasis>)</para>
-				</callout>
-				<callout arearefs="tg7-co" id="tg7">
-					<para>Rules may be given as functions. In this case the task has no input or output files</para>
-				</callout>
-				<callout arearefs="tg8-co" id="tg8">
-					<para>the dependant task copy_svnversion is executed when the actual output of svnversion changes (attribute <emphasis>on_results</emphasis>)</para>
-				</callout>
-			</calloutlist>
-		</para>
-		</sect2>
-
+			provide an example for c-like compilation + idl, etc
 
 		<warning>
 			Using many rule-based task generators <emphasis>may lead to spaghetti code</emphasis> and <emphasis>may impact performance negatively</emphasis>. The next chapters explain how to make more re-usable task generators.
