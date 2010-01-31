@@ -96,7 +96,7 @@ default/
 
 	# docbook processing is horribly complicated
 
-	r1 = """
+	r0 = """
 ${JAVA} -cp %(cp)s
 -Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
 -Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl
@@ -110,7 +110,7 @@ com.icl.saxon.StyleSheet
 -u
 
 -o ${TGT}
-${SRC} %(book_root)s/docbook-xsl-snapshot/html/docbook.xsl
+${SRC} %(book_root)s/docbook-xsl-snapshot/html/%(type)s
 
 html.stylesheet=waf.css
 base.dir=default/
@@ -118,8 +118,9 @@ highlight.source=true
 admon.graphics=1
 admon.graphics.path="./"
 callout.graphics.path="./"
-""" % {'book_root' : cp, 'cp': defaultcp}
+"""
 
+	r1 = r0 % {'book_root' : cp, 'cp': defaultcp, 'type': 'docbook.xsl'}
 	bld(
 		source = 'waf.xml',
 		scan   = xmlscan,
@@ -128,10 +129,18 @@ callout.graphics.path="./"
 		after = 'catalog'
 	)
 
+	r2 = r0 % {'book_root' : cp, 'cp': defaultcp, 'type': 'chunk.xsl'}
+	bld(
+		source = 'waf.xml',
+		scan   = xmlscan,
+		target = 'index.html',
+		rule = r2.replace('\n', ' '),
+		after = 'catalog'
+	)
+
 	if Options.options.exe:
 		def exe(ctx):
 			p = Utils.pproc.Popen('konqueror build/default/single.html', shell=True)
 			p.wait()
 		bld.add_post_fun(exe)
-
 
