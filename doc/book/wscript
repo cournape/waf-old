@@ -57,7 +57,7 @@ def build(bld):
 	try:
 		os.listdir(cp)
 	except:
-		raise Utils.WafError('no jars no cookie')
+		raise Utils.WafError('execute "waf jars" once to download the required libraries')
 
 	dct = {'doc_root': cp}
 
