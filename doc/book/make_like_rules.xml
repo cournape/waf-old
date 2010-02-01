@@ -479,7 +479,90 @@ Waf: Leaving directory `/tmp/rule/out'
 				<listitem>dependency: executing a task if another task is executed</listitem>
 			</itemizedlist>
 
-			For illustation purposes, let's create a file named <filename>r1.txt</filename> containing the date. It will be updated each time the build is executed. A second file named <filename>r2.txt</filename> will be created from <filename>r1.txt</filename>.
+			For illustation purposes, let's create the following chain <emphasis><filename>wscript</filename> &#8594; <filename>w1.txt</filename> &#8594; <filename>w2.txt</filename></emphasis>. The order constraint is given by the attribute <emphasis>after</emphasis> which references a task class name. For rule-based task generators, the task class name is bound to the attribute <emphasis>name</emphasis>
+
+			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(
+		rule   = 'cp ${SRC} ${TGT}',
+		source = 'wscript',
+		target = 'w1.txt',
+		name   = 'w1',
+	)
+
+	bld(
+		rule   = 'cp ${SRC} ${TGT}',
+		source = 'w1.txt',
+		target = 'w2.txt'
+		after  = w1,
+	)
+			</programlisting>
+
+		The execution output will be similar to the following. Note that both files are created whenever the first source file <filename>wscript</filename> changes:
+
+			<programlisting language="sh">
+$ waf distclean configure build
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/rule/out'
+[1/2] w1: wscript -> out/default/w1.txt
+[2/2] w2.txt: out/default/w1.txt -> out/default/w2.txt
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.055s)
+
+$ echo " " >> wscript
+
+$ waf
+Waf: Entering directory `/tmp/rule/out'
+[1/2] w1: wscript -> out/default/w1.txt
+[2/2] w2.txt: out/default/w1.txt -> out/default/w2.txt
+Waf: Leaving directory `/tmp/rule/out'
+'build' finished successfully (0.018s)
+			</programlisting>
+
+		</para>
+
+		<para>
+			Although the order constraint between w1 and w2 is trivial to find in this case, implicit constraints can be a source of confusion for large projects. For this reason, the default is to <emphasis>encourage</emphasis> the explicit order declaration. Nevertheless, a special method may be used to let the system look at all source and target files:
+
+			<programlisting language="python">
+srcdir='.'
+blddir='out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+
+	bld.use_the_magic()
+
+	bld(
+		rule   = 'cp ${SRC} ${TGT}',
+		source = 'wscript',
+		target = 'w1.txt',
+	)
+
+	bld(
+		rule   = 'cp ${SRC} ${TGT}',
+		source = 'w1.txt',
+		target = 'w2.txt',
+	)
+			</programlisting>
+
+			<warning>The method <emphasis>bld.use_the_magic()</emphasis> will not work for tasks that do not have clear input and output files and will degrade performance for large builds.</warning>
+		</para>
+	</section>
+
+	<section id="make_like_contents">
+		<title>Dependencies on file contents</title>
+		<para>
+			As a second example, we will create a file named <filename>r1.txt</filename> from the current date. It will be updated each time the build is executed. A second file named <filename>r2.txt</filename> will be created from <filename>r1.txt</filename>.
 
 			<programlisting language="python">
 srcdir='.'
@@ -631,7 +714,7 @@ Waf: Leaving directory `/tmp/rule/out'
 		</para>
 	</section>
 
-
+	<!--
 	<section id="make_like_example">
 		<title>A more complicated example</title>
 		<para>
@@ -643,6 +726,6 @@ Waf: Leaving directory `/tmp/rule/out'
 		</warning>
 		</para>
 	</section>
-
+	-->
 </chapter>
 
