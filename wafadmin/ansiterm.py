@@ -1,6 +1,6 @@
 import sys, os
 try:
-	if sys.stderr.isatty():
+	if not sys.stderr.isatty():
 		raise ValueError('not a tty')
 
 	from ctypes import *
