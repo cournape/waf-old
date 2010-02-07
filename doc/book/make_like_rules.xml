@@ -13,8 +13,8 @@
 		<para>
 			The following example presents a simple example of a task generator producing the file <filename>foobar.txt</filename> from the <filename>wscript</filename> by executing a copy (the command 'cp'). Let's create a new project in the folder <filename>/tmp/rule/</filename> containing the following <filename>wscript</filename> file:
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -107,8 +107,8 @@ Waf: Leaving directory `/tmp/rule/out'
 			Rules may be given as expression strings or as python function. Let's modify the previous project file with a python function:
 
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -191,8 +191,8 @@ Waf: Leaving directory `/tmp/rule/out'
 			Here is an example:
 
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -266,8 +266,8 @@ Waf: Leaving directory `/tmp/rule/out'
 			Source and target arguments are optional for make-like task generators, and may point at one or several files at once. Here are a few examples:
 
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -353,8 +353,8 @@ Waf: Leaving directory `/tmp/rule/out'
 			Data sharing is performed through the configuration set. The following example illustrates how to use it.
 
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 import Options
 
@@ -482,8 +482,8 @@ Waf: Leaving directory `/tmp/rule/out'
 			For illustation purposes, let's create the following chain <emphasis><filename>wscript</filename> &#8594; <filename>w1.txt</filename> &#8594; <filename>w2.txt</filename></emphasis>. The order constraint is given by the attribute <emphasis>after</emphasis> which references a task class name. For rule-based task generators, the task class name is bound to the attribute <emphasis>name</emphasis>
 
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -532,8 +532,8 @@ Waf: Leaving directory `/tmp/rule/out'
 			Although the order constraint between w1 and w2 is trivial to find in this case, implicit constraints can be a source of confusion for large projects. For this reason, the default is to <emphasis>encourage</emphasis> the explicit order declaration. Nevertheless, a special method may be used to let the system look at all source and target files:
 
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -565,8 +565,8 @@ def build(bld):
 			As a second example, we will create a file named <filename>r1.txt</filename> from the current date. It will be updated each time the build is executed. A second file named <filename>r2.txt</filename> will be created from <filename>r1.txt</filename>.
 
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -640,8 +640,8 @@ Waf: Leaving directory `/tmp/rule/out'
 		<para>
 			We will now illustrate how to make certain that the outputs reflect the file contents and trigger the rebuild for dependent tasks by enabling the attribute <emphasis>on_results</emphasis>:
 			<programlisting language="python">
-srcdir='.'
-blddir='out'
+srcdir = '.'
+blddir = 'out'
 
 def configure(conf):
 	pass
@@ -710,22 +710,7 @@ Waf: Leaving directory `/tmp/rule/out'
 					<para>The third build is executed at another date and time. Since <filename>r1.txt</filename> has changed, <filename>r2.txt</filename> is created once again</para>
 				</callout>
 			</calloutlist>
-
 		</para>
 	</section>
-
-	<!--
-	<section id="make_like_example">
-		<title>A more complicated example</title>
-		<para>
-
-			provide an example for c-like compilation + idl, etc
-
-		<warning>
-			Using many rule-based task generators <emphasis>may lead to spaghetti code</emphasis> and <emphasis>may impact performance negatively</emphasis>. The next chapters explain how to make more re-usable task generators.
-		</warning>
-		</para>
-	</section>
-	-->
 </chapter>
 

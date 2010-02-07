@@ -44,7 +44,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="build.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variants.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="make_like_rules.xml"/>
-
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="chains.xml"/>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task_generators.xml"/>
 
