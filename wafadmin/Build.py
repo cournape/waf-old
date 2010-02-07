@@ -316,6 +316,9 @@ class BuildContext(Utils.Context):
 				except OSError: pass
 
 	def new_task_gen(self, *k, **kw):
+		if self.task_gen_cache_names:
+			self.task_gen_cache_names = {}
+
 		kw['bld'] = self
 		if len(k) == 0:
 			ret = TaskGen.task_gen(*k, **kw)
@@ -329,6 +332,9 @@ class BuildContext(Utils.Context):
 		return ret
 
 	def __call__(self, *k, **kw):
+		if self.task_gen_cache_names:
+			self.task_gen_cache_names = {}
+
 		kw['bld'] = self
 		return TaskGen.task_gen(*k, **kw)
 
