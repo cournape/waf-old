@@ -47,7 +47,7 @@ def check_perl_version(conf, minver=None):
 	except:
 		conf.fatal('could not determine the perl version')
 
-	conf.env.PERLVERSION = version
+	conf.env.PERL_VERSION = version
 	cver = ''
 	if minver:
 		try:
