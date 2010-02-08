@@ -12,6 +12,10 @@
 		</para>
 
 		<para>
+			In the past, various subclasses of the of the task generator class were created, but they lead to contradictions that could not be solved easily by multiple inheritance.
+		</para>
+
+		<para>
 			A system called <emphasis>features</emphasis> enables new methods on task generators to be loaded conditionally. For example, c programs require typically the processing of lots of attributes such as the application target. The rule-based and source-based processing are bound to all task generators and are the exception.
 		</para>
 
