@@ -342,7 +342,7 @@ def declare_order(*k):
 		if not f1 in task_gen.prec[f2]:
 			task_gen.prec[f2].append(f1)
 
-def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE',
+def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=True, color='BLUE',
 	install=0, before=[], after=[], decider=None, rule=None, scan=None):
 	"""
 	see Tools/flex.py for an example
