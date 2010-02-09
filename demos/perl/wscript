@@ -1,28 +1,26 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # anonymous coward, 2007
+# Thomas Nagy, 2010
 
 import sys, os
 
-# the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='perl_test'
 
-# these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	opt.tool_options('perl')
 	opt.tool_options('compiler_cc')
+	opt.tool_options('perl')
 
 def configure(conf):
 	conf.check_tool('compiler_cc')
 	conf.check_tool('perl')
 
 	# check for perl
-	if not conf.check_perl_version((5,6,0)):
-		return False
+	conf.check_perl_version((5,6,0))
 
 	conf.check_perl_ext_devel()
 
