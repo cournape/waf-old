@@ -5,6 +5,7 @@ NEW IN WAF 1.5.12
 * removing build dir folders should no longer cause problems (#581)
 * fix for absolute win32 paths and DESTDIR
 * fix for msvc apps and unit tests
+* ruby tool for programming ruby extensions (including a demo)
 
 NEW IN WAF 1.5.11
 -----------------
