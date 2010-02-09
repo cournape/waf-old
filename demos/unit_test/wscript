@@ -9,7 +9,7 @@ blddir = 'build'
 
 def set_options(opt):
 	opt.tool_options('compiler_cxx')
-	opt.tool_options('UnitTest')
+	opt.tool_options('wnittest')
 
 def configure(conf):
 	conf.check_tool('compiler_cxx')
