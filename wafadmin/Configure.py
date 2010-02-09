@@ -157,7 +157,7 @@ class ConfigurationContext(Utils.Context):
 		for tool in tools:
 			tool = tool.replace('++', 'xx')
 			if tool == 'java': tool = 'javaw'
-			if tool.lower() == 'UnitTest': tool = 'unittestw'
+			if tool.lower() == 'unittest': tool = 'unittestw'
 			# avoid loading the same tool more than once with the same functions
 			# used by composite projects
 
