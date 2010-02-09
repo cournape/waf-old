@@ -2,6 +2,7 @@
 # encoding: utf-8
 # daniel.svensson at purplescout.se 2008
 
+import os
 import Task, Options, Utils
 from TaskGen import taskgen, before, feature
 from Configure import conf
@@ -71,19 +72,17 @@ def check_ruby_ext_devel(conf):
         return Utils.to_list(Utils.cmd_output([conf.env.RUBY, '-rrbconfig', '-e', cmd]))
 
     def read_config(key):
-        return read_out('puts Config::CONFIG[\"' + key + '\"]')
+        return read_out('puts Config::CONFIG[%r]' % key)
 
     ruby = conf.env['RUBY']
     archdir = read_config('archdir')
     cpppath = archdir
     if version >= (1, 9, 0):
-        import os.path
         ruby_hdrdir = read_config('rubyhdrdir')
         cpppath += ruby_hdrdir
         cpppath += [os.path.join(ruby_hdrdir[0], read_config('arch')[0])]
 
-    conf.check(header_name='ruby.h', includes=cpppath, mandatory=1,
-               errmsg='could not find ruby header file')
+    conf.check(header_name='ruby.h', includes=cpppath, mandatory=True, errmsg='could not find ruby header file')
 
     conf.env.LIBPATH_RUBYEXT = read_config('libdir')
     conf.env.LIBPATH_RUBYEXT += archdir
@@ -101,9 +100,9 @@ def check_ruby_ext_devel(conf):
     if len(flags) > 1 and flags[1] == "ppc":
         flags = flags[2:]
 
-    conf.env["LINKFLAGS_RUBYEXT"] = flags 
-    conf.env["LINKFLAGS_RUBYEXT"] += read_config("LIBS")
-    conf.env["LINKFLAGS_RUBYEXT"] += read_config("LIBRUBYARG_SHARED")
+    conf.env.LINKFLAGS_RUBYEXT = flags
+    conf.env.LINKFLAGS_RUBYEXT += read_config("LIBS")
+    conf.env.LINKFLAGS_RUBYEXT += read_config("LIBRUBYARG_SHARED")
 
     if Options.options.rubyarchdir:
         conf.env.ARCHDIR_RUBY = Options.options.rubyarchdir
@@ -115,8 +114,8 @@ def check_ruby_ext_devel(conf):
     else:
         conf.env.LIBDIR_RUBY = read_config('sitelibdir')[0]
 
-
 def set_options(opt):
-    opt.add_option('--with-ruby-archdir', type="string", dest="rubyarchdir", help="Specify directory where to install arch specific files")
-    opt.add_option('--with-ruby-libdir', type="string", dest="rubylibdir", help="Specify alternate ruby library path")
-    opt.add_option('--with-ruby-binary', type='string', dest='rubybinary', help="Specify alternate ruby binary")
+    opt.add_option('--with-ruby-archdir', type='string', dest='rubyarchdir', help='Specify directory where to install arch specific files')
+    opt.add_option('--with-ruby-libdir', type='string', dest='rubylibdir', help='Specify alternate ruby library path')
+    opt.add_option('--with-ruby-binary', type='string', dest='rubybinary', help='Specify alternate ruby binary')
+
