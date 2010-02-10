@@ -34,10 +34,11 @@ def detect(conf):
 			conf.env = orig.copy()
 			conf.check_tool(compiler)
 		except Configure.ConfigurationError, e:
-			conf.env = orig
 			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:
+				conf.env.detach()
+				orig.table = conf.env.detach
 				conf.check_message(compiler, '', True)
 				conf.env['COMPILER_CXX'] = compiler
 				break
