@@ -37,8 +37,8 @@ def detect(conf):
 			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:
-				conf.env.detach()
-				orig.table = conf.env.detach
+				orig.table = conf.env.get_merged_dict()
+				conf.env = orig
 				conf.check_message(compiler, '', True)
 				conf.env['COMPILER_CXX'] = compiler
 				break

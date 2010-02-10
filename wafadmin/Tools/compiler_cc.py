@@ -42,8 +42,8 @@ def detect(conf):
 			debug('compiler_cc: %r' % e)
 		else:
 			if conf.env['CC']:
-				conf.env.detach()
-				orig.table = conf.env.table
+				orig.table = conf.env.get_merged_dict()
+				conf.env = orig
 				conf.check_message(compiler, '', True)
 				conf.env['COMPILER_CC'] = compiler
 				break
