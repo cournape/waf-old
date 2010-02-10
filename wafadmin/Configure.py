@@ -247,7 +247,7 @@ class ConfigurationContext(Utils.Context):
 		sr = 'Checking for %s %s' % (th, msg)
 		self.check_message_1(sr)
 		p = self.check_message_2
-		if state: p('ok ' + option)
+		if state: p('ok %r' % option)
 		else: p('not found', 'YELLOW')
 
 	# FIXME remove in waf 1.6
