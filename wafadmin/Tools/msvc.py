@@ -477,16 +477,13 @@ def find_msvc(conf):
 	v = conf.env
 
 	compiler, version, path, includes, libdirs = detect_msvc(conf)
-	v['PATH'] = path
-	v['CPPPATH'] = includes
-	v['LIBPATH'] = libdirs
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
-	v['MSVC_MANIFEST'] = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6)	or (compiler == 'intel' and float(version) >= 11)
+	has_msvc_manifest = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6)	or (compiler == 'intel' and float(version) >= 11)
 
 	# compiler
 	cxx = None
-	if v['CXX']: cxx = v['CXX']
+	if v.CXX: cxx = v.CXX
 	elif 'CXX' in conf.environ: cxx = conf.environ['CXX']
 	if not cxx: cxx = conf.find_program(compiler_name, var='CXX', path_list=path, mandatory=True)
 	cxx = conf.cmd_to_list(cxx)
@@ -497,9 +494,33 @@ def find_msvc(conf):
 	if not Utils.cmd_output([cxx, '/nologo', '/?'], silent=True, env=env):
 		conf.fatal('the msvc compiler could not be identified')
 
+	link = v.LINK_CXX
+	if not link:
+		link = conf.find_program(linker_name, path_list=path, mandatory=True)
+	ar = v.AR
+	if not ar:
+		ar = conf.find_program(lib_name, path_list=path, mandatory=True)
+
+	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
+	mt = v.MT
+	if has_msvc_manifest:
+		mt = conf.find_program('MT', path_list=path, mandatory=True)
+
+	conf.check_tool('winres')
+
+	if not conf.env.WINRC:
+		warn('Resource compiler not found. Compiling resource file is disabled')
+
+	# now only at the end, set the configuration values
+
+	v.MSVC_MANIFEST = has_msvc_manifest
+	v.PATH = path
+	v.CPPPATH = includes
+	v.LIBPATH = libdirs
+
 	# c/c++ compiler
-	v['CC'] = v['CXX'] = cxx
-	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
+	v.CC = v.CXX = cxx
+	v.CC_NAME = v.CXX_NAME = 'msvc'
 
 	# environment flags
 	try: v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
@@ -507,27 +528,13 @@ def find_msvc(conf):
 	try: v.prepend_value('LIBPATH', conf.environ['LIB'])
 	except KeyError: pass
 
-	# linker
-	if not v['LINK_CXX']:
-		v['LINK_CXX'] = conf.find_program(linker_name, path_list=path, mandatory=True)
-	v['LINK'] = v['LINK_CXX']
+	v.LINK = v.LINK_CXX = link
+	if not v.LINK_CC:
+		v.LINK_CC = v.LINK_CXX
 
-	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
-
-	# staticlib linker
-	if not v['AR']:
-		v['AR'] = conf.find_program(lib_name, path_list=path, mandatory=True)
-		v['ARFLAGS'] = ['/NOLOGO']
-
-	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
-	if v['MSVC_MANIFEST']:
-		v['MT'] = conf.find_program('MT', path_list=path, mandatory=True)
-		v['MTFLAGS'] = ['/NOLOGO']
-
-	conf.check_tool('winres')
-
-	if not conf.env['WINRC']:
-		warn('Resource compiler not found. Compiling resource file is disabled')
+	v.AR = ar
+	v.MT = mt
+	v.MTFLAGS = v.ARFLAGS = ['/NOLOGO']
 
 @conftest
 def msvc_common_flags(conf):
