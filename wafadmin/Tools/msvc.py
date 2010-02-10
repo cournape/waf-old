@@ -511,7 +511,8 @@ def find_msvc(conf):
 	if not conf.env.WINRC:
 		warn('Resource compiler not found. Compiling resource file is disabled')
 
-	# now only at the end, set the configuration values
+	# no more possibility of failure means the data state will be consistent
+	# we may store the data safely now
 
 	v.MSVC_MANIFEST = has_msvc_manifest
 	v.PATH = path
@@ -522,12 +523,6 @@ def find_msvc(conf):
 	v.CC = v.CXX = cxx
 	v.CC_NAME = v.CXX_NAME = 'msvc'
 
-	# environment flags
-	try: v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
-	except KeyError: pass
-	try: v.prepend_value('LIBPATH', conf.environ['LIB'])
-	except KeyError: pass
-
 	v.LINK = v.LINK_CXX = link
 	if not v.LINK_CC:
 		v.LINK_CC = v.LINK_CXX
@@ -535,6 +530,12 @@ def find_msvc(conf):
 	v.AR = ar
 	v.MT = mt
 	v.MTFLAGS = v.ARFLAGS = ['/NOLOGO']
+
+	# environment flags
+	try: v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
+	except KeyError: pass
+	try: v.prepend_value('LIBPATH', conf.environ['LIB'])
+	except KeyError: pass
 
 @conftest
 def msvc_common_flags(conf):
