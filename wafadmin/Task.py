@@ -503,9 +503,9 @@ class Task(TaskBase):
 	* persistence: do not re-execute tasks that have already run
 	* caching: same files can be saved and retrieved from a cache directory
 	* dependencies:
-	   implicit, like .c files depending on .h files
-       explicit, like the input nodes or the dep_nodes
-       environment variables, like the CXXFLAGS in self.env
+		implicit, like .c files depending on .h files
+		explicit, like the input nodes or the dep_nodes
+		environment variables, like the CXXFLAGS in self.env
 	"""
 	vars = []
 	def __init__(self, env, **kw):
@@ -1047,6 +1047,25 @@ def update_outputs(cls):
 		for output in self.outputs:
 			bld.node_sigs[self.env.variant()][output.id] = Utils.h_file(output.abspath(self.env))
 	cls.post_run = post_run
+
+	old_runnable_status = cls.runnable_status
+	def runnable_status(self):
+		status = old_runnable_status(self)
+		if status != RUN_ME:
+			return status
+
+		try:
+			bld = self.outputs[0].__class__.bld
+			new_sig  = self.signature()
+			prev_sig = bld.task_sigs[self.unique_id()][0]
+			if prev_sig == new_sig:
+				return SKIP_ME
+		except KeyError:
+			pass
+		except IndexError:
+			pass
+		return RUN_ME
+	cls.runnable_status = runnable_status
 
 def extract_outputs(tasks):
 	"""file_deps: Infer additional dependencies from task input and output nodes
