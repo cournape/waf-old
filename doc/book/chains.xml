@@ -429,9 +429,7 @@ Task.task_type_from_func<co id="chaine6-co" linkends="chaine6"/>('sometask'<co i
 			</calloutlist>
 
 			Note that most attributes are common between the two function factories. More usage examples may be found in most Waf tools.
-
 		</para>
-
 	</section>
 
 
@@ -439,8 +437,7 @@ Task.task_type_from_func<co id="chaine6-co" linkends="chaine6"/>('sometask'<co i
 	<section id="chain_source">
 		<title>Source attribute processing</title>
 		<para>
-			TODO
-
+			<graphic format="png" fileref="source.png" align="center"/>
 		</para>
 	</section>
 
