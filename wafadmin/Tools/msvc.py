@@ -488,8 +488,7 @@ def find_msvc(conf):
 	cxx = None
 	if v['CXX']: cxx = v['CXX']
 	elif 'CXX' in conf.environ: cxx = conf.environ['CXX']
-	if not cxx: cxx = conf.find_program(compiler_name, var='CXX', path_list=path)
-	if not cxx: conf.fatal('%s was not found (compiler)' % compiler_name)
+	if not cxx: cxx = conf.find_program(compiler_name, var='CXX', path_list=path, mandatory=True)
 	cxx = conf.cmd_to_list(cxx)
 
 	# before setting anything, check if the compiler is really msvc
@@ -510,25 +509,19 @@ def find_msvc(conf):
 
 	# linker
 	if not v['LINK_CXX']:
-		link = conf.find_program(linker_name, path_list=path)
-		if link: v['LINK_CXX'] = link
-		else: conf.fatal('%s was not found (linker)' % linker_name)
+		v['LINK_CXX'] = conf.find_program(linker_name, path_list=path, mandatory=True)
 	v['LINK'] = v['LINK_CXX']
 
 	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
 
 	# staticlib linker
 	if not v['AR']:
-		stliblink = conf.find_program(lib_name, path_list=path)
-		if not stliblink: return
-		v['AR']   = stliblink
+		v['AR'] = conf.find_program(lib_name, path_list=path, mandatory=True)
 		v['ARFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	if v['MSVC_MANIFEST']:
-		manifesttool = conf.find_program('MT', path_list=path)
-		if not manifesttool: conf.fatal('unable to find the manifest tool')
-		v['MT'] = manifesttool
+		v['MT'] = conf.find_program('MT', path_list=path, mandatory=True)
 		v['MTFLAGS'] = ['/NOLOGO']
 
 	conf.check_tool('winres')
