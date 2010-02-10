@@ -1044,8 +1044,8 @@ def update_outputs(cls):
 	def post_run(self):
 		old_post_run(self)
 		bld = self.outputs[0].__class__.bld
-		bld.node_sigs[self.env.variant()][self.outputs[0].id] = \
-		Utils.h_file(self.outputs[0].abspath(self.env))
+		for output in self.outputs:
+			bld.node_sigs[self.env.variant()][output.id] = Utils.h_file(output.abspath(self.env))
 	cls.post_run = post_run
 
 def extract_outputs(tasks):
