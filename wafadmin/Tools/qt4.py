@@ -261,12 +261,8 @@ def apply_qt4(self):
 			k = create_rcc_task(self, t.outputs[0])
 			self.link_task.inputs.append(k.outputs[0])
 
-	lst = []
-	for flag in self.to_list(self.env['CXXFLAGS']):
-		if len(flag) < 2: continue
-		if flag[0:2] == '-D' or flag[0:2] == '-I':
-			lst.append(flag)
-	self.env['MOC_FLAGS'] = lst
+	self.env.append_value('MOC_FLAGS', self.env._CXXDEFFLAGS)
+	self.env.append_value('MOC_FLAGS', self.env._CXXINCFLAGS)
 
 @extension(EXT_QT4)
 def cxx_hook(self, node):
