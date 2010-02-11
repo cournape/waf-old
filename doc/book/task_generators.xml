@@ -20,9 +20,9 @@
 		<para>
 			Implementing such a system is a difficult problem which lead to the creation of very different designs:
 			<orderedlist>
-				<listitem><emphasis>A hierarchy of task generator subclasses</emphasis> It lead to high coupling issues between the Waf tools: the C tools required knowledge from the D tool</listitem>
-				<listitem><emphasis>Method decoration (building a linked list of method calls)</emphasis> It used to set too many assumptions on the execution order. For example, replacing or disabling a method safely was no longer possible (addition-only).</listitem>
-				<listitem><emphasis>Flat method and execution constraint declaration</emphasis> The concept is close to aspect-oriented programming and may scare programmers</listitem>
+				<listitem><emphasis>A hierarchy of task generator subclasses</emphasis> It was abandoned due to the high coupling between the Waf tools: the C tools required knowledge from the D tool for building hybrid applications</listitem>
+				<listitem><emphasis>Method decoration (creating linked lists of method calls)</emphasis> Replacing or disabling a method safely was no longer possible (addition-only), so this system disappeared quickly</listitem>
+				<listitem><emphasis>Flat method and execution constraint declaration</emphasis> The concept is close to aspect-oriented programming and may scare programmers.</listitem>
 			</orderedlist>
 			So far, the third design proved to be the most flexible and was kept. We will now provide a generic description of how the task generator methods are declared, by presenting an example that prints <emphasis>Hello world!</emphasis> during the build:
 
