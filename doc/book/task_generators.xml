@@ -74,6 +74,9 @@ def methodName(self): <co id="feat5-co" linkends="feat5"/>
 			A system called <emphasis>features</emphasis> enables new methods on task generators to be loaded conditionally. For example, c programs require typically the processing of lots of attributes such as the application target. The rule-based and source-based processing are bound to all task generators and are the exception.
 
 			TODO explain the separation between task and task generators (concurrency reasons, etc)
+
+			TODO present waf  -zones=task_gen
+
 		</para -->
 
 	</section>
