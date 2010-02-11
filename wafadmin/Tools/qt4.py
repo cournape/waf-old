@@ -411,16 +411,17 @@ def detect_qt4(conf):
 	except Configure.ConfigurationError:
 
 		for lib in vars_debug+vars:
-			uselib = i.upper()
+			uselib = lib.upper()
 
-			d = (i.find('_debug') > 0) and 'd' or ''
+			d = (lib.find('_debug') > 0) and 'd' or ''
 
+			# original author seems to prefer static to shared libraries
 			for (pat, kind) in ((conf.env.shlib_PATTERN, 'STATIC'), (conf.env.shlib_PATTERN, '')):
 
-				conf.check_message_1('Checking for %s %s' % (i, kind))
+				conf.check_message_1('Checking for %s %s' % (lib, kind))
 
 				for ext in ['', '4']:
-					path = qtlibs + os.sep + pat % (lib + d + ext)
+					path = os.path.join(qtlibs, pat % (lib + d + ext))
 					if os.path.exists(path):
 						env.append_unique(kind + 'LIB_' + uselib, lib + d + ext)
 						conf.check_message_2('ok ' + path, 'GREEN')
@@ -432,11 +433,11 @@ def detect_qt4(conf):
 
 			env.append_unique('LIBPATH_' + uselib, qtlibs)
 			env.append_unique('CPPPATH_' + uselib, qtincludes)
-			env.append_unique('CPPPATH_' + uselib, os.path.join(qtincludes, i))
+			env.append_unique('CPPPATH_' + uselib, qtincludes + os.sep + lib)
 	else:
 		for i in vars_debug+vars:
 			try:
-				conf.check_cfg(package=i, args='--cflags --libs', path=conf.env.pkgconfig)
+				conf.check_cfg(package=i, args='--cflags --libs --silence-errors', path=conf.env.pkgconfig)
 			except ValueError:
 				pass
 
