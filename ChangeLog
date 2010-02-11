@@ -6,6 +6,7 @@ NEW IN WAF 1.5.12
 * fix for absolute win32 paths and DESTDIR
 * fix for msvc apps and unit tests
 * ruby tool for programming ruby extensions (including a demo)
+* add more includes and defines for moc (qt4)
 
 NEW IN WAF 1.5.11
 -----------------
