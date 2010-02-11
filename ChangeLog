@@ -7,6 +7,7 @@ NEW IN WAF 1.5.12
 * fix for msvc apps and unit tests
 * ruby tool for programming ruby extensions (including a demo)
 * add more includes and defines for moc (qt4)
+* improve the compiler detection on win32
 
 NEW IN WAF 1.5.11
 -----------------
