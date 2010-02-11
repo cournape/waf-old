@@ -8,20 +8,73 @@
 	<section id="task_generator_methods">
 		<title>Features</title>
 		<para>
-			The chapter on make-like rules illustrated how the attribute <emphasis>rule</emphasis> was processed. Then the chapter on name and extension-based file processing illustrated how the attribute <emphasis>source</emphasis> is processed (in the absence of the rule attribute). Processing no attribute would make the system poorly suited for user scripts, but trying to process all attributes of a task generator would be too costly in terms of computation power.
+			The chapter on make-like rules illustrated how the attribute <emphasis>rule</emphasis> is processed. Then the chapter on name and extension-based file processing illustrated how the attribute <emphasis>source</emphasis> is processed (in the absence of the rule attribute). To process <emphasis>any attribute</emphasis>, the following properties should hold:
+			<itemizedlist>
+				<listitem>Attributes should be processed only when the task generator is set to generate the tasks (lazy processing)</listitem>
+				<listitem>There is no list of authorized attributes (task generators may be extended by user scripts)</listitem>
+				<listitem>Attribute processing should be controlable on a task generator instance basis (special rules for particular task generators)</listitem>
+				<listitem>The extensions should be split into independent files (low coupling between the Waf tools)</listitem>
+			</itemizedlist>
 		</para>
 
 		<para>
-			In the past, various subclasses of the of the task generator class were created, but they lead to contradictions that could not be solved easily by multiple inheritance.
+			Implementing such a system is a difficult problem which lead to the creation of very different designs:
+			<orderedlist>
+				<listitem><emphasis>A hierarchy of task generator subclasses</emphasis> It lead to high coupling issues between the Waf tools: the C tools required knowledge from the D tool</listitem>
+				<listitem><emphasis>Method decoration (building a linked list of method calls)</emphasis> It used to set too many assumptions on the execution order. For example, replacing or disabling a method safely was no longer possible (addition-only).</listitem>
+				<listitem><emphasis>Flat method and execution constraint declaration</emphasis> The concept is close to aspect-oriented programming and may scare programmers</listitem>
+			</orderedlist>
+			So far, the third design proved to be the most flexible and was kept. We will now provide a generic description of how the task generator methods are declared, by presenting an example that prints <emphasis>Hello world!</emphasis> during the build:
+
+				<programlisting language="python">
+srcdir = '.'
+blddir = 'out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(features='myfeature', myattr='Hello, world!')
+
+import TaskGen
+
+@TaskGen.taskgen <co id="feat1-co" linkends="feat1"/>
+@TaskGen.feature('myfeature') <co id="feat2-co" linkends="feat2"/>
+@TaskGen.before('someMethod') <co id="feat3-co" linkends="feat3"/>
+@TaskGen.after('anotherMethod') <co id="feat4-co" linkends="feat4"/>
+def methodName(self): <co id="feat5-co" linkends="feat5"/>
+	print(getattr(self, 'myattr', None)) <co id="feat6-co" linkends="feat6"/>
+				</programlisting>
+
+			<calloutlist>
+				<callout arearefs="feat1-co" id="feat1">
+					<para>Bind a method to the task generator class (optional when other methods such as <emphasis>TaskGen.feature</emphasis> are used)</para>
+				</callout>
+				<callout arearefs="feat2-co" id="feat2">
+					<para>Bind the method to the symbol <emphasis>myfeature</emphasis></para>
+				</callout>
+				<callout arearefs="feat3-co" id="feat3">
+					<para>If a task method <emphasis>someMethod</emphasis> exists, this method will be executed in priority</para>
+				</callout>
+				<callout arearefs="feat4-co" id="feat4">
+					<para>Same as above, but the other method will be executed first</para>
+				</callout>
+				<callout arearefs="feat5-co" id="feat5">
+					<para>Task generator methods have a unique argument representing the current instance</para>
+				</callout>
+				<callout arearefs="feat6-co" id="feat6">
+					<para>Process the attribute <emphasis>myattr</emphasis> when present (the case in the example)</para>
+				</callout>
+			</calloutlist>
+
 		</para>
 
-		<para>
+		<!-- para>
+
 			A system called <emphasis>features</emphasis> enables new methods on task generators to be loaded conditionally. For example, c programs require typically the processing of lots of attributes such as the application target. The rule-based and source-based processing are bound to all task generators and are the exception.
-		</para>
 
-		<para>
-			TODO
-		</para>
+			TODO explain the separation between task and task generators (concurrency reasons, etc)
+		</para -->
 
 	</section>
 
