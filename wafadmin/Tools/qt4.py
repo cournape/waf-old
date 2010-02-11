@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import TaskGen, Task, Utils, Runner, Options, Node
+import TaskGen, Task, Utils, Runner, Options, Node, Configure
 from TaskGen import taskgen, feature, after, extension
 from Logs import error
 from Constants import *
@@ -405,44 +405,40 @@ def detect_qt4(conf):
 
 	vars_debug = [a+'_debug' for a in vars]
 
-	pkgconfig = env['pkg-config'] or 'PKG_CONFIG_PATH=%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
-	if conf.find_program('pkg-config', path_list=paths) != "":
+	try:
+		conf.find_program('pkg-config', var='pkgconfig', path_list=paths, mandatory=True)
+
+	except Configure.ConfigurationError:
+
+		for lib in vars_debug+vars:
+			uselib = i.upper()
+
+			d = (i.find('_debug') > 0) and 'd' or ''
+
+			for (pat, kind) in ((conf.env.shlib_PATTERN, 'STATIC'), (conf.env.shlib_PATTERN, '')):
+
+				conf.check_message_1('Checking for %s %s' % (i, kind))
+
+				for ext in ['', '4']:
+					path = qtlibs + os.sep + pat % (lib + d + ext)
+					if os.path.exists(path):
+						env.append_unique(kind + 'LIB_' + uselib, lib + d + ext)
+						conf.check_message_2('ok ' + path, 'GREEN')
+						break
+				else:
+					conf.check_message_2('not found', 'YELLOW')
+					continue
+				break
+
+			env.append_unique('LIBPATH_' + uselib, qtlibs)
+			env.append_unique('CPPPATH_' + uselib, qtincludes)
+			env.append_unique('CPPPATH_' + uselib, os.path.join(qtincludes, i))
+	else:
 		for i in vars_debug+vars:
 			try:
-				conf.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
+				conf.check_cfg(package=i, args='--cflags --libs', path=conf.env.pkgconfig)
 			except ValueError:
 				pass
-	else:
-		for i in vars:
-			# Release:
-			conf.check_message_1("Checking for %s" % (i, ))
-			uselib = i.upper()
-			if os.path.exists(os.path.join(qtlibs, "lib" + i + ".a")):
-				env.append_unique('LIB_' + uselib, i)
-				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + ".a"), 'GREEN')
-			elif os.path.exists(os.path.join(qtlibs, "lib" + i + "4.a")):
-				env.append_unique('LIB_' + uselib, i + "4")
-				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + "4.a"), 'GREEN')
-			else:
-				conf.check_message_2("not found", 'YELLOW')
-			env.append_unique('LIBPATH_' + uselib, qtlibs)
-			env.append_unique('CPPPATH_' + uselib, qtincludes)
-			env.append_unique('CPPPATH_' + uselib, os.path.join(qtincludes, i))
-
-			# Debug:
-			conf.check_message_1("Checking for %s" % (i + "_debug", ))
-			uselib = i.upper() + "_debug"
-			if os.path.exists(os.path.join(qtlibs, "lib" + i + "d.a")):
-				env.append_unique('LIB_' + uselib, i)
-				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + "d.a"), 'GREEN')
-			elif os.path.exists(os.path.join(qtlibs, "lib" + i + "d4.a")):
-				env.append_unique('LIB_' + uselib, i + "d4")
-				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + "d4.a"), 'GREEN')
-			else:
-				conf.check_message_2("not found", 'YELLOW')
-			env.append_unique('LIBPATH_' + uselib, qtlibs)
-			env.append_unique('CPPPATH_' + uselib, qtincludes)
-			env.append_unique('CPPPATH_' + uselib, os.path.join(qtincludes, i))
 
 	# the libpaths are set nicely, unfortunately they make really long command-lines
 	# remove the qtcore ones from qtgui, etc
