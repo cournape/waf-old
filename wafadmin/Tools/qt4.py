@@ -362,7 +362,7 @@ def detect_qt4(conf):
 
 	if not qtlibs:
 		try:
-			qtlibs = Utils.cmd_output([qmake, '-query', 'QT_LIBRARIES']).strip() + os.sep
+			qtlibs = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_LIBS']).strip() + os.sep
 		except ValueError:
 			qtlibs = os.path.join(qtdir, 'lib')
 
@@ -406,11 +406,43 @@ def detect_qt4(conf):
 	vars_debug = [a+'_debug' for a in vars]
 
 	pkgconfig = env['pkg-config'] or 'PKG_CONFIG_PATH=%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
-	for i in vars_debug+vars:
-		try:
-			conf.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
-		except ValueError:
-			pass
+	if conf.find_program('pkg-config', path_list=paths) != "":
+		for i in vars_debug+vars:
+			try:
+				conf.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
+			except ValueError:
+				pass
+	else:
+		for i in vars:
+			# Release:
+			conf.check_message_1("Checking for %s" % (i, ))
+			uselib = i.upper()
+			if os.path.exists(os.path.join(qtlibs, "lib" + i + ".a")):
+				env.append_unique('LIB_' + uselib, i)
+				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + ".a"), 'GREEN')
+			elif os.path.exists(os.path.join(qtlibs, "lib" + i + "4.a")):
+				env.append_unique('LIB_' + uselib, i + "4")
+				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + "4.a"), 'GREEN')
+			else:
+				conf.check_message_2("not found", 'YELLOW')
+			env.append_unique('LIBPATH_' + uselib, qtlibs)
+			env.append_unique('CPPPATH_' + uselib, qtincludes)
+			env.append_unique('CPPPATH_' + uselib, os.path.join(qtincludes, i))
+
+			# Debug:
+			conf.check_message_1("Checking for %s" % (i + "_debug", ))
+			uselib = i.upper() + "_debug"
+			if os.path.exists(os.path.join(qtlibs, "lib" + i + "d.a")):
+				env.append_unique('LIB_' + uselib, i)
+				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + "d.a"), 'GREEN')
+			elif os.path.exists(os.path.join(qtlibs, "lib" + i + "d4.a")):
+				env.append_unique('LIB_' + uselib, i + "d4")
+				conf.check_message_2("ok " + os.path.join(qtlibs, "lib" + i + "d4.a"), 'GREEN')
+			else:
+				conf.check_message_2("not found", 'YELLOW')
+			env.append_unique('LIBPATH_' + uselib, qtlibs)
+			env.append_unique('CPPPATH_' + uselib, qtincludes)
+			env.append_unique('CPPPATH_' + uselib, os.path.join(qtincludes, i))
 
 	# the libpaths are set nicely, unfortunately they make really long command-lines
 	# remove the qtcore ones from qtgui, etc
