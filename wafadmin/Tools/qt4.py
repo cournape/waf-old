@@ -416,7 +416,7 @@ def detect_qt4(conf):
 			d = (lib.find('_debug') > 0) and 'd' or ''
 
 			# original author seems to prefer static to shared libraries
-			for (pat, kind) in ((conf.env.shlib_PATTERN, 'STATIC'), (conf.env.shlib_PATTERN, '')):
+			for (pat, kind) in ((conf.env.staticlib_PATTERN, 'STATIC'), (conf.env.shlib_PATTERN, '')):
 
 				conf.check_message_1('Checking for %s %s' % (lib, kind))
 
