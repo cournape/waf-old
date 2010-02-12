@@ -62,7 +62,8 @@ def group_method(fun):
 			m = k[0].task_manager
 			if not m.groups: m.add_group()
 			m.groups[m.current_group].post_funs.append((fun, k, kw))
-			kw['cwd'] = k[0].path
+			if not 'cwd' in kw:
+				kw['cwd'] = k[0].path
 		else:
 			fun(*k, **kw)
 	return f
