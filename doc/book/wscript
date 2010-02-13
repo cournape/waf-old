@@ -125,17 +125,31 @@ callout.graphics.path="./"
 		source = 'waf.xml',
 		scan   = xmlscan,
 		target = 'single.html',
-		rule = r1.replace('\n', ' '),
-		after = 'catalog'
+		rule   = r1.replace('\n', ' '),
+		after  = 'catalog',
+		name   = 'main',
 	)
+
 
 	r2 = r0 % {'book_root' : cp, 'cp': defaultcp, 'type': 'chunk.xsl'}
 	bld(
 		source = 'waf.xml',
 		scan   = xmlscan,
 		target = 'index.html',
-		rule = r2.replace('\n', ' '),
-		after = 'catalog'
+		rule   = r2.replace('\n', ' '),
+		after  = 'catalog',
+		name   = 'chunk',
+	)
+
+
+	def replace_fun(task):
+		pass
+
+	bld(
+		name   = 'postproc',
+		rule   = replace_fun,
+		source = 'single.html',
+		after  = 'main chunk'
 	)
 
 	if Options.options.exe:
