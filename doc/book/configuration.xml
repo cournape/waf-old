@@ -201,7 +201,7 @@ blddir = 'build'
 
 def configure(conf):
 
-	#import config_c # <co id="conf-co2" linkends="conf2"/>
+	#import config_c <co id="conf-co2" linkends="conf2"/>
 
 	def is_check_cc_present():
 		try:
@@ -213,7 +213,7 @@ def configure(conf):
 	conf.check_tool('config_c') # <co id="conf-co4" linkends="conf4"/>
 	is_check_cc_present()
 
-	conf.check_tool('dang', tooldir='.') # <co id="conf-co5" linkends="conf5"/>
+	conf.check_tool('dang', tooldir='.') <co id="conf-co5" linkends="conf5"/>
 	conf.check_tool('dang', tooldir='.', funs='test_hello') <co id="conf-co6" linkends="conf6"/>
 	conf.check_tool('dang', tooldir='.') <co id="conf-co7" linkends="conf7"/>
 
