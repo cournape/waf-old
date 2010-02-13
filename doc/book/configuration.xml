@@ -22,9 +22,9 @@ def configure(conf):
 	new = conf.env.__class__()
 	new.load('test.txt')
 
-	print new
-	print ""
-	print conf.env
+	print(new)
+	print("")
+	print(conf.env)
 			</programlisting>
 
 			The execution will result in the following output:

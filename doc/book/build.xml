@@ -202,7 +202,7 @@ def configure(ctx):
 	pass
 
 def pre(ctx): <co id="prepost-co1" linkends="prepost1"/>
-	print ("before the build is started")
+	print("before the build is started")
 
 def post(ctx):
 	import Options, Utils

@@ -102,7 +102,7 @@ def new_call_run(self):
 	t1 = time.time()
 	ret = old_call_run(self)
 	t2 = time.time()
-	if not ret: print "execution time %r" % (t2 - t1)
+	if not ret: print("execution time %r" % (t2 - t1))
 	return ret
 Task.TaskBase.call_run = new_call_run
 			</programlisting>

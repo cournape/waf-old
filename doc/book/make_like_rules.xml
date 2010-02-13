@@ -115,7 +115,7 @@ def configure(conf):
 
 def build(bld):
 	def run(task): <co id="rula1-co" linkends="rula1"/>
-		print (' # source is ' + task.generator.source) <co id="rula2-co" linkends="rula2"/>
+		print(' &#8594; source is ' + task.generator.source) <co id="rula2-co" linkends="rula2"/>
 
 		src = task.inputs[0].srcpath(task.env) <co id="rula3-co" linkends="rula3"/>
 		tgt = task.outputs[0].bldpath(task.env) <co id="rula4-co" linkends="rula4"/>
@@ -161,7 +161,7 @@ $ waf distclean configure build
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
 [1/1] same.txt: wscript -> out/default/same.txt
- # source is wscript
+ &#8594; source is wscript
 cp ../wscript default/same.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.010s)
