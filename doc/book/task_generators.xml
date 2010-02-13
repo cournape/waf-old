@@ -6,7 +6,7 @@
 	<title>General purpose task generators</title>
 
 	<section id="task_generator_methods">
-		<title>Features</title>
+		<title>Task generator definition</title>
 		<para>
 			The chapter on make-like rules illustrated how the attribute <emphasis>rule</emphasis> is processed. Then the chapter on name and extension-based file processing illustrated how the attribute <emphasis>source</emphasis> is processed (in the absence of the rule attribute). To process <emphasis>any attribute</emphasis>, the following properties should hold:
 			<itemizedlist>
@@ -24,8 +24,69 @@
 				<listitem><emphasis>Method decoration (creating linked lists of method calls)</emphasis> Replacing or disabling a method safely was no longer possible (addition-only), so this system disappeared quickly</listitem>
 				<listitem><emphasis>Flat method and execution constraint declaration</emphasis> The concept is close to aspect-oriented programming and may scare programmers.</listitem>
 			</orderedlist>
-			So far, the third design proved to be the most flexible and was kept. We will now provide a generic description of how the task generator methods are declared, by presenting an example that prints <emphasis>Hello world!</emphasis> during the build:
+			So far, the third design proved to be the most flexible and was kept. Here is how to define a task generator method:
 
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	v = bld(myattr='Hello, world!')
+	#v.myattr = 'Hello, world!' <co id="feati1-co" linkends="feati1"/>
+	v.myMethod() <co id="feati2-co" linkends="feati2"/>
+
+import TaskGen
+
+@TaskGen.taskgen <co id="feati3-co" linkends="feati3"/>
+def myMethod(tgen): <co id="feati5-co" linkends="feati5"/>
+	print(getattr(self, 'myattr', None)) <co id="feati6-co" linkends="feati6"/>
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="feati1-co" id="feati1">
+					<para>Attributes may be set by arguments or by accessing the object (commented here)</para>
+				</callout>
+				<callout arearefs="feati2-co" id="feati2">
+					<para>Call the task generator method explicitely</para>
+				</callout>
+				<callout arearefs="feati3-co" id="feati3">
+					<para>Use a python decorator</para>
+				</callout>
+				<callout arearefs="feati5-co" id="feati5">
+					<para>Task generator methods have a unique argument representing the current instance</para>
+				</callout>
+				<callout arearefs="feati6-co" id="feati6">
+					<para>Process the attribute <emphasis>myattr</emphasis> when present (the case in the example)</para>
+				</callout>
+			</calloutlist>
+
+			The output from the build will be the following:
+			<programlisting language="sh">
+$ waf distclean configure build
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/simpleproject/out'
+hello world
+Waf: Leaving directory `/tmp/simpleproject/out'
+'build' finished successfully (0.003s)
+			</programlisting>
+		</para>
+
+		<note>The method could be bound by using <emphasis>setattr</emphasis> directly, like for binding any new method on a python class.</note>
+
+	</section>
+
+	<!-- bind the feature to all, then demonstrate what it to to make one feature, then the order -->
+
+
+	<section id="task_generator_all">
+		<title>Executing the method during the build</title>
+
+		<para>
+			So far, the task generator methods defined are only executed through explicit calls. Another decorator is necessary to have a task generator executed during the build phase automatically. Here is the updated example:
 				<programlisting language="python">
 srcdir = '.'
 blddir = 'out'
@@ -34,36 +95,22 @@ def configure(conf):
 	pass
 
 def build(bld):
-	bld(features='myfeature', myattr='Hello, world!')
+	bld(myattr='Hello, world!')
 
 import TaskGen
 
-@TaskGen.taskgen <co id="feat1-co" linkends="feat1"/>
-@TaskGen.feature('myfeature') <co id="feat2-co" linkends="feat2"/>
-@TaskGen.before('someMethod') <co id="feat3-co" linkends="feat3"/>
-@TaskGen.after('anotherMethod') <co id="feat4-co" linkends="feat4"/>
-def methodName(self): <co id="feat5-co" linkends="feat5"/>
-	print(getattr(self, 'myattr', None)) <co id="feat6-co" linkends="feat6"/>
+@TaskGen.taskgen <co id="featj1-co" linkends="featj1"/>
+@TaskGen.feature('*') <co id="featj2-co" linkends="featj2"/>
+def methodName(self):
+	print(getattr(self, 'myattr', None))
 				</programlisting>
 
 			<calloutlist>
-				<callout arearefs="feat1-co" id="feat1">
+				<callout arearefs="featj1-co" id="featj1">
 					<para>Bind a method to the task generator class (optional when other methods such as <emphasis>TaskGen.feature</emphasis> are used)</para>
 				</callout>
-				<callout arearefs="feat2-co" id="feat2">
+				<callout arearefs="featj2-co" id="featj2">
 					<para>Bind the method to the symbol <emphasis>myfeature</emphasis></para>
-				</callout>
-				<callout arearefs="feat3-co" id="feat3">
-					<para>If a task method <emphasis>someMethod</emphasis> exists, this method will be executed in priority</para>
-				</callout>
-				<callout arearefs="feat4-co" id="feat4">
-					<para>Same as above, but the other method will be executed first</para>
-				</callout>
-				<callout arearefs="feat5-co" id="feat5">
-					<para>Task generator methods have a unique argument representing the current instance</para>
-				</callout>
-				<callout arearefs="feat6-co" id="feat6">
-					<para>Process the attribute <emphasis>myattr</emphasis> when present (the case in the example)</para>
 				</callout>
 			</calloutlist>
 
@@ -108,6 +155,11 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 			</calloutlist>
 		</para>
 
+	</section>
+
+
+
+
 		<!-- para>
 
 			A system called <emphasis>features</emphasis> enables new methods on task generators to be loaded conditionally. For example, c programs require typically the processing of lots of attributes such as the application target. The rule-based and source-based processing are bound to all task generators and are the exception.
@@ -117,16 +169,6 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 			TODO present waf  -zones=task_gen
 
 		</para -->
-
-	</section>
-
-	<section id="task_generator_methods">
-		<title>Features</title>
-		<para>
-
-		</para>
-	</section>
-
 
 	<section id="task_generator_methods">
 		<title>Custom processing by task generator methods</title>
