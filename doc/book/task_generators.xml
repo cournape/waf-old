@@ -161,19 +161,77 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 	<section id="task_generator_order">
 		<title>Controlling the execution order</title>
 		<para>
-			show before, after for apply_core
+			To control the execution order, two new decorators need to be added. We will now show a new example with two custom task generator methods <emphasis>method1</emphasis> and <emphasis>method2</emphasis>, executed in that order:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'out'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(myattr='Hello, world!')
+
+import TaskGen
+
+@TaskGen.feature('*')
+@TaskGen.before('apply_core', 'exec_rule')
+def method1(self):
+	print('method 1 %r' % getattr(self, 'myattr', None))
+
+@TaskGen.feature('*')
+@TaskGen.before('apply_core')
+@TaskGen.after('method1')
+def method2(self):
+	print('method 2 %r' % getattr(self, 'myattr', None))
+			</programlisting>
+
+			The execution output will be the following:
+
+			<programlisting language="sh">
+ waf distclean configure build --zones=task_gen
+'distclean' finished successfully (0.003s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/simpleproject/out'
+15:54:02 task_gen posting objects (normal)
+15:54:02 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&gt; 139808568487632
+15:54:02 task_gen -> method1 (139808568487632)
+method 1 'Hello, world!'
+15:54:02 task_gen -> exec_rule (139808568487632)
+15:54:02 task_gen -> method2 (139808568487632)
+method 2 'Hello, world!'
+15:54:02 task_gen -> apply_core (139808568487632)
+15:54:02 task_gen posted
+Waf: Leaving directory `/tmp/simpleproject/out'
+15:54:02 task_gen posting objects (normal)
+'build' finished successfully (0.005s)
+			</programlisting>
+
 		</para>
 	</section>
 
 	<section id="task_generator_meths">
 		<title>Adding or removing method for execution</title>
+
 		<para>
-			add to or remove from self.meths
+			The order constraints on the methods (after/before), are used to sort the list of methods in the attribute <emphasis>meths</emphasis>. The sorting is performed once, and the list is consumed as methods are executed. Though no new feature may be added once the first method is executed, new methods may be added dynamically in self.meths. Here is how to create an infinite loop by adding the same method at the end:
+			<programlisting language="python">
+from TaskGen import feature
+
+@feature('*')
+def infinite_loop(self):
+	self.meths.append('infinite_loop')
+			</programlisting>
 		</para>
+		<para>
+			The task generator method workflow is represented in the following illustration:
+			<graphic format="png" fileref="posting.png" align="center"/>
+		</para>
+
 	</section>
 
 	<section id="task_generator_features">
-		<title>
+		<title>Task generator features</title>
 		<para>
 			feature for executing a method in one task generator and not in another one
 		</para>
@@ -188,83 +246,7 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 
 		</para -->
 
-	<section id="task_generator_methods">
-		<title>Custom processing by task generator methods</title>
-		<para>
-			In some cases the information to process is very specific and does not really fit in the list of sources. The data may be attached to various attribute of the task generator, and a distinct task generator method may process the attributes dynamically.
-		</para>
-		<para>
-			In the following example, a new attribute 'tst' is added to task generators instances, and is used to call a method to print the contents of that attribute at the start of the build:
-			<programlisting language="python">
-def build(bld):
-	foo = bld()
-	foo.tst = 'hello, world'
-	# alternate syntax: bld(tst = 'hello, world')
-			</programlisting>
-		</para>
-		<para>
-			To attach a new method to the task_gen class (the type of <emphasis>foo</emphasis>), the decorator <emphasis>@taskgen</emphasis> is used in the following manner:
-			<programlisting language="python">
-from TaskGen import taskgen
-@taskgen
-def print_tst(self):
-	print('processing the tst attribute: %r' % self.tst)
-			</programlisting>
-		</para>
-
-		<para>
-			At this point, the function print_tst is attached to the class as a new method, but to process the attribute <emphasis>foo.tst</emphasis>, the method has to be called explicitly:
-			<programlisting language="python">
-def build(bld):
-	foo = bld()
-	foo.tst = 'hello, world'
-	foo.print_tst()
-			</programlisting>
-		</para>
-
-		<para>
-			To schedule that method for automatic execution, it is necessary to bind it somehow. The aliases are given in the task generator attribute <emphasis>features</emphasis>:
-			<programlisting language="python">
-from TaskGen import taskgen, feature
-@taskgen
-@feature('TEST')
-def print_tst(self):
-	print('processing the tst attribute: %r' % self.tst)
-
-def build(bld):
-	foo = bld()
-	foo.features = ['TEST']
-	foo.tst = 'hello, world'
-			</programlisting>
-		</para>
-
-		<para>
-			For mapping the method to all features, the wildcard <emphasis>*</emphasis> may be used, a complete example is reproduced below:
-			<programlisting language="python">
-srcdir='.'
-blddir='build'
-
-from TaskGen import taskgen, feature
-@taskgen
-@feature('*')
-def print_tst(self):
-	print('processing the tst attribute: %r' % self.tst)
-
-def build(bld):
-	foo = bld()
-	foo.tst = 'hello, world'
-
-def configure(conf):
-	pass
-			</programlisting>
-			Upon execution, this produces the following output:
-			<programlisting language="sh">
-$ waf
-processing the tst attribute: hello, world
-			</programlisting>
-		</para>
-	</section>
-
+	<!--
 	<section id="task_gen_method_exec">
 		<title>Task generator method execution</title>
 		<para>
@@ -287,29 +269,13 @@ def asm_incflags(self):
 			</programlisting>
 		</para>
 
-		<para>
-			In general, the methods cannot be called several times or in random order. For example, in c++ programming contexts, the compilation tasks must be created before link tasks because link task will reference the compilation tasks. This leads to a particular workflow, reproduced in the following illustration:
-			<graphic format="png" fileref="posting.png" align="center"/>
-			The list of methods to execute is kept in the attribute <emphasis>meths</emphasis> of the task generator instance. The list of methods to execute may be given directly.
-		</para>
 
 		<para>
 			It is however more convenient to use the attribute <emphasis>feature</emphasis> to add the methods automatically. For example, for creating a c application, the methods to execute depend on the operating system, so the feature system actually simplifies the code reuse.
 		</para>
 
-		<para>
-			The order constraints on the methods (after/before), are used to sort the list of methods in the attribute <emphasis>meths</emphasis>. The sorting is performed once, and the list is consumed as methods are executed. Though no new feature may be added once the first method is executed, new methods may be added dynamically in self.meths. Here is how to make an infinite loop:
-			<programlisting language="python">
-from TaskGen import before, after, taskgen
-
-@taskgen
-@feature('*')
-def infinite_loop(self):
-	self.meths.append('infinite_loop')
-			</programlisting>
-		</para>
-
 	</section>
+	-->
 		<!--para>
 			In the past, Waf used to provide Task generators using a hierarchy of classes. This system was unmaintainable for the following reasons:
 			<itemizedlist>
@@ -353,19 +319,6 @@ def build(bld):
 			</programlisting>
 		</para>
 
-		<para>
-			The extensions mappings are stored on the class task_gen, which make it possible to modify them globally:
-			<programlisting language="python">
-import TaskGen
-TaskGen.task_gen.mappings['.mm'] = TaskGen.task_gen.mappings['.c']
-			</programlisting>
-			The may also be set to specific task generator:
-			<programlisting language="python">
-def build(bld):
-	obj = bld(features='cxx cprogram', source='main.c', target='foo')
-	obj.mappings['.c'] = TaskGen.task_gen.mappings['.cxx']
-			</programlisting>
-		</para>
 	</section>
 
 </chapter>
