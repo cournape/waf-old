@@ -14,10 +14,15 @@ try:
 	class CONSOLE_SCREEN_BUFFER_INFO(Structure):
 		_fields_ = [("Size", COORD), ("CursorPosition", COORD), ("Attributes", c_short), ("Window", SMALL_RECT), ("MaximumWindowSize", COORD)]
 
+	class CONSOLE_CURSOR_INFO(Structure):
+		_fields_ = [('dwSize',c_ulong), ('bVisible', c_int)]
+
 	sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
+	csinfo = CONSOLE_CURSOR_INFO()
 	hconsole = windll.kernel32.GetStdHandle(-11)
 	windll.kernel32.GetConsoleScreenBufferInfo(hconsole, byref(sbinfo))
 	if sbinfo.Size.X < 10 or sbinfo.Size.Y < 10: raise Exception('small console')
+	windll.kernel32.GetConsoleCursorInfo(hconsole, byref(csinfo))
 except Exception:
 	pass
 else:
@@ -161,6 +166,14 @@ else:
 			attrib = self.escape_to_color.get((intensity, color), 0x7)
 			windll.kernel32.SetConsoleTextAttribute(self.hconsole, attrib)
 
+		def show_cursor(self,param):
+			csinfo.bVisible = 1
+			windll.kernel32.SetConsoleCursorInfo(self.hconsole, byref(csinfo))
+
+		def hide_cursor(self,param):
+			csinfo.bVisible = 0
+			windll.kernel32.SetConsoleCursorInfo(self.hconsole, byref(csinfo))
+
 		ansi_command_table = {
 			'A': move_up,
 			'B': move_down,
@@ -173,12 +186,14 @@ else:
 			'f': set_cursor,
 			'J': clear_screen,
 			'K': clear_line,
+			'h': show_cursor,
+			'l': hide_cursor,
 			'm': set_color,
 			's': push_cursor,
 			'u': pop_cursor,
 		}
 		# Match either the escape sequence or text not containing escape sequence
-		ansi_tokans = re.compile('(?:\x1b\[([0-9;]*)([a-zA-Z])|([^\x1b]+))')
+		ansi_tokans = re.compile('(?:\x1b\[([0-9?;]*)([a-zA-Z])|([^\x1b]+))')
 		def write(self, text):
 			for param, cmd, txt in self.ansi_tokans.findall(text):
 				if cmd:
