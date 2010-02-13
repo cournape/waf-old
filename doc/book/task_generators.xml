@@ -158,8 +158,68 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 	</section>
 
 
+	<section id="task_generator_features">
+		<title>Task generator features</title>
+		<para>
+			So far, the task generator methods we added were declared to be executed by all task generator instances. Limiting the execution to specific task generators requires the use of the <emphasis>feature</emphasis> decorator:
+
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'out'
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bld(features='ping')
+    bld(features='ping pong')
+
+import TaskGen
+
+@TaskGen.feature('ping')
+def ping(self):
+    print('ping')
+
+@TaskGen.feature('pong')
+def pong(self):
+    print('pong')
+			</programlisting>
+
+			The execution output will be the following:
+
+			<programlisting language="sh">
+$ waf distclean configure build --zones=task_gen
+'distclean' finished successfully (0.003s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/simpleproject/out'
+16:22:07 task_gen posting objects (normal)
+16:22:07 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&lt; 140631018237584
+16:22:07 task_gen -> exec_rule (140631018237584)
+16:22:07 task_gen -> apply_core (140631018237584)
+16:22:07 task_gen -> ping (140631018237584)
+ping
+16:22:07 task_gen posted
+16:22:07 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&lt; 140631018237776
+16:22:07 task_gen -> exec_rule (140631018237776)
+16:22:07 task_gen -> apply_core (140631018237776)
+16:22:07 task_gen -> pong (140631018237776)
+pong
+16:22:07 task_gen -> ping (140631018237776)
+ping
+16:22:07 task_gen posted
+Waf: Leaving directory `/tmp/simpleproject/out'
+16:22:07 task_gen posting objects (normal)
+'build' finished successfully (0.005s)
+			</programlisting>
+
+			<warning>Although the task generator instances are processed in order, the task generator method execution requires a specific declaration for the order of execution. Here, the method <emphasis>pong_</emphasis> is executed before the method <emphasis>ping_</emphasis></warning>
+
+		</para>
+	</section>
+
+
 	<section id="task_generator_order">
-		<title>Controlling the execution order</title>
+		<title>Task generator method execution order</title>
 		<para>
 			To control the execution order, two new decorators need to be added. We will now show a new example with two custom task generator methods <emphasis>method1</emphasis> and <emphasis>method2</emphasis>, executed in that order:
 			<programlisting language="python">
@@ -210,8 +270,9 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 		</para>
 	</section>
 
+
 	<section id="task_generator_meths">
-		<title>Adding or removing method for execution</title>
+		<title>Adding or removing a method for execution</title>
 
 		<para>
 			The order constraints on the methods (after/before), are used to sort the list of methods in the attribute <emphasis>meths</emphasis>. The sorting is performed once, and the list is consumed as methods are executed. Though no new feature may be added once the first method is executed, new methods may be added dynamically in self.meths. Here is how to create an infinite loop by adding the same method at the end:
@@ -228,13 +289,6 @@ def infinite_loop(self):
 			<graphic format="png" fileref="posting.png" align="center"/>
 		</para>
 
-	</section>
-
-	<section id="task_generator_features">
-		<title>Task generator features</title>
-		<para>
-			feature for executing a method in one task generator and not in another one
-		</para>
 	</section>
 
 
