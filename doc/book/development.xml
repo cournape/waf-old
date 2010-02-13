@@ -8,19 +8,19 @@
 		<title>Tracing the execution</title>
 		<para>
 			The generic flags to add more information to the stack traces or to the messages is <emphasis>-v</emphasis> (verbosity), it is used to display the command-lines executed during a build:
-			<programlisting language="shell">
+			<programlisting language="sh">
 $ waf -v
 			</programlisting>
 			To display all the traces (useful for bug reports), use the following flag:
-			<programlisting language="shell">
+			<programlisting language="sh">
 $ waf -vvv
 			</programlisting>
 			Debugging information can be filtered easily with the flag <emphasis>zones</emphasis>:
-			<programlisting language="shell">
+			<programlisting language="sh">
 $ waf --zones=action
 			</programlisting>
 			Tracing zones must be comma-separated, for example:
-			<programlisting language="shell">
+			<programlisting language="sh">
 $ waf --zones=action,envhash,task_gen
 			</programlisting>
 		</para>
@@ -93,7 +93,7 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 		<title>Benchmarking</title>
 		<para>
 			The script <filename>utils/genbench.py</filename> generates a simple benchmark for Waf. The habitual use is the following:
-			<programlisting language="shell">
+			<programlisting language="sh">
 utils/genbench.py /tmp/build 50 100 15 5
 cd /tmp/build
 waf configure
@@ -134,7 +134,7 @@ Build.bld.rep_compile = Build.bld.compile
 Build.bld.compile = ncomp
 			</programlisting>
 			Here the output obtained on a benchmark build created as explained in the previous section:
-			<programlisting language="shell">
+			<programlisting language="sh">
 Sun Nov  9 19:22:59 2008    prof.txt
 
          959695 function calls (917845 primitive calls) in 3.195 CPU seconds
@@ -174,7 +174,7 @@ def configure(conf):
 	conf.check_tool('ParallelDebug', tooldir='.')
 			</programlisting>
 			After executing a full build, a trace of the execution is output in <filename>/tmp/test.dat</filename>; it may be processed by other applications such as Gnuplot:
-			<programlisting language="shell">
+			<programlisting language="sh">
 #! /usr/bin/gnuplot -persist
 set terminal X11
 set ylabel "Amount of jobs running in parallel"

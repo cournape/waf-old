@@ -294,11 +294,11 @@ preproc.go_absolute = True
 			<title>Debugging dependencies</title>
 			<para>
 				The Waf preprocessor contains a specific debugging zone:
-				<programlisting language="shell">
+				<programlisting language="sh">
 $ waf --zones=preproc
 				</programlisting>
 				To display the dependencies obtained or missed, use the following:
-				<programlisting language="shell">
+				<programlisting language="sh">
 $ waf --zones=deps
 				</programlisting>
 				The dependency computation is performed only when the files are not up-to-date, so these commands will display something only when there is a file to compile.

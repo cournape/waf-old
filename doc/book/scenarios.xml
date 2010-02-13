@@ -31,7 +31,7 @@ def build(bld):
 				</programlisting>
 
 				The variables must be declared in the template file by enclosing the names between <emphasis>@ characters</emphasis> (m4 syntax).
-				<programlisting language="shell">
+				<programlisting language="sh">
 Name: test
 Description: @CFLAGS@
 Version: @VERSION@

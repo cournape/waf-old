@@ -250,7 +250,7 @@ Scripting.g_gz = 'gz'
 		<title>Splitting a project into several files</title>
 		<para>
 			Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
-			<programlisting language="shell">
+			<programlisting language="sh">
 .
 |-- src
 |   `-- wscript
@@ -284,7 +284,7 @@ def print_ping(ctx):
 
 			Upon execution, the results will be:
 
-			<programlisting language="shell">
+			<programlisting language="sh">
 $ cd /tmp/smallproject
 
 $ waf configure print_ping
