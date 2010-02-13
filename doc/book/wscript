@@ -142,6 +142,7 @@ callout.graphics.path="./"
 	)
 
 
+	reg = re.compile("^\\$(.+?)$", re.M)
 	def replace_fun(task):
 		path = task.inputs[0].parent.abspath(task.env)
 		lst   = os.listdir(path)
@@ -150,6 +151,7 @@ callout.graphics.path="./"
 				pp = path + os.sep + x
 				txt = Utils.readf(pp)
 				txt = txt.replace('color:red', '').replace('color: silver', '')
+				txt = reg.sub('<span class="hl-string">$ \\1</span>', txt)
 				f = open(pp, 'w')
 				f.write(txt)
 				f.close()
