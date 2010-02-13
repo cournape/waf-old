@@ -31,7 +31,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('&#8594; configuring the project')
+	print('&#8594; configuring the project')
 			</programlisting>
 		</para>
 
@@ -84,7 +84,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('&#8594; configuring the project')
+	print('&#8594; configuring the project')
 
 def print_ping(ctx):
 	print(' ping!')
@@ -197,7 +197,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('&#8594; configuring the project')
+	print('&#8594; configuring the project')
 			</programlisting>
 
 			Execute the command 'dist' to get:
@@ -224,7 +224,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('&#8594; configuring the project')
+	print('&#8594; configuring the project')
 			</programlisting>
 
 			Because the project was configured once, it is not necessary to configure it once again:
@@ -264,22 +264,22 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('&#8594; configure from the top-level')
-    ctx.recurse('src')
+	print('&#8594; configure from the top-level')
+	ctx.recurse('src')
 
 def print_ping(ctx):
-    print('&#8594; ping from the top-level')
-    ctx.recurse('src')
+	print('&#8594; ping from the top-level')
+	ctx.recurse('src')
 			</programlisting>
 
 			Since src/wscript is not to point to a single project, it is not necessary to duplicate the srcdir and blddir variables.
 
 			<programlisting language="python">
 def configure(ctx):
-    print('&#8594; configure from src')
+	print('&#8594; configure from src')
 
 def print_ping(ctx):
-    print('&#8594; ping from src')
+	print('&#8594; ping from src')
 			</programlisting>
 
 			Upon execution, the results will be:
@@ -310,10 +310,10 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('&#8594; configure from the top-level')
+	print('&#8594; configure from the top-level')
 
 def build(ctx):
-    print('building the software')
+	print('building the software')
 			</programlisting>
 
 			Without surprize, the execution output will look like the following:
@@ -426,8 +426,8 @@ blddir = 'build_directory'
 
 def configure(ctx):
 
-    import Options
-    print('&#8594; prefix is ' + Options.options.prefix)
+	import Options
+	print('&#8594; prefix is ' + Options.options.prefix)
 			</programlisting>
 
 			Upon execution, the following will be observed:
@@ -447,12 +447,12 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def set_options(ctx):
-    ctx.add_option('--foo', action='store', default=False, help='Silly test')
+	ctx.add_option('--foo', action='store', default=False, help='Silly test')
 
 def configure(ctx):
 
-    import Options
-    print('&#8594; the value of foo is %r' % Options.options.foo)
+	import Options
+	print('&#8594; the value of foo is %r' % Options.options.foo)
 			</programlisting>
 
 			Upon execution, the following will be observed:

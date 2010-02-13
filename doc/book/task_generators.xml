@@ -168,21 +168,21 @@ srcdir = '.'
 blddir = 'out'
 
 def configure(conf):
-    pass
+	pass
 
 def build(bld):
-    bld(features='ping')
-    bld(features='ping pong')
+	bld(features='ping')
+	bld(features='ping pong')
 
 import TaskGen
 
 @TaskGen.feature('ping')
 def ping(self):
-    print('ping')
+	print('ping')
 
 @TaskGen.feature('pong')
 def pong(self):
-    print('pong')
+	print('pong')
 			</programlisting>
 
 			The execution output will be the following:
