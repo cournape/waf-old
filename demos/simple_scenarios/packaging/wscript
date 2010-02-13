@@ -14,6 +14,8 @@ def build(bld):
 	bld.install_files('/tmp/foo/', 'wscript')
 	bld.new_task_gen(features='cc cprogram', target='foo', source='k.c')
 
+# the default dist command packages source files for redistribution
+# override the dist command to package build files (after they are installed into a temporary folder)
 def dist(ctx):
 	Scripting.commands.insert(0, 'package')
 	Scripting.commands.insert(0, 'install')
