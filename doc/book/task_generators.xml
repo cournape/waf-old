@@ -67,6 +67,45 @@ def methodName(self): <co id="feat5-co" linkends="feat5"/>
 				</callout>
 			</calloutlist>
 
+			The execution results will be the following:
+
+			<programlisting language="sh">
+$ waf distclean configure build --zones=task_gen <co id="feata1-co" linkends="feata1"/>
+'distclean' finished successfully (0.004s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/simpleproject/out'
+23:03:44 task_gen posting objects (normal)
+23:03:44 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&gt; 139657958706768 <co id="feata2-co" linkends="feata2"/>
+23:03:44 task_gen -> exec_rule (139657958706768) <co id="feata3-co" linkends="feata3"/>
+23:03:44 task_gen -> apply_core (139657958706768) <co id="feata4-co" linkends="feata4"/>
+23:03:44 task_gen -> methodName (139657958706768) <co id="feata5-co" linkends="feata5"/>
+Hello, world!
+23:03:44 task_gen posted <co id="feata6-co" linkends="feata6"/>
+Waf: Leaving directory `/tmp/simpleproject/out'
+23:03:44 task_gen posting objects (normal)
+'build' finished successfully (0.004s)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="feata1-co" id="feata1">
+					<para>The debugging zone <emphasis>task_gen</emphasis> is used to display the task generator methods being executed</para>
+				</callout>
+				<callout arearefs="feata2-co" id="feata2">
+					<para>Display which task generator is being executed</para>
+				</callout>
+				<callout arearefs="feata3-co" id="feata3">
+					<para>The method <emphasis>exec_rule</emphasis> is used to process the <emphasis>rule</emphasis>.</para>
+				</callout>
+				<callout arearefs="feata4-co" id="feata4">
+					<para>The method <emphasis>apply_core</emphasis> is used to process the <emphasis>source</emphasis> attribute. Its execution is disabled if the method <emphasis>exec_rule</emphasis> processes a <emphasis>rule</emphasis> attribute</para>
+				</callout>
+				<callout arearefs="feata5-co" id="feata5">
+					<para>Our task generator method is executed, and prints <emphasis>Hello, world!</emphasis></para>
+				</callout>
+				<callout arearefs="feata6-co" id="feata6">
+					<para>The task generator methods have been executed, the task generator is marked as done (posted)</para>
+				</callout>
+			</calloutlist>
 		</para>
 
 		<!-- para>
@@ -80,6 +119,14 @@ def methodName(self): <co id="feat5-co" linkends="feat5"/>
 		</para -->
 
 	</section>
+
+	<section id="task_generator_methods">
+		<title>Features</title>
+		<para>
+
+		</para>
+	</section>
+
 
 	<section id="task_generator_methods">
 		<title>Custom processing by task generator methods</title>
