@@ -666,7 +666,7 @@ def build(bld):
 			Here <filename>r2.txt</filename> will be re-created each time:
 
 			<programlisting language="sh">
-$ waf distclean configure build -v; waf -v
+$ waf distclean configure build -v
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
@@ -678,6 +678,7 @@ dom ene 31 16:59:49 CET 2010 <co id="ruleff2-co" linkends="ruleff2"/>
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.020s)
 
+$ waf -v
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
 16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
