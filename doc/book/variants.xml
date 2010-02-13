@@ -26,7 +26,7 @@ def build(bld):
 
 			Upon execution, the results will be the following:
 
-			<programlisting language="shell">
+			<programlisting language="sh">
 $ export WAFLOCK=.lock-debug <co id="lock-co1" linkends="lock1"/>
 
 $ waf distclean configure -b debug <co id="lock-co2" linkends="lock2"/>
