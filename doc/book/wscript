@@ -143,13 +143,23 @@ callout.graphics.path="./"
 
 
 	def replace_fun(task):
-		pass
+		path = task.inputs[0].parent.abspath(task.env)
+		lst   = os.listdir(path)
+		for x in lst:
+			if x.endswith('html'):
+				pp = path + os.sep + x
+				txt = Utils.readf(pp)
+				txt = txt.replace('color:red', '').replace('color: silver', '')
+				f = open(pp, 'w')
+				f.write(txt)
+				f.close()
 
 	bld(
 		name   = 'postproc',
 		rule   = replace_fun,
 		source = 'single.html',
-		after  = 'main chunk'
+		after  = 'main chunk',
+		#always = True
 	)
 
 	if Options.options.exe:
