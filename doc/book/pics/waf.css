@@ -42,5 +42,5 @@ table.corelib thead td
 	background-color: aliceblue;
 }
 
-.hl-string { color:blue; }
+.hl-string { color:blue; font-weight: bold;}
 .hl-comment { color: green;}
