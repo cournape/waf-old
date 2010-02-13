@@ -141,10 +141,10 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 					<para>Display which task generator is being executed</para>
 				</callout>
 				<callout arearefs="feata3-co" id="feata3">
-					<para>The method <emphasis>exec_rule</emphasis> is used to process the <emphasis>rule</emphasis>.</para>
+					<para>The method <emphasis>exec_rule</emphasis> is used to process the <emphasis>rule</emphasis>. It is always executed.</para>
 				</callout>
 				<callout arearefs="feata4-co" id="feata4">
-					<para>The method <emphasis>apply_core</emphasis> is used to process the <emphasis>source</emphasis> attribute. Its execution is disabled if the method <emphasis>exec_rule</emphasis> processes a <emphasis>rule</emphasis> attribute</para>
+					<para>The method <emphasis>apply_core</emphasis> is used to process the <emphasis>source</emphasis> attribute. It is always executed exept if the method <emphasis>exec_rule</emphasis> processes a <emphasis>rule</emphasis> attribute</para>
 				</callout>
 				<callout arearefs="feata5-co" id="feata5">
 					<para>Our task generator method is executed, and prints <emphasis>Hello, world!</emphasis></para>
@@ -158,6 +158,26 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 	</section>
 
 
+	<section id="task_generator_order">
+		<title>Controlling the execution order</title>
+		<para>
+			show before, after for apply_core
+		</para>
+	</section>
+
+	<section id="task_generator_meths">
+		<title>Adding or removing method for execution</title>
+		<para>
+			add to or remove from self.meths
+		</para>
+	</section>
+
+	<section id="task_generator_features">
+		<title>
+		<para>
+			feature for executing a method in one task generator and not in another one
+		</para>
+	</section>
 
 
 		<!-- para>
@@ -165,8 +185,6 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 			A system called <emphasis>features</emphasis> enables new methods on task generators to be loaded conditionally. For example, c programs require typically the processing of lots of attributes such as the application target. The rule-based and source-based processing are bound to all task generators and are the exception.
 
 			TODO explain the separation between task and task generators (concurrency reasons, etc)
-
-			TODO present waf  -zones=task_gen
 
 		</para -->
 
