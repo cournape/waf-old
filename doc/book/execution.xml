@@ -31,7 +31,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('-> configuring the project')
+    print('&#8594; configuring the project')
 			</programlisting>
 		</para>
 
@@ -44,7 +44,7 @@ $ tree
 `-- wscript
 
 $ waf configure <co id="init2-co" linkends="init2"/>
--> configuring the project
+&#8594; configuring the project
 'configure' finished successfully (0.021s)
 
 $ tree
@@ -84,7 +84,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('-> configuring the project')
+    print('&#8594; configuring the project')
 
 def print_ping(ctx):
 	print(' ping!')
@@ -99,7 +99,7 @@ def print_pong(ctx):
 $ cd /tmp/smallproject
 
 $ waf configure
--> configuring the project
+&#8594; configuring the project
 'configure' finished successfully (0.001s)
 
 $ waf print_ping
@@ -148,7 +148,7 @@ $ waf print_ping print_ping print_ping
 
 			<programlisting language="sh">
 $ waf configure
--> configuring the project
+&#8594; configuring the project
 'configure' finished successfully (0.001s)
 
 $ waf print_ping
@@ -170,7 +170,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('-> configuring the project')
+    print('&#8594; configuring the project')
 
 def distclean(ctx):
 	print(' Not cleaning anything!')
@@ -197,14 +197,14 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('-> configuring the project')
+    print('&#8594; configuring the project')
 			</programlisting>
 
 			Execute the command 'dist' to get:
 
 			<programlisting language="sh">
 $ waf configure
--> configuring the project
+&#8594; configuring the project
 'configure' finished successfully (0.001s)
 
 $ waf dist
@@ -224,7 +224,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('-> configuring the project')
+    print('&#8594; configuring the project')
 			</programlisting>
 
 			Because the project was configured once, it is not necessary to configure it once again:
@@ -264,11 +264,11 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('-> configure from the top-level')
+    print('&#8594; configure from the top-level')
     ctx.recurse('src')
 
 def print_ping(ctx):
-    print('-> ping from the top-level')
+    print('&#8594; ping from the top-level')
     ctx.recurse('src')
 			</programlisting>
 
@@ -276,10 +276,10 @@ def print_ping(ctx):
 
 			<programlisting language="python">
 def configure(ctx):
-    print('-> configure from src')
+    print('&#8594; configure from src')
 
 def print_ping(ctx):
-    print('-> ping from src')
+    print('&#8594; ping from src')
 			</programlisting>
 
 			Upon execution, the results will be:
@@ -288,11 +288,11 @@ def print_ping(ctx):
 $ cd /tmp/smallproject
 
 $ waf configure print_ping
--> configure from the top-level
--> configure from src
+&#8594; configure from the top-level
+&#8594; configure from src
 'configure' finished successfully (0.080s)
--> ping from the top-level
--> ping from src
+&#8594; ping from the top-level
+&#8594; ping from src
 'print_ping' finished successfully (0.009s)
 			</programlisting>
 
@@ -310,7 +310,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('-> configure from the top-level')
+    print('&#8594; configure from the top-level')
 
 def build(ctx):
     print('building the software')
@@ -325,7 +325,7 @@ $ waf
 Project not configured (run 'waf configure' first)
 
 $ waf configure
--> configure from the top-level
+&#8594; configure from the top-level
 'configure' finished successfully (0.001s)
 
 $ waf build
@@ -427,13 +427,13 @@ blddir = 'build_directory'
 def configure(ctx):
 
     import Options
-    print('-> prefix is ' + Options.options.prefix)
+    print('&#8594; prefix is ' + Options.options.prefix)
 			</programlisting>
 
 			Upon execution, the following will be observed:
 			<programlisting language="sh">
 $ waf configure
--> prefix is /usr/local/
+&#8594; prefix is /usr/local/
 'configure' finished successfully (0.001s)
 			</programlisting>
 
@@ -452,13 +452,13 @@ def set_options(ctx):
 def configure(ctx):
 
     import Options
-    print('-> the value of foo is %r' % Options.options.foo)
+    print('&#8594; the value of foo is %r' % Options.options.foo)
 			</programlisting>
 
 			Upon execution, the following will be observed:
 			<programlisting language="sh">
 $ waf configure --foo=test
--> the value of foo is 'test'
+&#8594; the value of foo is 'test'
 'configure' finished successfully (0.001s)
 			</programlisting>
 

@@ -39,7 +39,7 @@ def build(ctx):
 			The call <emphasis>ctx(...)</emphasis> is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
 
 			<programlisting language="sh">
-waf distclean configure build build clean
+$ waf distclean configure build build clean
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/smallproject/build'

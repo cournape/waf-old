@@ -46,17 +46,17 @@ def foo(ctx):
 		<para>
 			Since Waf 1.5.4, it is possible to chain several commands, for example:
 			<programlisting language="sh">
-waf distclean configure build
+$ waf distclean configure build
 			</programlisting>
 			The execution will stop as soon as an error is encountered, for example if distclean fails, the configuration and the build will not be executed, so the command is equivalent to:
 			<programlisting language="sh">
-waf distclean &amp;&amp; waf configure &amp;&amp; waf
+$ waf distclean &amp;&amp; waf configure &amp;&amp; waf
 			</programlisting>
 		</para>
 		<para>
 			A frequent usecase is to chain the execution of build and cleaning steps:
 			<programlisting language="sh">
-waf distclean configure build clean build
+$ waf distclean configure build clean build
 			</programlisting>
 			As a special exception, the function <emphasis>init</emphasis> is always prepended to the commands to execute, and the function <emphasis>shutdown</emphasis> is always appended.
 		</para>

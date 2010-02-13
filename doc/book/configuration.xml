@@ -173,14 +173,14 @@ from Configure import conftest <co id="cconf-co1" linkends="cconf1"/>
 
 @conftest
 def detect(conf): <co id="cconf-co2" linkends="cconf2"/>
-	print('-> detect fron dang!')
+	print('&#8594; detect fron dang!')
 
 @conftest
 def test_hello(conf):
-	print('-> test from dang!')
+	print('&#8594; test from dang!')
 
 def build_hello(self):
-	print('-> build hello from dang!')
+	print('&#8594; build hello from dang!')
 
 import Build
 Build.BuildContext.build_hello = build_hello <co id="cconf-co3" linkends="cconf3"/>
@@ -205,9 +205,9 @@ def configure(conf):
 
 	def is_check_cc_present():
 		try:
-			print('# method conf.check_cc %r' % conf.check_cc) <co id="conf-co3" linkends="conf3"/>
+			print('&#8594; method conf.check_cc %r' % conf.check_cc) <co id="conf-co3" linkends="conf3"/>
 		except:
-			print('# there is no method conf.check_cc')
+			print('&#8594; there is no method conf.check_cc')
 
 	is_check_cc_present()
 	conf.check_tool('config_c') # <co id="conf-co4" linkends="conf4"/>
@@ -237,13 +237,13 @@ def build(bld):
 			<programlisting language="sh">
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)
-# there is no method conf.check_cc
-# method conf.check_cc (ConfigurationContext.check_cc)
--> detect fron dang!
--> test from dang!
+&#8594; there is no method conf.check_cc
+&#8594; method conf.check_cc (ConfigurationContext.check_cc)
+&#8594; detect fron dang!
+&#8594; test from dang!
 'configure' finished successfully (0.003s)
 Waf: Entering directory `/tmp/smallproject/build'
--> build hello from dang!
+&#8594; build hello from dang!
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
 			</programlisting>
