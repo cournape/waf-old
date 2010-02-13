@@ -170,7 +170,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-    print('&#8594; configuring the project')
+	print('&#8594; configuring the project')
 
 def distclean(ctx):
 	print(' Not cleaning anything!')
