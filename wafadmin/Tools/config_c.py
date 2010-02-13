@@ -213,7 +213,7 @@ def check_cfg(self, *k, **kw):
 
 # env: an optional environment (modified -> provide a copy)
 # compiler: cc or cxx - it tries to guess what is best
-# type: program, shlib, staticlib, objects
+# type: cprogram, cshlib, cstaticlib
 # code: a c code to execute
 # uselib_store: where to add the variables
 # uselib: parameters to use for building
