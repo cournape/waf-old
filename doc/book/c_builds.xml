@@ -309,24 +309,25 @@ $ waf --zones=deps
 	<section id="config_helpers_c">
 		<title>Configuration helpers</title>
 		<para>
-			The methods <emphasis>check_cc</emphasis> and <emphasis>check_cxx</emphasis> are used to detect parameters using a small build project. The main parameters are the following
+			The method <emphasis>check</emphasis> is used to detect parameters using a small build project. The main parameters are the following
 			<itemizedlist>
 				<listitem>msg: title of the test to execute</listitem>
 				<listitem>okmsg: message to display when the test succeeds</listitem>
 				<listitem>errmsg: message to display when the test fails</listitem>
 				<listitem>mandatory: when true, raise a configuration exception if the test fails</listitem>
 				<listitem>env: environment to use for the build (conf.env is used by default)</listitem>
+				<listitem>compile_mode: 'cc' or 'cxx'</listitem>
 				<listitem>define_name: add a define for the configuration header when the test succeeds (in most cases it is calculated automatically)</listitem>
 			</itemizedlist>
-			Here is a concrete example:
+			Besides the main parameters, the attributes from c/c++ task generators may be used. Here is a concrete example:
 			<programlisting language="python">
 def configure(conf):
 
-	conf.check_cc(header_name='time.h') <co id="cc1-co" linkends="ccl"/>
+	conf.check(header_name='time.h', compile_mode='cc') <co id="cc1-co" linkends="ccl"/>
 	conf.check_cc(function_name='printf', header_name="stdio.h", mandatory=1) <co id="cc2-co" linkends="cc2"/>
 	conf.check_cc(fragment='int main() {2+2==4;}\n', define_name="boobah") <co id="cc3-co" linkends="cc3"/>
 	conf.check_cc(lib='m', ccflags='-Wall', defines=['var=foo', 'x=y'], uselib_store='M') <co id="cc4-co" linkends="cc4"/>
-	conf.check_cc(lib='linux', uselib='M') <co id="cc5-co" linkends="cc5"/>
+	conf.check_cxx(lib='linux', uselib='M', cxxflags='-O2') <co id="cc5-co" linkends="cc5"/>
 
 	conf.check_cc(fragment='''
 			#include &lt;stdio.h&gt;
@@ -343,7 +344,7 @@ def configure(conf):
 					<para>Try to compile a program using the configuration header time.h, if present on the system, if the test is successful, the define HAVE_TIME_H will be added</para>
 				</callout>
 				<callout arearefs="cc2-co" id="cc2">
-					<para>Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails.</para>
+					<para>Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails. Note that convenience methods <emphasis>check_cc</emphasis> and <emphasis>check_cxx</emphasis> only define the compilation mode <emphasis>compile_mode</emphasis></para>
 				</callout>
 				<callout arearefs="cc3-co" id="cc3">
 					<para>Try to compile a piece of code, and if the test is successful, define the name boobah</para>
@@ -387,6 +388,9 @@ defines = {'booeah': '"4"', 'boobah': 1, 'HAVE_TIME_H': 1, 'HAVE_PRINTF': 1}
 dep_files = ['config.h']
 waf_config_files = ['/compilation/waf/demos/adv/build/default/config.h']
 			</programlisting>
+
+			<note>The methods <emphasis>conf.check</emphasis> all use task generators internally. This means that the attributes <emphasis>includes</emphasis>, <emphasis>defines</emphasis>, <emphasis>cxxflags</emphasis> may be used (not all shown here).</note>
+			<note>The attribute <emphasis>compile_mode</emphasis> may also contain user-defined task generator features.</note>
 		</para>
 	</section>
 
