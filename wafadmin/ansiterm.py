@@ -26,7 +26,7 @@ try:
 except Exception:
 	pass
 else:
-	import re
+	import re, threading
 
 	to_int = lambda number, default: number and int(number) or default
 	wlock = threading.lock()
