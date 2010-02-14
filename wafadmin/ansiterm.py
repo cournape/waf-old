@@ -1,6 +1,6 @@
 import sys, os
 try:
-	if not sys.stderr.isatty():
+	if (not sys.stderr.isatty()) or (not sys.stdout.isatty()):
 		raise ValueError('not a tty')
 
 	from ctypes import *
@@ -29,6 +29,7 @@ else:
 	import re
 
 	to_int = lambda number, default: number and int(number) or default
+	wlock = threading.lock()
 
 	STD_OUTPUT_HANDLE = -11
 	STD_ERROR_HANDLE = -12
@@ -195,6 +196,7 @@ else:
 		# Match either the escape sequence or text not containing escape sequence
 		ansi_tokans = re.compile('(?:\x1b\[([0-9?;]*)([a-zA-Z])|([^\x1b]+))')
 		def write(self, text):
+			wlock.acquire()
 			for param, cmd, txt in self.ansi_tokans.findall(text):
 				if cmd:
 					cmd_func = self.ansi_command_table.get(cmd)
@@ -206,6 +208,7 @@ else:
 						windll.kernel32.WriteConsoleW(self.hconsole, txt, len(txt), byref(chars_written), None)
 					else:
 						windll.kernel32.WriteConsoleA(self.hconsole, txt, len(txt), byref(chars_written), None)
+			wlock.release()
 
 		def flush(self):
 			pass
