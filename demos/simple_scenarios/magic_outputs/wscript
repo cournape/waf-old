@@ -1,0 +1,43 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2010 (ita)
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+	conf.find_program('touch', mandatory=True)
+
+def build(bld):
+	bld(rule='mkdir -p default/a/b/c/ && touch default/a/b/c/foo.txt', name='blah')
+	bld(rule=do_update, after='blah', always=True)
+
+def do_update(task):
+	update_build_dir(task.generator.path, task.env)
+	task.generator.bld.install_files('/tmp', task.generator.path.ant_glob('**/*.txt', dir=False, bld=True, src=False), postpone=False)
+
+from Constants import SIG_NIL
+import os, stat, Utils, Node
+def update_build_dir(node, env):
+	# don't ask, i am still looking for the bug
+	path = node.abspath(env)
+
+	lst = Utils.listdir(path)
+	try:
+		node.__class__.bld.cache_dir_contents[node.id].update(lst)
+	except KeyError:
+		node.__class__.bld.cache_dir_contents[node.id] = set(lst)
+	node.__class__.bld.cache_scanned_folders[node.id] = True
+
+	for k in lst:
+		npath = path + os.sep + k
+		st = os.stat(npath)
+		if stat.S_ISREG(st[stat.ST_MODE]):
+			node.find_or_declare(k)
+			node.__class__.bld.node_sigs[env.variant()] = SIG_NIL
+		elif stat.S_ISDIR(st[stat.ST_MODE]):
+			child = node.ensure_dir_node_from_path(k)
+			update_build_dir(child, env)
+
