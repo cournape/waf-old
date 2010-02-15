@@ -98,10 +98,10 @@ def check_perl_ext_devel(conf):
 	conf.env.EXTUTILS_TYPEMAP  = read_out('print "$Config{privlib}/ExtUtils/typemap"')
 	conf.env.perlext_PATTERN   = '%s.' + read_out('print $Config{dlext}')[0]
 
-	try:
+	if getattr(Options.options, 'perlarchdir', None):
 		conf.env.ARCHDIR_PERL = Options.options.perlarchdir
-	except AttributeError:
-		conf.env.ARCHDIR_PERL = read_out('print $Config{sitearch}')
+	else:
+		conf.env.ARCHDIR_PERL = read_out('print $Config{sitearch}')[0]
 
 def set_options(opt):
 	opt.add_option("--with-perl-binary", type="string", dest="perlbinary", help = 'Specify alternate perl binary', default=None)
