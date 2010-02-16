@@ -566,6 +566,9 @@ class Node(object):
 		return ret
 
 	def ant_glob(self, *k, **kw):
+		"""
+		known gotcha: will enumerate the files, but only if the folder exists in the source directory
+		"""
 
 		src=kw.get('src', 1)
 		bld=kw.get('bld', 0)
