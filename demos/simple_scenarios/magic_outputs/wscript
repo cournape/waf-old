@@ -36,8 +36,11 @@ def update_build_dir(node, env):
 		st = os.stat(npath)
 		if stat.S_ISREG(st[stat.ST_MODE]):
 			ick = node.find_or_declare(k)
-			node.__class__.bld.node_sigs[env.variant()][ick.id] = SIG_NIL
+			if not (ick.id in node.__class__.bld.node_sigs[env.variant()]):
+				node.__class__.bld.node_sigs[env.variant()][ick.id] = SIG_NIL
 		elif stat.S_ISDIR(st[stat.ST_MODE]):
-			child = node.ensure_dir_node_from_path(k)
+			child = node.find_dir(k)
+			if not child:
+				child = node.ensure_dir_node_from_path(k)
 			update_build_dir(child, env)
 
