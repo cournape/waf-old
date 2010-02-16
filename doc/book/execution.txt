@@ -18,7 +18,7 @@ The Waf script will always look for one valid top-level project file first befor
 
 Now let us create a new Waf project in the folder `/tmp/smallproject`. The first step is to write a wscript file in `/tmp/smallproject/wscript` with the following contents:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
@@ -65,7 +65,7 @@ $ tree
 
 In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by 'waf commandname'. Let us create two new commands 'print_ping' and 'print_pong' in the project created previously (`/tmp/smallproject/`)
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
@@ -144,7 +144,7 @@ Project not configured (run 'waf configure' first)
 
 It is possible to override the behaviour of 'distclean' by redefining it in the wscript file. For example, the following will cause it to avoid removing the build files.
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
@@ -168,7 +168,7 @@ $ waf distclean
 
 The command 'dist' is another predefined utility which is used to create an archive of the project. By using the script presented previously:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
@@ -179,7 +179,7 @@ def configure(ctx):
 
 Execute the command 'dist' to get:
 
-[screen,python]
+[source,python]
 ---------------
 $ waf configure
 → configuring the project
@@ -192,7 +192,7 @@ New archive created: noname-1.0.tar.bz2 (sha='c16c97a51b39c7e5bee35bb6d932a12e29
 
 By default, the project name and version are set to 'noname' and '1.0'. To change them, it is necessary to provide two additional variables in the top-level project file:
 
-[screen,python]
+[source,python]
 ---------------
 APPNAME='webe'
 VERSION='2.0'
@@ -214,7 +214,7 @@ New archive created: webe-2.0.tar.bz2 (sha='7ccc338e2ff99b46d97e5301793824e5941d
 
 The default compression format is <ulink url="http://www.bzip.org/">bzip2</ulink>. It may be changed to <ulink url="http://www.gzip.org/">gzip</ulink> by using the following code:
 
-[screen,python]
+[source,python]
 ---------------
 import Scripting
 Scripting.g_gz = 'gz'
@@ -233,7 +233,7 @@ Although a Waf project must contain a top-level wscript file, the contents may b
 
 The commands in the top-level wscript will call the same commands from a subproject wscript file by calling a context method named 'recurse'.
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
@@ -249,7 +249,7 @@ def print_ping(ctx):
 
 Since src/wscript is not to point to a single project, it is not necessary to duplicate the srcdir and blddir variables.
 
-[screen,python]
+[source,python]
 ---------------
 def configure(ctx):
 	print('→ configure from src')
@@ -276,7 +276,7 @@ $ waf configure print_ping
 
 The Waf command is used for building the actual software. Let's start again from the project file /tmp/smallfolder/wscript:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
@@ -385,7 +385,7 @@ Options:
 
 Accessing a command-line option is possible from any command. Here is how to access the value 'prefix':
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
@@ -406,7 +406,7 @@ $ waf configure
 
 To define project command-line options, a special command named 'set_options' may be defined in user scripts. This command will be called once before any other command executes.
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build_directory'
