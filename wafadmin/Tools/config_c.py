@@ -184,6 +184,11 @@ def exec_cfg(self, kw):
 
 @conf
 def check_cfg(self, *k, **kw):
+	"""
+	for pkg-config mostly, but also all the -config tools
+	conf.check_cfg( path='mpicc', args='--showme:compile --showme:link', package='', uselib_store='OPEN_MPI' )
+	"""
+
 	self.validate_cfg(kw)
 	if 'msg' in kw:
 		self.check_message_1(kw['msg'])
