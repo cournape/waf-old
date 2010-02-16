@@ -10,13 +10,13 @@ The Waf projects are structured based on the following concepts:
 
 When Waf is launched, it looks for the top-level project file, which are Python scripts. A valid Waf project requires at least a top-level Waf script file (named 'wscript' without any extension) containing the three following elements:
 
-.srcdir: string representing the project directory. In general, srcdir is set to '.', except for some proprietary projects where the wscript cannot be added to the top-level, srcdir may be set to '../..' or even some other folder such as '/checkout/perforce/project'
+. srcdir: string representing the project directory. In general, srcdir is set to '.', except for some proprietary projects where the wscript cannot be added to the top-level, srcdir may be set to '../..' or even some other folder such as '/checkout/perforce/project'
 . blddir: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as '.' or '..'.
 . configure: function called for setting up a project (also known as a 'Waf command').
 
 The Waf script will always look for one valid top-level project file first before considering other project files.
 
-Now let us create a new Waf project in the folder <emphasis>/tmp/smallproject</emphasis>. The first step is to write a wscript file in <emphasis>/tmp/smallproject/wscript</emphasis> with the following contents:
+Now let us create a new Waf project in the folder `/tmp/smallproject`. The first step is to write a wscript file in `/tmp/smallproject/wscript` with the following contents:
 
 [screen,python]
 ---------------
@@ -24,7 +24,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('&#8594; → configuring the project')
+	print('→ → configuring the project')
 ---------------
 
 To use a Waf project for the first time, it is necessary to initialize it. Waf will then validate the project file, and create the cache files for later use (lock file, build directory, store the project options):
@@ -36,7 +36,7 @@ $ tree
 `-- wscript
 
 $ waf configure <2>
-&#8594; configuring the project
+→ configuring the project
 'configure' finished successfully (0.021s)
 
 $ tree
@@ -63,7 +63,7 @@ $ tree
 
 === Adding project commands
 
-In the last section, we have see the use of the command <emphasis>configure</emphasis> to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by <emphasis>waf commandname</emphasis>. Let us create two new commands <emphasis>print_ping</emphasis> and <emphasis>print_pong</emphasis> in the project created previously (/tmp/smallproject/)
+In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by 'waf commandname'. Let us create two new commands 'print_ping' and 'print_pong' in the project created previously (`/tmp/smallproject/`)
 
 [screen,python]
 ---------------
@@ -71,7 +71,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('&#8594; configuring the project')
+	print('→ configuring the project')
 
 def print_ping(ctx):
 	print(' ping!')
@@ -86,7 +86,7 @@ Waf commands always take a single parameter called the 'context'. To execute the
 $ cd /tmp/smallproject
 
 $ waf configure
-&#8594; configuring the project
+→ configuring the project
 'configure' finished successfully (0.001s)
 
 $ waf print_ping
@@ -124,11 +124,11 @@ $ waf print_ping print_ping print_ping
 
 === Cleaning up a project
 
-Waf itself comes with a predefined command called <emphasis>distclean</emphasis> which removes the build directory and the lock file. After calling cleaning a project, it is necessary to configure it once again.
+Waf itself comes with a predefined command called 'distclean' which removes the build directory and the lock file. After calling cleaning a project, it is necessary to configure it once again.
 
 ---------------
 $ waf configure
-&#8594; configuring the project
+→ configuring the project
 'configure' finished successfully (0.001s)
 
 $ waf print_ping
@@ -142,7 +142,7 @@ $ waf print_ping
 Project not configured (run 'waf configure' first)
 ---------------
 
-It is possible to override the behaviour of <emphasis>distclean</emphasis> by redefining it in the wscript file. For example, the following will cause it to avoid removing the build files.
+It is possible to override the behaviour of 'distclean' by redefining it in the wscript file. For example, the following will cause it to avoid removing the build files.
 
 [screen,python]
 ---------------
@@ -150,15 +150,15 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('&#8594; configuring the project')
+	print('→ configuring the project')
 
 def distclean(ctx):
 	print(' Not cleaning anything!')
-			</programlisting>
+---------------
 
-			Upon execution:
+Upon execution:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean
  not cleaning anything!
 'distclean' finished successfully (0.000s)
@@ -174,15 +174,15 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('&#8594; configuring the project')
+	print('→ configuring the project')
 ---------------
 
-			Execute the command 'dist' to get:
+Execute the command 'dist' to get:
 
 [screen,python]
 ---------------
 $ waf configure
-&#8594; configuring the project
+→ configuring the project
 'configure' finished successfully (0.001s)
 
 $ waf dist
@@ -201,7 +201,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('&#8594; configuring the project')
+	print('→ configuring the project')
 ---------------
 
 Because the project was configured once, it is not necessary to configure it once again:
@@ -231,7 +231,7 @@ Although a Waf project must contain a top-level wscript file, the contents may b
 `-- wscript
 ---------------
 
-The commands in the top-level wscript will call the same commands from a subproject wscript file by calling a context method named <emphasis>recurse</emphasis>.
+The commands in the top-level wscript will call the same commands from a subproject wscript file by calling a context method named 'recurse'.
 
 [screen,python]
 ---------------
@@ -239,11 +239,11 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('&#8594; configure from the top-level')
+	print('→ configure from the top-level')
 	ctx.recurse('src')
 
 def print_ping(ctx):
-	print('&#8594; ping from the top-level')
+	print('→ ping from the top-level')
 	ctx.recurse('src')
 ---------------
 
@@ -252,10 +252,10 @@ Since src/wscript is not to point to a single project, it is not necessary to du
 [screen,python]
 ---------------
 def configure(ctx):
-	print('&#8594; configure from src')
+	print('→ configure from src')
 
 def print_ping(ctx):
-	print('&#8594; ping from src')
+	print('→ ping from src')
 ---------------
 
 Upon execution, the results will be:
@@ -264,11 +264,11 @@ Upon execution, the results will be:
 $ cd /tmp/smallproject
 
 $ waf configure print_ping
-&#8594; configure from the top-level
-&#8594; configure from src
+→ configure from the top-level
+→ configure from src
 'configure' finished successfully (0.080s)
-&#8594; ping from the top-level
-&#8594; ping from src
+→ ping from the top-level
+→ ping from src
 'print_ping' finished successfully (0.009s)
 ---------------
 
@@ -282,7 +282,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('&#8594; configure from the top-level')
+	print('→ configure from the top-level')
 
 def build(ctx):
 	print('building the software')
@@ -297,7 +297,7 @@ $ waf
 Project not configured (run 'waf configure' first)
 
 $ waf configure
-&#8594; configure from the top-level
+→ configure from the top-level
 'configure' finished successfully (0.001s)
 
 $ waf build
@@ -383,7 +383,7 @@ Options:
     -f, --force         force file installation
 ---------------
 
-Accessing a command-line option is possible from any command. Here is how to access the value <emphasis>prefix</emphasis>:
+Accessing a command-line option is possible from any command. Here is how to access the value 'prefix':
 
 [screen,python]
 ---------------
@@ -393,18 +393,18 @@ blddir = 'build_directory'
 def configure(ctx):
 
 	import Options
-	print('&#8594; prefix is ' + Options.options.prefix)
+	print('→ prefix is ' + Options.options.prefix)
 ---------------
 
 Upon execution, the following will be observed:
 
 ---------------
 $ waf configure
-&#8594; prefix is /usr/local/
+→ prefix is /usr/local/
 'configure' finished successfully (0.001s)
 ---------------
 
-To define project command-line options, a special command named <emphasis>set_options</emphasis> may be defined in user scripts. This command will be called once before any other command executes.
+To define project command-line options, a special command named 'set_options' may be defined in user scripts. This command will be called once before any other command executes.
 
 [screen,python]
 ---------------
@@ -417,14 +417,14 @@ def set_options(ctx):
 def configure(ctx):
 
 	import Options
-	print('&#8594; the value of foo is %r' % Options.options.foo)
+	print('→ the value of foo is %r' % Options.options.foo)
 ---------------
 
 Upon execution, the following will be observed:
 
 ---------------
 $ waf configure --foo=test
-&#8594; the value of foo is 'test'
+→ the value of foo is 'test'
 'configure' finished successfully (0.001s)
 ---------------
 

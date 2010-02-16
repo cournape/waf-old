@@ -11,13 +11,13 @@ Copies of this book may be redistributed, verbatim, and for non-commercial
 purposes. The license for this book is
  http://creativecommons.org/licenses/by-nc-nd/3.0/[by-nc-nd license].
 
-== A word on build systems
+=== A word on build systems
 
 As software is becoming increasingly complex, the process of creating software is becoming more complex too. Today's software uses various languages, requires various compilers, and the input data is spread into many files.
 
 Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), of compilers (CMake, Qmake), or complete applications (SCons, Waf). The term `build system' is used to design the tools used to build applications.
 
-== The Waf framework
+=== The Waf framework
 
 Build systems make assumptions on software it is trying to build, and are typically limited where it comes to processing other languages or different projects. For example, Ant is better suited than Make for managing Java projects, but is more limited than Make for managing simple c projects.
 
@@ -25,7 +25,7 @@ There are so many different languages that creating a build system to support al
 
 The Waf framework is somewhat different than build systems, in the sense that it is essentially a library of components that are suitable for use in a build system. The default distribution contains various plugins for different programming languages and different tools (c, d, ocaml, java, etc).
 
-== Objectives of this book
+=== Objectives of this book
 
 The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals. For the impatients: open the folder `demos/' in the Waf distribution, and start looking at the examples.
 
@@ -55,4 +55,5 @@ include::execution.txt[]
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="conclusion.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="glossary.xml"/>
 /////
+
 
