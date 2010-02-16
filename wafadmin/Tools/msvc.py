@@ -506,11 +506,6 @@ def find_msvc(conf):
 	if has_msvc_manifest:
 		mt = conf.find_program('MT', path_list=path, mandatory=True)
 
-	conf.check_tool('winres')
-
-	if not conf.env.WINRC:
-		warn('Resource compiler not found. Compiling resource file is disabled')
-
 	# no more possibility of failure means the data state will be consistent
 	# we may store the data safely now
 
@@ -530,6 +525,12 @@ def find_msvc(conf):
 	v.AR = ar
 	v.MT = mt
 	v.MTFLAGS = v.ARFLAGS = ['/NOLOGO']
+
+
+	conf.check_tool('winres')
+
+	if not conf.env.WINRC:
+		warn('Resource compiler not found. Compiling resource file is disabled')
 
 	# environment flags
 	try: v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
