@@ -56,6 +56,7 @@ WARNING: The `waf` script must reside in a writable folder to unpack its cache f
 == Installing Waf on a system
 
 Installing Waf on a system is unnecessary and discouraged:
+
 . Interpreter version: unlike the <filename>waf</filename> file, the installed version will not run on Python 3
 . Operating systems: Waf cannot be installed on Windows (yet)
 . Installation: installation is cumbersome, and requires administrative privileges
