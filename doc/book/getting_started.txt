@@ -52,7 +52,6 @@ TIP: A project containing `waf`, `jython2.5.jar` and the source code may be used
 
 WARNING: The `waf` script must reside in a writable folder to unpack its cache files.
 
-
 == Installing Waf on a system
 
 Installing Waf on a system is unnecessary and discouraged:

@@ -11,8 +11,8 @@ import Utils, Options
 srcdir = '.'
 blddir = 'build'
 
-re_xi = re.compile('''<xi:include[^>]+href=['"]([^'">]+)['"][^>]+>''', re.M)
-def xmlscan(self):
+re_xi = re.compile('''^include::([^.]*.txt)\[''', re.M)
+def ascii_doc_scan(self):
 	p = self.inputs[0].parent
 	node_lst = [self.inputs[0]]
 	seen = []
@@ -44,7 +44,7 @@ def build(bld):
 				continue
 			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
 
-	bld(rule='${A2X} -L --icons-dir=. --stylesheet=waf.css --icons -D default -d book -f xhtml ${SRC}', source='waf.txt', target='waf.html', after='copy', name='single')
+	bld(rule='${A2X} -L --icons-dir=. --stylesheet=waf.css --icons -D default -d book -f xhtml ${SRC}', source='waf.txt', target='waf.html', after='copy', name='single', scan=ascii_doc_scan)
 	bld(rule='cp ${SRC} ${TGT}', source='waf.html', target='single.html', after='single')
 
 	if Options.options.exe:
