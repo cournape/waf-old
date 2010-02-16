@@ -493,7 +493,7 @@ class Node(object):
 		return self.name[k:]
 
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
-		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
+		"""find nodes in the filesystem hierarchy, try to instanciate the nodes passively; same gotcha as ant_glob"""
 		bld_ctx = self.__class__.bld
 		bld_ctx.rescan(self)
 		for name in bld_ctx.cache_dir_contents[self.id]:
@@ -532,7 +532,7 @@ class Node(object):
 		raise StopIteration
 
 	def find_iter(self, in_pat=['*'], ex_pat=exclude_pats, prune_pat=prune_pats, src=True, bld=True, dir=False, maxdepth=25, flat=False):
-		"find nodes recursively, this returns everything but folders by default"
+		"""find nodes recursively, this returns everything but folders by default; same gotcha as ant_glob"""
 
 		if not (src or bld or dir):
 			raise StopIteration
