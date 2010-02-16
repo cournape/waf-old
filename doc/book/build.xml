@@ -143,7 +143,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 	</section>
 
 
-	<section id="installing">
+	<section id="installing_files">
 		<title>Installing files</title>
 		<para>
 			Three build context methods are provided for installing files:
