@@ -1,0 +1,79 @@
+== Getting Started
+
+=== Obtaining Waf
+
+The Waf project is located on http://code.google.com/p/waf[Google Code].
+The current Waf version requires an interpreter for the Python programming language such as http://www.python.org[cPython] 2.3 to 3.1 or http://www.jython.org[Jython] >= 2.5. Note that Waf requires bzip2 compression support, which may be unavailable in self-compiled cPython installations.
+
+==== Using the Waf binary
+
+The Waf binary does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it into &quot;waf&quot; if necessary:
+
+---------------
+$ wget http://waf.googlecode.com/files/waf-1.5.11
+$ mv waf-1.5.11 waf && chmod 755 waf
+---------------
+
+==== Generating the Waf binary from the source code
+
+The Waf binary creation requires a Python interpreter in version 2.4 to 2.6. The source code is processed to support Python 2.3 and Python 3.
+
+---------------
+$ wget http://waf.googlecode.com/files/waf-1.5.11.tar.bz2
+$ tar xjvf waf-1.5.11.tar.bz2
+$ cd waf-1.5.11
+$ ./waf-light --make-waf
+---------------
+
+=== Running Waf
+
+The `waf` script can be used directly from a writeable folder:
+
+---------------
+$ ./waf
+---------------
+
+Or, if the executable permissions are not set properly:
+
+---------------
+$ python waf
+---------------
+
+The `waf` file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+
+---------------
+$ ls -ld .waf*
+.waf-1.5.11-2c924e3f453eb715218b9cc852291170
+---------------
+
+By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the http://www.jython.org[Jython] interpreter in the version 2.5 may be redistributed along with a copy of the Waf executable.
+
+TIP: A project containing `waf`, `jython2.5.jar` and the source code may be used almost anywhere.
+
+WARNING: The `waf` script must reside in a writable folder to unpack its cache files.
+
+
+== Installing Waf on a system
+
+Installing Waf on a system is unnecessary and discouraged:
+. Interpreter version: unlike the <filename>waf</filename> file, the installed version will not run on Python 3
+. Operating systems: Waf cannot be installed on Windows (yet)
+. Installation: installation is cumbersome, and requires administrative privileges
+. Waf versions: users rarely install the appropriate software version (too old, too new, bugs)
+. Bugs: projects may depend on unspecified behaviour in particular Waf versions
+. Size: the `waf` file is small enough to be redistributed (about 80kB)
+
+Installation require a Python interpreter in the versions 2.4 to 2.6. It may require administrator or root privileges, depending on the target folder (prefix).
+
+---------------
+# ./waf-light configure --prefix=/usr/
+# ./waf-light install
+---------------
+
+Likewise, Waf can be uninstalled using:
+
+---------------
+# ./waf-light --prefix=/usr/
+# ./waf-light uninstall
+---------------
+
