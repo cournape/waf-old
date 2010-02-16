@@ -37,7 +37,15 @@ def configure(conf):
 
 def build(bld):
 
-	bld(rule='(${A2X} -L --icons -D default -d book -f xhtml ${SRC} && mv default/waf.html default/single.html); rm -f default/waf.html', source='waf.txt', target='single.html')
+	for k in ['pics', 'callouts']:
+		files = os.listdir(k)
+		for x in files:
+			if x == '.svn':
+				continue
+			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
+
+	bld(rule='${A2X} -L --icons-dir=. --stylesheet=waf.css --icons -D default -d book -f xhtml ${SRC}', source='waf.txt', target='waf.html', after='copy', name='single')
+	bld(rule='cp ${SRC} ${TGT}', source='waf.html', target='single.html', after='single')
 
 	if Options.options.exe:
 		def exe(ctx):
