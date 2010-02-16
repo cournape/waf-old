@@ -1,3 +1,9 @@
+NEW IN WAF 1.5.13
+-----------------
+* fixed a regression in the perl tool (archdir)
+* fixed a regression in ansiterm.py (typo)
+* fixed a regression in msvc.py
+
 NEW IN WAF 1.5.12
 -----------------
 * zip file creation for 'dist' archives
