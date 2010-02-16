@@ -11,17 +11,24 @@ def configure(conf):
 	conf.find_program('touch', mandatory=True)
 
 def build(bld):
-	bld(rule='mkdir -p default/a/b/c/ && touch default/a/b/c/foo.txt', name='blah')
-	bld(rule=do_update, after='blah', always=True)
+	"""
+	create files in the build directory
+	upon installation, update the list of files to install them
+	"""
 
-def do_update(task):
+	bld(rule='mkdir -p default/a/b/c/ && touch default/a/b/c/foo.txt', name='blah')
+
+	import Options
+	if Options.is_install:
+		bld(rule=update_and_install, after='blah', always=True)
+
+def update_and_install(task):
 	update_build_dir(task.generator.path, task.env)
-	task.generator.bld.install_files('/tmp', task.generator.path.ant_glob('**/*.txt', dir=False, bld=True, src=False), postpone=False)
+	task.generator.bld.install_files('/tmp/foo/', task.generator.path.ant_glob('**/*.txt', bld=True))
 
 from Constants import SIG_NIL
 import os, stat, Utils, Node
 def update_build_dir(node, env):
-	# don't ask, i am still looking for the bug
 	path = node.abspath(env)
 
 	lst = Utils.listdir(path)
