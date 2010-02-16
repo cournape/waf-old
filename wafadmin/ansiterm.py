@@ -29,7 +29,7 @@ else:
 	import re, threading
 
 	to_int = lambda number, default: number and int(number) or default
-	wlock = threading.lock()
+	wlock = threading.Lock()
 
 	STD_OUTPUT_HANDLE = -11
 	STD_ERROR_HANDLE = -12
