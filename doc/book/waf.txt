@@ -33,23 +33,23 @@ The first chapters contain a detailed description of the basic use of Waf. The c
 
 include::getting_started.txt[]
 include::execution.txt[]
-
+include::configuration.txt[]
 include::chains.txt[]
 
 /////
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="getting_started.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="execution.xml"/>
+
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="configuration.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="build.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variants.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="make_like_rules.xml"/>
+
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="chains.xml"/>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task_generators.xml"/>
-
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task_system.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task_schedulers.xml"/>
-
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="c_builds.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scenarios.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scripting.xml"/>
