@@ -109,9 +109,27 @@ def build(bld):
 <5> Add all the VAR_NAME corresponding to the uselib NAME, which is 'TEST' in this example
 <6> 'Model to avoid': setting the flags and checking for the configuration must be performed in the configuration section
 
-The variables used for c/c++ are the following: STATICLIB, LIB, LIBPATH, LINKFLAGS, RPATH, CXXFLAGS, CCFLAGS, CPPPATH, CPPFLAGS, CXXDEFINES, FRAMEWORK, FRAMEWORKPATH, CXXDEPS. The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
+The variables used for c/c++ are the following:
 
-TIP: the task generator attributes match the configuration data set variable, but in lowercase (for example bld.env.CXXFLAGS, mylib.cxxflags), except for the attribute 'includes', which is matched by CPPPATH.
+.Uselib variables and task generator attributes for c/c++
+[options="header"]
+|=================
+|Uselib variable | Attribute | Usage
+|LIB      |lib      | list of sharedlibrary names to use, without prefix or extension
+|STATICLIB|staticlib| list of static library names to use, without prefix or extension
+|LIBPATH  |libpath  | list of search path for shared and static libraries
+|RPATH    |rpath    | list of paths to hard-code into the binary during linking time
+|CXXFLAGS |cxxflags | flags to use during the compilation of c++ files
+|CCFLAGS  |ccflags  | flags to use during the compilation of c files
+|CPPPATH  |includes | include paths
+|CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
+|CCDEPS   |         | same as above, for c
+|FRAMEWORK|framework| list of frameworks to use, requires the waf tool 'osx'
+|FRAMEWORKPATH|frameworkpath| list of framework paths to use, requires the waf tool 'osx'
+|=================
+
+
+The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
 
 === Specific settings by object files
 
