@@ -3,13 +3,13 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="variants">
-	<title>Build copies and variants</title>
+	<title>Build copies and variants
 	<section id="build_duplication">
-		<title>Using several build folders</title>
+		<title>Using several build folders
 		<para>
 			It is not possible to use several Waf instances concurrently over the same build folder. Yet, several Waf instances may use the project at the same time. For this, two options must be set:
 			<itemizedlist>
-				<listitem>The environment variable <emphasis>WAFCACHE</emphasis></listitem>
+				<listitem>The environment variable 'WAFCACHE'</listitem>
 				<listitem>The build directory, using a command-line option</listitem>
 			</itemizedlist>
 			Here is an example for a simple project located in <filename>/tmp/smallfolder</filename>:
@@ -75,23 +75,23 @@ $ tree -a
 			</programlisting>
 
 			<calloutlist>
-				<callout arearefs="lock-co1" id="lock1"><para>The environment variable <emphasis>WAFLOCK</emphasis> points at the configuration of the project in use.</para></callout>
+				<callout arearefs="lock-co1" id="lock1"><para>The environment variable 'WAFLOCK' points at the configuration of the project in use.</para></callout>
 				<callout arearefs="lock-co2" id="lock2"><para>The lockfile is created during the configuration.</para></callout>
 				<callout arearefs="lock-co3" id="lock3"><para>The files are output in the build directory<filename>debug</filename></para></callout>
-				<callout arearefs="lock-co4" id="lock4"><para>The configuration <emphasis>release</emphasis> is used with a different lock file and a different build directory.</para></callout>
+				<callout arearefs="lock-co4" id="lock4"><para>The configuration 'release' is used with a different lock file and a different build directory.</para></callout>
 				<callout arearefs="lock-co5" id="lock5"><para>The contents of the project directory contain the two lock files and the two build folders.</para></callout>
 			</calloutlist>
 		</para>
 	</section>
 
 	<section id="config_variants">
-		<title>Defining variants</title>
+		<title>Defining variants
 		<para>
-			Using different build folders is very useful for checking at some point if a different configuration would compile properly. To create different kinds of builds at once, it is possible to use <emphasis>Waf variants</emphasis> to predefine the configuration sets for specific output subdirectories.
+			Using different build folders is very useful for checking at some point if a different configuration would compile properly. To create different kinds of builds at once, it is possible to use 'Waf variants' to predefine the configuration sets for specific output subdirectories.
 		</para>
 
 		<para>
-			We will now demonstrate the definition and the usage of two variants named <emphasis>default</emphasis> and <emphasis>debug</emphasis> respectively:
+			We will now demonstrate the definition and the usage of two variants named 'default' and 'debug' respectively:
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'out_bld'
@@ -120,14 +120,14 @@ def build(bld):
 
 			<calloutlist>
 				<callout arearefs="vari-co1" id="vari1"><para>Create a copy of the default data set.</para></callout>
-				<callout arearefs="vari-co2" id="vari2"><para>Set the copy to use the variant named <emphasis>debug</emphasis>: task using it will output their files into <filename>out_bld/debug</filename></para></callout>
+				<callout arearefs="vari-co2" id="vari2"><para>Set the copy to use the variant named 'debug': task using it will output their files into <filename>out_bld/debug</filename></para></callout>
 				<callout arearefs="vari-co3" id="vari3"><para>Bind the configuration set to the configuration. The configuration set will be saved when the configuration terminates</para></callout>
-				<callout arearefs="vari-co4" id="vari4"><para>Replace <emphasis>conf.env</emphasis> by our new debug configuration set</para></callout>
-				<callout arearefs="vari-co44" id="vari44"><para>Waf tools store their configuration data on conf.env, in this case the <emphasis>debug</emphasis> configuration set, not in the default</para></callout>
-				<callout arearefs="vari-co5" id="vari5"><para>Store a variable on the <emphasis>debug</emphasis> configuration set</para></callout>
-				<callout arearefs="vari-co6" id="vari6"><para>Define another variant called <emphasis>release</emphasis>. The variant name and the configuration set name may be different.</para></callout>
+				<callout arearefs="vari-co4" id="vari4"><para>Replace 'conf.env' by our new debug configuration set</para></callout>
+				<callout arearefs="vari-co44" id="vari44"><para>Waf tools store their configuration data on conf.env, in this case the 'debug' configuration set, not in the default</para></callout>
+				<callout arearefs="vari-co5" id="vari5"><para>Store a variable on the 'debug' configuration set</para></callout>
+				<callout arearefs="vari-co6" id="vari6"><para>Define another variant called 'release'. The variant name and the configuration set name may be different.</para></callout>
 				<callout arearefs="vari-co7" id="vari7"><para>Task generator for the default variant.</para></callout>
-				<callout arearefs="vari-co8" id="vari8"><para>The argument <emphasis>env</emphasis> is given to specify the task generator configuration set. The configuration set holds the variant definition.</para></callout>
+				<callout arearefs="vari-co8" id="vari8"><para>The argument 'env' is given to specify the task generator configuration set. The configuration set holds the variant definition.</para></callout>
 				<callout arearefs="vari-co9" id="vari9"><para>Environments may be retrieved by name from the build context object. It is recommended to make copies to avoid accidental data sharing.</para></callout>
 			</calloutlist>
 
@@ -181,7 +181,7 @@ bar
 
 
 	<section id="cloning_taskgens">
-		<title>Cloning task generators</title>
+		<title>Cloning task generators
 		<para>
 			A cloning scheme is provided for duplicating task generators for several variants easily. A general design pattern is to duplicate the task generators for the desired variants immediately before the build starts. Here is an example, also available in the folder <filename>demos/cxx</filename> of the Waf distribution.
 
@@ -214,15 +214,15 @@ def build(bld):
 			</programlisting>
 
 			<calloutlist>
-				<callout arearefs="varai-co1" id="varai1"><para>Add a command-line option for enabling or disabling the <emphasis>release</emphasis> and <emphasis>debug</emphasis> builds</para></callout>
-				<callout arearefs="varai-co2" id="varai2"><para>The configuration will create the <emphasis>release</emphasis> and <emphasis>debug</emphasis> configuration sets, bound to a variant of the same names</para></callout>
+				<callout arearefs="varai-co1" id="varai1"><para>Add a command-line option for enabling or disabling the 'release' and 'debug' builds</para></callout>
+				<callout arearefs="varai-co2" id="varai2"><para>The configuration will create the 'release' and 'debug' configuration sets, bound to a variant of the same names</para></callout>
 				<callout arearefs="varai-co3" id="varai3"><para>Targets are declared normally for the default variant</para></callout>
 				<callout arearefs="varai-co4" id="varai4"><para>A copy of the existing task generators is created to avoid the creation of an infinite loop (new task generator instances get added to that list)</para></callout>
-				<callout arearefs="varai-co5" id="varai5"><para>Clone a task generator for the configuration set <emphasis>debug</emphasis> or <emphasis>release</emphasis>. Making task generator clones is a cheap operation compared to duplicating tasks.</para></callout>
+				<callout arearefs="varai-co5" id="varai5"><para>Clone a task generator for the configuration set 'debug' or 'release'. Making task generator clones is a cheap operation compared to duplicating tasks.</para></callout>
 				<callout arearefs="varai-co6" id="varai6"><para>Look at the command-line arguments, and disable the unwanted variant(s)</para></callout>
 				<callout arearefs="varai-co7" id="varai7"><para>Disable the original task generator for the default configuration set (do not use it).</para></callout>
 			</calloutlist>
-			Some task generators are use indexed attributes to generate unique values which may cause unnecessary rebuilds if the scripts change. To avoid problems, it is a best practice to create the task generators for the default configuration set first. Also, the method <emphasis>clone</emphasis> is not a substitute for creating instances for lots of nearly identical task generators. In such a situation, it will be better to use one task generator to create lots of tasks. As a reminder, creating task generator clones for the same variant will lead to build errors.
+			Some task generators are use indexed attributes to generate unique values which may cause unnecessary rebuilds if the scripts change. To avoid problems, it is a best practice to create the task generators for the default configuration set first. Also, the method 'clone' is not a substitute for creating instances for lots of nearly identical task generators. In such a situation, it will be better to use one task generator to create lots of tasks. As a reminder, creating task generator clones for the same variant will lead to build errors.
 
 			<warning>
 				Do not create task generator clones for the same variant or for the same configuration set.

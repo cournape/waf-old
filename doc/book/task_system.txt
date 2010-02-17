@@ -3,9 +3,9 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="task_system">
-	<title>The Task system</title>
+	<title>The Task system
 	<section id="task_creation">
-		<title>Task creation and execution</title>
+		<title>Task creation and execution
 		<para>
 			When Waf tasks are created, they are not executed immediately, for example it is not necessary to rebuild an application if the source files have not changed. Some tasks may also depend on other tasks which may not be created yet. For this reasons Waf delays the execution of tasks to the point when all build functions have been executed.
 		</para>
@@ -19,19 +19,19 @@
 	</section>
 
 	<section id="task_execution">
-		<title>Task execution</title>
+		<title>Task execution
 		<para>
-			Executing a task consists in calling the method <emphasis>run</emphasis> on that task, and setting the task execution state.
+			Executing a task consists in calling the method 'run' on that task, and setting the task execution state.
 			The following diagram is a summary of the process:
 			<graphic format="png" fileref="task_run.png" align="center"/>
-			The method <emphasis>post_run</emphasis> can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
+			The method 'post_run' can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
 		</para>
 	</section>
 
 	<section id="task_parallel">
-		<title>Task execution in parallel</title>
+		<title>Task execution in parallel
 		<para>
-			Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option <emphasis>-j1</emphasis>. To enhance parallelization, use the option <emphasis>-j</emphasis> with the amount of consumers:
+			Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option '-j1'. To enhance parallelization, use the option '-j' with the amount of consumers:
 			<programlisting language="sh">
 $ waf -j3
 			</programlisting>
@@ -41,7 +41,7 @@ $ waf -j3
 			<itemizedlist>
 				<listitem>There is little need for parallelizing the computation of the next task to execute, choosing the next task is fast enough</listitem>
 				<listitem>The thread issues are limited to a very small section of the code</listitem>
-				<listitem>The producer-consumer scheme prevents <emphasis>busy waiting</emphasis> for the next task</listitem>
+				<listitem>The producer-consumer scheme prevents 'busy waiting' for the next task</listitem>
 				<listitem>A simple global error handler can be used for processing the errors and to decide to stop the build</listitem>
 			</itemizedlist>
 			The following illustrates the relationship producer-consumer performed for the builds:
@@ -50,7 +50,7 @@ $ waf -j3
 	</section>
 
 	<section id="task_execution_order">
-		<title>Task execution order</title>
+		<title>Task execution order
 			<para>
 				Running tasks in parallel is a simple problem, but in practice it is more complicated:
 				<itemizedlist>
@@ -67,7 +67,7 @@ $ waf -j3
 				</orderedlist>
 			</para>
 			<sect2>
-				<title>Task groups</title>
+				<title>Task groups
 				<para>
 					In some circumstances it is necessary to build a compiler and all its dependencies before using it for executing some other tasks (bootstrapping). The following demonstrates how declare groups of tasks to be executed after other groups of tasks:
 					<programlisting language="python">
@@ -108,9 +108,9 @@ def build(bld):
 			</sect2>
 
 			<sect2>
-				<title>Precedence constraints</title>
+				<title>Precedence constraints
 				<para>
-					The attributes <emphasis>before</emphasis> and <emphasis>after</emphasis> are used to declare ordering constraints between tasks:
+					The attributes 'before' and 'after' are used to declare ordering constraints between tasks:
 					<programlisting language="python">
 import Task
 class task_test_a(Task.TaskBase):
@@ -131,21 +131,21 @@ class task_test_b(Task.TaskBase):
 			</sect2>
 
 			<sect2>
-				<title>Precedence constraints on task instances</title>
+				<title>Precedence constraints on task instances
 				<para>
-					The method <emphasis>set_run_after</emphasis> is used to declare ordering constraints between tasks:
+					The method 'set_run_after' is used to declare ordering constraints between tasks:
 					<programlisting language="python">
 task1.set_run_after(task2)
 					</programlisting>
-					unlike the previous constraints, it is used on the instances of class <emphasis>Task</emphasis> which is a subclass of class <emphasis>TaskBase</emphasis>
+					unlike the previous constraints, it is used on the instances of class 'Task' which is a subclass of class 'TaskBase'
 				</para>
 			</sect2>
 
 	</section>
 
 	<section id="execution_tracking">
-		<title>Executing tasks only when something changes</title>
-		<para>The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class <emphasis>Task</emphasis> provides the necessary features for the most common builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
+		<title>Executing tasks only when something changes
+		<para>The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class 'Task' provides the necessary features for the most common builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
 		</para>
 		<para>
 			The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):

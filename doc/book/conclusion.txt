@@ -3,12 +3,12 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="conclusion">
-	<title>Conclusion</title>
+	<title>Conclusion
 	<para>
 		The features provided by Waf aim at building software in a maintainable manner, in which the dependencies for other piece of software is limited to the compilers and a Python installation. Due to the amount of features provided by Waf, the book is forcibly incomplete. For greater understanding and practice the following links are recommended to the reader:
 
 <table id="links">
-<title>Recommended links</title>
+<title>Recommended links
 
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
 

@@ -3,9 +3,9 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="c_projects">
-	<title>C and C++ projects</title>
+	<title>C and C++ projects
 	<section id="common_c">
-		<title>Common script for C/C++ applications</title>
+		<title>Common script for C/C++ applications
 		<para>
 			The c/c++ builds consist in transforming source files into object files, and to assemble the object files at the end. In theory a single programming language should be sufficient for writing any application, but in practice slight variations exist:
 			<itemizedlist>
@@ -37,31 +37,31 @@ def build(bld):
 
 			<calloutlist>
 				<callout arearefs="compiler-co" id="a0">
-					<para>Load the c/c++ support routines (such as the features below) and try to find a suitable compiler for the build. The support for c++ is loaded by <emphasis>compiler_cxx</emphasis></para>
+					<para>Load the c/c++ support routines (such as the features below) and try to find a suitable compiler for the build. The support for c++ is loaded by 'compiler_cxx'</para>
 				</callout>
 				<callout arearefs="taskgen-co" id="a1">
-					<para>Task generator declaration; each element in the list represent a feature; it is possible to add several languages at once (<emphasis>ocaml and c++</emphasis> for example), but the one of <emphasis>cstaticlib, cshlib or cprogram</emphasis> must be chosen.</para>
+					<para>Task generator declaration; each element in the list represent a feature; it is possible to add several languages at once ('ocaml and c++' for example), but the one of 'cstaticlib, cshlib or cprogram' must be chosen.</para>
 				</callout>
 				<callout arearefs="src-co" id="a2">
 					<para>List of source, it may be either a python list, or a string containing the file names separated with spaces. This list may contain file names of different extensions to make hybrid applications.</para>
 				</callout>
 				<callout arearefs="tgt-co" id="a3">
-					<para>Target name, it is concerted to the name of the binary <emphasis>name.so</emphasis> or <emphasis>name.exe</emphasis> depending on the platform and the features.</para>
+					<para>Target name, it is concerted to the name of the binary 'name.so' or 'name.exe' depending on the platform and the features.</para>
 				</callout>
 				<callout arearefs="incl-co" id="a4">
 					<para>List of include paths, it may be either a python list, or a string containing the paths separated by spaces. The paths are used for both the command-line and for finding the implicit dependencies (headers). In general, include paths must be relative to the wscript file and given explicitly. See <xref linkend="include_sys"/>.</para>
 				</callout>
 				<callout arearefs="inst-co" id="a5">
-					<para>Installation directory, this is where to install the library or program produced. The <emphasis>${}</emphasis> expression is a reference to a variable to be extracted from <emphasis>tgen.env</emphasis>. By default it is set to ${PREFIX}/bin for programs and ${PREFIX}/lib for libraries. To disable the installation, set it to <emphasis>None</emphasis>.</para>
+					<para>Installation directory, this is where to install the library or program produced. The '${}' expression is a reference to a variable to be extracted from 'tgen.env'. By default it is set to ${PREFIX}/bin for programs and ${PREFIX}/lib for libraries. To disable the installation, set it to 'None'.</para>
 				</callout>
 				<callout arearefs="defi-co" id="a6">
-					<para>Command-line defines: list of defines to add to the command-line with the <emphasis>-D</emphasis> prefix. To reduce the size of the command-line, it is possible to use a configuration header, see the following section for more details.</para>
+					<para>Command-line defines: list of defines to add to the command-line with the '-D' prefix. To reduce the size of the command-line, it is possible to use a configuration header, see the following section for more details.</para>
 				</callout>
 				<callout arearefs="ccflags-co" id="a7">
-					<para>Command-line compilation flags, for the c++ language the attribute is called <emphasis>cxxflags</emphasis></para>
+					<para>Command-line compilation flags, for the c++ language the attribute is called 'cxxflags'</para>
 				</callout>
 				<callout arearefs="shlib-co" id="a8">
-					<para>Shared libraries may be given directly (use <emphasis>staticlib</emphasis> and <emphasis>staticlibpath</emphasis> for static libraries)</para>
+					<para>Shared libraries may be given directly (use 'staticlib' and 'staticlibpath' for static libraries)</para>
 				</callout>
 				<callout arearefs="vnum-co" id="a88">
 					<para>Version number for shared libraries</para>
@@ -75,9 +75,9 @@ def build(bld):
 	</section>
 
 	<section id="uselib">
-		<title>Library interaction (uselib)</title>
+		<title>Library interaction (uselib)
 		<para>
-			To link a library against another one created in the same Waf project, the attribute <emphasis>uselib_local</emphasis> may be used. The include paths, the link path and the library name are automatically exported, and the dependent binary is recompiled when the library changes:
+			To link a library against another one created in the same Waf project, the attribute 'uselib_local' may be used. The include paths, the link path and the library name are automatically exported, and the dependent binary is recompiled when the library changes:
 			<programlisting language="python">
 def build(bld):
 	staticlib = bld(
@@ -110,7 +110,7 @@ def build(bld):
 			</calloutlist>
 		</para>
 		<para>
-			To link an application against various <emphasis>system libraries</emphasis>, several compilation flags and link flags must be given at once. To reduce the maintenance, a system called <emphasis>uselib</emphasis> can be used to give all the flags at the same time:
+			To link an application against various 'system libraries', several compilation flags and link flags must be given at once. To reduce the maintenance, a system called 'uselib' can be used to give all the flags at the same time:
 			<programlisting language="python">
 def configure(conf):
 	conf.env.CPPPATH_TEST = ['/usr/include'] <co id="uselib-cpppath-co" linkends="c1"/>
@@ -149,7 +149,7 @@ def build(bld):
 					<para>Add all the VAR_NAME corresponding to the uselib NAME, which is 'TEST' in this example</para>
 				</callout>
 				<callout arearefs="uselib-dontuse-co" id="c6">
-					<para><emphasis>Model to avoid</emphasis>: setting the flags and checking for the configuration must be performed in the configuration section</para>
+					<para>'Model to avoid': setting the flags and checking for the configuration must be performed in the configuration section</para>
 				</callout>
 			</calloutlist>
 			The variables used for c/c++ are the following: STATICLIB, LIB, LIBPATH, LINKFLAGS, RPATH, CXXFLAGS, CCFLAGS, CPPPATH, CPPFLAGS, CXXDEFINES, FRAMEWORK, FRAMEWORKPATH, CXXDEPS. The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
@@ -157,7 +157,7 @@ def build(bld):
 	</section>
 
 	<section id="add_objects">
-		<title>Specific settings by object files</title>
+		<title>Specific settings by object files
 		<para>
 			In some cases, it is necessary to re-use object files generated by another task generator to avoid recompilations. This is similar to copy-pasting code, so it is discouraged in general. Another use for this is to enable some compilation flags for specific files. The attribute "add_objects" can be used, like in the following example:
 			<programlisting language="python">
@@ -191,7 +191,7 @@ def build(bld):
 	</section>
 
 	<section id="config_headers">
-		<title>Using configuration headers</title>
+		<title>Using configuration headers
 		<para>
 			Adding lots of command-line define values increases the size of the command-line and conceals the useful information (differences). Some projects use headers which are generated during the configuration, they are not modified during the build and they are not installed or redistributed. This system is useful for huge projects, and has been made popular by autoconf-based projects.
 		</para>
@@ -205,7 +205,7 @@ def configure(conf):
 	conf.define('LIBF_VERSION', '1.0.2')
 	conf.write_config_header('config.h')
 			</programlisting>
-			The code snipped will produce the following <emphasis>config.h</emphasis> in the build directory:
+			The code snipped will produce the following 'config.h' in the build directory:
 			<programlisting language="sh">
 build/
 |-- c4che
@@ -231,9 +231,9 @@ build/
 	</section>
 
 	<section id="include_sys">
-		<title>The include system</title>
+		<title>The include system
 		<sect2>
-			<title>The Waf preprocessor</title>
+			<title>The Waf preprocessor
 		<para>
 			Include paths are used by the c/c++ compilers for finding the headers. When one header changes, the files are recompiled automatically. Includes must be given in the following form:
 			<programlisting language="python">
@@ -252,7 +252,7 @@ def build(bld):
 #define mymacro "foo.h"
 #include mymacro
 		</programlisting>
-			Using the compiler for finding the dependencies would not work for applications requiring file preprocessing such as Qt. For Qt, special include files having the <emphasis>.moc</emphasis> extension must be detected by the build system and produced ahead of time. The c compiler could not parse such files.
+			Using the compiler for finding the dependencies would not work for applications requiring file preprocessing such as Qt. For Qt, special include files having the '.moc' extension must be detected by the build system and produced ahead of time. The c compiler could not parse such files.
 		<programlisting language="c">
 #include "foo.moc"
 		</programlisting>
@@ -262,7 +262,7 @@ def build(bld):
 		</sect2>
 
 		<sect2>
-			<title>Portability recommandations</title>
+			<title>Portability recommandations
 			<para>
 				By default, the preprocessing does not climb to system headers. This may lead to missed depdendencies in the cases similar to the following:
 				<programlisting language="c">
@@ -271,7 +271,7 @@ def build(bld):
 	#include "foo.h"
 #endif
 				</programlisting>
-				To write portable code and to ease debugging, it is strongly recommended to put all the conditions used in the project into a <emphasis>config.h</emphasis> file.
+				To write portable code and to ease debugging, it is strongly recommended to put all the conditions used in the project into a 'config.h' file.
 				<programlisting language="python">
 def configure(conf):
 	conf.check(
@@ -291,7 +291,7 @@ preproc.go_absolute = True
 		</sect2>
 
 		<sect2>
-			<title>Debugging dependencies</title>
+			<title>Debugging dependencies
 			<para>
 				The Waf preprocessor contains a specific debugging zone:
 				<programlisting language="sh">
@@ -307,9 +307,9 @@ $ waf --zones=deps
 	</section>
 
 	<section id="config_helpers_c">
-		<title>Configuration helpers</title>
+		<title>Configuration helpers
 		<para>
-			The method <emphasis>check</emphasis> is used to detect parameters using a small build project. The main parameters are the following
+			The method 'check' is used to detect parameters using a small build project. The main parameters are the following
 			<itemizedlist>
 				<listitem>msg: title of the test to execute</listitem>
 				<listitem>okmsg: message to display when the test succeeds</listitem>
@@ -344,7 +344,7 @@ def configure(conf):
 					<para>Try to compile a program using the configuration header time.h, if present on the system, if the test is successful, the define HAVE_TIME_H will be added</para>
 				</callout>
 				<callout arearefs="cc2-co" id="cc2">
-					<para>Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails. Note that convenience methods <emphasis>check_cc</emphasis> and <emphasis>check_cxx</emphasis> only define the compilation mode <emphasis>compile_mode</emphasis></para>
+					<para>Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails. Note that convenience methods 'check_cc' and 'check_cxx' only define the compilation mode 'compile_mode'</para>
 				</callout>
 				<callout arearefs="cc3-co" id="cc3">
 					<para>Try to compile a piece of code, and if the test is successful, define the name boobah</para>
@@ -362,7 +362,7 @@ def configure(conf):
 					<para>After all the tests are executed, write a configuration header in the build directory (optional). The configuration header is used to limit the size of the command-line.</para>
 				</callout>
 			</calloutlist>
-			Here is an example of a <emphasis>config.h</emphasis> produced with the previous test code:
+			Here is an example of a 'config.h' produced with the previous test code:
 			<programlisting language="c">
 /* Configuration header created by Waf - do not edit */
 #ifndef _CONFIG_H_WAF
@@ -389,18 +389,18 @@ dep_files = ['config.h']
 waf_config_files = ['/compilation/waf/demos/adv/build/default/config.h']
 			</programlisting>
 
-			<note>The methods <emphasis>conf.check</emphasis> all use task generators internally. This means that the attributes <emphasis>includes</emphasis>, <emphasis>defines</emphasis>, <emphasis>cxxflags</emphasis> may be used (not all shown here).</note>
-			<note>The attribute <emphasis>compile_mode</emphasis> may also contain user-defined task generator features.</note>
+			<note>The methods 'conf.check' all use task generators internally. This means that the attributes 'includes', 'defines', 'cxxflags' may be used (not all shown here).</note>
+			<note>The attribute 'compile_mode' may also contain user-defined task generator features.</note>
 		</para>
 	</section>
 
 	<section id="pkg_config">
-		<title>Pkg-config</title>
+		<title>Pkg-config
 		<para>
-			Instead of duplicating the configuration detection in all dependent projects, configuration files may be written when libraries are installed. To ease the interaction with build systems based on Make (cannot query databases or apis), small applications have been created for reading the cache files and to interpret the parameters (with names traditionally ending in <emphasis>-config</emphasis>): <ulink url="http://pkg-config.freedesktop.org/wiki/">pkg-config</ulink>, wx-config, sdl-config, etc.
+			Instead of duplicating the configuration detection in all dependent projects, configuration files may be written when libraries are installed. To ease the interaction with build systems based on Make (cannot query databases or apis), small applications have been created for reading the cache files and to interpret the parameters (with names traditionally ending in '-config'): <ulink url="http://pkg-config.freedesktop.org/wiki/">pkg-config</ulink>, wx-config, sdl-config, etc.
 		</para>
 		<para>
-			Waf provides the method <emphasis>check_cfg</emphasis> for querying config parameters:
+			Waf provides the method 'check_cfg' for querying config parameters:
 			<programlisting language="python">
 def configure(conf):
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0') <co id="pk1-co" linkends="pk1"/>
@@ -430,7 +430,7 @@ def configure(conf):
 			</calloutlist>
 		</para>
 		<para>
-			Due to the amount of flags, the lack of standards between config applications, and to the output changing for different operating systems (-I for gcc, /I for msvc), the output of pkg-config is parsed, and the variables for the corresponding uselib are set in a go. The function <emphasis>parse_flags(line, uselib, env)</emphasis> in the Waf module config_c.py performs the output analysis.
+			Due to the amount of flags, the lack of standards between config applications, and to the output changing for different operating systems (-I for gcc, /I for msvc), the output of pkg-config is parsed, and the variables for the corresponding uselib are set in a go. The function 'parse_flags(line, uselib, env)' in the Waf module config_c.py performs the output analysis.
 		</para>
 	</section>
 

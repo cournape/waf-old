@@ -3,10 +3,10 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="task_schedulers">
-	<title>The scheduler for executing the tasks</title>
+	<title>The scheduler for executing the tasks
 
 	<section id="sheduler_model">
-		<title>The task execution model</title>
+		<title>The task execution model
 		<para>
 			Task dependencies and task ordering specify the exact order in which tasks must be executed. When tasks are executed in parallel, different algorithms may be used to improve the compilation times. For example, tasks that are known to last longer may be launched first. Linking tasks that use a lot of ram (in the context of c++ applications) may be launched alone to avoid disk thrashing by saving RAM.</para>
 		<para>
@@ -16,7 +16,7 @@
 	</section>
 
 	<section id="job_control">
-		<title>Job control</title>
+		<title>Job control
 		<para>
 			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice
 		</para>
@@ -62,7 +62,7 @@ Runner.Parallel.refill_task_list = refill_task_list
 	</section>
 
 	<section id="weak_order">
-		<title>Weak task order constraints</title>
+		<title>Weak task order constraints
 		<para>
 			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <ulink url="http://en.wikipedia.org/wiki/Job-shop_problem"><citetitle>Job Shop</citetitle></ulink>. In practice this problem can often be reduced to a critical path problem (approximation).
 		</para>

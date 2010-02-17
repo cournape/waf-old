@@ -2,7 +2,7 @@
 
 === Storing configuration sets
 
-Configuration sets are instances of the class <emphasis>Environment</emphasis>. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called <emphasis>env</emphasis> is usually stored:
+Configuration sets are instances of the class 'Environment'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
 
 [screen,python]
 ---------------
@@ -44,7 +44,7 @@ PREFIX = '/usr/local'
 TEST = 'test'
 ---------------
 
-The default configuration is stored to the cache file named <emphasis>default.cache.py</emphasis>. The configuration set will always contain the default variable PREFIX, which is used to indicate the default directory in which to install something (in case there is something to install). The cache file is written in pseudo-python, and may be edited manually if necessary.
+The default configuration is stored to the cache file named 'default.cache.py'. The configuration set will always contain the default variable PREFIX, which is used to indicate the default directory in which to install something (in case there is something to install). The cache file is written in pseudo-python, and may be edited manually if necessary.
 
 Although the conf.env object is similar to a Python dict, a few routines are present to ease value access:
 
@@ -113,7 +113,7 @@ Waf: Leaving directory `/comp/waf/demos/simple_scenarios/folders/build'
 
 === Launching and catching configuration exceptions
 
-Configuration helpers are methods provided by the conf object to help finding parameters, for example the method <emphasis>conf.find_program</emphasis>
+Configuration helpers are methods provided by the conf object to help finding parameters, for example the method 'conf.find_program'
 
 [screen,python]
 ---------------
@@ -121,7 +121,7 @@ def configure(conf):
 	conf.find_program('test')
 ---------------
 
-When a test fails, the exception <emphasis>Configure.ConfigurationException</emphasis> is raised. For example, such exceptions are thrown when a program could not be found:
+When a test fails, the exception 'Configure.ConfigurationException' is raised. For example, such exceptions are thrown when a program could not be found:
 
 [screen,python]
 ---------------
@@ -143,7 +143,7 @@ Checking for program gjc,cjg             : not found
  error: The program ['gjc', 'cjg'] could not be found
 ---------------
 
-It is sometimes useful to raise such an exception manually by using <emphasis>conf.fatal</emphasis>:
+It is sometimes useful to raise such an exception manually by using 'conf.fatal':
 
 [screen,python]
 ---------------
@@ -162,7 +162,7 @@ $ echo $?
 
 === Loading Waf tools
 
-For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called <emphasis>Waf tools</emphasis> and located under the folder <filename>wafadmin/Tools</filename>. The contributed tools, or the tools in testing phase are located under the folder <filename>wafadmin/3rdparty</filename>.</para>
+For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder <filename>wafadmin/Tools</filename>. The contributed tools, or the tools in testing phase are located under the folder <filename>wafadmin/3rdparty</filename>.</para>
 
 Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named <filename>dang.py</filename>:
 
@@ -185,11 +185,11 @@ import Build
 Build.BuildContext.build_hello = build_hello <3>
 ---------------
 
-<1> The decorator <emphasis>conftest</emphasis> is used to bind functions as new methods to the <emphasis>configuration context class</emphasis>
-<2> The default detection method to execute when the tool is loaded is called <emphasis>detect</emphasis>
+<1> The decorator 'conftest' is used to bind functions as new methods to the 'configuration context class'
+<2> The default detection method to execute when the tool is loaded is called 'detect'
 <3> New methods may be bound at runtime onto various classes, here the build context class
 
-For loading a tool, the method <emphasis>check_tool</emphasis> must be used during the configuration. The same tools are then loaded during the build.:
+For loading a tool, the method 'check_tool' must be used during the configuration. The same tools are then loaded during the build.:
 
 [screen,python]
 ---------------
@@ -222,9 +222,9 @@ def build(bld):
 
 <1> By loading a Waf tool at the root of a script, the detection routines will not be executed (discouraged)
 <2> By loading a Waf tool using 'import', the tool will not be loaded at build time (discouraged)
-<3> Just an example to show if the method <emphasis>check_cc</emphasis> is present on the configuration context class
+<3> Just an example to show if the method 'check_cc' is present on the configuration context class
 <4> Load the tool providing configuration routines for c and c++ support (the method check_cc)
-<5> When tools provide a method named <emphasis>detect</emphasis>, it is executed during <emphasis>conf.check_tool</emphasis>
+<5> When tools provide a method named 'detect', it is executed during 'conf.check_tool'
 <6> Use specific functions instead of calling the default
 <7> To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
 <8> Use the build context method defined in dang.py
@@ -245,7 +245,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
 ---------------
 
-=== Handling configuration exceptions</title>
+=== Handling configuration exceptions
 
 An error handler attached to the conf object is used for catching the Configuration exceptions and processing the errors. Here is how to replace the default configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception:
 

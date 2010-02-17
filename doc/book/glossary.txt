@@ -4,13 +4,13 @@
 
 
 <glossary id="glossary">
-	<title>Glossary</title>
+	<title>Glossary
 	<para>
 	Waf essential terms
 	</para>
 
 	<!--glossdiv>
-		<title>E</title>
+		<title>E
 		<glossentry id="xml">
 			<glossterm>Extensible Markup Language</glossterm>
 			<acronym>XML</acronym>
@@ -45,7 +45,7 @@
 		<glossterm>Tool</glossterm>
 		<glossdef>
 			<para>
-				A Waf tool is a python module containing Waf-specific extensions. The Waf tools are located in the folder <filename>wafadmin/Tools/</filename> and usually contain a global variable <emphasis>detect</emphasis> which may reference functions to execute in the configuration.
+				A Waf tool is a python module containing Waf-specific extensions. The Waf tools are located in the folder <filename>wafadmin/Tools/</filename> and usually contain a global variable 'detect' which may reference functions to execute in the configuration.
 			</para>
 		</glossdef>
 	</glossentry>

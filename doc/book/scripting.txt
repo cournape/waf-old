@@ -3,10 +3,10 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="scripting">
-	<title>Customizing the scripting system</title>
+	<title>Customizing the scripting system
 
 	<section id="custom_commands">
-		<title>Providing custom commands</title>
+		<title>Providing custom commands
 		<para>
 			Waf commands are functions defined on the top-level wscript file, for example, with the following wscript file:
 			<programlisting language="python">
@@ -28,7 +28,7 @@ test
 		</para>
 
 		<para>
-			The parameter <emphasis>ctx</emphasis> in the function foo above is provided to enable recursion and sharing data with the scripts. In the following example, the script <filename>subdir/wscript_<emphasis>foo</emphasis></filename> will be looked up, and executed if found. Else, the script <filename>subdir/wscript</filename> will be looked up and loaded as a module. If successfully loaded, the function <emphasis>foo</emphasis> will be executed, else an exception is raised.
+			The parameter 'ctx' in the function foo above is provided to enable recursion and sharing data with the scripts. In the following example, the script <filename>subdir/wscript_'foo'</filename> will be looked up, and executed if found. Else, the script <filename>subdir/wscript</filename> will be looked up and loaded as a module. If successfully loaded, the function 'foo' will be executed, else an exception is raised.
 			<programlisting language="python">
 def foo(ctx):
 	"""help string for the command foo"""
@@ -37,12 +37,12 @@ def foo(ctx):
 		</para>
 
 		<para>
-			For backward compatibility reasons, the commands <emphasis>init, shutdown, dist</emphasis> and <emphasis>distcheck</emphasis> do not accept a context as parameter yet.
+			For backward compatibility reasons, the commands 'init, shutdown, dist' and 'distcheck' do not accept a context as parameter yet.
 		</para>
 	</section>
 
 	<section id="chaining_commands">
-		<title>Chaining commands</title>
+		<title>Chaining commands
 		<para>
 			Since Waf 1.5.4, it is possible to chain several commands, for example:
 			<programlisting language="sh">
@@ -58,14 +58,14 @@ $ waf distclean &amp;&amp; waf configure &amp;&amp; waf
 			<programlisting language="sh">
 $ waf distclean configure build clean build
 			</programlisting>
-			As a special exception, the function <emphasis>init</emphasis> is always prepended to the commands to execute, and the function <emphasis>shutdown</emphasis> is always appended.
+			As a special exception, the function 'init' is always prepended to the commands to execute, and the function 'shutdown' is always appended.
 		</para>
 	</section>
 
 	<section id="context_command">
-		<title>Providing a custom command context</title>
+		<title>Providing a custom command context
 		<para>
-			The context for a command is created automatically, and is derived from the class <emphasis>Utils.Context</emphasis>. Custom context instance may be provided in the following manner:
+			The context for a command is created automatically, and is derived from the class 'Utils.Context'. Custom context instance may be provided in the following manner:
 			<programlisting language="python">
 def foo(ctx):
 	pass
@@ -76,11 +76,11 @@ def foo_context(Utils.Context):
 		print("a context for 'foo'")
 			</programlisting>
 		</para>
-		Custom contexts may be provided for the functions <emphasis>configure</emphasis> and <emphasis>build</emphasis>.
+		Custom contexts may be provided for the functions 'configure' and 'build'.
 	</section>
 
 	<section id="new_commands">
-		<title>Creating aliases / Injecting new commands</title>
+		<title>Creating aliases / Injecting new commands
 		<para>
 			New commands may be injected in the following manner:
 			<programlisting language="python">
@@ -88,7 +88,7 @@ import Scripting
 def foo(ctx):
 	Scripting.commands += ['build', 'clean']
 			</programlisting>
-			Injecting new commands is useful for writing testcases. By executing <emphasis>waf test</emphasis>, the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
+			Injecting new commands is useful for writing testcases. By executing 'waf test', the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
 			<programlisting language="python">
 VERSION = '0.0.1'
 APPNAME = 'my_testcase'
