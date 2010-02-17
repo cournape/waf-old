@@ -47,7 +47,7 @@ def build(bld):
 	bld(rule='${A2X} -L --icons-dir=. --stylesheet=waf.css --icons -v -D default -d book -f xhtml ${SRC}', source='waf.txt', target='waf.html', after='copy', name='single', scan=ascii_doc_scan)
 	bld(rule='cp ${SRC} ${TGT}', source='waf.html', target='single.html', after='single')
 
-	bld(rule='${A2X} -L --icons-dir=. -v --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}', source='waf.txt', target='waf.pdf', after='copy', name='single', scan=ascii_doc_scan)
+	#bld(rule='${A2X} -L --icons-dir=. -v --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}', source='waf.txt', target='waf.pdf', after='copy', name='single', scan=ascii_doc_scan)
 
 	if Options.options.exe:
 		def exe(ctx):
