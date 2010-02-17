@@ -1,8 +1,4 @@
-<?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" >
-
-
+///////
 <glossary id="glossary">
 	<title>Glossary
 	<para>
@@ -51,4 +47,4 @@
 	</glossentry>
 
 </glossary>
-
+///////

@@ -91,21 +91,22 @@ def build(bld):
 back = False
 def package(ctx): <2>
 	global back
-	Scripting.commands.insert(0, 'package') <2>
-	Scripting.commands.insert(0, 'install') <3>
-	back = Options.options.destdir <4>
+	Scripting.commands.insert(0, 'package') <3>
+	Scripting.commands.insert(0, 'install') <4>
+	back = Options.options.destdir <5>
 	Options.options.destdir = '/tmp/foo'
 
-def create_package(ctx): <5>
+def create_package(ctx): <6>
 	global back
 	print("packaging")
-	Options.options.destdir = back <6>
+	Options.options.destdir = back <7>
 ---------------
 
-<1> perform the installation normally
-<2> postpone the actual package creation
-<3> now the next command to execute is the installation, and after the installation, the package creation will be performed
-<4> change the value of 'destdir' for installing the files into a temporary directory
-<5> command for creating the package
-<6> restore the value of 'destdir', in case if more commands are to be executed
+<1> perform the installation
+<2> users will call 'waf package' to create the package
+<3> postpone the actual package creation
+<4> now the next command to execute is the installation, and after the installation, the package creation will be performed
+<5> change the value of 'destdir' for installing the files into a temporary directory
+<6> command for creating the package
+<7> restore the value of 'destdir', in case if more commands are to be executed
 

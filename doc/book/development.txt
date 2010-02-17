@@ -1,8 +1,3 @@
-<?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
->
-
 == Using the development version
 
 === Tracing the execution
@@ -40,63 +35,20 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 
 The following zones are used in Waf:
 
-<table id="debugging_zones">
-<title>Debugging zones
+.Debugging zones
+[options="header"]
+|=================
+|Zone   | Meaning
+|runner| command-lines executed (enabled when -v is provided without debugging zones)
+|deps| implicit dependencies found (task scanners)
+|task_gen|task creation (from task generators) and task generator method execution
+|action|functions to execute for building the targets
+|env| environment contents
+|envhash| hashes of the environment objects - helps seeing what changes
+|build| build context operations such as filesystem access
+|=================
 
-<tgroup cols='2' align='left' colsep='1' rowsep='1'>
-
-<colspec colname='c1'/>
-<colspec colname='c2'/>
-
-<thead>
-<row>
-  <entry>Zone</entry>
-  <entry>Meaning</entry>
-</row>
-</thead>
-
-<tbody>
-
-<row>
-  <entry>runner</entry>
-  <entry>command-lines executed (enabled when -v is provided without debugging zones)</entry>
-</row>
-
-<row>
-  <entry>task_gen</entry>
-  <entry>task creation (from task generators)</entry>
-</row>
-
-<row>
-  <entry>action</entry>
-  <entry>functions to execute for building the targets</entry>
-</row>
-
-<row>
-  <entry>env</entry>
-  <entry>environment contents</entry>
-</row>
-
-<row>
-  <entry>envhash</entry>
-  <entry>hashes of the environment objects - helps seeing what changes</entry>
-</row>
-
-<row>
-  <entry>build</entry>
-  <entry>build context operations such as filesystem access</entry>
-</row>
-
-<row>
-  <entry>deps</entry>
-  <entry>implicit dependencies found (task scanners)</entry>
-</row>
-
-</tbody>
-</tgroup>
-</table>
-
-
+WARNING: Debugging information can be displayed only after the command-line has been parsed. For example, no debugging information will be displayed when a waf tool is being by 'tool_options'
 
 === Benchmarking
 

@@ -1,101 +1,32 @@
-<?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
->
 
-==Overview of the Waf architecture
+== Overview of the Waf architecture
 
-== The core library
+=== The core library
 
 Waf is based on 12 modules which constitute the core library. They are located in the directory `wafadmin/`. The modules located under `wafadmin/Tools` add support for programming languages and more tools, but are not essential for the Waf core.
 
-<table id="core_lib_ref">
-<title>The core library
-<tgroup cols='2' align='left' colsep='1' rowsep='1'>
 
-<colspec colname='c1'/>
-<colspec colname='c2'/>
-
-<thead>
-<row>
-  <entry>Module</entry>
-  <entry>Role</entry>
-</row>
-</thead>
-
-<tbody>
-
-<row>
-  <entry>Build</entry>
-  <entry>Defines the build context class, which holds the data for one build (paths, configuration data)</entry>
-</row>
-
-<row>
-  <entry>Configure</entry>
-  <entry>Contains the configuration context class, which is used for launching configuration tests, and the extension system</entry>
-</row>
-
-<row>
-  <entry>Constants</entry>
-  <entry>Provides the constants used in the project</entry>
-</row>
-
-<row>
-  <entry>Environment</entry>
-  <entry>Contains a dictionary class which supports a lightweight copy scheme and provides persistence services</entry>
-</row>
-
-<row>
-  <entry>Logs</entry>
-  <entry>Provide a logging system</entry>
-</row>
-
-<row>
-  <entry>Node</entry>
-  <entry>Contains the file system representation class</entry>
-</row>
-
-<row>
-  <entry>Options</entry>
-  <entry>Provides a custom command-line option processing system based on optparse</entry>
-</row>
-
-<row>
-  <entry>Runner</entry>
-  <entry>Contains the task execution system (threaded producer-consumer)</entry>
-</row>
-
-<row>
-  <entry>Scripting</entry>
-  <entry>Constitutes the entry point of the Waf application, use the command-line for launching the configuration, the build, etc</entry>
-</row>
-
-<row>
-  <entry>TaskGen</entry>
-  <entry>Provide the task generator system, and its extension system based on method addition</entry>
-</row>
-
-<row>
-  <entry>Task</entry>
-  <entry>Contains the task classes, and the task containers.</entry>
-</row>
-
-<row>
-  <entry>Utils</entry>
-  <entry>Contains the support functions and classes re-used in other Waf modules</entry>
-</row>
-
-
-</tbody>
-</tgroup>
-</table>
-	</para>
+.The core library
+[options="header"]
+|=================
+|Module    | Role
+|Build     | Defines the build context class, which holds the data for one build (paths, configuration data)
+|Configure | Contains the configuration context class, which is used for launching configuration tests, and the extension system
+|Constants | Provides the constants used in the project
+|Environment | Contains a dictionary class which supports a lightweight copy scheme and provides persistence services
+|Logs        | Loggging system
+|Node        | Contains the file system representation class
+|Options     | Provides a custom command-line option processing system based on optparse
+|Runner      | Contains the task execution system (thread-based producer-consumer)
+|Scripting   | Constitutes the entry point of the Waf application, executes the user commands such as build, configuration and installation
+|TaskGen     | Provides the task generator system, and its extension system based on method addition
+|Task        | Contains the task classes, and the task containers
+|Utils       | Contains the support functions and classes re-used in other Waf modules
+|=================
 
 The essential classes and methods from the core library are represented on the following diagram:
 
 image::classes.png[]
-
-
 
 
 === Build context instances
@@ -106,100 +37,33 @@ Executing tasks, accessing the file system and consulting the results of a previ
 
 The build context holds all the information necessary for a build. To accelerate the start-up, a part of the information is stored and loaded between the runs. The persistent attributes are the following:
 
-<table id="build_context_persistence">
-<title>Build context persistence
 
-<tgroup cols='2' align='left' colsep='1' rowsep='1'>
-
-<colspec colname='c1'/>
-<colspec colname='c2'/>
-
-<thead>
-<row>
-  <entry>Attribute</entry>
-  <entry>Information</entry>
-</row>
-</thead>
-
-<tbody>
-
-<row>
-  <entry>root</entry>
-  <entry>Node representing the root of the file system</entry>
-</row>
-<row>
-  <entry>srcnode</entry>
-  <entry>Node representing the source directory</entry>
-</row>
-<row>
-  <entry>bldnode</entry>
-  <entry>Node representing the build directory</entry>
-</row>
-<row>
-  <entry>node_sigs</entry>
-  <entry>File hashes (dict mapping Node ids to hashes)</entry>
-</row>
-<row>
-  <entry>node_deps</entry>
-  <entry>Implicit dependencies (dict mapping Node ids)</entry>
-</row>
-<row>
-  <entry>raw_deps</entry>
-  <entry>Implicit file dependencies which could not be resolved (dict mapping Node ids to lists of strings)</entry>
-</row>
-<row>
-  <entry>task_sigs</entry>
-  <entry>Signature of the tasks previously run (dict mapping a Task id to a hash)</entry>
-</row>
-<row>
-  <entry>id_nodes</entry>
-  <entry>Sequence for generating unique node instance ids (id of the last Node created)</entry>
-</row>
-
-</tbody>
-</tgroup>
-</table>
-
+.Build context persistence
+[options="header"]
+|=================
+|Attribute    | Information
+|root| Node representing the root of the file system
+|srcnode| Node representing the source directory
+|bldnode| Node representing the build directory (rarely used)
+|node_sigs| File hashes (dict mapping Node ids to hashes)
+|node_deps| Implicit dependencies (dict mapping Node ids)
+|raw_deps| Implicit file dependencies which could not be resolved (dict mapping Node ids to lists of strings)
+|task_sigs| Signature of the tasks previously run (dict mapping a Task id to a hash)
+|id_nodes| Sequence for generating unique node instance ids (id of the last Node created)
+|=================
 
 ==== Build context access
 
 In previous Waf releases, the build context was supposed to be a unique object (one build active at a time). To enable the use of Waf as a library, the dependency on the singleton 'Build.bld' was removed. This implies that each object should be able to obtain its build context from its attributes. Here are a few examples:
 
-<table id="build_context_access">
-<title>Build context access
-
-<tgroup cols='2' align='left' colsep='1' rowsep='1'>
-
-<colspec colname='c1'/>
-<colspec colname='c2'/>
-
-<thead>
-<row>
-  <entry>Object type</entry>
-  <entry>Build context access</entry>
-</row>
-</thead>
-
-<tbody>
-
-<row>
-  <entry>Node</entry>
-  <entry>self.__class__.bld</entry>
-</row>
-<row>
-  <entry>task_gen</entry>
-  <entry>self.bld</entry>
-</row>
-<row>
-  <entry>Task</entry>
-  <entry>self.generator.bld</entry>
-</row>
-
-</tbody>
-</tgroup>
-</table>
-			</para>
-
+.Build context access
+[options="header"]
+|=================
+|Object type| Build context access
+|Node| self.__class__.bld
+|task_gen| self.bld
+|Task| self.generator.bld
+|=================
 
 ==== Parallelization concerns
 
