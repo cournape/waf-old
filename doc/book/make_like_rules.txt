@@ -86,7 +86,7 @@ def configure(conf):
 
 def build(bld):
 	def run(task): <1>
-		print(' &#8594; source is ' + task.generator.source) <2>
+		print(' → source is ' + task.generator.source) <2>
 
 		src = task.inputs[0].srcpath(task.env) <3>
 		tgt = task.outputs[0].bldpath(task.env) <4>
@@ -118,7 +118,7 @@ $ waf distclean configure build
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
 [1/1] same.txt: wscript -> out/default/same.txt
- &#8594; source is wscript
+ → source is wscript
 cp ../wscript default/same.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.010s)
@@ -373,7 +373,7 @@ Although task generators will create the tasks in the relevant order, tasks are 
 . order: sequential constraints between the tasks being executed (here, the commands)
 . dependency: executing a task if another task is executed
 
-For illustation purposes, let's create the following chain '`wscript` &#8594; `w1.txt` &#8594; `w2.txt`'. The order constraint is given by the attribute 'after' which references a task class name. For rule-based task generators, the task class name is bound to the attribute 'name'
+For illustation purposes, let's create the following chain '`wscript` → `w1.txt` → `w2.txt`'. The order constraint is given by the attribute 'after' which references a task class name. For rule-based task generators, the task class name is bound to the attribute 'name'
 
 [source,python]
 ---------------

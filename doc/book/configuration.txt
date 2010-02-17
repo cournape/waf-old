@@ -162,7 +162,7 @@ $ echo $?
 
 === Loading Waf tools
 
-For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `wafadmin/Tools`. The contributed tools, or the tools in testing phase are located under the folder `wafadmin/3rdparty`.</para>
+For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `wafadmin/Tools`. The contributed tools, or the tools in testing phase are located under the folder `wafadmin/3rdparty`.
 
 Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named `dang.py`:
 
@@ -172,14 +172,14 @@ from Configure import conftest <1>
 
 @conftest
 def detect(conf): <2>
-	print('&#8594; detect fron dang!')
+	print('→ detect fron dang!')
 
 @conftest
 def test_hello(conf):
-	print('&#8594; test from dang!')
+	print('→ test from dang!')
 
 def build_hello(self):
-	print('&#8594; build hello from dang!')
+	print('→ build hello from dang!')
 
 import Build
 Build.BuildContext.build_hello = build_hello <3>
@@ -204,9 +204,9 @@ def configure(conf):
 
 	def is_check_cc_present():
 		try:
-			print('&#8594; method conf.check_cc %r' % conf.check_cc) <3>
+			print('→ method conf.check_cc %r' % conf.check_cc) <3>
 		except:
-			print('&#8594; there is no method conf.check_cc')
+			print('→ there is no method conf.check_cc')
 
 	is_check_cc_present()
 	conf.check_tool('config_c') <4>
@@ -234,13 +234,13 @@ Upon execution, the output will be the following:
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)
-&#8594; there is no method conf.check_cc
-&#8594; method conf.check_cc (ConfigurationContext.check_cc)
-&#8594; detect fron dang!
-&#8594; test from dang!
+→ there is no method conf.check_cc
+→ method conf.check_cc (ConfigurationContext.check_cc)
+→ detect fron dang!
+→ test from dang!
 'configure' finished successfully (0.003s)
 Waf: Entering directory `/tmp/smallproject/build'
-&#8594; build hello from dang!
+→ build hello from dang!
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
 ---------------

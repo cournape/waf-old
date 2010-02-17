@@ -116,7 +116,7 @@ def build(bld):
 ---------------
 
 <1> The method ant_glob is called on a node object, and not on the build context
-<2> The patterns may contain wildcards such as * or ?, but they are <ulink url="http://ant.apache.org/manual/CoreTypes/patternset.html">Ant patterns</ulink>, not regular expressions
+<2> The patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/CoreTypes/patternset.html[Ant patterns], not regular expressions
 <3> Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system
 <4> The '**' indicates to consider folders recursively. Use with care.
 <5> By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.

@@ -187,7 +187,7 @@ Here are a few important points about scanner methods:
 
 === Extension callbacks
 
-In the chain declaration from the previous sections, the attribute 'reentrant' was described to control if the generated files are to be processed or not. There are cases however where one of the two generated files must be declared (because it will be used as a dependency) but where it cannot be considered as a source file in itself (like a header in c/c++). Now consider the following two chains (uh.in &#8594; uh.a1 + uh.a2) and (uh.a1 &#8594; uh.b) in the following example:
+In the chain declaration from the previous sections, the attribute 'reentrant' was described to control if the generated files are to be processed or not. There are cases however where one of the two generated files must be declared (because it will be used as a dependency) but where it cannot be considered as a source file in itself (like a header in c/c++). Now consider the following two chains (uh.in → uh.a1 + uh.a2) and (uh.a1 → uh.b) in the following example:
 
 [source,python]
 ---------------
