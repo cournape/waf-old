@@ -24,7 +24,7 @@ srcdir = '.'
 blddir = 'build_directory'
 
 def configure(ctx):
-	print('→ → configuring the project')
+	print('→ configuring the project')
 ---------------
 
 To use a Waf project for the first time, it is necessary to initialize it. Waf will then validate the project file, and create the cache files for later use (lock file, build directory, store the project options):
