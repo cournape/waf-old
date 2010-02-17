@@ -1,32 +1,24 @@
-<?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
->
-<chapter id="task_gen">
-	<title>General purpose task generators
+== General purpose task generators
 
-	<section id="task_generator_methods">
-		<title>Task generator definition
-		<para>
-			The chapter on make-like rules illustrated how the attribute 'rule' is processed. Then the chapter on name and extension-based file processing illustrated how the attribute 'source' is processed (in the absence of the rule attribute). To process 'any attribute', the following properties should hold:
-			<itemizedlist>
-				<listitem>Attributes should be processed only when the task generator is set to generate the tasks (lazy processing)</listitem>
-				<listitem>There is no list of authorized attributes (task generators may be extended by user scripts)</listitem>
-				<listitem>Attribute processing should be controlable on a task generator instance basis (special rules for particular task generators)</listitem>
-				<listitem>The extensions should be split into independent files (low coupling between the Waf tools)</listitem>
-			</itemizedlist>
-		</para>
+=== Task generator definition
 
-		<para>
-			Implementing such a system is a difficult problem which lead to the creation of very different designs:
-			<orderedlist>
-				<listitem>'A hierarchy of task generator subclasses' It was abandoned due to the high coupling between the Waf tools: the C tools required knowledge from the D tool for building hybrid applications</listitem>
-				<listitem>'Method decoration (creating linked lists of method calls)' Replacing or disabling a method safely was no longer possible (addition-only), so this system disappeared quickly</listitem>
-				<listitem>'Flat method and execution constraint declaration' The concept is close to aspect-oriented programming and may scare programmers.</listitem>
-			</orderedlist>
-			So far, the third design proved to be the most flexible and was kept. Here is how to define a task generator method:
+The chapter on make-like rules illustrated how the attribute 'rule' is processed. Then the chapter on name and extension-based file processing illustrated how the attribute 'source' is processed (in the absence of the rule attribute). To process 'any attribute', the following properties should hold:
 
-			<programlisting language="python">
+. Attributes should be processed only when the task generator is set to generate the tasks (lazy processing)
+. There is no list of authorized attributes (task generators may be extended by user scripts)
+. Attribute processing should be controlable on a task generator instance basis (special rules for particular task generators)
+. The extensions should be split into independent files (low coupling between the Waf tools)
+
+Implementing such a system is a difficult problem which lead to the creation of very different designs:
+
+. 'A hierarchy of task generator subclasses' It was abandoned due to the high coupling between the Waf tools: the C tools required knowledge from the D tool for building hybrid applications
+. 'Method decoration (creating linked lists of method calls)' Replacing or disabling a method safely was no longer possible (addition-only), so this system disappeared quickly
+. 'Flat method and execution constraint declaration' The concept is close to aspect-oriented programming and may scare programmers.
+
+So far, the third design proved to be the most flexible and was kept. Here is how to define a task generator method:
+
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -35,36 +27,25 @@ def configure(conf):
 
 def build(bld):
 	v = bld(myattr='Hello, world!')
-	#v.myattr = 'Hello, world!' <co id="feati1-co" linkends="feati1"/>
-	v.myMethod() <co id="feati2-co" linkends="feati2"/>
+	#v.myattr = 'Hello, world!' <1>
+	v.myMethod() <2>
 
 import TaskGen
 
-@TaskGen.taskgen <co id="feati3-co" linkends="feati3"/>
-def myMethod(tgen): <co id="feati5-co" linkends="feati5"/>
-	print(getattr(self, 'myattr', None)) <co id="feati6-co" linkends="feati6"/>
-			</programlisting>
+@TaskGen.taskgen <3>
+def myMethod(tgen): <4>
+	print(getattr(self, 'myattr', None)) <5>
+---------------
 
-			<calloutlist>
-				<callout arearefs="feati1-co" id="feati1">
-					<para>Attributes may be set by arguments or by accessing the object (commented here)</para>
-				</callout>
-				<callout arearefs="feati2-co" id="feati2">
-					<para>Call the task generator method explicitely</para>
-				</callout>
-				<callout arearefs="feati3-co" id="feati3">
-					<para>Use a python decorator</para>
-				</callout>
-				<callout arearefs="feati5-co" id="feati5">
-					<para>Task generator methods have a unique argument representing the current instance</para>
-				</callout>
-				<callout arearefs="feati6-co" id="feati6">
-					<para>Process the attribute 'myattr' when present (the case in the example)</para>
-				</callout>
-			</calloutlist>
+<1> Attributes may be set by arguments or by accessing the object (commented here)
+<2> Call the task generator method explicitely
+<3> Use a python decorator
+<4> Task generator methods have a unique argument representing the current instance
+<5> Process the attribute 'myattr' when present (the case in the example)
 
-			The output from the build will be the following:
-			<programlisting language="sh">
+The output from the build will be the following:
+
+---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
 'configure' finished successfully (0.001s)
@@ -72,22 +53,16 @@ Waf: Entering directory `/tmp/simpleproject/out'
 hello world
 Waf: Leaving directory `/tmp/simpleproject/out'
 'build' finished successfully (0.003s)
-			</programlisting>
-		</para>
+---------------
 
-		<note>The method could be bound by using 'setattr' directly, like for binding any new method on a python class.</note>
+TIP: The method could be bound by using 'setattr' directly, like for binding any new method on a python class.
 
-	</section>
+=== Executing the method during the build
 
-	<!-- bind the feature to all, then demonstrate what it to to make one feature, then the order -->
+So far, the task generator methods defined are only executed through explicit calls. Another decorator is necessary to have a task generator executed during the build phase automatically. Here is the updated example:
 
-
-	<section id="task_generator_all">
-		<title>Executing the method during the build
-
-		<para>
-			So far, the task generator methods defined are only executed through explicit calls. Another decorator is necessary to have a task generator executed during the build phase automatically. Here is the updated example:
-				<programlisting language="python">
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -99,71 +74,47 @@ def build(bld):
 
 import TaskGen
 
-@TaskGen.taskgen <co id="featj1-co" linkends="featj1"/>
-@TaskGen.feature('*') <co id="featj2-co" linkends="featj2"/>
+@TaskGen.taskgen <1>
+@TaskGen.feature('*') <2>
 def methodName(self):
 	print(getattr(self, 'myattr', None))
-				</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="featj1-co" id="featj1">
-					<para>Bind a method to the task generator class (optional when other methods such as 'TaskGen.feature' are used)</para>
-				</callout>
-				<callout arearefs="featj2-co" id="featj2">
-					<para>Bind the method to the symbol 'myfeature'</para>
-				</callout>
-			</calloutlist>
+<1> Bind a method to the task generator class (optional when other methods such as 'TaskGen.feature' are used)
+<2> Bind the method to the symbol 'myfeature'
 
-			The execution results will be the following:
+The execution results will be the following:
 
-			<programlisting language="sh">
-$ waf distclean configure build --zones=task_gen <co id="feata1-co" linkends="feata1"/>
+---------------
+$ waf distclean configure build --zones=task_gen <1>
 'distclean' finished successfully (0.004s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/simpleproject/out'
 23:03:44 task_gen posting objects (normal)
-23:03:44 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&gt; 139657958706768 <co id="feata2-co" linkends="feata2"/>
-23:03:44 task_gen -> exec_rule (139657958706768) <co id="feata3-co" linkends="feata3"/>
-23:03:44 task_gen -> apply_core (139657958706768) <co id="feata4-co" linkends="feata4"/>
-23:03:44 task_gen -> methodName (139657958706768) <co id="feata5-co" linkends="feata5"/>
+23:03:44 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&gt; 139657958706768 <2>
+23:03:44 task_gen -> exec_rule (139657958706768) <3>
+23:03:44 task_gen -> apply_core (139657958706768) <4>
+23:03:44 task_gen -> methodName (139657958706768) <5>
 Hello, world!
-23:03:44 task_gen posted <co id="feata6-co" linkends="feata6"/>
+23:03:44 task_gen posted <6>
 Waf: Leaving directory `/tmp/simpleproject/out'
 23:03:44 task_gen posting objects (normal)
 'build' finished successfully (0.004s)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="feata1-co" id="feata1">
-					<para>The debugging zone 'task_gen' is used to display the task generator methods being executed</para>
-				</callout>
-				<callout arearefs="feata2-co" id="feata2">
-					<para>Display which task generator is being executed</para>
-				</callout>
-				<callout arearefs="feata3-co" id="feata3">
-					<para>The method 'exec_rule' is used to process the 'rule'. It is always executed.</para>
-				</callout>
-				<callout arearefs="feata4-co" id="feata4">
-					<para>The method 'apply_core' is used to process the 'source' attribute. It is always executed exept if the method 'exec_rule' processes a 'rule' attribute</para>
-				</callout>
-				<callout arearefs="feata5-co" id="feata5">
-					<para>Our task generator method is executed, and prints 'Hello, world!'</para>
-				</callout>
-				<callout arearefs="feata6-co" id="feata6">
-					<para>The task generator methods have been executed, the task generator is marked as done (posted)</para>
-				</callout>
-			</calloutlist>
-		</para>
+<1> The debugging zone 'task_gen' is used to display the task generator methods being executed
+<2> Display which task generator is being executed
+<3> The method 'exec_rule' is used to process the 'rule'. It is always executed.
+<4> The method 'apply_core' is used to process the 'source' attribute. It is always executed exept if the method 'exec_rule' processes a 'rule' attribute
+<5> Our task generator method is executed, and prints 'Hello, world!'
+<6> The task generator methods have been executed, the task generator is marked as done (posted)
 
-	</section>
+=== Task generator features
 
+So far, the task generator methods we added were declared to be executed by all task generator instances. Limiting the execution to specific task generators requires the use of the 'feature' decorator:
 
-	<section id="task_generator_features">
-		<title>Task generator features
-		<para>
-			So far, the task generator methods we added were declared to be executed by all task generator instances. Limiting the execution to specific task generators requires the use of the 'feature' decorator:
-
-			<programlisting language="python">
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -183,11 +134,11 @@ def ping(self):
 @TaskGen.feature('pong')
 def pong(self):
 	print('pong')
-			</programlisting>
+---------------
 
-			The execution output will be the following:
+The execution output will be the following:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build --zones=task_gen
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
@@ -210,19 +161,16 @@ ping
 Waf: Leaving directory `/tmp/simpleproject/out'
 16:22:07 task_gen posting objects (normal)
 'build' finished successfully (0.005s)
-			</programlisting>
+---------------
 
-			<warning>Although the task generator instances are processed in order, the task generator method execution requires a specific declaration for the order of execution. Here, the method 'pong_' is executed before the method 'ping_'</warning>
+WARNING: Although the task generator instances are processed in order, the task generator method execution requires a specific declaration for the order of execution. Here, the method 'pong_' is executed before the method 'ping_'
 
-		</para>
-	</section>
+=== Task generator method execution order
 
+To control the execution order, two new decorators need to be added. We will now show a new example with two custom task generator methods 'method1' and 'method2', executed in that order:
 
-	<section id="task_generator_order">
-		<title>Task generator method execution order
-		<para>
-			To control the execution order, two new decorators need to be added. We will now show a new example with two custom task generator methods 'method1' and 'method2', executed in that order:
-			<programlisting language="python">
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -244,17 +192,17 @@ def method1(self):
 @TaskGen.after('method1')
 def method2(self):
 	print('method 2 %r' % getattr(self, 'myattr', None))
-			</programlisting>
+---------------
 
-			The execution output will be the following:
+The execution output will be the following:
 
-			<programlisting language="sh">
+---------------
  waf distclean configure build --zones=task_gen
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/simpleproject/out'
 15:54:02 task_gen posting objects (normal)
-15:54:02 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&gt; 139808568487632
+15:54:02 task_gen posting <task_gen of type task_gen defined in dir:///tmp/simpleproject> 139808568487632
 15:54:02 task_gen -> method1 (139808568487632)
 method 1 'Hello, world!'
 15:54:02 task_gen -> exec_rule (139808568487632)
@@ -265,90 +213,31 @@ method 2 'Hello, world!'
 Waf: Leaving directory `/tmp/simpleproject/out'
 15:54:02 task_gen posting objects (normal)
 'build' finished successfully (0.005s)
-			</programlisting>
+---------------
 
-		</para>
-	</section>
+=== Adding or removing a method for execution
 
+The order constraints on the methods (after/before), are used to sort the list of methods in the attribute 'meths'. The sorting is performed once, and the list is consumed as methods are executed. Though no new feature may be added once the first method is executed, new methods may be added dynamically in self.meths. Here is how to create an infinite loop by adding the same method at the end:
 
-	<section id="task_generator_meths">
-		<title>Adding or removing a method for execution
-
-		<para>
-			The order constraints on the methods (after/before), are used to sort the list of methods in the attribute 'meths'. The sorting is performed once, and the list is consumed as methods are executed. Though no new feature may be added once the first method is executed, new methods may be added dynamically in self.meths. Here is how to create an infinite loop by adding the same method at the end:
-			<programlisting language="python">
+[source,python]
+---------------
 from TaskGen import feature
 
 @feature('*')
 def infinite_loop(self):
 	self.meths.append('infinite_loop')
-			</programlisting>
-		</para>
-		<para>
-			The task generator method workflow is represented in the following illustration:
-			<graphic format="png" fileref="posting.png" align="center"/>
-		</para>
+---------------
 
-	</section>
+The task generator method workflow is represented in the following illustration:
 
+image::posting.png[]
 
-		<!-- para>
+=== Putting it altogether
 
-			A system called 'features' enables new methods on task generators to be loaded conditionally. For example, c programs require typically the processing of lots of attributes such as the application target. The rule-based and source-based processing are bound to all task generators and are the exception.
+Now let's illustrate the @extension decorator on idl file processing. Files with .idl extension are processed to produce .c and .h files (`foo.idl` → `foo.c` + `foo.h`). The .c files must be compiled after being generated.
 
-			TODO explain the separation between task and task generators (concurrency reasons, etc)
-
-		</para -->
-
-	<!--
-	<section id="task_gen_method_exec">
-		<title>Task generator method execution
-		<para>
-			Methods may be added to task generators, and those methods are bound to features. At the beginning of the build, the task generator instances are executed one by one, and in turn their methods are executed to generate the tasks or to modify additional data. We will now describe what make task generator methods with an example:
-			<itemizedlist>
-				<listitem>Task generator methods take a single parameter 'self'</listitem>
-				<listitem>They are bound to particular names representing 'features' (or to '*')</listitem>
-				<listitem>They have order restrictions 'before' and 'after'</listitem>
-			</itemizedlist>
-			Here is an example of a task generator method from the Waf source code:
-			<programlisting language="python">
-from TaskGen import before, after, taskgen
-
-@taskgen
-@after('apply_obj_vars_cc')
-@after('apply_obj_vars_cxx')
-@before('apply_link')
-def asm_incflags(self):
-	if self.env.ASINCFLAGS: self.env._ASINCFLAGS = self.env.ASINCFLAGS
-			</programlisting>
-		</para>
-
-
-		<para>
-			It is however more convenient to use the attribute 'feature' to add the methods automatically. For example, for creating a c application, the methods to execute depend on the operating system, so the feature system actually simplifies the code reuse.
-		</para>
-
-	</section>
-	-->
-		<!--para>
-			In the past, Waf used to provide Task generators using a hierarchy of classes. This system was unmaintainable for the following reasons:
-			<itemizedlist>
-				<listitem>Specialization limits code sharing between instances</listitem>
-				<listitem>Each new feature suggests a new class</listitem>
-				<listitem>The order of calls in the class hierarchy is complicated</listitem>
-			</itemizedlist>
-		</para -->
-		<!--para>
-			In real-world scenarios, the amount of task generator attributes is quite small, but the amount of methods is high. Tracing the execution is a very important usecase to understand the execution, and to extend the system. For this reason, and aspect-oriented system has been adopted since about Waf 1.3: methods and attributes are attached dynamically to a very small set of classes.</para>
-		<para>
-			We will detail in the following sections how the task generator execution, and the default processing based on file extensions. The details of the execution system will be described in the ultimate section of this chapter.
-		</para-->
-
-	<section id="task_gen_example">
-		<title>Putting it altogether
-		<para>
-			Now let's illustrate the @extension decorator on idl file processing. Files with .idl extension are processed to produce .c and .h files (foo.idl &#8594; foo.c + foo.h). The .c files must be compiled after being generated.
-			<programlisting language="python">
+[source,python]
+---------------
 import Task
 from TaskGen import extension
 
@@ -370,10 +259,5 @@ def build(bld):
 		source   = 'foo.idl main.cpp',
 		target   = 'myapp'
 		)
-			</programlisting>
-		</para>
-
-	</section>
-
-</chapter>
+---------------
 
