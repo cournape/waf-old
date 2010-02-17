@@ -34,6 +34,7 @@ The first chapters contain a detailed description of the basic use of Waf. The c
 include::getting_started.txt[]
 include::execution.txt[]
 include::configuration.txt[]
+include::build.txt[]
 include::chains.txt[]
 
 /////
