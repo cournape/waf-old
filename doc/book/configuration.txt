@@ -77,7 +77,7 @@ $ waf configure
 
 === Consulting configuration sets during the build
 
-By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example <filename>build/c4che/default.cache.py</filename>). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
+By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example `build/c4che/default.cache.py`). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
 
 [source,python]
 ---------------
@@ -162,9 +162,9 @@ $ echo $?
 
 === Loading Waf tools
 
-For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder <filename>wafadmin/Tools</filename>. The contributed tools, or the tools in testing phase are located under the folder <filename>wafadmin/3rdparty</filename>.</para>
+For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `wafadmin/Tools`. The contributed tools, or the tools in testing phase are located under the folder `wafadmin/3rdparty`.</para>
 
-Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named <filename>dang.py</filename>:
+Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named `dang.py`:
 
 [source,python]
 ---------------
