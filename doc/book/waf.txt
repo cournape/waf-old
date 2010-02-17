@@ -33,6 +33,9 @@ The first chapters contain a detailed description of the basic use of Waf. The c
 
 include::getting_started.txt[]
 include::execution.txt[]
+
+include::chains.txt[]
+
 /////
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="getting_started.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="execution.xml"/>
