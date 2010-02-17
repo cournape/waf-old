@@ -1,30 +1,24 @@
-<?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
->
-<chapter id="build">
-	<title>The build phase
-	<section id="targets">
-		<title>Declaring new targets
-		<para>
-			Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
-				<itemizedlist>
-					<listitem>Execution control: targets are only produced during the calls to the commands 'build' and 'install'</listitem>
-					<listitem>Parallel target processing to accelerate the builds: multi-core systems</listitem>
-					<listitem>Filesystem abstraction: fetching data from the network</listitem>
-					<listitem>Extensibility: adding support for new compilers and new languages from user scripts</listitem>
-					<listitem>Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)</listitem>
-				</itemizedlist>
-				These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are the definitions:
-				<itemizedlist>
-					<listitem>Task: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).</listitem>
-					<listitem>Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc</listitem>
-				</itemizedlist>
-		</para>
+== The build phase
 
-		<para>
-			Here is a sample project script to illustrate the concepts:
-			<programlisting language="python">
+=== Declaring new targets
+
+Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
+
+. Execution control: targets are only produced during the calls to the commands 'build' and 'install'</listitem>
+. Parallel target processing to accelerate the builds: multi-core systems</listitem>
+. Filesystem abstraction: fetching data from the network</listitem>
+. Extensibility: adding support for new compilers and new languages from user scripts</listitem>
+. Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)</listitem>
+
+These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are the definitions:
+
+. Task: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).</listitem>
+. Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc</listitem>
+
+Here is a sample project script to illustrate the concepts:
+
+[screen,python]
+---------------
 srcdir = '.'
 blddir = 'build'
 
@@ -34,11 +28,11 @@ def configure(ctx):
 def build(ctx):
 	obj = ctx(target='test.txt', rule='touch ${TGT}')
 	print('  ' + obj.__class__)
-			</programlisting>
+---------------
 
-			The call 'ctx(...)' is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
+The call 'ctx(...)' is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build build clean
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
@@ -53,23 +47,21 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.004s)
   class 'TaskGen.task_gen'
 'clean' finished successfully (0.002s)
-			</programlisting>
+---------------
 
-			The line 'test.txt' corresponds to the execution of the actual task. The task generator was created during the execution of both 'build' and 'clean' (print statement). The task was only executed during the first build, and not during the clean step. Also, the task was not executed when the target was considered up-to-date (to know more, consult the next chapters).
-		</para>
+The line 'test.txt' corresponds to the execution of the actual task. The task generator was created during the execution of both 'build' and 'clean' (print statement). The task was only executed during the first build, and not during the clean step. Also, the task was not executed when the target was considered up-to-date (to know more, consult the next chapters).
 
-	</section>
+=== Finding folders and files through node objects
 
-	<section id="glob">
-		<title>Finding folders and files through node objects
-		<para>
-			In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed fron the build context:
-			<itemizedlist>
-				<listitem>root: node representing the root of the file system, or the folder containing the drive letters on win32 systems</listitem>
-				<listitem>path: node representing the path of the script being read (path to the wscript file)</listitem>
-			</itemizedlist>
-			Nodes are often used for low-level operations such as extending Waf, and direct node manipulation is hardly ever necessary from user scripts.
-			<programlisting language="python">
+In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed fron the build context:
+
+. root: node representing the root of the file system, or the folder containing the drive letters on win32 systems</listitem>
+. path: node representing the path of the script being read (path to the wscript file)</listitem>
+
+Nodes are often used for low-level operations such as extending Waf, and direct node manipulation is hardly ever necessary from user scripts.
+
+[screen,python]
+---------------
 srcdir = '.'
 blddir = 'build'
 
@@ -88,9 +80,11 @@ def build(bld):
 
 	fstab = bld.root.find_resource('/etc/fstab')
 	print('path to /etc/fstab: %r' % fstab.abspath())
-			</programlisting>
-			The following results would be observed upon execution on a unix-like system:
-			<programlisting language="sh">
+---------------
+
+The following results would be observed upon execution on a unix-like system:
+
+---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
@@ -103,12 +97,12 @@ path from /var to /etc '../etc'
 path to /etc/fstab: '/etc/fstab'
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
-			</programlisting>
-		</para>
+---------------
 
-		<para>
-			Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
-			<programlisting language="python">
+Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
+
+[screen,python]
+---------------
 srcdir = '.'
 blddir = 'build'
 
@@ -116,21 +110,20 @@ def configure(ctx):
 	pass
 
 def build(bld):
-	print(bld.path.ant_glob('wsc*'))<co id="ant-co1" linkends="ant1"/>
-	print(bld.path.ant_glob('w?cr?p?'))<co id="ant-co2" linkends="ant2"/>
-	print(bld.root<co id="ant-co3" linkends="ant3"/>.ant_glob('etc/**/g*'<co id="ant-co4" linkends="ant4"/>, dir=True, src=False, bld=False)) <co id="ant-co5" linkends="ant5"/>
-			</programlisting>
+	print(bld.path.ant_glob('wsc*'))<1>
+	print(bld.path.ant_glob('w?cr?p?'))<2>
+	print(bld.root<3>.ant_glob('etc/**/g*'<4>, dir=True, src=False, bld=False)) <5>
+---------------
 
-			<calloutlist>
-				<callout arearefs="ant-co1" id="ant1"><para>The method ant_glob is called on a node object, and not on the build context</para></callout>
-				<callout arearefs="ant-co2" id="ant2"><para>The patterns may contain wildcards such as * or ?, but they are <ulink url="http://ant.apache.org/manual/CoreTypes/patternset.html">Ant patterns</ulink>, not regular expressions</para></callout>
-				<callout arearefs="ant-co3" id="ant3"><para>Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system</para></callout>
-				<callout arearefs="ant-co4" id="ant4"><para>The '**' indicates to consider folders recursively. Use with care.</para></callout>
-				<callout arearefs="ant-co5" id="ant5"><para>By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.</para></callout>
-			</calloutlist>
+<1> The method ant_glob is called on a node object, and not on the build context
+<2> The patterns may contain wildcards such as * or ?, but they are <ulink url="http://ant.apache.org/manual/CoreTypes/patternset.html">Ant patterns</ulink>, not regular expressions
+<3> Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system
+<4> The '**' indicates to consider folders recursively. Use with care.
+<5> By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.
 
-			The execution output will be similar to the following:
-			<programlisting language="sh">
+The execution output will be similar to the following:
+
+---------------
 $ waf
 Waf: Entering directory `/tmp/smallproject/build'
 wscript
@@ -138,59 +131,51 @@ wscript
 etc/ghostscript etc/gconf etc/gconf/gconf.xml.mandatory etc/gnome-vfs-2.0 etc/gpm etc/gnupg etc/gre.d etc/gdm
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (12.873s)
-			</programlisting>
-		</para>
-	</section>
+---------------
 
+=== Installing files
 
-	<section id="installing_files">
-		<title>Installing files
-		<para>
-			Three build context methods are provided for installing files:
-			<itemizedlist>
-				<listitem>install_files: install several files in a folder</listitem>
-				<listitem>install_as: install a target with a different name</listitem>
-				<listitem>symlink_as: create a symbolic link on the platforms that support it</listitem>
-			</itemizedlist>
+Three build context methods are provided for installing files:
 
-			<programlisting language="python">
+. install_files: install several files in a folder</listitem>
+. install_as: install a target with a different name</listitem>
+. symlink_as: create a symbolic link on the platforms that support it</listitem>
+
+[screen,python]
+---------------
 def build(bld):
-	bld.install_files('${PREFIX}/include', ['a1.h', 'a2.h']) <co id="inst-co1" linkends="inst1"/>
-	bld.install_as('${PREFIX}/dir/bar.png', 'foo.png') <co id="inst-co2" linkends="inst2"/>
-	bld.symlink_as('${PREFIX}/lib/libfoo.so.1', 'libfoo.so.1.2.3') <co id="inst-co3" linkends="inst3"/>
+	bld.install_files('${PREFIX}/include', ['a1.h', 'a2.h']) <1>
+	bld.install_as('${PREFIX}/dir/bar.png', 'foo.png') <2>
+	bld.symlink_as('${PREFIX}/lib/libfoo.so.1', 'libfoo.so.1.2.3') <3>
 
 	env_foo = bld.env.copy()
 	env_foo.PREFIX = '/opt'
-	bld.install_as('${PREFIX}/dir/test.png', 'foo.png', env=env_foo) <co id="inst-co4" linkends="inst4"/>
+	bld.install_as('${PREFIX}/dir/test.png', 'foo.png', env=env_foo) <4>
 
 	start_dir = bld.path.find_dir('src/bar')
-	bld.install_files('${PREFIX}/share', ['foo/a1.h'], cwd=start_dir, relative_trick=True) <co id="inst-co5" linkends="inst5"/>
+	bld.install_files('${PREFIX}/share', ['foo/a1.h'], cwd=start_dir, relative_trick=True) <5>
 
-	bld.install_files('${PREFIX}/share', start_dir.ant_glob('**/*.png'), cwd=start_dir, relative_trick=True) <co id="inst-co6" linkends="inst6"/>
-			</programlisting>
+	bld.install_files('${PREFIX}/share', start_dir.ant_glob('**/*.png'), cwd=start_dir, relative_trick=True) <6>
+---------------
 
-			<calloutlist>
-				<callout arearefs="inst-co1" id="inst1"><para>Install various files in the target destination</para></callout>
-				<callout arearefs="inst-co2" id="inst2"><para>Install one file, changing its name</para></callout>
-				<callout arearefs="inst-co3" id="inst3"><para>Create a symbolic link</para></callout>
-				<callout arearefs="inst-co4" id="inst4"><para>Overridding the configuration set ('env' is optional in the three methods install_files, install_as and symlink_as)</para></callout>
-				<callout arearefs="inst-co5" id="inst5"><para>Install src/bar/foo/a1.h as seen from the current script into ${PREFIX}/share/foo/a1.h</para></callout>
-				<callout arearefs="inst-co6" id="inst6"><para>Install the png files recursively, preserving the folder structure read from src/bar/</para></callout>
-			</calloutlist>
-		</para>
-	</section>
+<1> Install various files in the target destination
+<2> Install one file, changing its name
+<3> Create a symbolic link
+<4> Overridding the configuration set ('env' is optional in the three methods install_files, install_as and symlink_as)
+<5> Install src/bar/foo/a1.h as seen from the current script into ${PREFIX}/share/foo/a1.h
+<6> Install the png files recursively, preserving the folder structure read from src/bar/
 
+=== Executing specific routines before or after the build
 
-	<section id="pre_post_build">
-		<title>Executing specific routines before or after the build
-			<para>
-			User functions may be bound to be executed at two key moments during the build command (callbacks):
-			<itemizedlist>
-				<listitem>immediately before the build starts (bld.add_pre_fun)</listitem>
-				<listitem>immediately after the build is completed successfully (bld.add_post_fun)</listitem>
-			</itemizedlist>
-			Here is how to execute a test after the build is finished:
-			<programlisting language="python">
+User functions may be bound to be executed at two key moments during the build command (callbacks):
+
+. immediately before the build starts (bld.add_pre_fun)</listitem>
+. immediately after the build is completed successfully (bld.add_post_fun)</listitem>
+
+Here is how to execute a test after the build is finished:
+
+[screen,python]
+---------------
 srcdir = '.'
 blddir = 'build'
 
@@ -201,29 +186,27 @@ def set_options(ctx):
 def configure(ctx):
 	pass
 
-def pre(ctx): <co id="prepost-co1" linkends="prepost1"/>
+def pre(ctx): <1>
 	print("before the build is started")
 
 def post(ctx):
 	import Options, Utils
-	if Options.options.exe: <co id="prepost-co2" linkends="prepost2"/>
-		Utils.exec_command('/sbin/ldconfig') <co id="prepost-co3" linkends="prepost3"/>
+	if Options.options.exe: <2>
+		Utils.exec_command('/sbin/ldconfig') <3>
 
 def build(ctx):
-	ctx.add_pre_fun(pre) <co id="prepost-co4" linkends="prepost4"/>
+	ctx.add_pre_fun(pre) <4>
 	ctx.add_post_fun(post)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="prepost-co1" id="prepost1"><para>The callbacks take the build context as unique parameter 'ctx'</para></callout>
-				<callout arearefs="prepost-co2" id="prepost2"><para>Access to the command-line options</para></callout>
-				<callout arearefs="prepost-co3" id="prepost3"><para>A common scenario is to call ldconfig after the files are installed.</para></callout>
-				<callout arearefs="prepost-co4" id="prepost4"><para>Scheduling the functions for later execution. Remember that in Python, functions are objects too.</para></callout>
-			</calloutlist>
+<1> The callbacks take the build context as unique parameter 'ctx'
+<2> Access to the command-line options
+<3> A common scenario is to call ldconfig after the files are installed.
+<4> Scheduling the functions for later execution. Remember that in Python, functions are objects too.
 
-			Upon execution, the following output will be produced:
+Upon execution, the following output will be produced:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build --exe
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
@@ -232,10 +215,5 @@ before the build is started
 Waf: Leaving directory `/tmp/smallproject/build'
 hello
 'build' finished successfully (0.008s)
-			</programlisting>
-
-			</para>
-	</section>
-
-</chapter>
+---------------
 
