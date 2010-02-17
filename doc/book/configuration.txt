@@ -4,7 +4,7 @@
 
 Configuration sets are instances of the class 'Environment'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
@@ -24,7 +24,7 @@ def configure(conf):
 
 The execution will result in the following output:
 
-[screen,python]
+[source,python]
 ---------------
 $ waf configure
 'CXXFLAGS' ['-O2']
@@ -48,7 +48,7 @@ The default configuration is stored to the cache file named 'default.cache.py'. 
 
 Although the conf.env object is similar to a Python dict, a few routines are present to ease value access:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
@@ -79,7 +79,7 @@ $ waf configure
 
 By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example <filename>build/c4che/default.cache.py</filename>). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
@@ -115,7 +115,7 @@ Waf: Leaving directory `/comp/waf/demos/simple_scenarios/folders/build'
 
 Configuration helpers are methods provided by the conf object to help finding parameters, for example the method 'conf.find_program'
 
-[screen,python]
+[source,python]
 ---------------
 def configure(conf):
 	conf.find_program('test')
@@ -123,7 +123,7 @@ def configure(conf):
 
 When a test fails, the exception 'Configure.ConfigurationException' is raised. For example, such exceptions are thrown when a program could not be found:
 
-[screen,python]
+[source,python]
 ---------------
 def configure(conf):
 	import Configure
@@ -145,7 +145,7 @@ Checking for program gjc,cjg             : not found
 
 It is sometimes useful to raise such an exception manually by using 'conf.fatal':
 
-[screen,python]
+[source,python]
 ---------------
 def configure(conf):
 	conf.fatal("I'm sorry Dave, I'm afraid I can't do that")
@@ -166,7 +166,7 @@ For efficiency reasons, the Waf core libraries do not provide support for progra
 
 Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named <filename>dang.py</filename>:
 
-[screen,python]
+[source,python]
 ---------------
 from Configure import conftest <1>
 
@@ -191,7 +191,7 @@ Build.BuildContext.build_hello = build_hello <3>
 
 For loading a tool, the method 'check_tool' must be used during the configuration. The same tools are then loaded during the build.:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
@@ -249,7 +249,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 
 An error handler attached to the conf object is used for catching the Configuration exceptions and processing the errors. Here is how to replace the default configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception:
 
-[screen,python]
+[source,python]
 ---------------
 import Constants
 from Configure import conf

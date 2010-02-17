@@ -345,7 +345,7 @@ The meaning of the commands is the following:
 
 Object file creation and installation will be detailed in the next chapters.
 
-== Customizing the command-line options
+=== Customizing the command-line options
 
 The Waf script provides various default command-line options, which may be consulted by executing 'waf --help':
 

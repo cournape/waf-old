@@ -17,7 +17,7 @@ These main contraints lead to the creation of an abstraction layer between the a
 
 Here is a sample project script to illustrate the concepts:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
@@ -60,7 +60,7 @@ In general, file system access are slow operations (listing files and folders, r
 
 Nodes are often used for low-level operations such as extending Waf, and direct node manipulation is hardly ever necessary from user scripts.
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
@@ -101,7 +101,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 
 Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
@@ -141,7 +141,7 @@ Three build context methods are provided for installing files:
 . install_as: install a target with a different name</listitem>
 . symlink_as: create a symbolic link on the platforms that support it</listitem>
 
-[screen,python]
+[source,python]
 ---------------
 def build(bld):
 	bld.install_files('${PREFIX}/include', ['a1.h', 'a2.h']) <1>
@@ -174,7 +174,7 @@ User functions may be bound to be executed at two key moments during the build c
 
 Here is how to execute a test after the build is finished:
 
-[screen,python]
+[source,python]
 ---------------
 srcdir = '.'
 blddir = 'build'
