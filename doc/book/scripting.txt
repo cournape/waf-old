@@ -1,72 +1,11 @@
-<?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
->
-<chapter id="scripting">
-	<title>Customizing the scripting system
+== Advanced commands
 
-	<section id="custom_commands">
-		<title>Providing custom commands
-		<para>
-			Waf commands are functions defined on the top-level wscript file, for example, with the following wscript file:
-			<programlisting language="python">
-srcdir = '.'
-blddir = 'build'
+=== Providing a custom command context
 
-def configure(conf):
-	print('configure')
+The context for a command is created automatically, and is derived from the class 'Utils.Context'. Custom context instance may be provided in the following manner:
 
-def foo(ctx):
-	"""help string for the command foo"""
-	print('test')
-			</programlisting>
-			executing the script with &quot;foo&quot; as argument will produce the following output
-			<programlisting language="sh">
-$ waf foo
-test
-			</programlisting>
-		</para>
-
-		<para>
-			The parameter 'ctx' in the function foo above is provided to enable recursion and sharing data with the scripts. In the following example, the script `subdir/wscript_'foo'` will be looked up, and executed if found. Else, the script `subdir/wscript` will be looked up and loaded as a module. If successfully loaded, the function 'foo' will be executed, else an exception is raised.
-			<programlisting language="python">
-def foo(ctx):
-	"""help string for the command foo"""
-	ctx.recurse('subdir')
-			</programlisting>
-		</para>
-
-		<para>
-			For backward compatibility reasons, the commands 'init, shutdown, dist' and 'distcheck' do not accept a context as parameter yet.
-		</para>
-	</section>
-
-	<section id="chaining_commands">
-		<title>Chaining commands
-		<para>
-			Since Waf 1.5.4, it is possible to chain several commands, for example:
-			<programlisting language="sh">
-$ waf distclean configure build
-			</programlisting>
-			The execution will stop as soon as an error is encountered, for example if distclean fails, the configuration and the build will not be executed, so the command is equivalent to:
-			<programlisting language="sh">
-$ waf distclean &amp;&amp; waf configure &amp;&amp; waf
-			</programlisting>
-		</para>
-		<para>
-			A frequent usecase is to chain the execution of build and cleaning steps:
-			<programlisting language="sh">
-$ waf distclean configure build clean build
-			</programlisting>
-			As a special exception, the function 'init' is always prepended to the commands to execute, and the function 'shutdown' is always appended.
-		</para>
-	</section>
-
-	<section id="context_command">
-		<title>Providing a custom command context
-		<para>
-			The context for a command is created automatically, and is derived from the class 'Utils.Context'. Custom context instance may be provided in the following manner:
-			<programlisting language="python">
+[source,python]
+---------------
 def foo(ctx):
 	pass
 
@@ -74,22 +13,26 @@ import Utils
 def foo_context(Utils.Context):
 	def __init__(self):
 		print("a context for 'foo'")
-			</programlisting>
-		</para>
-		Custom contexts may be provided for the functions 'configure' and 'build'.
-	</section>
+[source,python]
+---------------
 
-	<section id="new_commands">
-		<title>Creating aliases / Injecting new commands
-		<para>
-			New commands may be injected in the following manner:
-			<programlisting language="python">
+Custom contexts may be provided for the functions 'configure' and 'build'.
+
+=== Creating aliases / Injecting new commands
+
+New commands may be injected in the following manner:
+
+[source,python]
+---------------
 import Scripting
 def foo(ctx):
 	Scripting.commands += ['build', 'clean']
-			</programlisting>
-			Injecting new commands is useful for writing testcases. By executing 'waf test', the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
-			<programlisting language="python">
+---------------
+
+Injecting new commands is useful for writing testcases. By executing 'waf test', the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
+
+[source,python]
+---------------
 VERSION = '0.0.1'
 APPNAME = 'my_testcase'
 
@@ -123,8 +66,46 @@ def modify(ctx):
 	f = open('foo.h', 'w')
 	f.write('int k = 34;\n')
 	f.close()
-			</programlisting>
-		</para>
-	</section>
-</chapter>
+---------------
+
+=== Executing commands as part of another command
+
+In the following scenario, packaging the build files requires an installation into a temporary directory.
+
+Since the contexts parameters passed to the commands usually derive from different classes. For this reason, it is not possible a command may not call another command.
+
+[source,python]
+---------------
+srcdir = '.'
+blddir = 'out'
+
+import Scripting, Options
+
+def configure(conf):
+	conf.check_tool('gcc')
+
+def build(bld):
+	bld.install_files('/tmp/foo/', 'wscript') <1>
+	bld.new_task_gen(features='cc cprogram', target='foo', source='k.c')
+
+back = False
+def package(ctx): <2>
+	global back
+	Scripting.commands.insert(0, 'package') <2>
+	Scripting.commands.insert(0, 'install') <3>
+	back = Options.options.destdir <4>
+	Options.options.destdir = '/tmp/foo'
+
+def create_package(ctx): <5>
+	global back
+	print("packaging")
+	Options.options.destdir = back <6>
+---------------
+
+<1> perform the installation normally
+<2> postpone the actual package creation
+<3> now the next command to execute is the installation, and after the installation, the package creation will be performed
+<4> change the value of 'destdir' for installing the files into a temporary directory
+<5> command for creating the package
+<6> restore the value of 'destdir', in case if more commands are to be executed
 

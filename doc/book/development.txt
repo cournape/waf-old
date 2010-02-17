@@ -2,34 +2,44 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter id="development">
-	<title>Using the development version
-	<section id="tracing">
-		<title>Tracing the execution
-		<para>
-			The generic flags to add more information to the stack traces or to the messages is '-v' (verbosity), it is used to display the command-lines executed during a build:
-			<programlisting language="sh">
+
+== Using the development version
+
+=== Tracing the execution
+
+The generic flags to add more information to the stack traces or to the messages is '-v' (verbosity), it is used to display the command-lines executed during a build:
+
+---------------
 $ waf -v
-			</programlisting>
-			To display all the traces (useful for bug reports), use the following flag:
-			<programlisting language="sh">
+---------------
+
+To display all the traces (useful for bug reports), use the following flag:
+
+---------------
 $ waf -vvv
-			</programlisting>
-			Debugging information can be filtered easily with the flag 'zones':
-			<programlisting language="sh">
+---------------
+
+Debugging information can be filtered easily with the flag 'zones':
+
+---------------
 $ waf --zones=action
-			</programlisting>
-			Tracing zones must be comma-separated, for example:
-			<programlisting language="sh">
+---------------
+
+Tracing zones must be comma-separated, for example:
+
+---------------
 $ waf --zones=action,envhash,task_gen
-			</programlisting>
-		</para>
-		<para>
-			The Waf module 'Logs' replaces the Python module logging. In the source code, traces are provided by using the 'debug' function, they must obey the format "zone: message" like in the following:
-			<programlisting language="python">
+---------------
+
+The Waf module 'Logs' replaces the Python module logging. In the source code, traces are provided by using the 'debug' function, they must obey the format "zone: message" like in the following:
+
+[source,python]
+---------------
 Logs.debug("task: task %r must run as it was never run before or the task code changed" % self)
-			</programlisting>
-			The following zones are used in Waf:
+---------------
+
+The following zones are used in Waf:
+
 <table id="debugging_zones">
 <title>Debugging zones
 
@@ -86,25 +96,25 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 </tgroup>
 </table>
 
-		</para>
-	</section>
 
-	<section id="benchmarking">
-		<title>Benchmarking
-		<para>
-			The script `utils/genbench.py` generates a simple benchmark for Waf. The habitual use is the following:
-			<programlisting language="sh">
+
+=== Benchmarking
+
+The script `utils/genbench.py` generates a simple benchmark for Waf. The habitual use is the following:
+
+---------------
 utils/genbench.py /tmp/build 50 100 15 5
 cd /tmp/build
 waf configure
 waf -p -j2
-			</programlisting>
-			The project created contains 50 libraries with 100 classes for each, each source file having 15 include headers pointing to the same library and 5 headers pointing to the headers of other libraries in the project.
-		</para>
+---------------
 
-		<para>
-			The time taken to create the tasks and to resolve the dependencies can be obtained by injecting code to disable the actual compilation, for example:
-			<programlisting language="python">
+The project created contains 50 libraries with 100 classes for each, each source file having 15 include headers pointing to the same library and 5 headers pointing to the headers of other libraries in the project.
+
+The time taken to create the tasks and to resolve the dependencies can be obtained by injecting code to disable the actual compilation, for example:
+
+[source,python]
+---------------
 def build(bld):
 	import Task
 	def touch_func(task):
@@ -114,15 +124,14 @@ def build(bld):
 		cls = Task.TaskBase.classes[x]
 		cls.func = touch_func
 		cls.color = 'CYAN'
-			</programlisting>
-		</para>
-	</section>
+---------------
 
-	<section id="profiling">
-		<title>Profiling
-		<para>
-			Profiling information is obtained by calling the module cProfile and by injecting specific code. The two most interesting methods to profile are 'flush' and 'compile'. The most important number from the profiling information is the amount of function calls, and reducing it results in noticeable speedups. Here is an example on the method compile:
-			<programlisting language="python">
+== Profiling
+
+Profiling information is obtained by calling the module cProfile and by injecting specific code. The two most interesting methods to profile are 'flush' and 'compile'. The most important number from the profiling information is the amount of function calls, and reducing it results in noticeable speedups. Here is an example on the method compile:
+
+[source,python]
+---------------
 import Build
 def ncomp(self):
 	import cProfile, pstats
@@ -132,9 +141,11 @@ def ncomp(self):
 
 Build.bld.rep_compile = Build.bld.compile
 Build.bld.compile = ncomp
-			</programlisting>
-			Here the output obtained on a benchmark build created as explained in the previous section:
-			<programlisting language="sh">
+---------------
+
+Here the output obtained on a benchmark build created as explained in the previous section:
+
+---------------
 Sun Nov  9 19:22:59 2008    prof.txt
 
          959695 function calls (917845 primitive calls) in 3.195 CPU seconds
@@ -153,28 +164,32 @@ Sun Nov  9 19:22:59 2008    prof.txt
     15050    0.107    0.000    0.342    0.000 Task.py:481(unique_id)
     15301    0.102    0.000    0.102    0.000 Environment.py:50(variant)
    132062    0.097    0.000    0.097    0.000 {method 'get' of 'dict' objects}
-			</programlisting>
+---------------
 
-			From the profile information, it appears that the hot spots are, in order:
-			<itemizedlist>
-				<listitem>The persistence implemented by the cPickle module (the cache file to serialize takes about 3Mb)</listitem>
-				<listitem>Accessing configuration data from the Environment instances</listitem>
-				<listitem>Computing implicit dependencies (the test project contains lots of interleaved dependencies)</listitem>
-			</itemizedlist>
-		In practice, the time taken by these methods is not significant enough to justify code changes. Also, profiling must be carried out on builds which last at least several seconds.
-		</para>
-	</section>
+From the profile information, it appears that the hot spots are, in order:
 
-	<section id="parallel_tracing">
-		<title>Tracing parallel task execution
-		<para>
-			A special Waf tool named 'ParallelDebug' is used to inject code in Waf modules and obtain information on the execution. This module is provided in the folder `playground` and must be imported in one's project before use:
-			<programlisting language="python">
+. The persistence implemented by the cPickle module (the cache file to serialize takes about 3Mb)
+. Accessing configuration data from the Environment instances
+. Computing implicit dependencies (the test project contains lots of interleaved dependencies)
+
+In practice, the time taken by these methods is not significant enough to justify code changes. Also, profiling must be carried out on builds which last at least several seconds.
+
+
+
+
+=== Tracing parallel task execution
+
+A special Waf tool named 'ParallelDebug' is used to inject code in Waf modules and obtain information on the execution. This module is provided in the folder `playground` and must be imported in one's project before use:
+
+[source,python]
+---------------
 def configure(conf):
 	conf.check_tool('ParallelDebug', tooldir='.')
-			</programlisting>
-			After executing a full build, a trace of the execution is output in `/tmp/test.dat`; it may be processed by other applications such as Gnuplot:
-			<programlisting language="sh">
+---------------
+
+After executing a full build, a trace of the execution is output in `/tmp/test.dat`; it may be processed by other applications such as Gnuplot:
+
+---------------
 #! /usr/bin/gnuplot -persist
 set terminal X11
 set ylabel "Amount of jobs running in parallel"
@@ -184,52 +199,42 @@ unset label
 set yrange [-0.1:4]
 set ytic 1
 plot 'test.dat' using 1:3 with lines title "" lt 3
-			</programlisting>
-		</para>
-	</section>
+---------------
 
-	<section id="download">
-		<title>Obtaining the latest source code
-		<para>Waf is hosted on <ulink url="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To obtain the development copy, use:
-		<programlisting language="sh">
+
+
+
+=== Obtaining the latest source code
+
+Waf is hosted on http://code.google.com/p/waf/source[Google code], and uses Subversion for source control. To obtain the development copy, use:
+
+---------------
 svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
 cd waf-read-only
 ./waf-light --make-waf
-		</programlisting>
-		</para>
-		<para>
-		To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing wafadmin:
-		<programlisting language="sh">
+---------------
+
+To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing wafadmin:
+
+---------------
 export WAFDIR=/path/to/directory/
-		</programlisting>
-		</para>
-		<para>
-			Although the Waf binary depends on Python 2.3, the Waf source code depends on Python 2.4. When generating Waf, a parser modifies the source code and performs the following operations:
-			<itemizedlist>
-				<listitem>Move the decorators into simple function calls</listitem>
-				<listitem>Add the imports for the module sets</listitem>
-				<listitem>Eliminate redundant spaces</listitem>
-				<listitem>Strip comments to reduce the size</listitem>
-			</itemizedlist>
-		</para>
-	</section>
+---------------
 
-	<section id="coding">
-		<title>Programming constraints
-		<para>
-			Though Waf is written in Python, additional restrictions apply to the source code:
-			<itemizedlist>
-				<listitem>Identation is tab-only, and the maximum line length should be about 200 characters</listitem>
-				<listitem>The development code is kept compatible with Python 2.3, to the exception of decorators in the Tools directory. In particular, the Waf binary can be generated using Python 2.3</listitem>
-				<listitem>The `wafadmin` modules must be insulated from the `Tools` modules to keep the Waf core small and language independent</listitem>
-				<listitem>Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.9)</listitem>
-			</itemizedlist>
-		</para>
+Although the Waf binary depends on Python 2.3, the Waf source code depends on Python 2.4. When generating Waf, a parser modifies the source code and performs the following operations:
 
-		<para>
-			More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.
-		</para>
-	</section>
+. Move the decorators into simple function calls
+. Add the imports for the module sets
+. Eliminate redundant spaces
+. Strip comments to reduce the size
 
-</chapter>
+=== Programming constraints
+
+Though Waf is written in Python, additional restrictions apply to the source code:
+
+. Identation is tab-only, and the maximum line length should be about 200 characters
+. The development code is kept compatible with Python 2.3, to the exception of decorators in the Tools directory. In particular, the Waf binary can be generated using Python 2.3
+. The `wafadmin` modules must be insulated from the `Tools` modules to keep the Waf core small and language independent
+. Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.n)
+
+TIP: More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.
 
