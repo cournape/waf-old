@@ -42,7 +42,7 @@ TaskGen.declare_chain(
 <3> Input file, processed by extension
 <4> Output files extensions separated by spaces. In this case there is only one output file
 <5> The reentrant attribute is used to add the output files as source again, for processing by another implicit rule
-<6>String representing the installation path for the output files, similar to the destination path from 'bld.install_files'. To disable installation, set it to False.
+<6> String representing the installation path for the output files, similar to the destination path from 'bld.install_files'. To disable installation, set it to False.
 
 === Chaining more than one command
 

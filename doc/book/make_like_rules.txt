@@ -1,18 +1,13 @@
-<?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
->
-<chapter id="make_like">
-	<title>Rule-based task generators (Make-like)
-	<para>
-		Rule-based task generators are a particular category of task generators producing exactly one task at a time.
-	</para>
+== Rule-based task generators (Make-like)
 
-	<section id="make_like_decl">
-		<title>Declaration and usage
-		<para>
-			The following example presents a simple example of a task generator producing the file <filename>foobar.txt</filename> from the <filename>wscript</filename> by executing a copy (the command 'cp'). Let's create a new project in the folder <filename>/tmp/rule/</filename> containing the following <filename>wscript</filename> file:
-			<programlisting language="python">
+Rule-based task generators are a particular category of task generators producing exactly one task at a time.
+
+=== Declaration and usage
+
+The following example presents a simple example of a task generator producing the file `foobar.txt` from the `wscript` by executing a copy (the command 'cp'). Let's create a new project in the folder `/tmp/rule/` containing the following `wscript` file:
+
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -20,37 +15,27 @@ def configure(conf):
 	pass
 
 def build(bld):
-	bld( <co id="rule1-co" linkends="rule1"/>
-		rule   = 'cp ${SRC} ${TGT}', <co id="rule2-co" linkends="rule2"/>
-		source = 'wscript', <co id="rule3-co" linkends="rule3"/>
-		target = 'foobar.txt', <co id="rule4-co" linkends="rule4"/>
+	bld( <1>
+		rule   = 'cp ${SRC} ${TGT}', <2>
+		source = 'wscript', <3>
+		target = 'foobar.txt', <4>
 	)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="rule1-co" id="rule1">
-					<para>To instantiate a new task generator, remember that all arguments have the form 'key=value'</para>
-				</callout>
-				<callout arearefs="rule2-co" id="rule2">
-					<para>The attribute 'rule' is mandatory here. It represents the command to execute in a readable manner (more on this in the next chapters).</para>
-				</callout>
-				<callout arearefs="rule3-co" id="rule3">
-					<para>Source files, to give in a space-separated list</para>
-				</callout>
-				<callout arearefs="rule4-co" id="rule4">
-					<para>Target files, to give in a space-separated list</para>
-				</callout>
-			</calloutlist>
+<1> To instantiate a new task generator, remember that all arguments have the form 'key=value'
+<2> The attribute 'rule' is mandatory here. It represents the command to execute in a readable manner (more on this in the next chapters).
+<3> Source files, to give in a space-separated list
+<4> Target files, to give in a space-separated list
 
-			Upon execution, the following output will be observed:
+Upon execution, the following output will be observed:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build -v
 'distclean' finished successfully (0.000s)
 'configure' finished successfully (0.021s)
 Waf: Entering directory `/tmp/rule/out'
-[1/1] foobar.txt: wscript -> out/default/foobar.txt <co id="rulo1-co" linkends="rulo1"/>
-16:24:21 runner system command ->  cp ../wscript default/foobar.txt <co id="rulo2-co" linkends="rulo2"/>
+[1/1] foobar.txt: wscript -> out/default/foobar.txt <1>
+16:24:21 runner system command ->  cp ../wscript default/foobar.txt <2>
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.016s)
 
@@ -65,48 +50,34 @@ $ tree
 |       `-- foobar.txt
 `-- wscript
 
-$ waf <co id="rulo3-co" linkends="rulo3"/>
+$ waf <3>
 Waf: Entering directory `/tmp/rule/out'
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.006s)
 
-$ echo " " >> wscript <co id="rulo4-co" linkends="rulo4"/>
+$ echo " " >> wscript <4>
 
 $ waf
 Waf: Entering directory `/tmp/rule/out'
-[1/1] foobar.txt: wscript -> out/default/foobar.txt <co id="rulo5-co" linkends="rulo5"/>
+[1/1] foobar.txt: wscript → out/default/foobar.txt <5>
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.013s)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="rulo1-co" id="rulo1">
-					<para>In the first execution, the target is correctly created</para>
-				</callout>
-				<callout arearefs="rulo2-co" id="rulo2">
-					<para>Command-lines are only displayed in 'verbose mode' by using the option '-v'</para>
-				</callout>
-				<callout arearefs="rulo3-co" id="rulo3">
-					<para>The target are up-to-date, there is nothing to do</para>
-				</callout>
-				<callout arearefs="rulo4-co" id="rulo4">
-					<para>Modify the source file in place by appending a space character</para>
-				</callout>
-				<callout arearefs="rulo5-co" id="rulo5">
-					<para>Since the source has changed, the target is created once again.</para>
-				</callout>
-			</calloutlist>
-		</para>
-		The target is created once again whenever the source files or the rule change. This is achieved by computing a signature for the targets, and storing that signature between executions. By default, the signature is computed by hashing the rule and the source files (MD5 by default).
-	</section>
+<1> In the first execution, the target is correctly created
+<2> Command-lines are only displayed in 'verbose mode' by using the option '-v'
+<3> The target are up-to-date, there is nothing to do
+<4> Modify the source file in place by appending a space character
+<5> Since the source has changed, the target is created once again.
 
+The target is created once again whenever the source files or the rule change. This is achieved by computing a signature for the targets, and storing that signature between executions. By default, the signature is computed by hashing the rule and the source files (MD5 by default).
 
-	<section id="make_like_funs">
-		<title>Rule functions
-		<para>
-			Rules may be given as expression strings or as python function. Let's modify the previous project file with a python function:
+=== Rule functions
 
-			<programlisting language="python">
+Rules may be given as expression strings or as python function. Let's modify the previous project file with a python function:
+
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -114,48 +85,34 @@ def configure(conf):
 	pass
 
 def build(bld):
-	def run(task): <co id="rula1-co" linkends="rula1"/>
-		print(' &#8594; source is ' + task.generator.source) <co id="rula2-co" linkends="rula2"/>
+	def run(task): <1>
+		print(' &#8594; source is ' + task.generator.source) <2>
 
-		src = task.inputs[0].srcpath(task.env) <co id="rula3-co" linkends="rula3"/>
-		tgt = task.outputs[0].bldpath(task.env) <co id="rula4-co" linkends="rula4"/>
+		src = task.inputs[0].srcpath(task.env) <3>
+		tgt = task.outputs[0].bldpath(task.env) <4>
 
 		import Utils
 		cmd = "cp %s %s" % (src, tgt)
 		print(cmd)
-		return Utils.exec_command(cmd) <co id="rula5-co" linkends="rula5"/>
+		return Utils.exec_command(cmd) <5>
 
 	bld(
-		rule   = run, <co id="rula6-co" linkends="rula6"/>
+		rule   = run, <6>
 		source = 'wscript',
 		target = 'same.txt',
 	)
-			</programlisting>
+---------------
 
-			The execution trace will be similar to the following:
+The execution trace will be similar to the following:
 
-			<calloutlist>
-				<callout arearefs="rula1-co" id="rula1">
-					<para>Rule functions take the task instance as parameter.</para>
-				</callout>
-				<callout arearefs="rula2-co" id="rula2">
-					<para>Task instances may access their task generator through the attribute 'generator'</para>
-				</callout>
-				<callout arearefs="rula3-co" id="rula3">
-					<para>Sources and targets are represented internally as Node objects bound to the task instance.</para>
-				</callout>
-				<callout arearefs="rula4-co" id="rula4">
-					<para>Commands are executed from the root of the build directory. Node methods such as 'bldpath' ease the command line creation.</para>
-				</callout>
-				<callout arearefs="rula5-co" id="rula5">
-					<para>Utils.exec_command(...) is a wrapper around subprocess.Popen(...) from the Python library. Passing a string will execute the command through the system shell (use lists to disable this behaviour). The return code for a rule function must be non-0 to indicate a failure.</para>
-				</callout>
-				<callout arearefs="rula6-co" id="rula6">
-					<para>Use a function instead of a string expression</para>
-				</callout>
-			</calloutlist>
+<1> Rule functions take the task instance as parameter.
+<2> Task instances may access their task generator through the attribute 'generator'
+<3> Sources and targets are represented internally as Node objects bound to the task instance.
+<4> Commands are executed from the root of the build directory. Node methods such as 'bldpath' ease the command line creation.
+<5> Utils.exec_command(...) is a wrapper around subprocess.Popen(...) from the Python library. Passing a string will execute the command through the system shell (use lists to disable this behaviour). The return code for a rule function must be non-0 to indicate a failure.
+<6> Use a function instead of a string expression
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
 'configure' finished successfully (0.001s)
@@ -165,32 +122,29 @@ Waf: Entering directory `/tmp/rule/out'
 cp ../wscript default/same.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.010s)
-			</programlisting>
+---------------
 
-			The rule function must return '0' to indicate success, and must generate the files corresponding to the outputs. The rule function must also access the task object in a read-only manner, and avoid node creation or attribute modification.
+The rule function must return '0' to indicate success, and must generate the files corresponding to the outputs. The rule function must also access the task object in a read-only manner, and avoid node creation or attribute modification.
 
-			<note>The string expression 'cp ${SRC} ${TGT}' from the previous example is converted internally to a function similar to 'run'</note>
-			<note>While a string expression may execute only one system command, functions may execute various commands at once.</note>
-			<warning>Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing a function will trigger a rebuild only if it is defined in a waf tool (not in wscript files).</warning>
-		</para>
-	</section>
+TIP: The string expression 'cp ${SRC} ${TGT}' from the previous example is converted internally to a function similar to 'run'
+TIP: While a string expression may execute only one system command, functions may execute various commands at once.
+WARNING: Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing a function will trigger a rebuild only if it is defined in a waf tool (not in wscript files).
+
+=== Shell usage
+
+The attribute 'shell' is used to enable the system shell for command execution. A few points are worth keeping in mind when declaring rule-based task generators:
 
 
-	<section id="make_like_shell">
-		<title>Shell usage
-		<para>
-			The attribute 'shell' is used to enable the system shell for command execution. A few points are worth keeping in mind when declaring rule-based task generators:
-			<itemizedlist>
-				<listitem>The Waf tools do not use the shell for executing commands</listitem>
-				<listitem>The shell is used by default for user commands and custom task generators</listitem>
-				<listitem>String expressions containing the following symbols '&gt;', '&lt;' or '&amp;' cannot be transformed into functions to execute commands without a shell, even if told to</listitem>
-				<listitem>In general, it is better to avoid the shell whenever possible to avoid quoting problems (paths having blank characters in the name for example)</listitem>
-				<listitem>The shell is creating a performance penalty which is more visible on win32 systems.</listitem>
-			</itemizedlist>
+. The Waf tools do not use the shell for executing commands
+. The shell is used by default for user commands and custom task generators
+. String expressions containing the following symbols '&gt;', '&lt;' or '&amp;' cannot be transformed into functions to execute commands without a shell, even if told to
+. In general, it is better to avoid the shell whenever possible to avoid quoting problems (paths having blank characters in the name for example)
+. The shell is creating a performance penalty which is more visible on win32 systems.
 
 			Here is an example:
 
-			<programlisting language="python">
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -200,16 +154,16 @@ def configure(conf):
 def build(bld):
 	bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f1.txt', shell=False)
 	bld(rule='cp ${SRC} ${TGT}', source='wscript', target='f2.txt', shell=True)
-			</programlisting>
+---------------
 
-			Upon execution, the results will be similar to the following:
+Upon execution, the results will be similar to the following:
 
-			<programlisting language="sh">
-waf distclean configure build --zones=runner,action <co id="rulb1-co" linkends="rulb1"/>
+---------------
+waf distclean configure build --zones=runner,action <1>
 'distclean' finished successfully (0.004s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
-23:11:23 action <co id="rulb2-co" linkends="rulb2"/>
+23:11:23 action <2>
 def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
@@ -224,7 +178,7 @@ def f(task):
 	return task.exec_command(lst, cwd=wd)
 
 23:11:23 action
-def f(task): <co id="rulb3-co" linkends="rulb3"/>
+def f(task): <3>
 	env = task.env
 	wd = getattr(task, 'cwd', None)
 	p = env.get_flat
@@ -233,39 +187,26 @@ def f(task): <co id="rulb3-co" linkends="rulb3"/>
 	return task.exec_command(cmd, cwd=wd)
 
 [1/2] f1.txt: wscript -> out/default/f1.txt
-23:11:23 runner system command -> ['cp', '../wscript', 'default/f1.txt'] <co id="rulb4-co" linkends="rulb4"/>
+23:11:23 runner system command -> ['cp', '../wscript', 'default/f1.txt'] <4>
 [2/2] f2.txt: wscript -> out/default/f2.txt
 23:11:23 runner system command ->  cp ../wscript default/f2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.017s)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="rulb1-co" id="rulb1">
-					<para>The 'debugging zones' enable the display of specific debugging information (comma-separated values) for the string expression conversion, and 'runner' for command execution</para>
-				</callout>
-				<callout arearefs="rulb2-co" id="rulb2">
-					<para>String expressions are converted to functions (here, without the shell).</para>
-				</callout>
-				<callout arearefs="rulb3-co" id="rulb3">
-					<para>Command execution by the shell. Notice the heavy use of string concatenation.</para>
-				</callout>
-				<callout arearefs="rulb4-co" id="rulb4">
-					<para>Commands to execute are displayed by calling 'waf --zones=runner'. When called without the shell, the arguments are displayed as a list.</para>
-				</callout>
-			</calloutlist>
+<1> The 'debugging zones' enable the display of specific debugging information (comma-separated values) for the string expression conversion, and 'runner' for command execution
+<2> String expressions are converted to functions (here, without the shell).
+<3> Command execution by the shell. Notice the heavy use of string concatenation.
+<4> Commands to execute are displayed by calling 'waf --zones=runner'. When called without the shell, the arguments are displayed as a list.
 
-			<note>Whenever possible, avoid using the shell to improve both performance and maintainability</note>
+TIP: Whenever possible, avoid using the shell to improve both performance and maintainability
 
-		</para>
-	</section>
+=== Inputs and outputs
 
-	<section id="make_like_io">
-		<title>Inputs and outputs
-		<para>
-			Source and target arguments are optional for make-like task generators, and may point at one or several files at once. Here are a few examples:
+Source and target arguments are optional for make-like task generators, and may point at one or several files at once. Here are a few examples:
 
-			<programlisting language="python">
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -273,54 +214,42 @@ def configure(conf):
 	pass
 
 def build(bld):
-	bld( <co id="rulec1-co" linkends="rulec1"/>
+	bld( <1>
 		rule   = 'cp ${SRC} ${TGT[0].abspath(env)} &amp;&amp; cp ${SRC} ${TGT[1].abspath(env)}',
 		source = 'wscript',
 		target = 'f1.txt f2.txt',
 		shell  = True
 	)
 
-	bld( <co id="rulec2-co" linkends="rulec2"/>
+	bld( <2>
 		source = 'wscript',
 		rule   = 'echo ${SRC}'
 	)
 
-	bld( <co id="rulec3-co" linkends="rulec3"/>
+	bld( <3>
 		target = 'test.k3',
 		rule   = 'echo "test" > ${TGT}',
 	)
 
-	bld( <co id="rulec4-co" linkends="rulec4"/>
+	bld( <4>
 		rule   = 'echo 1337'
 	)
 
-	bld( <co id="rulec5-co" linkends="rulec5"/>
+	bld( <5>
 		rule   = "echo 'task always run'",
 		always = True
 	)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="rulec1-co" id="rulec1">
-					<para>Generate 'two files' whenever the input or the rule change. Likewise, a rule-based task generator may have multiple input files.</para>
-				</callout>
-				<callout arearefs="rulec2-co" id="rulec2">
-					<para>The command is executed whenever the input or the rule change. There are no declared outputs.</para>
-				</callout>
-				<callout arearefs="rulec3-co" id="rulec3">
-					<para>No input, the command is executed whenever it changes</para>
-				</callout>
-				<callout arearefs="rulec4-co" id="rulec4">
-					<para>No input and no output, the command is executed only when the string expression changes</para>
-				</callout>
-				<callout arearefs="rulec5-co" id="rulec5">
-					<para>No input and no output, the command is executed each time the build is called</para>
-				</callout>
-			</calloutlist>
+<1> Generate 'two files' whenever the input or the rule change. Likewise, a rule-based task generator may have multiple input files.
+<2> The command is executed whenever the input or the rule change. There are no declared outputs.
+<3> No input, the command is executed whenever it changes
+<4> No input and no output, the command is executed only when the string expression changes
+<5> No input and no output, the command is executed each time the build is called
 
-			For the record, here is the output of the build:
+For the record, here is the output of the build:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.093s)
@@ -342,17 +271,14 @@ Waf: Entering directory `/tmp/rule/out'
 task always run
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.014s)
-			</programlisting>
+---------------
 
-		</para>
-	</section>
+=== Sharing data
 
-	<section id="make_like_data">
-		<title>Sharing data
-		<para>
-			Data sharing is performed through the configuration set. The following example illustrates how to use it.
+Data sharing is performed through the configuration set. The following example illustrates how to use it.
 
-			<programlisting language="python">
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -365,49 +291,35 @@ def configure(conf):
 def build(bld):
 	bld(
 		target = 't1.txt',
-		rule   = 'echo ${PREFIX} > ${TGT}' <co id="ruled1-co" linkends="ruled1"/>
+		rule   = 'echo ${PREFIX} > ${TGT}' <1>
 	)
 
 	obj = bld(
 		target = 't2.txt',
-		rule   = 'echo ${TEST_VAR} > ${TGT}', <co id="ruled2-co" linkends="ruled2"/>
+		rule   = 'echo ${TEST_VAR} > ${TGT}', <2>
 	)
-	obj.env.TEST_VAR <co id="ruled3-co" linkends="ruled3"/>= str(Options.options.jobs) <co id="ruled4-co" linkends="ruled4"/>
+	obj.env.TEST_VAR <3>= str(Options.options.jobs) <4>
 
 	bld(
 		rule = 'echo "hey"',
-		vars = ['TEST_VAR'], <co id="ruled5-co" linkends="ruled5"/>
-		env  = obj.env <co id="ruled6-co" linkends="ruled6"/>
+		vars = ['TEST_VAR'], <5>
+		env  = obj.env <6>
 	)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="ruled1-co" id="ruled1">
-					<para>The 'PREFIX' is one of the few predefined variables. It is necessary for computing the default installation path.</para>
-				</callout>
-				<callout arearefs="ruled2-co" id="ruled2">
-					<para>The following rule will create the file <filename>t2.txt</filename> with the contents of 'TEST_VAR'</para>
-				</callout>
-				<callout arearefs="ruled3-co" id="ruled3">
-					<para>The value of 'TEST_VAR' will be defined now</para>
-				</callout>
-				<callout arearefs="ruled4-co" id="ruled4">
-					<para>Use the value of a predefined command-line option (the jobs control the amount of commands which may be executed in parallel)</para>
-				</callout>
-				<callout arearefs="ruled5-co" id="ruled5">
-					<para>By default, the variables used in string expressions '${...}' are extracted automatically and used as dependencies (rebuild the targets when the value change). They are given manually in this case.</para>
-				</callout>
-				<callout arearefs="ruled6-co" id="ruled6">
-					<para>Set the base environment. The variable TEST_VAR will be used for the dependency here.</para>
-				</callout>
-			</calloutlist>
+<1> The 'PREFIX' is one of the few predefined variables. It is necessary for computing the default installation path.
+<2> The following rule will create the file `t2.txt` with the contents of 'TEST_VAR'
+<3> The value of 'TEST_VAR' will be defined now
+<4> Use the value of a predefined command-line option (the jobs control the amount of commands which may be executed in parallel)
+<5> By default, the variables used in string expressions '${...}' are extracted automatically and used as dependencies (rebuild the targets when the value change). They are given manually in this case.
+<6> Set the base environment. The variable TEST_VAR will be used for the dependency here.
 
-			By turning the debugging flags on, it will be easier to understand what is happening during the build:
+By turning the debugging flags on, it will be easier to understand what is happening during the build:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build --zones=runner,action
 'distclean' finished successfully (0.003s)
-prefix: '/usr/local' <co id="ruledd1-co" linkends="ruledd1"/>
+prefix: '/usr/local' <1>
 jobs:   2
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
@@ -416,16 +328,16 @@ def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
 	p = env.get_flat
-	cmd = ''' echo %s > %s ''' % (p('PREFIX'), <co id="ruledd2-co" linkends="ruledd2"/>
+	cmd = ''' echo %s > %s ''' % (p('PREFIX'), <2>
 		" ".join([a.bldpath(env) for a in task.outputs]))
 	return task.exec_command(cmd, cwd=wd)
 
-[...] <co id="ruledd3-co" linkends="ruledd3"/>
+[...] <3>
 
 [1/3] t2.txt:  -> out/default/t2.txt
 15:21:29 runner system command ->  echo 2 > default/t2.txt
 [2/3] t1.txt:  -> out/default/t1.txt
-15:21:29 runner system command ->  echo /usr/local > default/t1.txt <co id="ruledd4-co" linkends="ruledd4"/>
+15:21:29 runner system command ->  echo /usr/local > default/t1.txt <4>
 [2/3] echo "hey":
 18:05:26 runner system command ->  echo "hey"
 hey
@@ -440,48 +352,31 @@ Waf: Leaving directory `/tmp/rule/out'
 $ waf --jobs=17 --zones=runner
 Waf: Entering directory `/tmp/rule/out'
 [1/3] t2.txt:  -> out/default/t2.txt
-15:23:24 runner system command ->  echo 17 > default/t2.txt <co id="ruledd5-co" linkends="ruledd5"/>
-[2/3] echo "hey": <co id="ruledd6-co" linkends="ruledd6"/>
+15:23:24 runner system command ->  echo 17 > default/t2.txt <5>
+[2/3] echo "hey": <6>
 hey
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.014s)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="ruledd1-co" id="ruledd1">
-					<para>The default values for prefix and jobs</para>
-				</callout>
-				<callout arearefs="ruledd2-co" id="ruledd2">
-					<para>The function generated from the string expression will use the 'PREFIX' value</para>
-				</callout>
-				<callout arearefs="ruledd3-co" id="ruledd3">
-					<para>Some output was removed</para>
-				</callout>
-				<callout arearefs="ruledd4-co" id="ruledd4">
-					<para>The expression '${PREFIX}' was substituted by its value</para>
-				</callout>
-				<callout arearefs="ruledd5-co" id="ruledd5">
-					<para>The target is created whenever the value of a variable changes, even though the string expression has not changed</para>
-				</callout>
-				<callout arearefs="ruledd6-co" id="ruledd6">
-					<para>The variable 'TEST_VAR' changed, so the command was executed again</para>
-				</callout>
-			</calloutlist>
-		</para>
-	</section>
+<1> The default values for prefix and jobs
+<2> The function generated from the string expression will use the 'PREFIX' value
+<3> Some output was removed
+<4> The expression '${PREFIX}' was substituted by its value
+<5> The target is created whenever the value of a variable changes, even though the string expression has not changed
+<6> The variable 'TEST_VAR' changed, so the command was executed again
 
-	<section id="make_like_order">
-		<title>Execution order and dependencies
-		<para>
-			Although task generators will create the tasks in the relevant order, tasks are executed in parallel and the compilation order may not be the order expected. In the example from the previous section, the target <filename>t2.txt</filename> was processed before the target <filename>t1.txt</filename>. We will now illustrate two important concepts used for the build specification:
-			<itemizedlist>
-				<listitem>order: sequential constraints between the tasks being executed (here, the commands)</listitem>
-				<listitem>dependency: executing a task if another task is executed</listitem>
-			</itemizedlist>
+=== Execution order and dependencies
 
-			For illustation purposes, let's create the following chain '<filename>wscript</filename> &#8594; <filename>w1.txt</filename> &#8594; <filename>w2.txt</filename>'. The order constraint is given by the attribute 'after' which references a task class name. For rule-based task generators, the task class name is bound to the attribute 'name'
+Although task generators will create the tasks in the relevant order, tasks are executed in parallel and the compilation order may not be the order expected. In the example from the previous section, the target `t2.txt` was processed before the target `t1.txt`. We will now illustrate two important concepts used for the build specification:
 
-			<programlisting language="python">
+. order: sequential constraints between the tasks being executed (here, the commands)
+. dependency: executing a task if another task is executed
+
+For illustation purposes, let's create the following chain '`wscript` &#8594; `w1.txt` &#8594; `w2.txt`'. The order constraint is given by the attribute 'after' which references a task class name. For rule-based task generators, the task class name is bound to the attribute 'name'
+
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -502,11 +397,11 @@ def build(bld):
 		target = 'w2.txt'
 		after  = w1,
 	)
-			</programlisting>
+---------------
 
-		The execution output will be similar to the following. Note that both files are created whenever the first source file <filename>wscript</filename> changes:
+The execution output will be similar to the following. Note that both files are created whenever the first source file `wscript` changes:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
 'configure' finished successfully (0.001s)
@@ -524,14 +419,12 @@ Waf: Entering directory `/tmp/rule/out'
 [2/2] w2.txt: out/default/w1.txt -> out/default/w2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.018s)
-			</programlisting>
+---------------
 
-		</para>
+Although the order constraint between w1 and w2 is trivial to find in this case, implicit constraints can be a source of confusion for large projects. For this reason, the default is to 'encourage' the explicit order declaration. Nevertheless, a special method may be used to let the system look at all source and target files:
 
-		<para>
-			Although the order constraint between w1 and w2 is trivial to find in this case, implicit constraints can be a source of confusion for large projects. For this reason, the default is to 'encourage' the explicit order declaration. Nevertheless, a special method may be used to let the system look at all source and target files:
-
-			<programlisting language="python">
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -553,18 +446,17 @@ def build(bld):
 		source = 'w1.txt',
 		target = 'w2.txt',
 	)
-			</programlisting>
+---------------
 
-			<warning>The method 'bld.use_the_magic()' will not work for tasks that do not have clear input and output files and will degrade performance for large builds.</warning>
-		</para>
-	</section>
+WARNING: The method 'bld.use_the_magic()' will not work for tasks that do not have clear input and output files and will degrade performance for large builds.
 
-	<section id="make_like_contents">
-		<title>Dependencies on file contents
-		<para>
-			As a second example, we will create a file named <filename>r1.txt</filename> from the current date. It will be updated each time the build is executed. A second file named <filename>r2.txt</filename> will be created from <filename>r1.txt</filename>.
 
-			<programlisting language="python">
+=== Dependencies on file contents
+
+As a second example, we will create a file named `r1.txt` from the current date. It will be updated each time the build is executed. A second file named `r2.txt` will be created from `r1.txt`.
+
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -573,45 +465,31 @@ def configure(conf):
 
 def build(bld):
 	bld(
-		name   = 'r1', <co id="rulef1-co" linkends="rulef1"/>
+		name   = 'r1', <1>
 		target = 'r1.txt',
-		rule   = '(date &gt; ${TGT}) &amp;&amp; cat ${TGT}', <co id="rulef2-co" linkends="rulef2"/>
-		always = True, <co id="rulef3-co" linkends="rulef3"/>
+		rule   = '(date &gt; ${TGT}) &amp;&amp; cat ${TGT}', <2>
+		always = True, <3>
 	)
 
 	bld(
-		name   = 'r2', <co id="rulef4-co" linkends="rulef4"/>
+		name   = 'r2', <4>
 		target = 'r2.txt',
 		rule   = 'cp ${SRC} ${TGT}',
-		source = 'r1.txt', <co id="rulef5-co" linkends="rulef5"/>
-		after  = 'r1', <co id="rulef6-co" linkends="rulef6"/>
+		source = 'r1.txt', <5>
+		after  = 'r1', <6>
 	)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="rulef1-co" id="rulef1">
-					<para>Give the task generator a name, it will create a task class of the same name to execute the command</para>
-				</callout>
-				<callout arearefs="rulef2-co" id="rulef2">
-					<para>Create <filename>r1.txt</filename> with the date</para>
-				</callout>
-				<callout arearefs="rulef3-co" id="rulef3">
-					<para>There is no source file to depend on and the rule never changes. The task is then set to be executed each time the build is started by using the attribute 'always'</para>
-				</callout>
-				<callout arearefs="rulef4-co" id="rulef4">
-					<para>If no name is provided, the rule is used as a name for the task class</para>
-				</callout>
-				<callout arearefs="rulef5-co" id="rulef5">
-					<para>Use <filename>r1.txt</filename> as a source for <filename>r2.txt</filename>. Since <filename>r1.txt</filename> was declared before, the dependency will be added automatically (<filename>r2.txt</filename> will be re-created whenever <filename>r1.txt</filename> changes)</para>
-				</callout>
-				<callout arearefs="rulef6-co" id="rulef6">
-					<para>Set the command generating 'r2.txt' to be executed after the command generating 'r1.txt'. The attribute 'after' references task class names, not task generators. Here it will work because rule-based task generator tasks inherit the 'name' attribute</para>
-				</callout>
-			</calloutlist>
+<1> Give the task generator a name, it will create a task class of the same name to execute the command
+<2> Create `r1.txt` with the date
+<3> There is no source file to depend on and the rule never changes. The task is then set to be executed each time the build is started by using the attribute 'always'
+<4> If no name is provided, the rule is used as a name for the task class
+<5> Use `r1.txt` as a source for `r2.txt`. Since `r1.txt` was declared before, the dependency will be added automatically (`r2.txt` will be re-created whenever `r1.txt` changes)
+<6> Set the command generating 'r2.txt' to be executed after the command generating 'r1.txt'. The attribute 'after' references task class names, not task generators. Here it will work because rule-based task generator tasks inherit the 'name' attribute
 
-			The execution output will be the following:
+The execution output will be the following:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build -v
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
@@ -631,15 +509,15 @@ Waf: Entering directory `/tmp/rule/out'
 dom ene 31 16:44:41 CET 2010
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.016s)
-			</programlisting>
+---------------
 
-			Although r2 'depends' on <filename>r1.txt</filename>, r2 was not executed in the second build. As a matter of fact, the signature of the task r1 has not changed, and r1 was only set to be executed each time, regardless of its signature. Since the signature of the <filename>r1.txt</filename> does not change, the signature of r2 will not change either, and <filename>r2.txt</filename> is considered up-to-date.
+Although r2 'depends' on `r1.txt`, r2 was not executed in the second build. As a matter of fact, the signature of the task r1 has not changed, and r1 was only set to be executed each time, regardless of its signature. Since the signature of the `r1.txt` does not change, the signature of r2 will not change either, and `r2.txt` is considered up-to-date.
 
-		</para>
 
-		<para>
-			We will now illustrate how to make certain that the outputs reflect the file contents and trigger the rebuild for dependent tasks by enabling the attribute 'on_results':
-			<programlisting language="python">
+We will now illustrate how to make certain that the outputs reflect the file contents and trigger the rebuild for dependent tasks by enabling the attribute 'on_results':
+
+[source,python]
+---------------
 srcdir = '.'
 blddir = 'out'
 
@@ -661,18 +539,18 @@ def build(bld):
 		source = 'r1.txt',
 		after  = 'r1',
 	)
-			</programlisting>
+---------------
 
-			Here <filename>r2.txt</filename> will be re-created each time:
+Here `r2.txt` will be re-created each time:
 
-			<programlisting language="sh">
+---------------
 $ waf distclean configure build -v
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
-16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt <co id="ruleff1-co" linkends="ruleff1"/>
-dom ene 31 16:59:49 CET 2010 <co id="ruleff2-co" linkends="ruleff2"/>
+16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt <1>
+dom ene 31 16:59:49 CET 2010 <2>
 [2/2] r2: out/default/r1.txt -> out/default/r2.txt
 16:59:49 runner system command ->  cp default/r1.txt default/r2.txt
 Waf: Leaving directory `/tmp/rule/out'
@@ -682,7 +560,7 @@ $ waf -v
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
 16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
-dom ene 31 16:59:49 CET 2010 <co id="ruleff3-co" linkends="ruleff3"/>
+dom ene 31 16:59:49 CET 2010 <3>
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.016s)
 
@@ -690,28 +568,15 @@ $ waf -v
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
 16:59:53 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
-dom ene 31 16:59:53 CET 2010 <co id="ruleff4-co" linkends="ruleff4"/>
+dom ene 31 16:59:53 CET 2010 <4>
 [2/2] r2: out/default/r1.txt -> out/default/r2.txt
 16:59:53 runner system command ->  cp default/r1.txt default/r2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.022s)
-			</programlisting>
+---------------
 
-			<calloutlist>
-				<callout arearefs="ruleff1-co" id="ruleff1">
-					<para>Start with a clean build, both <filename>r1.txt</filename> and <filename>r2.txt</filename> are created</para>
-				</callout>
-				<callout arearefs="ruleff2-co" id="ruleff2">
-					<para>Notice the date and time</para>
-				</callout>
-				<callout arearefs="ruleff3-co" id="ruleff3">
-					<para>The second build was executed at the same date and time, so <filename>r1.txt</filename> has not changed, therefore <filename>r2.txt</filename> is up to date</para>
-				</callout>
-				<callout arearefs="ruleff4-co" id="ruleff4">
-					<para>The third build is executed at another date and time. Since <filename>r1.txt</filename> has changed, <filename>r2.txt</filename> is created once again</para>
-				</callout>
-			</calloutlist>
-		</para>
-	</section>
-</chapter>
+<1> Start with a clean build, both `r1.txt` and `r2.txt` are created
+<2> Notice the date and time
+<3> The second build was executed at the same date and time, so `r1.txt` has not changed, therefore `r2.txt` is up to date
+<4> The third build is executed at another date and time. Since `r1.txt` has changed, `r2.txt` is created once again
 

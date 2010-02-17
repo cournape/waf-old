@@ -4,16 +4,16 @@
 
 Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
 
-. Execution control: targets are only produced during the calls to the commands 'build' and 'install'</listitem>
-. Parallel target processing to accelerate the builds: multi-core systems</listitem>
-. Filesystem abstraction: fetching data from the network</listitem>
-. Extensibility: adding support for new compilers and new languages from user scripts</listitem>
-. Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)</listitem>
+. Execution control: targets are only produced during the calls to the commands 'build' and 'install'
+. Parallel target processing to accelerate the builds: multi-core systems
+. Filesystem abstraction: fetching data from the network
+. Extensibility: adding support for new compilers and new languages from user scripts
+. Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)
 
 These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are the definitions:
 
-. Task: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).</listitem>
-. Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc</listitem>
+. Task: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).
+. Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc
 
 Here is a sample project script to illustrate the concepts:
 
@@ -55,8 +55,8 @@ The line 'test.txt' corresponds to the execution of the actual task. The task ge
 
 In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed fron the build context:
 
-. root: node representing the root of the file system, or the folder containing the drive letters on win32 systems</listitem>
-. path: node representing the path of the script being read (path to the wscript file)</listitem>
+. root: node representing the root of the file system, or the folder containing the drive letters on win32 systems
+. path: node representing the path of the script being read (path to the wscript file)
 
 Nodes are often used for low-level operations such as extending Waf, and direct node manipulation is hardly ever necessary from user scripts.
 
@@ -137,9 +137,9 @@ Waf: Leaving directory `/tmp/smallproject/build'
 
 Three build context methods are provided for installing files:
 
-. install_files: install several files in a folder</listitem>
-. install_as: install a target with a different name</listitem>
-. symlink_as: create a symbolic link on the platforms that support it</listitem>
+. install_files: install several files in a folder
+. install_as: install a target with a different name
+. symlink_as: create a symbolic link on the platforms that support it
 
 [source,python]
 ---------------
@@ -169,8 +169,8 @@ def build(bld):
 
 User functions may be bound to be executed at two key moments during the build command (callbacks):
 
-. immediately before the build starts (bld.add_pre_fun)</listitem>
-. immediately after the build is completed successfully (bld.add_post_fun)</listitem>
+. immediately before the build starts (bld.add_pre_fun)
+. immediately after the build is completed successfully (bld.add_post_fun)
 
 Here is how to execute a test after the build is finished:
 

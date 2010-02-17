@@ -7,7 +7,7 @@
 	<section id="core_lib">
 		<title>The core library
 		<para>
-			Waf is based on 12 modules which constitute the core library. They are located in the directory <filename>wafadmin/</filename>. The modules located under <filename>wafadmin/Tools</filename> add support for programming languages and more tools, but are not essential for the Waf core.
+			Waf is based on 12 modules which constitute the core library. They are located in the directory `wafadmin/`. The modules located under `wafadmin/Tools` add support for programming languages and more tools, but are not essential for the Waf core.
 <table id="core_lib_ref">
 <title>The core library
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
@@ -257,7 +257,7 @@
 		<sect2>
 			<title>Comparing Waf against other build systems
 			<para>
-				Since Waf considers the file contents in the build process, it is often thought that Waf would be much slower than make. For a test project having 5000 files (generated from the script located in <filename>tools/genbench.py</filename>), on a 1.5Ghz computer, the Waf runtime is actually slightly faster than the Gnu/Make one (less than one second). The reason is the time to launch a new process - make is usually called recursively, once by directory.
+				Since Waf considers the file contents in the build process, it is often thought that Waf would be much slower than make. For a test project having 5000 files (generated from the script located in `tools/genbench.py`), on a 1.5Ghz computer, the Waf runtime is actually slightly faster than the Gnu/Make one (less than one second). The reason is the time to launch a new process - make is usually called recursively, once by directory.
 			</para>
 			<para>
 				For huge projects, calling make recursively is necessary for flexibility, but it hurts performance (launch many processes), and CPU utilization (running tasks in parallel). Make-based build systems such as CMake or Autotools inherit the limitations of Make.
@@ -284,7 +284,7 @@
 				If more than 100Mb of data is present in the project, it may be necessary to use a faster hashing algorithm. An implementation of the fnv algorithm is present in the Waf distribution, and can replace md5 without really degrading accuracy.
 			</para>
 			<para>
-				If more than 10000 files are present, it may be necessary to replace the hashing system by a 'file name+size+timestamp hash scheme'. An example is provided in the comment section of the module <filename>Utils.py</filename>. That scheme is more efficient but less accurate: the Waf cache should not be used with this scheme.
+				If more than 10000 files are present, it may be necessary to replace the hashing system by a 'file name+size+timestamp hash scheme'. An example is provided in the comment section of the module `Utils.py`. That scheme is more efficient but less accurate: the Waf cache should not be used with this scheme.
 			</para>
 		</sect2>
 	</section>

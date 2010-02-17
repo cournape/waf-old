@@ -92,7 +92,7 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 	<section id="benchmarking">
 		<title>Benchmarking
 		<para>
-			The script <filename>utils/genbench.py</filename> generates a simple benchmark for Waf. The habitual use is the following:
+			The script `utils/genbench.py` generates a simple benchmark for Waf. The habitual use is the following:
 			<programlisting language="sh">
 utils/genbench.py /tmp/build 50 100 15 5
 cd /tmp/build
@@ -168,12 +168,12 @@ Sun Nov  9 19:22:59 2008    prof.txt
 	<section id="parallel_tracing">
 		<title>Tracing parallel task execution
 		<para>
-			A special Waf tool named 'ParallelDebug' is used to inject code in Waf modules and obtain information on the execution. This module is provided in the folder <filename>playground</filename> and must be imported in one's project before use:
+			A special Waf tool named 'ParallelDebug' is used to inject code in Waf modules and obtain information on the execution. This module is provided in the folder `playground` and must be imported in one's project before use:
 			<programlisting language="python">
 def configure(conf):
 	conf.check_tool('ParallelDebug', tooldir='.')
 			</programlisting>
-			After executing a full build, a trace of the execution is output in <filename>/tmp/test.dat</filename>; it may be processed by other applications such as Gnuplot:
+			After executing a full build, a trace of the execution is output in `/tmp/test.dat`; it may be processed by other applications such as Gnuplot:
 			<programlisting language="sh">
 #! /usr/bin/gnuplot -persist
 set terminal X11
@@ -221,7 +221,7 @@ export WAFDIR=/path/to/directory/
 			<itemizedlist>
 				<listitem>Identation is tab-only, and the maximum line length should be about 200 characters</listitem>
 				<listitem>The development code is kept compatible with Python 2.3, to the exception of decorators in the Tools directory. In particular, the Waf binary can be generated using Python 2.3</listitem>
-				<listitem>The <filename>wafadmin</filename> modules must be insulated from the <filename>Tools</filename> modules to keep the Waf core small and language independent</listitem>
+				<listitem>The `wafadmin` modules must be insulated from the `Tools` modules to keep the Waf core small and language independent</listitem>
 				<listitem>Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.9)</listitem>
 			</itemizedlist>
 		</para>

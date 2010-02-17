@@ -28,7 +28,7 @@ test
 		</para>
 
 		<para>
-			The parameter 'ctx' in the function foo above is provided to enable recursion and sharing data with the scripts. In the following example, the script <filename>subdir/wscript_'foo'</filename> will be looked up, and executed if found. Else, the script <filename>subdir/wscript</filename> will be looked up and loaded as a module. If successfully loaded, the function 'foo' will be executed, else an exception is raised.
+			The parameter 'ctx' in the function foo above is provided to enable recursion and sharing data with the scripts. In the following example, the script `subdir/wscript_'foo'` will be looked up, and executed if found. Else, the script `subdir/wscript` will be looked up and loaded as a module. If successfully loaded, the function 'foo' will be executed, else an exception is raised.
 			<programlisting language="python">
 def foo(ctx):
 	"""help string for the command foo"""
