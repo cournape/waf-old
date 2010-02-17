@@ -119,12 +119,12 @@ The code below is independent from the user scripts and may be located in a Waf 
 
 [source,python]
 ---------------
-def scan_meth(task): <co id="chainb1-co" linkends="chainb1"/>
+def scan_meth(task): <1>
 	node = task.inputs[0]
-	dep = node.parent.find_resource(node.name.replace('.in', '.dep')) <co id="chainb2-co" linkends="chainb2"/>
+	dep = node.parent.find_resource(node.name.replace('.in', '.dep')) <2>
 	if not dep:
 		raise ValueError("Could not find the .dep file for %r" % node)
-	return ([dep], []) <co id="chainb3-co" linkends="chainb3"/>
+	return ([dep], []) <3>
 
 import TaskGen
 TaskGen.declare_chain(
@@ -133,7 +133,7 @@ TaskGen.declare_chain(
 	ext_in    = '.in',
 	ext_out   = '.out',
 	reentrant = False,
-	scan      = scan_meth, <co id="chainb4-co" linkends="chainb4"/>
+	scan      = scan_meth, <4>
 )
 --------------
 <1> The scanner method accepts a task object as input (not a task generator)
