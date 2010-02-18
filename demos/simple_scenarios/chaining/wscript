@@ -4,8 +4,8 @@
 
 VERSION='0.0.1'
 APPNAME='simple_tool'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import TaskGen
 TaskGen.declare_chain(
