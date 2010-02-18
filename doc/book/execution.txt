@@ -179,7 +179,7 @@ def configure(ctx):
 
 Execute the command 'dist' to get:
 
-[source,python]
+[source]
 ---------------
 $ waf configure
 → configuring the project
