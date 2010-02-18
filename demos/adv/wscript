@@ -12,8 +12,8 @@ VERSION='0.0.1'
 APPNAME='adv_test'
 
 # these variables are mandatory ('/' are converted automatically)
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 # make sure waf has the version we want, note: numbers should contain 2
 # periods (as of 1.5.0 --> NOT 1.5)

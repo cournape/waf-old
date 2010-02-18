@@ -10,8 +10,8 @@ VERSION='0.0.2'
 APPNAME='gnome-test'
 
 # these variables are mandatory ('/' are converted automatically)
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	# add your custom options here, for example:

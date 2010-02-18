@@ -2,13 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
-# the following two variables are used by the target "waf dist"
 VERSION='0.0.9'
 APPNAME='tex_test'
 
-# these variables are mandatory,
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	conf.check_tool('tex')

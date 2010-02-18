@@ -5,8 +5,8 @@
 VERSION='0.0.1'
 APPNAME='d_test'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	opt.tool_options('compiler_d')

@@ -8,8 +8,8 @@ import sys, os
 VERSION='0.0.1'
 APPNAME='perl_test'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	opt.tool_options('compiler_cc')

@@ -2,8 +2,8 @@
 # encoding: utf-8
 # Thomas Zellman 2009
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	opt.tool_options('compiler_cc')

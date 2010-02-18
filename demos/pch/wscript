@@ -38,12 +38,9 @@ def build(bld):
 def configure(conf):
 	conf.check_tool('g++')
 
-def set_options(opt):
-	pass
-
 VERSION='0.0.1'
 APPNAME='pch_test'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 

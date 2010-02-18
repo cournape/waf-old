@@ -11,8 +11,8 @@ Useful for apps providing script extensions
 
 VERSION='0.0.1'
 APPNAME='swig_test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	opt.tool_options('g++')

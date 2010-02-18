@@ -7,8 +7,8 @@ VERSION = '0.0.1'
 APPNAME = 'ocaml_test'
 
 # these variables are mandatory,
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	pass
