@@ -126,8 +126,10 @@ Waf: Leaving directory `/tmp/rule/out'
 
 The rule function must return '0' to indicate success, and must generate the files corresponding to the outputs. The rule function must also access the task object in a read-only manner, and avoid node creation or attribute modification.
 
-TIP: The string expression 'cp ${SRC} ${TGT}' from the previous example is converted internally to a function similar to 'run'
+TIP: The string expression 'cp ${SRC} ${TGT}' from the previous example is converted internally to a function similar to 'run'.
+
 TIP: While a string expression may execute only one system command, functions may execute various commands at once.
+
 WARNING: Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing a function will trigger a rebuild only if it is defined in a waf tool (not in wscript files).
 
 === Shell usage

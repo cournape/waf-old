@@ -2,6 +2,8 @@ The Waf Book (v1.5.14)
 ======================
 Thomas Nagy
 
+:quotes.++:
+
 [preface]
 == Introduction
 
