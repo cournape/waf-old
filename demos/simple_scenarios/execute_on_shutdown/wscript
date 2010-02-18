@@ -4,8 +4,8 @@
 
 VERSION='0.0.1'
 APPNAME='cpp_test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	opt.add_option('--exe', action='store_true', default=False,

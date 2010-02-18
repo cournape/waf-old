@@ -25,8 +25,8 @@ it is therefore necesary to use the method exclusive_build_node instead
 
 VERSION='0.0.1'
 APPNAME='unknown_outputs'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	# used only when configured from the same folder

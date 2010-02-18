@@ -4,8 +4,8 @@
 
 VERSION='0.0.1'
 APPNAME='simple_tool'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import os
 import TaskGen
@@ -16,9 +16,6 @@ TaskGen.declare_chain(
 	ext_out = '.cpp',
 	reentrant = 0
 )
-
-def set_options(opt):
-	pass
 
 def configure(conf):
 	cmd = os.getcwd() + os.sep + "cp.py"

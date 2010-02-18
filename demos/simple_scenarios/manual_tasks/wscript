@@ -15,8 +15,8 @@ Note that the execution in parallel (-j) is supported
 
 VERSION='0.0.1'
 APPNAME='test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import random
 import Task, Build, Environment

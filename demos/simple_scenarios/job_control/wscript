@@ -11,8 +11,8 @@ This example shows how to sort independent tasks to reduce the compilation time
 
 VERSION='0.0.1'
 APPNAME='test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import time
 import Task, Options, Build, Environment

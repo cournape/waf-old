@@ -8,8 +8,8 @@ This example demonstrates how to modify the error handler to prevent the build f
 
 VERSION= '0.0.1'
 APPNAME= 'job_errors'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import Runner, Task, Options
 import time

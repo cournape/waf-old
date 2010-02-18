@@ -4,8 +4,8 @@
 
 VERSION='0.0.1'
 APPNAME='test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	# define an option directly

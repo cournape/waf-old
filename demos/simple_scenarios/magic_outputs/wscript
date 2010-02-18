@@ -2,10 +2,16 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
+"""
+
+THE FOLLOWING IS A TESTCASE; DO NOT USE IT (YET)
+
+"""
+
 VERSION='0.0.1'
 APPNAME='test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	conf.find_program('touch', mandatory=True)

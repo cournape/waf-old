@@ -2,8 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2010
 
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 import Scripting, Options
 

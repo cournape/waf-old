@@ -5,8 +5,8 @@
 VERSION='0.0.1'
 APPNAME='groups'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import Options
 

@@ -4,8 +4,8 @@
 
 VERSION='0.0.1'
 APPNAME='test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 """
 Access the task after it is created, and modify its flags

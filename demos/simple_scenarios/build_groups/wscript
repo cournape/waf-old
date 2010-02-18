@@ -8,8 +8,8 @@ This is useful when building a compiler later used for building other things
 See also: http://code.google.com/p/waf/wiki/TaskSystem
 """
 
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def set_options(opt):
 	opt.tool_options('g++')
