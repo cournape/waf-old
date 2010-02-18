@@ -12,8 +12,8 @@ APPNAME='cpp_test'
 
 # srcdir is almost always set to '.' except for some proprietary projects where the wscript
 # file cannot be found in the top-level; those projects usually provide: srcdir='..'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 
