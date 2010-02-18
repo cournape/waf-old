@@ -6,8 +6,8 @@ Configuration sets are instances of the class 'Environment'. That class acts as 
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	conf.env['CXXFLAGS'] = ['-O2'] # key-based access
@@ -50,8 +50,8 @@ Although the conf.env object is similar to a Python dict, a few routines are pre
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	conf.env.append_value('CXXFLAGS', ['-O2', '-g'])
@@ -81,8 +81,8 @@ By splitting the configuration from the build step, it is possible to stop and l
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(ctx):
 	ctx.add_option('--foo', action='store', default=False, help='Silly test')
@@ -193,8 +193,8 @@ For loading a tool, the method 'check_tool' must be used during the configuratio
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 #import config_c <1>
 

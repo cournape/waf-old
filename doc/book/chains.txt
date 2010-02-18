@@ -50,8 +50,8 @@ Now consider the long chain `uh.in` → `uh.a` → `uh.b` → `uh.c`. The follow
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -105,8 +105,8 @@ The user script should only contain the following code:
 
 [source,python]
 ---------------
-srcdir='.'
-blddir='out'
+top='.'
+out='out'
 
 def configure(conf):
 	pass
@@ -191,8 +191,8 @@ In the chain declaration from the previous sections, the attribute 'reentrant' w
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -275,8 +275,8 @@ Waf tasks are instances of the class Task.TaskBase. Yet, the base class contains
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass

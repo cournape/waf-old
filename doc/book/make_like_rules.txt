@@ -8,8 +8,8 @@ The following example presents a simple example of a task generator producing th
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -78,8 +78,8 @@ Rules may be given as expression strings or as python function. Let's modify the
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -147,8 +147,8 @@ The attribute 'shell' is used to enable the system shell for command execution. 
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -209,8 +209,8 @@ Source and target arguments are optional for make-like task generators, and may 
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -281,8 +281,8 @@ Data sharing is performed through the configuration set. The following example i
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 import Options
 
@@ -379,8 +379,8 @@ For illustation purposes, let's create the following chain '`wscript` → `w1.tx
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -427,8 +427,8 @@ Although the order constraint between w1 and w2 is trivial to find in this case,
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -459,8 +459,8 @@ As a second example, we will create a file named `r1.txt` from the current date.
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -520,8 +520,8 @@ We will now illustrate how to make certain that the outputs reflect the file con
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass

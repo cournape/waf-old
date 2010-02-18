@@ -8,8 +8,8 @@ APPNAME='wafdocs'
 import os, re, shutil
 import Utils, Options
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 re_xi = re.compile('''^include::([^.]*.txt)\[''', re.M)
 def ascii_doc_scan(self):

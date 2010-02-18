@@ -11,8 +11,8 @@ Here is an example for a simple project located in `/tmp/smallfolder`:
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out_directory'
+top = '.'
+out = 'out_directory'
 
 def configure(conf):
 	pass
@@ -85,8 +85,8 @@ We will now demonstrate the definition and the usage of two variants named 'defa
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out_bld'
+top = '.'
+out = 'out_bld'
 
 def configure(conf):
 	conf.env.NAME = 'default'
@@ -167,8 +167,8 @@ A cloning scheme is provided for duplicating task generators for several variant
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import Options
 

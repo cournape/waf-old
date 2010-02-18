@@ -19,8 +19,8 @@ Here is a sample project script to illustrate the concepts:
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(ctx):
 	pass
@@ -62,8 +62,8 @@ Nodes are often used for low-level operations such as extending Waf, and direct 
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(ctx):
 	pass
@@ -103,8 +103,8 @@ Listing files and folders automatically reduces the needs for updating the scrip
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(ctx):
 	pass
@@ -176,8 +176,8 @@ Here is how to execute a test after the build is finished:
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(ctx):
 	ctx.add_option('--exe', action='store_true', default=False,

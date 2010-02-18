@@ -10,8 +10,8 @@ The Waf projects are structured based on the following concepts:
 
 When Waf is launched, it looks for the top-level project file, which are Python scripts. A valid Waf project requires at least a top-level Waf script file (named 'wscript' without any extension) containing the three following elements:
 
-. srcdir: string representing the project directory. In general, srcdir is set to '.', except for some proprietary projects where the wscript cannot be added to the top-level, srcdir may be set to '../..' or even some other folder such as '/checkout/perforce/project'
-. blddir: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as '.' or '..'.
+. top: string representing the project directory. In general, top is set to '.', except for some proprietary projects where the wscript cannot be added to the top-level, top may be set to '../..' or even some other folder such as '/checkout/perforce/project'
+. out: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as '.' or '..'.
 . configure: function called for setting up a project (also known as a 'Waf command').
 
 The Waf script will always look for one valid top-level project file first before considering other project files.
@@ -20,8 +20,8 @@ Now let us create a new Waf project in the folder `/tmp/smallproject`. The first
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 	print('→ configuring the project')
@@ -67,8 +67,8 @@ In the last section, we have see the use of the command 'configure' to initializ
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 	print('→ configuring the project')
@@ -146,8 +146,8 @@ It is possible to override the behaviour of 'distclean' by redefining it in the 
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 	print('→ configuring the project')
@@ -170,8 +170,8 @@ The command 'dist' is another predefined utility which is used to create an arch
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 	print('→ configuring the project')
@@ -196,8 +196,8 @@ By default, the project name and version are set to 'noname' and '1.0'. To chang
 APPNAME='webe'
 VERSION='2.0'
 
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 	print('→ configuring the project')
@@ -234,8 +234,8 @@ The commands in the top-level wscript will call the same commands from a subproj
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 	print('→ configure from the top-level')
@@ -246,7 +246,7 @@ def print_ping(ctx):
 	ctx.recurse('src')
 ---------------
 
-Since src/wscript is not to point to a single project, it is not necessary to duplicate the srcdir and blddir variables.
+Since src/wscript is not to point to a single project, it is not necessary to duplicate the top and out variables.
 
 [source,python]
 ---------------
@@ -277,8 +277,8 @@ The Waf command is used for building the actual software. Let's start again from
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 	print('→ configure from the top-level')
@@ -386,8 +386,8 @@ Accessing a command-line option is possible from any command. Here is how to acc
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def configure(ctx):
 
@@ -407,8 +407,8 @@ To define project command-line options, a special command named 'set_options' ma
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'build_directory'
+top = '.'
+out = 'build_directory'
 
 def set_options(ctx):
 	ctx.add_option('--foo', action='store', default=False, help='Silly test')

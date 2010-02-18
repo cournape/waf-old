@@ -19,8 +19,8 @@ So far, the third design proved to be the most flexible and was kept. Here is ho
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -63,8 +63,8 @@ So far, the task generator methods defined are only executed through explicit ca
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -115,8 +115,8 @@ So far, the task generator methods we added were declared to be executed by all 
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass
@@ -171,8 +171,8 @@ To control the execution order, two new decorators need to be added. We will now
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(conf):
 	pass

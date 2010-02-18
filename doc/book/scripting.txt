@@ -36,8 +36,8 @@ Injecting new commands is useful for writing testcases. By executing 'waf test',
 VERSION = '0.0.1'
 APPNAME = 'my_testcase'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import Scripting
 
@@ -76,8 +76,8 @@ Since the contexts parameters passed to the commands usually derive from differe
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 import Scripting, Options
 
