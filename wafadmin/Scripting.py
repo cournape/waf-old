@@ -201,12 +201,14 @@ def configure(conf):
 
 	src = getattr(Options.options, SRCDIR, None)
 	if not src: src = getattr(Utils.g_module, SRCDIR, None)
+	if not src: src = getattr(Utils.g_module, 'top', None)
 	if not src:
 		src = '.'
 		incomplete_src = 1
 	src = os.path.abspath(src)
 
 	bld = getattr(Options.options, BLDDIR, None)
+	if not bld: bld = getattr(Options.options, 'out', None)
 	if not bld:
 		bld = getattr(Utils.g_module, BLDDIR, None)
 		if bld == '.':
