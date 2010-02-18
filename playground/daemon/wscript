@@ -8,8 +8,8 @@ Use 'waf daemon'
 
 VERSION='0.0.1'
 APPNAME='cc_test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	opt.tool_options('daemon', tooldir='.')

@@ -6,8 +6,8 @@
 
 VERSION='0.0.1'
 APPNAME='cc_test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	conf.check_tool('gcc')

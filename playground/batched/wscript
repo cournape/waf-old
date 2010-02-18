@@ -8,8 +8,8 @@ demonstrate how to compile tasks at once by collecting all the .c files
 
 VERSION='0.0.1'
 APPNAME='cc_test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	pass

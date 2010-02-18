@@ -19,8 +19,8 @@ waf distclean configure build --bf=test_staticlib_2.o,main_1.o
 VERSION='0.0.1'
 APPNAME='cc_test'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	opt.tool_options('post_one', tooldir='.')

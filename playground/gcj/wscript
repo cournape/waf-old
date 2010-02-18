@@ -7,8 +7,8 @@ import os
 VERSION='0.0.2'
 APPNAME='gcj_test'
 
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def set_options(opt):
 	pass

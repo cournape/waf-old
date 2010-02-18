@@ -11,8 +11,8 @@ If this folder has a top-level, call 'waf configure test'
 VERSION = '0.0.1'
 APPNAME = 'my_testcase'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import Scripting
 

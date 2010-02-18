@@ -9,6 +9,9 @@ For each node print:
 	parent id, own id, the signature dictionary where it appears.
 """
 
+top = '.'
+out = 'out'
+
 def configure(conf):
 	pass
 

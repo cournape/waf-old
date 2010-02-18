@@ -4,8 +4,8 @@
 VERSION='0.0.1'
 APPNAME='vala_test'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	pass

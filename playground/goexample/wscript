@@ -4,8 +4,8 @@
 # By: Tom Wambold <tom5760@gmail.com>
 # wscript - Waf build script
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def configure(ctx):
 	ctx.check_tool('go', tooldir='.')

@@ -37,8 +37,8 @@ import os, Options, Build
 APPNAME = 'waf-static-shared'
 VERSION = '1.2.3'
 
-srcdir = '.'
-blddir = '++build'
+top = '.'
+out = '++build'
 
 def set_options(opt):
 	opt.tool_options('compiler_cxx')

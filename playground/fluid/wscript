@@ -2,6 +2,9 @@
 # encoding: utf-8
 # Grygoriy Fuchedzhy 2009
 
+top = '.'
+out = 'out'
+
 def set_options(opt):
 	opt.tool_options('compiler_cxx')
 

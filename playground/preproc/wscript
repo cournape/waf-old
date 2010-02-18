@@ -6,8 +6,8 @@
 
 VERSION='0.0.1'
 APPNAME='cc_test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 import Utils
 import preproc

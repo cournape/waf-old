@@ -10,8 +10,8 @@ APPNAME='compat_test'
 
 
 # these variables are mandatory ('/' are converted automatically)
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 # scons does not provide colors
 import Params

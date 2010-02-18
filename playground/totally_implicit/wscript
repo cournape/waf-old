@@ -14,8 +14,8 @@ This may slow down the builds and might break some other usecases
 
 VERSION='0.0.1'
 APPNAME='cc_test'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+wscript = 'build'
 
 import Task
 Task.file_deps = Task.extract_deps

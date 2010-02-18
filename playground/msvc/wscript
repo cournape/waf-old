@@ -9,8 +9,8 @@ VERSION='0.0.1'
 APPNAME='msvc_test'
 
 # these variables are mandatory ('/' are converted automatically)
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def set_options(opt):
 	pass
