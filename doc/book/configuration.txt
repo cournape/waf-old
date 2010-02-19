@@ -24,7 +24,6 @@ def configure(conf):
 
 The execution will result in the following output:
 
-[source,python]
 ---------------
 $ waf configure
 'CXXFLAGS' ['-O2']
