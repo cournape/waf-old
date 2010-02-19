@@ -22,6 +22,12 @@ def build(bld):
 	upon installation, update the list of files to install them
 	"""
 
+	# for now, ant_glob does not find the files that belong to folders exclusive to the build directory
+
+	update_build_dir(bld.path, bld.env)
+	# debugging
+	#print('found files %r' % bld.path.ant_glob('**/*.txt', bld=True, src=False, dir=False))
+
 	bld(rule='mkdir -p default/a/b/c/ && touch default/a/b/c/foo.txt', name='blah')
 
 	import Options
@@ -31,6 +37,9 @@ def build(bld):
 def update_and_install(task):
 	update_build_dir(task.generator.path, task.env)
 	task.generator.bld.install_files('/tmp/foo/', task.generator.path.ant_glob('**/*.txt', bld=True))
+
+	# debugging
+	#print('found files %r' % task.generator.path.ant_glob('**/*.txt', bld=True, src=False, dir=False))
 
 from Constants import SIG_NIL
 import os, stat, Utils, Node
