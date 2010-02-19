@@ -309,7 +309,7 @@ $ waf distclean configure build
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/simpleproject/out'
-&lt;class 'wscript_main.abcd'&gt;
+<class 'wscript_main.abcd'>
 [1/1] abcd:
 executing...
 Waf: Leaving directory `/tmp/simpleproject/out'

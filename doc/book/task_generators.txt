@@ -91,7 +91,7 @@ $ waf distclean configure build --zones=task_gen <1>
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/simpleproject/out'
 23:03:44 task_gen posting objects (normal)
-23:03:44 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&gt; 139657958706768 <2>
+23:03:44 task_gen posting >task_gen '' of type task_gen defined in dir:///tmp/simpleproject> 139657958706768 <2>
 23:03:44 task_gen -> exec_rule (139657958706768) <3>
 23:03:44 task_gen -> apply_core (139657958706768) <4>
 23:03:44 task_gen -> methodName (139657958706768) <5>
@@ -144,13 +144,13 @@ $ waf distclean configure build --zones=task_gen
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/simpleproject/out'
 16:22:07 task_gen posting objects (normal)
-16:22:07 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&lt; 140631018237584
+16:22:07 task_gen posting <task_gen '' of type task_gen defined in dir:///tmp/simpleproject> 140631018237584
 16:22:07 task_gen -> exec_rule (140631018237584)
 16:22:07 task_gen -> apply_core (140631018237584)
 16:22:07 task_gen -> ping (140631018237584)
 ping
 16:22:07 task_gen posted
-16:22:07 task_gen posting &lt;task_gen '' of type task_gen defined in dir:///tmp/simpleproject&lt; 140631018237776
+16:22:07 task_gen posting <task_gen '' of type task_gen defined in dir:///tmp/simpleproject> 140631018237776
 16:22:07 task_gen -> exec_rule (140631018237776)
 16:22:07 task_gen -> apply_core (140631018237776)
 16:22:07 task_gen -> pong (140631018237776)

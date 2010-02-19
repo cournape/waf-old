@@ -139,7 +139,7 @@ The attribute 'shell' is used to enable the system shell for command execution. 
 
 . The Waf tools do not use the shell for executing commands
 . The shell is used by default for user commands and custom task generators
-. String expressions containing the following symbols '&gt;', '&lt;' or '&amp;' cannot be transformed into functions to execute commands without a shell, even if told to
+. String expressions containing the following symbols \'>', \'<' or \'&' cannot be transformed into functions to execute commands without a shell, even if told to
 . In general, it is better to avoid the shell whenever possible to avoid quoting problems (paths having blank characters in the name for example)
 . The shell is creating a performance penalty which is more visible on win32 systems.
 
@@ -217,7 +217,7 @@ def configure(conf):
 
 def build(bld):
 	bld( <1>
-		rule   = 'cp ${SRC} ${TGT[0].abspath(env)} &amp;&amp; cp ${SRC} ${TGT[1].abspath(env)}',
+		rule   = 'cp ${SRC} ${TGT[0].abspath(env)} && cp ${SRC} ${TGT[1].abspath(env)}',
 		source = 'wscript',
 		target = 'f1.txt f2.txt',
 		shell  = True
@@ -469,7 +469,7 @@ def build(bld):
 	bld(
 		name   = 'r1', <1>
 		target = 'r1.txt',
-		rule   = '(date &gt; ${TGT}) &amp;&amp; cat ${TGT}', <2>
+		rule   = '(date > ${TGT}) && cat ${TGT}', <2>
 		always = True, <3>
 	)
 
@@ -497,7 +497,7 @@ $ waf distclean configure build -v
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
-16:44:39 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+16:44:39 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
 dom ene 31 16:44:39 CET 2010
 [2/2] r2: out/default/r1.txt -> out/default/r2.txt
 16:44:39 runner system command ->  cp default/r1.txt default/r2.txt
@@ -507,7 +507,7 @@ Waf: Leaving directory `/tmp/rule/out'
 $ waf -v
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
-16:44:41 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+16:44:41 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
 dom ene 31 16:44:41 CET 2010
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.016s)
@@ -530,7 +530,7 @@ def build(bld):
 	bld(
 		name   = 'r1',
 		target = 'r1.txt',
-		rule   = '(date &gt; ${TGT}) &amp;&amp; cat ${TGT}',
+		rule   = '(date > ${TGT}) && cat ${TGT}',
 		always = True,
 		on_results = True,
 	)
@@ -551,7 +551,7 @@ $ waf distclean configure build -v
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
-16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt <1>
+16:59:49 runner system command ->  (date > default/r1.txt) && cat default/r1.txt <1>
 dom ene 31 16:59:49 CET 2010 <2>
 [2/2] r2: out/default/r1.txt -> out/default/r2.txt
 16:59:49 runner system command ->  cp default/r1.txt default/r2.txt
@@ -561,7 +561,7 @@ Waf: Leaving directory `/tmp/rule/out'
 $ waf -v
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
-16:59:49 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+16:59:49 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
 dom ene 31 16:59:49 CET 2010 <3>
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.016s)
@@ -569,7 +569,7 @@ Waf: Leaving directory `/tmp/rule/out'
 $ waf -v
 Waf: Entering directory `/tmp/rule/out'
 [1/2] r1:  -> out/default/r1.txt
-16:59:53 runner system command ->  (date &gt; default/r1.txt) &amp;&amp; cat default/r1.txt
+16:59:53 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
 dom ene 31 16:59:53 CET 2010 <4>
 [2/2] r2: out/default/r1.txt -> out/default/r2.txt
 16:59:53 runner system command ->  cp default/r1.txt default/r2.txt
