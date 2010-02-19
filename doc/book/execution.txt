@@ -16,7 +16,7 @@ When Waf is launched, it looks for the top-level project file, which are Python 
 
 The Waf script will always look for one valid top-level project file first before considering other project files.
 
-Now let us create a new Waf project in the folder `/tmp/smallproject`. The first step is to write a wscript file in `/tmp/smallproject/wscript` with the following contents:
+Now let us create a new Waf project in the folder '/tmp/smallproject'. The first step is to write a wscript file in '/tmp/smallproject/wscript' with the following contents:
 
 [source,python]
 ---------------
@@ -52,9 +52,9 @@ $ tree
 ---------------
 
 <1> To configure the project, go to the folder containing the top-level project file
-<2> The execution is called by calling "waf configure"
+<2> The execution is called by calling `waf configure`
 <3> The build directory was created
-<4> The configuration data is stored in the folder `c4che/`
+<4> The configuration data is stored in the folder 'c4che/'
 <5> The command-line options and environment variables in use are stored in this file
 <6> The user configuration set is stored in this file
 <7> Configuration log (duplicate of the output generated during the configuration)
@@ -63,7 +63,7 @@ $ tree
 
 === Adding project commands
 
-In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by 'waf commandname'. Let us create two new commands 'print_ping' and 'print_pong' in the project created previously (`/tmp/smallproject/`)
+In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by `waf commandname`. Let us create two new commands _print_ping_ and _print_pong_ in the project created previously ('/tmp/smallproject/')
 
 [source,python]
 ---------------
@@ -80,7 +80,7 @@ def print_pong(ctx):
 	print(' pong!')
 ---------------
 
-Waf commands always take a single parameter called the 'context'. To execute the new commands:
+Waf commands always take a single parameter called the _context_, which is used to ease data sharing between the scripts. To execute the new commands:
 
 ---------------
 $ cd /tmp/smallproject
@@ -124,7 +124,7 @@ $ waf print_ping print_ping print_ping
 
 === Cleaning up a project
 
-Waf itself comes with a predefined command called 'distclean' which removes the build directory and the lock file. After calling cleaning a project, it is necessary to configure it once again.
+Waf itself comes with a predefined command called _distclean_ which removes the build directory and the lock file. After calling cleaning a project, it is necessary to configure it once again.
 
 ---------------
 $ waf configure
@@ -189,7 +189,7 @@ New archive created: noname-1.0.tar.bz2 (sha='c16c97a51b39c7e5bee35bb6d932a12e29
 'dist' finished successfully (0.091s)
 ---------------
 
-By default, the project name and version are set to 'noname' and '1.0'. To change them, it is necessary to provide two additional variables in the top-level project file:
+By default, the project name and version are set to +noname+ and +1.0+. To change them, it is necessary to provide two additional variables in the top-level project file:
 
 [source,python]
 ---------------
@@ -246,7 +246,7 @@ def print_ping(ctx):
 	ctx.recurse('src')
 ---------------
 
-Since src/wscript is not to point to a single project, it is not necessary to duplicate the top and out variables.
+Since the folder 'src' is not a redistributable project, it is not necessary to duplicate the variables _top_ and _out_.
 
 [source,python]
 ---------------
@@ -273,7 +273,7 @@ $ waf configure print_ping
 
 === Building, cleaning, installing and uninstalling a project
 
-The Waf command is used for building the actual software. Let's start again from the project file /tmp/smallfolder/wscript:
+The Waf command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
 
 [source,python]
 ---------------
@@ -306,7 +306,7 @@ Waf: Leaving directory `/tmp/smallproject/build_directory'
 'build' finished successfully (0.004s)
 ---------------
 
-Since the command 'waf build' is executed very often, a shortcut is provided to call it implicitely:
+Since the command `waf build` is executed very often, a shortcut is provided to call it implicitely:
 
 ---------------
 $ waf
@@ -315,7 +315,7 @@ building the software
 Waf: Leaving directory `/tmp/smallproject/build_directory'
 ---------------
 
-The Waf commands 'build, clean, install, uninstall' are shortcuts to call 'build' with different internal options.
+The Waf commands +build+, +clean+, +install+, +uninstall+ are shortcuts for calling `waf build` with different internal options. They all require the presence of the _build_ function in the scripts.
 
 ---------------
 $ waf build install uninstall clean
@@ -337,16 +337,16 @@ building the software
 
 The meaning of the commands is the following:
 
-. build: process the source code to create the object files
-. clean: remove the object files that were created during a build (unlike distclean, do not remove the configuration)
-. install: check that all object files have been generated and copy them on the system (programs, libraries, data files, etc
-. uninstall: undo the installation, remove the object files from the system without touching the ones in the build directory
+. +build:+ process the source code to create the object files
+. +clean:+ remove the object files that were created during a build (unlike distclean, do not remove the configuration)
+. +install:+ check that all object files have been generated and copy them on the system (programs, libraries, data files, etc
+. +uninstall:+ undo the installation, remove the object files from the system without touching the ones in the build directory
 
 Object file creation and installation will be detailed in the next chapters.
 
 === Customizing the command-line options
 
-The Waf script provides various default command-line options, which may be consulted by executing 'waf --help':
+The Waf script provides various default command-line options, which may be consulted by executing `waf --help`:
 
 ---------------
 $ waf --help

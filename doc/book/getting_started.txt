@@ -7,7 +7,7 @@ The current Waf version requires an interpreter for the Python programming langu
 
 ==== Using the Waf binary
 
-The Waf binary does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it into &quot;waf&quot; if necessary:
+The Waf binary does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it into \'waf' if necessary:
 
 ---------------
 $ wget http://waf.googlecode.com/files/waf-1.5.11
