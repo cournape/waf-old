@@ -12,6 +12,8 @@ import Runner, Options
 from Constants import *
 from Runner import TaskConsumer
 
+random.seed(10)
+
 INTERVAL = 0.009
 BAND = 22
 
@@ -169,8 +171,8 @@ def process_colors(q):
 <defs id=\"defs604\" />\n""" % (-1, -1, gwidth + 3, gheight + 2))
 
 	# main title
-	out.append("""<text x="%d" y="%d" style=" font-family:Arial Black; font-size:15; text-anchor:middle">%s</text>
-""" % (gwidth/2, gheight - 5, "title"))
+	out.append("""<text x="%d" y="%d" style="font-size:15px; text-anchor:middle; font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans">%s</text>
+""" % (gwidth/2, gheight - 5, "Task execution in parallel (MAXPARALLEL)"))
 
 	# the rectangles
 	for (x, y, w, h, clsname) in acc:
@@ -193,7 +195,7 @@ def process_colors(q):
 
 		# caption text
 		out.append("""<text
-   style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial"
+   style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
    x="%r" y="%d">%s</text>\n""" % (2 * BAND, (cnt+1) * BAND, text))
 		cnt += 1
 
