@@ -29,7 +29,6 @@ class TaskConsumer(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
-		print "consumer created", id(self)
 		self.setDaemon(1)
 		self.start()
 
