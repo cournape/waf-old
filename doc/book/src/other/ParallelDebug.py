@@ -5,6 +5,8 @@
 """
 debugging helpers for parallel compilation, outputs
 a svg file in the build directory
+
+genbench.py /tmp/build 11 3 1 1
 """
 
 import time, threading, random, Queue
