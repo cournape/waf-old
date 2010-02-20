@@ -17,7 +17,7 @@ BAND = 22
 
 mp = {
 'cxx': 'green',
-'ar_link_static': '#8106ff'
+'static_link': '#8106ff'
 }
 
 info = {
