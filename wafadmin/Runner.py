@@ -161,6 +161,12 @@ class Parallel(object):
 	def start(self):
 		"execute the tasks"
 
+		if TaskConsumer.consumers:
+			# the worker pool is usually loaded lazily (see below)
+			# in case it is re-used with a different value of numjobs:
+			while len(TaskConsumer.consumers) < self.numjobs:
+				TaskConsumer.consumers.append(TaskConsumer())
+
 		while not self.stop:
 
 			self.refill_task_list()
