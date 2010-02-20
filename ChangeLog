@@ -1,6 +1,7 @@
 NEW IN WAF 1.5.14
 -----------------
 * new doc format (docbook -> asciidoc)
+* use a thread pool to avoid the creation of too many threads (long configurations)
 ? fix for the ant_glob behaviour
 
 NEW IN WAF 1.5.13
