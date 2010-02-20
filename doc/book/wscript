@@ -11,7 +11,7 @@ import Utils, Options
 top = '.'
 out = 'build'
 
-re_xi = re.compile('''^include::([^.]*.txt)\[''', re.M)
+re_xi = re.compile('''^(include|image)::([^.]*.(txt|png|eps))\[''', re.M)
 def ascii_doc_scan(self):
 	p = self.inputs[0].parent
 	node_lst = [self.inputs[0]]
@@ -24,7 +24,7 @@ def ascii_doc_scan(self):
 
 		code = nd.read(self.env)
 		for m in re_xi.finditer(code):
-			name = m.group(1)
+			name = m.group(2)
 			k = p.find_resource(name)
 			if k: depnodes.append(k)
 	return [depnodes, ()]

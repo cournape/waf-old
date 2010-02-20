@@ -68,7 +68,7 @@ def build(bld):
 
 The effect of task groups when running tasks in parallel is illustrated by the following diagram. Three groups of tasks have been added, and the execution of the next group only starts when the execution of the tasks in the previous group is complete.
 
-image::output-ADDGROUP.png[]
+image::output-ADDGROUP.eps["Task groups",width=350]
 
 It is possible to create groups at any point in the scripts, and to add the task generators to any group previously created. Adding groups for specific folders or scripts enables a behaviour similar to projects organized in recursive Makefiles.
 
