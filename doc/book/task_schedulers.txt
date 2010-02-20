@@ -7,7 +7,7 @@ Task dependencies and task ordering specify the exact order in which tasks must 
 
 To make this possible, the task execution is organized in the following manner:
 
-image::task_grouping.png[]
+image::task_grouping.eps["Execution model",width=220]
 
 === Job control
 

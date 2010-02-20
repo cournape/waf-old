@@ -230,7 +230,7 @@ def infinite_loop(self):
 
 The task generator method workflow is represented in the following illustration:
 
-image::posting.png[]
+image::posting.eps["Task generator workflow",width=320]
 
 === Putting it altogether
 
