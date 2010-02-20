@@ -47,10 +47,12 @@ def build(bld):
 
 	bld(name='copysym', rule='cp ${SRC} ${TGT}', source='symbols.lang.in', target='symbols.lang', before='')
 
-	bld(rule='${ADOC} -a icons -a toc -n -d book -o ${TGT} -v ${SRC}',
-		source='waf.txt', target='single.html', after='copysym', name='single', scan=ascii_doc_scan)
+	if 1 == 1:
+		bld(rule='${ADOC} -a icons -a toc -n -d book -o ${TGT} -v ${SRC}',
+			source='waf.txt', target='single.html', after='copysym', name='single', scan=ascii_doc_scan)
 
-	bld(rule='${A2X} -L -a toc --icons-dir=. -v --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}',
+	if 0 == 1:
+		bld(rule='${A2X} -L -a toc --icons-dir=. -v --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}',
 		source='waf.txt', target='waf.pdf', after='copysym', name='single', scan=ascii_doc_scan)
 
 	if Options.options.exe:
