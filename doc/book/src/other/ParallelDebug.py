@@ -10,6 +10,7 @@ a svg file in the build directory
 import time, threading, random, Queue
 import Runner, Options
 from Constants import *
+from Runner import TaskConsumer
 
 INTERVAL = 0.009
 BAND = 22
@@ -37,46 +38,53 @@ def set_running(by, i, tsk):
 
 
 def newrun(self):
-	m = self.master
 
-	while 1:
-		tsk = m.ready.get()
-		if m.stop:
-			m.out.put(tsk)
-			continue
+	if 1 == 1:
+		while 1:
+			tsk = TaskConsumer.ready.get()
+			m = tsk.master
+			if m.stop:
+				m.out.put(tsk)
+				continue
 
-		set_running(1, id(self), tsk)
-		try:
-			Runner.printout(tsk.display())
-			if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
-			else: ret = tsk.call_run()
-		except Exception, e:
-			# TODO add the stack error message
-			tsk.err_msg = str(e)
-			tsk.hasrun = EXCEPTION
-
-			# TODO cleanup
-			m.error_handler(tsk)
-			m.out.put(tsk)
-			set_running(-1, id(self), tsk)
-			continue
-
-		time.sleep(1 + 2* random.random())
-
-		if ret:
-			tsk.err_code = ret
-			tsk.hasrun = CRASHED
-		else:
+			set_running(1, id(self), tsk)
 			try:
-				tsk.post_run()
-			except OSError:
-				tsk.hasrun = MISSING
+				tsk.generator.bld.printout(tsk.display())
+				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
+				# actual call to task's run() function
+				else: ret = tsk.call_run()
+			except Exception, e:
+				tsk.err_msg = Utils.ex_stack()
+				tsk.hasrun = EXCEPTION
+
+				# TODO cleanup
+				m.error_handler(tsk)
+				m.out.put(tsk)
+				continue
+
+			time.sleep(1 + 2* random.random())
+
+			if ret:
+				tsk.err_code = ret
+				tsk.hasrun = CRASHED
 			else:
-				tsk.hasrun = SUCCESS
-		if tsk.hasrun != SUCCESS:
-			m.error_handler(tsk)
-		set_running(-1, id(self), tsk)
-		m.out.put(tsk)
+				try:
+					tsk.post_run()
+				except Utils.WafError:
+					pass
+				except Exception:
+					tsk.err_msg = Utils.ex_stack()
+					tsk.hasrun = EXCEPTION
+				else:
+					tsk.hasrun = SUCCESS
+			if tsk.hasrun != SUCCESS:
+				m.error_handler(tsk)
+
+			set_running(-1, id(self), tsk)
+			m.out.put(tsk)
+
+
+
 
 Runner.TaskConsumer.run = newrun
 
@@ -162,7 +170,7 @@ def process_colors(q):
 
 	# main title
 	out.append("""<text x="%d" y="%d" style=" font-family:Arial Black; font-size:15; text-anchor:middle">%s</text>
-""" % (gwidth/2, gheight - 5, Options.options.title))
+""" % (gwidth/2, gheight - 5, "title"))
 
 	# the rectangles
 	for (x, y, w, h, clsname) in acc:
