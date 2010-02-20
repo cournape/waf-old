@@ -15,15 +15,15 @@ Job control is related to the parallelization algorithms used for launching the 
 
 In the NORMAL ordering, task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes.
 
-image::output-NORMAL.png[]
+image::output-NORMAL.eps["NORMAL",width=350]
 
 In the JOBCONTROL ordering, groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources. For example, linking c++ object files uses a lot of RAM.
 
-image::output-JOBCONTROL.png[]
+image::output-JOBCONTROL.eps["JOBCONTROL",width=350]
 
 In the MAXPARALLEL ordering, Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, it consumes more memory and processing. In practice, Waf may last 20% more on builds when all tasks are up-to-date.
 
-image::output-MAXPARALLEL.png[]
+image::output-MAXPARALLEL.eps["MAXPARALLEL",width=350]
 
 WARNING: Because most task classes use ordering constraints, the maximum parallelization can only be achieved if the constraints between task classes are relaxed, and if all task instances know their predecessors. In the example graph, this was achieved by removing the ordering constraints between the compilation tasks classes and the link tasks classes.
 
