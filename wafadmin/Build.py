@@ -270,7 +270,7 @@ class BuildContext(Utils.Context):
 				self.generator.start()
 			except KeyboardInterrupt:
 				dw()
-				if self.generator.consumers:
+				if Runner.TaskConsumer.consumers:
 					self.save()
 				raise
 			except Exception:
@@ -279,7 +279,7 @@ class BuildContext(Utils.Context):
 				raise
 			else:
 				dw()
-				if self.generator.consumers:
+				if Runner.TaskConsumer.consumers:
 					self.save()
 
 			if self.generator.error:

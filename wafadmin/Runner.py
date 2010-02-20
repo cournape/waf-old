@@ -24,10 +24,13 @@ def run(*args, **kwargs):
 threading.Thread.run = run
 
 class TaskConsumer(threading.Thread):
-	def __init__(self, m):
+	ready = Queue(0)
+	consumers = []
+
+	def __init__(self):
 		threading.Thread.__init__(self)
+		print "consumer created", id(self)
 		self.setDaemon(1)
-		self.master = m
 		self.start()
 
 	def run(self):
@@ -37,9 +40,9 @@ class TaskConsumer(threading.Thread):
 			pass
 
 	def loop(self):
-		m = self.master
 		while 1:
-			tsk = m.ready.get()
+			tsk = TaskConsumer.ready.get()
+			m = tsk.master
 			if m.stop:
 				m.out.put(tsk)
 				continue
@@ -98,15 +101,12 @@ class Parallel(object):
 		# tasks that are awaiting for another task to complete
 		self.frozen = []
 
-		# tasks waiting to be run by the consumers
-		self.ready = Queue(0)
+		# tasks returned by the consumers
 		self.out = Queue(0)
 
 		self.count = 0 # tasks not in the producer area
 
 		self.processed = 1 # progress indicator
-
-		self.consumers = None # the consumer threads, created lazily
 
 		self.stop = False # error condition to stop the build
 		self.error = False # error flag
@@ -202,12 +202,13 @@ class Parallel(object):
 				# run me: put the task in ready queue
 				tsk.position = (self.processed, self.total)
 				self.count += 1
-				self.ready.put(tsk)
+				tsk.master = self
+				TaskConsumer.ready.put(tsk)
 				self.processed += 1
 
 				# create the consumer threads only if there is something to consume
-				if not self.consumers:
-					self.consumers = [TaskConsumer(self) for i in xrange(self.numjobs)]
+				if not TaskConsumer.consumers:
+					TaskConsumer.consumers = [TaskConsumer() for i in xrange(self.numjobs)]
 
 		# self.count represents the tasks that have been made available to the consumer threads
 		# collect all the tasks after an error else the message may be incomplete
