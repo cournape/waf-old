@@ -44,7 +44,8 @@ def repli(task):
 	txt = Utils.readf(task.inputs[0].abspath(task.env))
 	txt = txt.replace('.txt[', '_ug.txt[')
 	txt = txt.replace('.eps[', '.png[')
-	txt = txt.replace('source,make]', 'source,makefile]')
+	txt = txt.replace('[source,make]', '[source,makefile]')
+	txt = txt.replace('[source,shishell]', '')
 	f = open(task.outputs[0].abspath(task.env), 'w')
 	f.write(txt)
 	f.close()
@@ -70,12 +71,12 @@ def build(bld):
 	bld(source=bld.path.ant_glob('*.txt', src=True, bld=False, dir=False))
 	bld(name='copysym', rule='cp ${SRC} ${TGT}', source='symbols.lang.in', target='symbols.lang', before='')
 
-	if 1 == 1:
+	if 0 == 1:
 		bld(rule='${ADOC} -a icons -a toc -n -d book -o ${TGT} -v ${SRC}',
 			source='waf_ug.txt', target='single.html', after='copy copysym repl', name='single', scan=ascii_doc_scan)
 
 	if 1 == 1:
-		bld(rule='${A2X} -L -a toc --icons-dir=.      --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}',
+		bld(rule='${A2X} -L -a toc --icons-dir=.   -v   --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}',
 		source='waf.txt', target='waf.pdf', after='copysym', name='single', scan=ascii_doc_scan)
 
 	if Options.options.exe:
@@ -83,4 +84,20 @@ def build(bld):
 			p = Utils.pproc.Popen('konqueror build/default/single.html', shell=True)
 			p.wait()
 		bld.add_post_fun(exe)
+
+
+"""
+Add the following to asciidoc/dblatex/asciidoc-dblatex.sty
+
+\usepackage{color}
+\usepackage{listings}
+\definecolor{gray}{gray}{0.5}
+\definecolor{plum}{rgb}{0.55078125,0.09765625,0.55859375}
+\lstset{commentstyle=\color{plum}}
+\lstdefinelanguage{shishell} {
+  morekeywords={},
+  sensitive=false,
+  morecomment=[l]{\$}
+}
+"""
 
