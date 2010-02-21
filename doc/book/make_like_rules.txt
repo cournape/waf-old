@@ -4,7 +4,7 @@ Rule-based task generators are a particular category of task generators producin
 
 === Declaration and usage
 
-The following example presents a simple example of a task generator producing the file `foobar.txt` from the `wscript` by executing a copy (the command 'cp'). Let's create a new project in the folder `/tmp/rule/` containing the following `wscript` file:
+The following example presents a simple example of a task generator producing the file 'foobar.txt' from the 'wscript' by executing a copy (the command `cp`). Let's create a new project in the folder '/tmp/rule/' containing the following 'wscript' file:
 
 [source,python]
 ---------------
@@ -29,6 +29,7 @@ def build(bld):
 
 Upon execution, the following output will be observed:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build -v
 'distclean' finished successfully (0.000s)
@@ -103,8 +104,6 @@ def build(bld):
 	)
 ---------------
 
-The execution trace will be similar to the following:
-
 <1> Rule functions take the task instance as parameter.
 <2> Task instances may access their task generator through the attribute 'generator'
 <3> Sources and targets are represented internally as Node objects bound to the task instance.
@@ -112,6 +111,9 @@ The execution trace will be similar to the following:
 <5> Utils.exec_command(...) is a wrapper around subprocess.Popen(...) from the Python library. Passing a string will execute the command through the system shell (use lists to disable this behaviour). The return code for a rule function must be non-0 to indicate a failure.
 <6> Use a function instead of a string expression
 
+The execution trace will be similar to the following:
+
+[source,shishell]
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
@@ -160,6 +162,7 @@ def build(bld):
 
 Upon execution, the results will be similar to the following:
 
+[source,shishell]
 ---------------
 waf distclean configure build --zones=runner,action <1>
 'distclean' finished successfully (0.004s)
@@ -251,6 +254,7 @@ def build(bld):
 
 For the record, here is the output of the build:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)
@@ -310,7 +314,7 @@ def build(bld):
 ---------------
 
 <1> The 'PREFIX' is one of the few predefined variables. It is necessary for computing the default installation path.
-<2> The following rule will create the file `t2.txt` with the contents of 'TEST_VAR'
+<2> The following rule will create the file 't2.txt' with the contents of 'TEST_VAR'
 <3> The value of 'TEST_VAR' will be defined now
 <4> Use the value of a predefined command-line option (the jobs control the amount of commands which may be executed in parallel)
 <5> By default, the variables used in string expressions '$\{...}' are extracted automatically and used as dependencies (rebuild the targets when the value change). They are given manually in this case.
@@ -318,6 +322,7 @@ def build(bld):
 
 By turning the debugging flags on, it will be easier to understand what is happening during the build:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build --zones=runner,action
 'distclean' finished successfully (0.003s)
@@ -370,12 +375,12 @@ Waf: Leaving directory `/tmp/rule/out'
 
 === Execution order and dependencies
 
-Although task generators will create the tasks in the relevant order, tasks are executed in parallel and the compilation order may not be the order expected. In the example from the previous section, the target `t2.txt` was processed before the target `t1.txt`. We will now illustrate two important concepts used for the build specification:
+Although task generators will create the tasks in the relevant order, tasks are executed in parallel and the compilation order may not be the order expected. In the example from the previous section, the target 't2.txt' was processed before the target 't1.txt'. We will now illustrate two important concepts used for the build specification:
 
 . order: sequential constraints between the tasks being executed (here, the commands)
 . dependency: executing a task if another task is executed
 
-For illustation purposes, let's create the following chain '`wscript` → `w1.txt` → `w2.txt`'. The order constraint is given by the attribute 'after' which references a task class name. For rule-based task generators, the task class name is bound to the attribute 'name'
+For illustation purposes, let's create the following chain 'wscript' → 'w1.txt' → 'w2.txt'. The order constraint is given by the attribute 'after' which references a task class name. For rule-based task generators, the task class name is bound to the attribute 'name'
 
 [source,python]
 ---------------
@@ -401,8 +406,9 @@ def build(bld):
 	)
 ---------------
 
-The execution output will be similar to the following. Note that both files are created whenever the first source file `wscript` changes:
+The execution output will be similar to the following. Note that both files are created whenever the first source file 'wscript' changes:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
@@ -455,7 +461,7 @@ WARNING: The method 'bld.use_the_magic()' will not work for tasks that do not ha
 
 === Dependencies on file contents
 
-As a second example, we will create a file named `r1.txt` from the current date. It will be updated each time the build is executed. A second file named `r2.txt` will be created from `r1.txt`.
+As a second example, we will create a file named 'r1.txt' from the current date. It will be updated each time the build is executed. A second file named 'r2.txt' will be created from 'r1.txt'.
 
 [source,python]
 ---------------
@@ -483,14 +489,15 @@ def build(bld):
 ---------------
 
 <1> Give the task generator a name, it will create a task class of the same name to execute the command
-<2> Create `r1.txt` with the date
+<2> Create 'r1.txt' with the date
 <3> There is no source file to depend on and the rule never changes. The task is then set to be executed each time the build is started by using the attribute 'always'
 <4> If no name is provided, the rule is used as a name for the task class
-<5> Use `r1.txt` as a source for `r2.txt`. Since `r1.txt` was declared before, the dependency will be added automatically (`r2.txt` will be re-created whenever `r1.txt` changes)
+<5> Use 'r1.txt' as a source for 'r2.txt'. Since 'r1.txt' was declared before, the dependency will be added automatically ('r2.txt' will be re-created whenever 'r1.txt' changes)
 <6> Set the command generating 'r2.txt' to be executed after the command generating 'r1.txt'. The attribute 'after' references task class names, not task generators. Here it will work because rule-based task generator tasks inherit the 'name' attribute
 
 The execution output will be the following:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build -v
 'distclean' finished successfully (0.003s)
@@ -543,8 +550,9 @@ def build(bld):
 	)
 ---------------
 
-Here `r2.txt` will be re-created each time:
+Here 'r2.txt' will be re-created each time:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build -v
 'distclean' finished successfully (0.003s)
@@ -577,8 +585,8 @@ Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.022s)
 ---------------
 
-<1> Start with a clean build, both `r1.txt` and `r2.txt` are created
+<1> Start with a clean build, both 'r1.txt' and 'r2.txt' are created
 <2> Notice the date and time
-<3> The second build was executed at the same date and time, so `r1.txt` has not changed, therefore `r2.txt` is up to date
-<4> The third build is executed at another date and time. Since `r1.txt` has changed, `r2.txt` is created once again
+<3> The second build was executed at the same date and time, so 'r1.txt' has not changed, therefore 'r2.txt' is up to date
+<4> The third build is executed at another date and time. Since 'r1.txt' has changed, 'r2.txt' is created once again
 

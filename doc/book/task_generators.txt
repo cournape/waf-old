@@ -45,6 +45,7 @@ def myMethod(tgen): <4>
 
 The output from the build will be the following:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
@@ -85,6 +86,7 @@ def methodName(self):
 
 The execution results will be the following:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build --zones=task_gen <1>
 'distclean' finished successfully (0.004s)
@@ -138,6 +140,7 @@ def pong(self):
 
 The execution output will be the following:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build --zones=task_gen
 'distclean' finished successfully (0.003s)

@@ -29,6 +29,7 @@ def configure(ctx):
 
 To use a Waf project for the first time, it is necessary to initialize it. Waf will then validate the project file, and create the cache files for later use (lock file, build directory, store the project options):
 
+[source,shishell]
 ---------------
 $ cd /tmp/smallproject <1>
 $ tree
@@ -82,6 +83,7 @@ def print_pong(ctx):
 
 Waf commands always take a single parameter called the _context_, which is used to ease data sharing between the scripts. To execute the new commands:
 
+[source,shishell]
 ---------------
 $ cd /tmp/smallproject
 
@@ -100,6 +102,7 @@ $ waf print_pong
 
 Waf commands may also be executed at once by chaining them:
 
+[source,shishell]
 ---------------
 $ waf print_ping print_pong print_ping
  ping!
@@ -112,6 +115,7 @@ $ waf print_ping print_pong print_ping
 
 Waf commands may be repeated several times too:
 
+[source,shishell]
 ---------------
 $ waf print_ping print_ping print_ping
  ping!
@@ -126,6 +130,7 @@ $ waf print_ping print_ping print_ping
 
 Waf itself comes with a predefined command called _distclean_ which removes the build directory and the lock file. After calling cleaning a project, it is necessary to configure it once again.
 
+[source,shishell]
 ---------------
 $ waf configure
 → configuring the project
@@ -158,6 +163,7 @@ def distclean(ctx):
 
 Upon execution:
 
+[source,shishell]
 ---------------
 $ waf distclean
  not cleaning anything!
@@ -179,6 +185,7 @@ def configure(ctx):
 
 Execute the command 'dist' to get:
 
+[source,shishell]
 ---------------
 $ waf configure
 → configuring the project
@@ -205,6 +212,7 @@ def configure(ctx):
 
 Because the project was configured once, it is not necessary to configure it once again:
 
+[source,shishell]
 ---------------
 $ waf dist
 New archive created: webe-2.0.tar.bz2 (sha='7ccc338e2ff99b46d97e5301793824e5941dd2be')
@@ -223,6 +231,7 @@ Scripting.g_gz = 'gz'
 
 Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
 
+[source,shishell]
 ---------------
 .
 |-- src
@@ -259,6 +268,7 @@ def print_ping(ctx):
 
 Upon execution, the results will be:
 
+[source,shishell]
 ---------------
 $ cd /tmp/smallproject
 
@@ -289,6 +299,7 @@ def build(ctx):
 
 Without surprize, the execution output will look like the following:
 
+[source,shishell]
 ---------------
 $ cd /tmp/smallproject
 
@@ -308,6 +319,7 @@ Waf: Leaving directory `/tmp/smallproject/build_directory'
 
 Since the command `waf build` is executed very often, a shortcut is provided to call it implicitely:
 
+[source,shishell]
 ---------------
 $ waf
 Waf: Entering directory `/tmp/smallproject/build_directory'
@@ -317,6 +329,7 @@ Waf: Leaving directory `/tmp/smallproject/build_directory'
 
 The Waf commands +build+, +clean+, +install+, +uninstall+ are shortcuts for calling `waf build` with different internal options. They all require the presence of the _build_ function in the scripts.
 
+[source,shishell]
 ---------------
 $ waf build install uninstall clean
 Waf: Entering directory `/tmp/smallproject/build_directory'
@@ -348,6 +361,7 @@ Object file creation and installation will be detailed in the next chapters.
 
 The Waf script provides various default command-line options, which may be consulted by executing `waf --help`:
 
+[source,shishell]
 ---------------
 $ waf --help
 waf [command] [options]
@@ -397,6 +411,7 @@ def configure(ctx):
 
 Upon execution, the following will be observed:
 
+[source,shishell]
 ---------------
 $ waf configure
 → prefix is /usr/local/
@@ -421,6 +436,7 @@ def configure(ctx):
 
 Upon execution, the following will be observed:
 
+[source,shishell]
 ---------------
 $ waf configure --foo=test
 → the value of foo is 'test'

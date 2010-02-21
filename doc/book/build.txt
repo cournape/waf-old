@@ -32,6 +32,7 @@ def build(ctx):
 
 The call 'ctx(...)' is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build build clean
 'distclean' finished successfully (0.002s)
@@ -84,6 +85,7 @@ def build(bld):
 
 The following results would be observed upon execution on a unix-like system:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)
@@ -123,6 +125,7 @@ def build(bld):
 
 The execution output will be similar to the following:
 
+[source,shishell]
 ---------------
 $ waf
 Waf: Entering directory `/tmp/smallproject/build'
@@ -206,6 +209,7 @@ def build(ctx):
 
 Upon execution, the following output will be produced:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build --exe
 'distclean' finished successfully (0.002s)

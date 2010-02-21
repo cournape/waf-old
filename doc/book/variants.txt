@@ -23,6 +23,7 @@ def build(bld):
 
 Upon execution, the results will be the following:
 
+[source,shishell]
 ---------------
 $ export WAFLOCK=.lock-debug <1>
 
@@ -122,6 +123,7 @@ def build(bld):
 
 Upon execution, an output similar to the following will be observed:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.000s)

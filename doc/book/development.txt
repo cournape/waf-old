@@ -4,24 +4,28 @@
 
 The generic flags to add more information to the stack traces or to the messages is '-v' (verbosity), it is used to display the command-lines executed during a build:
 
+[source,shishell]
 ---------------
 $ waf -v
 ---------------
 
 To display all the traces (useful for bug reports), use the following flag:
 
+[source,shishell]
 ---------------
 $ waf -vvv
 ---------------
 
 Debugging information can be filtered easily with the flag 'zones':
 
+[source,shishell]
 ---------------
 $ waf --zones=action
 ---------------
 
 Tracing zones must be comma-separated, for example:
 
+[source,shishell]
 ---------------
 $ waf --zones=action,envhash,task_gen
 ---------------
@@ -54,11 +58,12 @@ WARNING: Debugging information can be displayed only after the command-line has 
 
 The script `utils/genbench.py` generates a simple benchmark for Waf. The habitual use is the following:
 
+[source,shishell]
 ---------------
-utils/genbench.py /tmp/build 50 100 15 5
-cd /tmp/build
-waf configure
-waf -p -j2
+$ utils/genbench.py /tmp/build 50 100 15 5
+$ cd /tmp/build
+$ waf configure
+$ waf -p -j2
 ---------------
 
 The project created contains 50 libraries with 100 classes for each, each source file having 15 include headers pointing to the same library and 5 headers pointing to the headers of other libraries in the project.
@@ -97,6 +102,7 @@ Build.bld.compile = ncomp
 
 Here the output obtained on a benchmark build created as explained in the previous section:
 
+[source,shishell]
 ---------------
 Sun Nov  9 19:22:59 2008    prof.txt
 
@@ -141,6 +147,7 @@ def configure(conf):
 
 After executing a full build, a trace of the execution is output in `/tmp/test.dat`; it may be processed by other applications such as Gnuplot:
 
+[source,shishell]
 ---------------
 #! /usr/bin/gnuplot -persist
 set terminal X11
@@ -160,16 +167,18 @@ plot 'test.dat' using 1:3 with lines title "" lt 3
 
 Waf is hosted on http://code.google.com/p/waf/source[Google code], and uses Subversion for source control. To obtain the development copy, use:
 
+[source,shishell]
 ---------------
-svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
-cd waf-read-only
-./waf-light --make-waf
+$ svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
+$ cd waf-read-only
+$ ./waf-light --make-waf
 ---------------
 
 To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing wafadmin:
 
+[source,shishell]
 ---------------
-export WAFDIR=/path/to/directory/
+$ export WAFDIR=/path/to/directory/
 ---------------
 
 Although the Waf binary depends on Python 2.3, the Waf source code depends on Python 2.4. When generating Waf, a parser modifies the source code and performs the following operations:

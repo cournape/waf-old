@@ -173,6 +173,7 @@ def configure(conf):
 
 The code snipped will produce the following 'config.h' in the build directory:
 
+[source,shishell]
 ---------------
 build/
 |-- c4che
@@ -271,12 +272,14 @@ preproc.go_absolute = True
 
 The Waf preprocessor contains a specific debugging zone:
 
+[source,shishell]
 ---------------
 $ waf --zones=preproc
 ---------------
 
 To display the dependencies obtained or missed, use the following:
 
+[source,shishell]
 ---------------
 $ waf --zones=deps
 ---------------

@@ -24,6 +24,7 @@ The method 'post_run' can be used to check if the files have been produced, it m
 
 Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option '-j1'. To enhance parallelization, use the option '-j' with the amount of consumers:
 
+[source,shishell]
 ------------------
 $ waf -j3
 ------------------

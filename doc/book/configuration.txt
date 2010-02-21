@@ -24,6 +24,7 @@ def configure(conf):
 
 The execution will result in the following output:
 
+[source,shishell]
 ---------------
 $ waf configure
 'CXXFLAGS' ['-O2']
@@ -66,6 +67,7 @@ def configure(conf):
 
 Upon execution, the output will be the following:
 
+[source,shishell]
 ---------------
 $ waf configure
 'CCFLAGS' ['-O3', '-g', '-O2']
@@ -98,6 +100,7 @@ def build(ctx):
 
 All configuration sets are automatically loaded during the build. Upon execution, the output will be similar to the following:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build --foo=abcd
 'distclean' finished successfully (0.002s)
@@ -135,6 +138,7 @@ def configure(conf):
 
 The output will be:
 
+[source,shishell]
 ---------------
 $ waf
 Checking for program missing_app         : not found
@@ -152,6 +156,7 @@ def configure(conf):
 
 Which will display the same kind of error
 
+[source,shishell]
 ---------------
 $ waf configure
  error: I'm sorry Dave, I'm afraid I can't do that
@@ -230,6 +235,7 @@ def build(bld):
 
 Upon execution, the output will be the following:
 
+[source,shishell]
 ---------------
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)

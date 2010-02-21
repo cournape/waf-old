@@ -25,6 +25,7 @@ def build(bld):
 
 The variables must be declared in the template file by enclosing the names between '@ characters' (m4 syntax).
 
+[source,shishell]
 ---------------
 Name: test
 Description: @CFLAGS@
