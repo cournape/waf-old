@@ -54,16 +54,36 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.env.append_value('CXXFLAGS', ['-O2', '-g'])
-	conf.env.CCFLAGS = ['-g']
-	conf.env.append_unique('CCFLAGS', ['-g', '-O2'])
-	conf.env.prepend_value('CCFLAGS', ['-O3'])
-	print(conf.env)
+	conf.env['CCFLAGS'] = ['-g'] <1>
+	conf.env.CCFLAGS = ['-g'] <2>
+	conf.env.append_value('CXXFLAGS', ['-O2', '-g']) <3>
+	conf.env.append_unique('CCFLAGS', ['-g', '-O2']) <4>
+	conf.env.prepend_value('CCFLAGS', ['-O3']) <5>
+	my_copy = conf.env.copy() <6>
+	print(conf.env) <7>
 
 	import Utils
-	s = Utils.subst_vars('${CCFLAGS}', conf.env)
+	s = Utils.subst_vars('${PREFIX}/bin', conf.env) <8>
 	print(s)
+
+	conf.env.store('/tmp/env.txt') <9>
+
+	import Environment
+	env = Environment.Environment()
+	env.load('/tmp/env.txt') <10>
+
 ---------------
+
+<1> Initialize and set the given value by using the key-based notation
+<2> Initialize and set the given value by using the attribute-based notation
+<3> Ensure conf.env.CXXFLAGS is initalized, and add the given values
+<4> Append the elements from the second list that are not already present in conf.env.CCFLAGS
+<5> Insert the values from the second list in first position, preserving the order
+<6> Create a copy
+<7> Format and print the contents
+<8> Substitute the values in a formatted string
+<9> Serialize and store the contents into a file, one key=value by line.
+<10> Instantiate a new Environment and load the contents from a file
 
 Upon execution, the output will be the following:
 

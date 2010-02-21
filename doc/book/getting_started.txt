@@ -29,7 +29,7 @@ $ ./waf-light --make-waf
 
 === Running Waf
 
-The `waf` script can be used directly from a writeable folder:
+The 'waf' script can be used directly from a writeable folder:
 
 [source,shishell]
 ---------------
@@ -43,7 +43,7 @@ Or, if the executable permissions are not set properly:
 $ python waf
 ---------------
 
-The `waf` file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+The 'waf' file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
 
 [source,shishell]
 ---------------
@@ -53,20 +53,20 @@ $ ls -ld .waf*
 
 By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the http://www.jython.org[Jython] interpreter in the version 2.5 may be redistributed along with a copy of the Waf executable.
 
-NOTE: A project containing `waf`, `jython2.5.jar` and the source code may be used almost anywhere.
+NOTE: A project containing 'waf', 'jython2.5.jar' and the source code may be used almost anywhere.
 
-WARNING: The `waf` script must reside in a writable folder to unpack its cache files.
+WARNING: The 'waf' script must reside in a writable folder to unpack its cache files.
 
 == Installing Waf on a system
 
 Installing Waf on a system is unnecessary and discouraged:
 
-. Interpreter version: unlike the `waf` file, the installed version will not run on Python 3
+. Interpreter version: unlike the 'waf' file, the installed version will not run on Python 3
 . Operating systems: Waf cannot be installed on Windows (yet)
 . Installation: installation is cumbersome, and requires administrative privileges
 . Waf versions: users rarely install the appropriate software version (too old, too new, bugs)
 . Bugs: projects may depend on unspecified behaviour in particular Waf versions
-. Size: the `waf` file is small enough to be redistributed (about 80kB)
+. Size: the 'waf' file is small enough to be redistributed (about 80kB)
 
 Installation require a Python interpreter in the versions 2.4 to 2.6. It may require administrator or root privileges, depending on the target folder (prefix).
 
