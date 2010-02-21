@@ -3,11 +3,11 @@
 
 === Task creation and execution
 
-When Waf tasks are created, they are not executed immediately, for example it is not necessary to rebuild an application if the source files have not changed. Some tasks may also depend on other tasks which may not be created yet. For this reasons Waf delays the execution of tasks to the point when all build functions have been executed.
-
 Creating all tasks by hand is a tedious process that the task generators may automate. Before starting the build, Waf asks each task generator to produce the corresponding tasks. If Waf is launched from a sub folder inside the source directory, it will try to avoid the creation of the tasks that are not relevant for that particular sub folder (optimization).
 
-Once the tasks are created, Waf will review each of them one by one to decide whether to execute them or not. A summary can be found on the following diagram:
+The tasks are not executed immediately, for example it is not necessary to rebuild an application if the source files have not changed. Some tasks may also depend on other tasks which may not be created yet. For this reasons Waf delays the execution of tasks to the point when all build functions have been executed.
+
+A summary can be found on the following diagram:
 
 image::task_execution.eps["Flowchart model",width=370]
 
@@ -55,6 +55,7 @@ To make the problem more simple, it is divided by the different concerns, and th
 . task types to indicate the instance will run after other task type instances, for example linking object files may only occur after compiling the source files
 . specific constraints for task instances that can only run after a few other task instances
 
+
 ==== Task groups
 
 In some circumstances it is necessary to build a compiler and all its dependencies before using it for executing some other tasks (bootstrapping). The following demonstrates how declare groups of tasks to be executed after other groups of tasks:
@@ -99,6 +100,7 @@ def build(bld):
 
 Because task groups prevent parallelization, they reduce performance. On the other hand, they make projects more structured and improve the maintainance.
 
+
 ==== Precedence constraints
 
 The attributes 'before' and 'after' are used to declare ordering constraints between tasks:
@@ -123,7 +125,7 @@ class task_test_b(Task.TaskBase):
 	ext_out = '.c'
 ---------------
 
-The extensions have to match to add a valid precedence constraint, but they are only annotations, they do not mean the tasks actually have to produce files of that type.
+The 'extensions' ext_in and ext_out have to match to add a valid precedence constraint, but they are only symbols in this context. They do not mean the tasks actually have to produce files of that type.
 
 ==== Precedence constraints on task instances
 

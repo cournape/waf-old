@@ -11,9 +11,9 @@ image::task_grouping.eps["Execution model",width=220]
 
 === Job control
 
-Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice
+Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks executed in parallel, different algorithms may be used
 
-In the NORMAL ordering, task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes.
+In the NORMAL ordering, task groups are created, and a topological sort is performed on the task class types. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes.
 
 image::output-NORMAL.eps["NORMAL",width=350]
 
