@@ -4,10 +4,10 @@
 
 It is not possible to use several Waf instances concurrently over the same build folder. Yet, several Waf instances may use the project at the same time. For this, two options must be set:
 
-. The environment variable 'WAFCACHE'
+. The environment variable `WAFCACHE`
 . The build directory, using a command-line option
 
-Here is an example for a simple project located in `/tmp/smallfolder`:
+Here is an example for a simple project located in '/tmp/smallfolderr'`:
 
 [source,python]
 ---------------

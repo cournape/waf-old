@@ -4,7 +4,7 @@ Rule-based task generators are a particular category of task generators producin
 
 === Declaration and usage
 
-The following example presents a simple example of a task generator producing the file 'foobar.txt' from the 'wscript' by executing a copy (the command `cp`). Let's create a new project in the folder '/tmp/rule/' containing the following 'wscript' file:
+The following example presents a simple example of a task generator producing the file 'foobar.txt' from the project file 'wscript' by executing a copy (the command `cp`). Let's create a new project in the folder '/tmp/rule/' containing the following 'wscript' file:
 
 [source,python]
 ---------------
@@ -24,8 +24,8 @@ def build(bld):
 
 <1> To instantiate a new task generator, remember that all arguments have the form 'key=value'
 <2> The attribute 'rule' is mandatory here. It represents the command to execute in a readable manner (more on this in the next chapters).
-<3> Source files, to give in a space-separated list
-<4> Target files, to give in a space-separated list
+<3> Source files, either in a space-delimited string, or in a list of python strings
+<4> Target files, either in a space-delimited string, or in a list of python strings
 
 Upon execution, the following output will be observed:
 
@@ -93,7 +93,7 @@ def build(bld):
 		tgt = task.outputs[0].bldpath(task.env) <4>
 
 		import Utils
-		cmd = "cp %s %s" % (src, tgt)
+		cmd = 'cp %s %s' % (src, tgt)
 		print(cmd)
 		return Utils.exec_command(cmd) <5>
 
@@ -145,7 +145,7 @@ The attribute 'shell' is used to enable the system shell for command execution. 
 . In general, it is better to avoid the shell whenever possible to avoid quoting problems (paths having blank characters in the name for example)
 . The shell is creating a performance penalty which is more visible on win32 systems.
 
-			Here is an example:
+Here is an example:
 
 [source,python]
 ---------------

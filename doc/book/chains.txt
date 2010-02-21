@@ -21,7 +21,7 @@ def build(bld):
 	bld(source='a.lua b.lua c.lua')
 ---------------
 
-The equivalent logic may then be provided by using the following code. It may be located in either the same `wscript`, or in a waf tool:
+The equivalent logic may then be provided by using the following code. It may be located in either the same 'wscript', or in a waf tool:
 
 [source,python]
 ---------------
@@ -46,7 +46,7 @@ TaskGen.declare_chain(
 
 === Chaining more than one command
 
-Now consider the long chain `uh.in` → `uh.a` → `uh.b` → `uh.c`. The following implicit rules demonstrate how to generate the files while maintaining a minimal user script:
+Now consider the long chain 'uh.in' → 'uh.a' → 'uh.b' → 'uh.c'. The following implicit rules demonstrate how to generate the files while maintaining a minimal user script:
 
 [source,python]
 ---------------
@@ -82,7 +82,7 @@ Waf: Leaving directory `/comp/waf/demos/simple_scenarios/chaining/build'
 
 === Scanner methods
 
-Because transformation chains rely on implicit transformations, it may be desirable to hide some files from the list of sources. Or, some dependencies may be produced conditionally and may not be known in advance. A 'scanner method' is a kind of callback used to find additional dependencies just before the target is generated. For illustration purposes, let us start with an empty project containing three files: the `wscript`, `ch.in` and `ch.dep`
+Because transformation chains rely on implicit transformations, it may be desirable to hide some files from the list of sources. Or, some dependencies may be produced conditionally and may not be known in advance. A 'scanner method' is a kind of callback used to find additional dependencies just before the target is generated. For illustration purposes, let us start with an empty project containing three files: the 'wscript', 'ch.in' and 'ch.dep'
 
 [source,shishell]
 ---------------
@@ -95,7 +95,7 @@ $ tree
 `-- wscript
 ---------------
 
-The build will create a copy of `ch.in` called `ch.out`. Also, `ch.out` must be rebuild whenever `ch.dep` changes. This corresponds more or less to the following Makefile:
+The build will create a copy of 'ch.in' called 'ch.out'. Also, 'ch.out' must be rebuild whenever 'ch.dep' changes. This corresponds more or less to the following Makefile:
 
 [source,make]
 -----------------
@@ -172,10 +172,10 @@ Waf: Leaving directory `/tmp/smallproject/out'
 'build' finished successfully (0.012s)
 --------------
 
-<1> Initialize the file contents of `ch.in` and `ch.dep`
-<2> Execute a first clean build. The file `ch.out` is produced
-<3> The target `ch.out`is up-to-date because nothing has changed
-<4> Change the contents of `ch.dep`
+<1> Initialize the file contents of 'ch.in' and 'ch.dep'
+<2> Execute a first clean build. The file 'ch.out' is produced
+<3> The target 'ch.out' is up-to-date because nothing has changed
+<4> Change the contents of 'ch.dep'
 <5> The dependency has changed, so the target is rebuilt
 
 Here are a few important points about scanner methods:
@@ -234,7 +234,7 @@ Cannot guess how to process bld:///tmp/smallproject/uh.a2 (got mappings ['.a1', 
    class TaskGen.task_gen) -> try conf.check_tool(..)?
 --------------
 
-The error message indicates that there is no way to process `uh.a2`. Only files of extension '.a1' or '.in' can be processed. Internally, extension names are bound to callback methods. The error is raised because no such method could be found, and here is how to register an extension callback globally:
+The error message indicates that there is no way to process 'uh.a2'. Only files of extension '.a1' or '.in' can be processed. Internally, extension names are bound to callback methods. The error is raised because no such method could be found, and here is how to register an extension callback globally:
 
 [source,python]
 ---------------
@@ -275,7 +275,7 @@ The creation of new task classes will be described in the next section.
 
 === Task class declaration
 
-Waf tasks are instances of the class Task.TaskBase. Yet, the base class contains the real minimum, and the immediate subclass 'Task.Task'is usually chosen in user scripts. We will now start over with a simple project containing only one project `wscript` file and and example file named `ah.in`. A task class will be added.
+Waf tasks are instances of the class Task.TaskBase. Yet, the base class contains the real minimum, and the immediate subclass 'Task.Task'is usually chosen in user scripts. We will now start over with a simple project containing only one project 'wscript' file and and example file named 'ah.in'. A task class will be added.
 
 [source,python]
 ---------------
