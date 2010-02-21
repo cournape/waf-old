@@ -18,6 +18,7 @@ def foo_context(Utils.Context):
 
 Custom contexts may be provided for the functions 'configure' and 'build'.
 
+
 === Creating aliases / Injecting new commands
 
 New commands may be injected in the following manner:

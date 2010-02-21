@@ -34,6 +34,51 @@ def build(bld):
 <2> Reinject the c++ node to the list of nodes to process
 <3> Only list the idl file and maybe another c++ file
 
+
+=== Adding special flags
+
+A scenario that appears from times to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all c++ compilations with the flag \'-I.' in first position (before any other include).
+
+First, a look at the definition of the c++ compilation rule shows that the variable '_CXXINCFLAGS' contains the include flags:
+
+[source,python]
+---------------
+cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx', shell=False)
+---------------
+
+Those include flags are set by the method 'apply_obj_vars_cxx'. The trick is then to modify '_CXXINCFLAGS' after 'apply_obj_vars_cxx' has been executed:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def build(bld):
+	bld.new_task_gen(features='cxx cprogram', source='main.cpp', target='test')
+
+from TaskGen import after, feature
+
+@feature('cxx')
+@after('apply_obj_vars_cxx')
+def insert_myflags(self):
+	self.env.prepend_value('_CXXINCFLAGS', '-I.')
+---------------
+
+A related case is how to add the top-level directory containing a configuration header:
+
+[source,python]
+---------------
+@feature('cxx')
+@after('apply_obj_vars_cxx')
+def insert_myflags(self):
+	dir = self.bld.srcnode.relpath_gen(self.path)
+    self.env.prepend_value('_CXXINCFLAGS', '-I' + dir)
+---------------
+
 === Simple file transformations
 
 The Waf tool 'misc' contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
