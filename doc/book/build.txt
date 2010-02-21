@@ -59,8 +59,8 @@ Waf: Leaving directory `/tmp/smallproject/build'
 
 In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed fron the build context:
 
-. root: node representing the root of the file system, or the folder containing the drive letters on win32 systems
-. path: node representing the path of the script being read (path to the wscript file)
+. `root`: node representing the root of the file system, or the folder containing the drive letters on win32 systems
+. `path`: node representing the path of the script being read (path to the wscript file)
 
 Nodes are often used for low-level operations such as extending Waf, and direct node manipulation is hardly ever necessary from user scripts.
 
@@ -193,7 +193,7 @@ def configure(ctx):
 	pass
 
 def pre(ctx): <1>
-	print("before the build is started")
+	print('before the build is started')
 
 def post(ctx):
 	import Options, Utils
@@ -218,9 +218,12 @@ $ waf distclean configure build --exe
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/smallproject/build'
-before the build is started
+before the build is started <1>
 Waf: Leaving directory `/tmp/smallproject/build'
-hello
+hello <2>
 'build' finished successfully (0.008s)
 ---------------
+
+<1> output of the function bound by 'bld.add_pre_fun'
+<2> output of the function bound by 'bld.add_post_fun'
 
