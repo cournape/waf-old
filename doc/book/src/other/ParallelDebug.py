@@ -5,8 +5,6 @@
 """
 debugging helpers for parallel compilation, outputs
 a svg file in the build directory
-
-genbench.py /tmp/build 11 3 1 1
 """
 
 import time, threading, random, Queue
@@ -14,32 +12,38 @@ import Runner, Options, Utils
 from Constants import *
 from Runner import TaskConsumer
 
-random.seed(10)
+random.seed(100)
 
 INTERVAL = 0.009
 BAND = 22
 
+
+# red   #ff4d4d
+# green #4da74d
+# lila  #a751ff
+
+Utils.g_module.title
+
 mp = {
-'cxx': 'green',
-'static_link': '#8106ff'
+'cxx': '#4da74d',
+'static_link': '#a751ff'
 }
 
 info = {
-'green': 'Compilation task',
-'#8106ff': 'Link task'
+'#4da74d': 'Compilation task',
+'#a751ff': 'Link task'
 }
 
 def map_to_color(name):
 	if name in mp:
 		return mp[name]
-	return "red"
+	return "#a751ff"
 
 
 taskinfo = Queue.Queue()
 state = 0
 def set_running(by, i, tsk):
 	taskinfo.put(  (i, id(tsk), time.time(), tsk.__class__.__name__)  )
-
 
 def newrun(self):
 
@@ -66,7 +70,7 @@ def newrun(self):
 				m.out.put(tsk)
 				continue
 
-			time.sleep(1 + 2* random.random())
+			#time.sleep(1 + 2* random.random())
 
 			if ret:
 				tsk.err_code = ret
@@ -174,14 +178,14 @@ def process_colors(q):
 
 	# main title
 	out.append("""<text x="%d" y="%d" style="font-size:15px; text-anchor:middle; font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans">%s</text>
-""" % (gwidth/2, gheight - 5, "Task execution in parallel (MAXPARALLEL)"))
+""" % (gwidth/2, gheight - 5, Utils.g_module.title))
 
 	# the rectangles
 	for (x, y, w, h, clsname) in acc:
 		out.append("""<rect
    x='%r' y='%r'
    width='%r' height='%r'
-   style=\"font-size:10;fill:%s;fill-opacity:0.7;fill-rule:evenodd;stroke:#000000;\"
+   style=\"font-size:10;fill:%s;fill-opacity:1.0;fill-rule:evenodd;stroke:#000000;\"
    />\n""" % (x*ratio, y, w*ratio, h, map_to_color(clsname)))
 
 	# output the caption
@@ -192,7 +196,7 @@ def process_colors(q):
 		out.append("""<rect
 		x='%r' y='%r'
 		width='%r' height='%r'
-		style=\"font-size:10;fill:%s;fill-opacity:0.7;fill-rule:evenodd;stroke:#000000;\"
+		style=\"font-size:10;fill:%s;fill-opacity:1.0;fill-rule:evenodd;stroke:#000000;\"
   />\n""" % (BAND, (cnt + 0.5) * BAND, b, b, color))
 
 		# caption text
