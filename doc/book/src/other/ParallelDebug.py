@@ -10,7 +10,7 @@ genbench.py /tmp/build 11 3 1 1
 """
 
 import time, threading, random, Queue
-import Runner, Options
+import Runner, Options, Utils
 from Constants import *
 from Runner import TaskConsumer
 
