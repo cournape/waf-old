@@ -10,10 +10,10 @@ Since the Waf commands build, clean, install and uninstall execute the same func
 . Extensibility: adding support for new compilers and new languages from user scripts
 . Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)
 
-These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are the definitions:
+These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are two important definitions:
 
-. Task: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).
-. Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc
+. `Task`: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).
+. `Task generator`: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc
 
 Here is a sample project script to illustrate the concepts:
 
@@ -38,19 +38,22 @@ $ waf distclean configure build build clean
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/smallproject/build'
-  class 'TaskGen.task_gen'
-[1/1] test.txt:  -> build/default/test.txt
+  class 'TaskGen.task_gen' <1>
+[1/1] test.txt:  -> build/default/test.txt <2>
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.011s)
 Waf: Entering directory `/tmp/smallproject/build'
-  class 'TaskGen.task_gen'
+  class 'TaskGen.task_gen' <3>
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.004s)
-  class 'TaskGen.task_gen'
+  class 'TaskGen.task_gen' <4>
 'clean' finished successfully (0.002s)
 ---------------
 
-The line 'test.txt' corresponds to the execution of the actual task. The task generator was created during the execution of both 'build' and 'clean' (print statement). The task was only executed during the first build, and not during the clean step. Also, the task was not executed when the target was considered up-to-date (to know more, consult the next chapters).
+<1> Print 'obj.__class__'.
+<2> Actual task execution, during the first build.
+<3> This print was output during the second `build` execution. The target is considered up-to-date and is not rebuilt.
+<4> This print was output during the call to `clean`.
 
 === Finding folders and files through node objects
 
