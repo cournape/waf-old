@@ -2,7 +2,7 @@
 
 This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.
 
-=== Putting it altogether
+=== Mixing extensions and c/c++ features
 
 Now let's illustrate the @extension decorator on idl file processing. Files with .idl extension are processed to produce .c and .h files (`foo.idl` → `foo.c` + `foo.h`). The .c files must be compiled after being generated.
 
@@ -18,18 +18,21 @@ def process_idl(self, node):
 	cc_node = node.change_ext('.cc')
 	h_node  = node.change_ext('.h')
 
-	self.create_task('idl', node, [cc_node, h_node])
+	self.create_task('idl', node, [cc_node, h_node]) <1>
 
-	# reinject the c++ node to the list of nodes to process
-	self.allnodes.append(cc_node)
+	self.allnodes.append(cc_node) <2>
 
 def build(bld):
 	bld(
 		features = 'cxx cprogram',
-		source   = 'foo.idl main.cpp',
+		source   = 'foo.idl main.cpp', <3>
 		target   = 'myapp'
 		)
 ---------------
+
+<1> Create the task from the '.idl' extension
+<2> Reinject the c++ node to the list of nodes to process
+<3> Only list the idl file and maybe another c++ file
 
 === Simple file transformations
 
