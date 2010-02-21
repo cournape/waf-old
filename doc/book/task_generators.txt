@@ -27,7 +27,7 @@ def configure(conf):
 
 def build(bld):
 	v = bld(myattr='Hello, world!')
-	#v.myattr = 'Hello, world!' <1>
+	v.myattr = 'Hello, world!' <1>
 	v.myMethod() <2>
 
 import TaskGen
@@ -37,7 +37,7 @@ def myMethod(tgen): <4>
 	print(getattr(self, 'myattr', None)) <5>
 ---------------
 
-<1> Attributes may be set by arguments or by accessing the object (commented here)
+<1> Attributes may be set by arguments or by accessing the object. It is set two times in this example.
 <2> Call the task generator method explicitely
 <3> Use a python decorator
 <4> Task generator methods have a unique argument representing the current instance
@@ -235,32 +235,4 @@ The task generator method workflow is represented in the following illustration:
 
 image::posting.eps["Task generator workflow",width=320]
 
-=== Putting it altogether
-
-Now let's illustrate the @extension decorator on idl file processing. Files with .idl extension are processed to produce .c and .h files (`foo.idl` → `foo.c` + `foo.h`). The .c files must be compiled after being generated.
-
-[source,python]
----------------
-import Task
-from TaskGen import extension
-
-Task.simple_task_type('idl', 'omniidl -bcxx ${SRC} -C${TGT}', color='BLUE', ext_out='.cxx')
-
-@extension('.idl')
-def process_idl(self, node):
-	cc_node = node.change_ext('.cc')
-	h_node  = node.change_ext('.h')
-
-	self.create_task('idl', node, [cc_node, h_node])
-
-	# reinject the c++ node to the list of nodes to process
-	self.allnodes.append(cc_node)
-
-def build(bld):
-	bld(
-		features = 'cxx cprogram',
-		source   = 'foo.idl main.cpp',
-		target   = 'myapp'
-		)
----------------
 

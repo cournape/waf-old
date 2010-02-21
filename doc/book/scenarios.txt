@@ -2,6 +2,35 @@
 
 This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.
 
+=== Putting it altogether
+
+Now let's illustrate the @extension decorator on idl file processing. Files with .idl extension are processed to produce .c and .h files (`foo.idl` → `foo.c` + `foo.h`). The .c files must be compiled after being generated.
+
+[source,python]
+---------------
+import Task
+from TaskGen import extension
+
+Task.simple_task_type('idl', 'omniidl -bcxx ${SRC} -C${TGT}', color='BLUE', ext_out='.cxx')
+
+@extension('.idl')
+def process_idl(self, node):
+	cc_node = node.change_ext('.cc')
+	h_node  = node.change_ext('.h')
+
+	self.create_task('idl', node, [cc_node, h_node])
+
+	# reinject the c++ node to the list of nodes to process
+	self.allnodes.append(cc_node)
+
+def build(bld):
+	bld(
+		features = 'cxx cprogram',
+		source   = 'foo.idl main.cpp',
+		target   = 'myapp'
+		)
+---------------
+
 === Simple file transformations
 
 The Waf tool 'misc' contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
