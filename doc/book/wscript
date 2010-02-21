@@ -40,12 +40,19 @@ def configure(conf):
 	conf.find_program('asciidoc', var='ADOC', mandatory=True)
 
 
+re_size = re.compile('''width=(\d+)\\]''', re.M)
+def repl(m):
+	if m.group(1):
+		return "width=%d]" % (1.7 * int(m.group(1)))
+	return ''
+
 def repli(task):
 	txt = Utils.readf(task.inputs[0].abspath(task.env))
 	txt = txt.replace('.txt[', '_ug.txt[')
 	txt = txt.replace('.eps[', '.png[')
 	txt = txt.replace('[source,make]', '[source,makefile]')
 	txt = txt.replace('[source,shishell]', '')
+	txt = re_size.sub(repl, txt)
 	f = open(task.outputs[0].abspath(task.env), 'w')
 	f.write(txt)
 	f.close()
@@ -71,7 +78,7 @@ def build(bld):
 	bld(source=bld.path.ant_glob('*.txt', src=True, bld=False, dir=False))
 	bld(name='copysym', rule='cp ${SRC} ${TGT}', source='symbols.lang.in', target='symbols.lang', before='')
 
-	if 0 == 1:
+	if 1 == 1:
 		bld(rule='${ADOC} -a icons -a toc -n -d book -o ${TGT} -v ${SRC}',
 			source='waf_ug.txt', target='single.html', after='copy copysym repl', name='single', scan=ascii_doc_scan)
 
