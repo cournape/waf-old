@@ -26,7 +26,7 @@ Waf is based on 12 modules which constitute the core library. They are located i
 
 The essential classes and methods from the core library are represented on the following diagram:
 
-image::classes.eps[]
+image::classes.eps["Main classes",width=500]
 
 
 === Build context instances

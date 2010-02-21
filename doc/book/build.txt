@@ -162,7 +162,7 @@ def build(bld):
 <2> Install one file, changing its name
 <3> Create a symbolic link
 <4> Overridding the configuration set ('env' is optional in the three methods install_files, install_as and symlink_as)
-<5> Install src/bar/foo/a1.h as seen from the current script into ${PREFIX}/share/foo/a1.h
+<5> Install src/bar/foo/a1.h as seen from the current script into '$\{PREFIX}/share/foo/a1.h'
 <6> Install the png files recursively, preserving the folder structure read from src/bar/
 
 === Executing specific routines before or after the build

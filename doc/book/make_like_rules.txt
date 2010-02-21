@@ -126,7 +126,7 @@ Waf: Leaving directory `/tmp/rule/out'
 
 The rule function must return '0' to indicate success, and must generate the files corresponding to the outputs. The rule function must also access the task object in a read-only manner, and avoid node creation or attribute modification.
 
-NOTE: The string expression 'cp ${SRC} ${TGT}' from the previous example is converted internally to a function similar to 'run'.
+NOTE: The string expression 'cp $\{SRC} $\{TGT}' from the previous example is converted internally to a function similar to 'run'.
 
 NOTE: While a string expression may execute only one system command, functions may execute various commands at once.
 
@@ -313,7 +313,7 @@ def build(bld):
 <2> The following rule will create the file `t2.txt` with the contents of 'TEST_VAR'
 <3> The value of 'TEST_VAR' will be defined now
 <4> Use the value of a predefined command-line option (the jobs control the amount of commands which may be executed in parallel)
-<5> By default, the variables used in string expressions '${...}' are extracted automatically and used as dependencies (rebuild the targets when the value change). They are given manually in this case.
+<5> By default, the variables used in string expressions '$\{...}' are extracted automatically and used as dependencies (rebuild the targets when the value change). They are given manually in this case.
 <6> Set the base environment. The variable TEST_VAR will be used for the dependency here.
 
 By turning the debugging flags on, it will be easier to understand what is happening during the build:

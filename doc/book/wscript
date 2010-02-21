@@ -44,6 +44,7 @@ def repli(task):
 	txt = Utils.readf(task.inputs[0].abspath(task.env))
 	txt = txt.replace('.txt[', '_ug.txt[')
 	txt = txt.replace('.eps[', '.png[')
+	txt = txt.replace('source,make]', 'source,makefile]')
 	f = open(task.outputs[0].abspath(task.env), 'w')
 	f.write(txt)
 	f.close()
