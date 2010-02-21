@@ -66,8 +66,8 @@ Tasks that are known to take a lot of time may be launched first to improve the 
 
 The following pictures illustrate the difference in scheduling a build with different independent tasks, in which a slow task is clearly identified, and launched first:
 
-image::duration-1.png[]
-image::duration-2.png[]
+image::duration-1.eps["Random order",width=310]
+image::duration-2.eps["Slowest task first",width=310]
 
 Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
 
