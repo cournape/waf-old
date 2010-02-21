@@ -126,9 +126,9 @@ Waf: Leaving directory `/tmp/rule/out'
 
 The rule function must return '0' to indicate success, and must generate the files corresponding to the outputs. The rule function must also access the task object in a read-only manner, and avoid node creation or attribute modification.
 
-TIP: The string expression 'cp ${SRC} ${TGT}' from the previous example is converted internally to a function similar to 'run'.
+NOTE: The string expression 'cp ${SRC} ${TGT}' from the previous example is converted internally to a function similar to 'run'.
 
-TIP: While a string expression may execute only one system command, functions may execute various commands at once.
+NOTE: While a string expression may execute only one system command, functions may execute various commands at once.
 
 WARNING: Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing a function will trigger a rebuild only if it is defined in a waf tool (not in wscript files).
 
@@ -201,7 +201,7 @@ Waf: Leaving directory `/tmp/rule/out'
 <3> Command execution by the shell. Notice the heavy use of string concatenation.
 <4> Commands to execute are displayed by calling 'waf --zones=runner'. When called without the shell, the arguments are displayed as a list.
 
-TIP: Whenever possible, avoid using the shell to improve both performance and maintainability
+NOTE: Whenever possible, avoid using the shell to improve both performance and maintainability
 
 === Inputs and outputs
 
@@ -361,12 +361,12 @@ Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.014s)
 ---------------
 
-<1> The default values for prefix and jobs
-<2> The function generated from the string expression will use the 'PREFIX' value
-<3> Some output was removed
-<4> The expression '${PREFIX}' was substituted by its value
-<5> The target is created whenever the value of a variable changes, even though the string expression has not changed
-<6> The variable 'TEST_VAR' changed, so the command was executed again
+<1> The default values for prefix and jobs.
+<2> The function generated from the string expression will use the 'PREFIX' value.
+<3> Some output was removed.
+<4> The expression '$\{PREFIX}' was substituted by its value.
+<5> The target is created whenever the value of a variable changes, even though the string expression has not changed.
+<6> The variable 'TEST_VAR' changed, so the command was executed again.
 
 === Execution order and dependencies
 

@@ -159,7 +159,7 @@ bar
 <3> The tasks output their files in the relevant variant
 <4> The file contents are different and correspond to the configuration sets used
 
-TIP: As a general rule, tasks created for a particular variant should not share data with the tasks from another variant.
+NOTE: As a general rule, tasks created for a particular variant should not share data with the tasks from another variant.
 
 === Cloning task generators
 

@@ -58,7 +58,7 @@ From this, we can immediately notice the following:
 . An assumption is made that all tasks have input and output nodes, and that ordering constraints can be deduced from them
 . Deducing the constraints from the input and output nodes exhibits a n^2 behaviour
 
-TIP: In practice, the NORMAL algorithm should be used whenever possible, and the MAXPARALLEL should be used if substantial gains are expected and if the ordering is specified between all tasks. The JOBCONTROL system may be useful for tasks that consume a vast amount of resources.
+NOTE: In practice, the NORMAL algorithm should be used whenever possible, and the MAXPARALLEL should be used if substantial gains are expected and if the ordering is specified between all tasks. The JOBCONTROL system may be useful for tasks that consume a vast amount of resources.
 
 === Weak task order constraints
 

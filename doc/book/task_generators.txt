@@ -55,7 +55,7 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 'build' finished successfully (0.003s)
 ---------------
 
-TIP: The method could be bound by using 'setattr' directly, like for binding any new method on a python class.
+NOTE: The method could be bound by using 'setattr' directly, like for binding any new method on a python class.
 
 === Executing the method during the build
 

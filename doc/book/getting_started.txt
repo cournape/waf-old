@@ -48,7 +48,7 @@ $ ls -ld .waf*
 
 By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the http://www.jython.org[Jython] interpreter in the version 2.5 may be redistributed along with a copy of the Waf executable.
 
-TIP: A project containing `waf`, `jython2.5.jar` and the source code may be used almost anywhere.
+NOTE: A project containing `waf`, `jython2.5.jar` and the source code may be used almost anywhere.
 
 WARNING: The `waf` script must reside in a writable folder to unpack its cache files.
 

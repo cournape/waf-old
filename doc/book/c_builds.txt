@@ -360,9 +360,9 @@ dep_files = ['config.h']
 waf_config_files = ['/compilation/waf/demos/adv/build/default/config.h']
 ---------------
 
-TIP: The methods 'conf.check' all use task generators internally. This means that the attributes 'includes', 'defines', 'cxxflags' may be used (not all shown here).
+NOTE: The methods 'conf.check' all use task generators internally. This means that the attributes 'includes', 'defines', 'cxxflags' may be used (not all shown here).
 
-TIP: The attribute 'compile_mode' may also contain user-defined task generator features.
+NOTE: The attribute 'compile_mode' may also contain user-defined task generator features.
 
 === Pkg-config
 
