@@ -84,7 +84,7 @@ def build(bld):
 		cls.color = 'CYAN'
 ---------------
 
-== Profiling
+=== Profiling
 
 Profiling information is obtained by calling the module cProfile and by injecting specific code. The two most interesting methods to profile are 'flush' and 'compile'. The most important number from the profiling information is the amount of function calls, and reducing it results in noticeable speedups. Here is an example on the method compile:
 
