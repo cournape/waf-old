@@ -206,7 +206,7 @@ def build(bld):
 import TaskGen
 TaskGen.declare_chain(
 	name      = 'a',
-	action    = 'touch ${SRC} ${TGT}',
+	action    = 'cp ${SRC} ${TGT}',
 	ext_in    = '.in',
 	ext_out   = ['.a1', '.a2'],
 	reentrant = True,
@@ -217,7 +217,7 @@ TaskGen.declare_chain(
 	action    = 'cp ${SRC} ${TGT}',
 	ext_in    = '.a1',
 	ext_out   = '.b',
-	reentrant = 0,
+	reentrant = False,
 )
 --------------
 
@@ -259,12 +259,15 @@ The exact method signature and typical usage for the extension callbacks is the 
 [source,python]
 ---------------
 import TaskGen
-@TaskGen.extension(ext1<1>, ext2)
+@TaskGen.extension(".a", ".b") <1>
 def my_callback(task_gen_object<2>, node<3>):
-	task_gen_object.create_task(task_name<4> , node<5> , output_nodes<6>)
+	task_gen_object.create_task(
+		task_name, <4>
+		node,  <5>
+		output_nodes) <6>
 ---------------
 
-<1> Comma-separated list of extensions (string)
+<1> Comma-separated list of extensions (strings)
 <2> Task generator instance holding the data
 <3> Instance of Node, representing a file (either source or build)
 <4> The first argument to create a task is the name of the task class
@@ -325,12 +328,22 @@ Although it is possible to write down task classes in plain python, two function
 
 [source,python]
 ---------------
-Task.simple_task_type <1>('xsubpp'<2>, rule='${PERL} ${XSUBPP} ${SRC} > ${TGT}'<3>, color='BLUE'<4>, before='cc'<5>)
+Task.simple_task_type( <1>
+	'xsubpp', <2>
+	rule    = '${PERL} ${XSUBPP} ${SRC} > ${TGT}', <3>
+	color   = 'BLUE', <4>
+	before  = 'cc') <5>
 
 def build_it(task):
 	return 0
 
-Task.task_type_from_func<6>('sometask'<7>, func=build_it<8>, vars=['SRT'], color='RED', ext_in='.in', ext_out='.out'<9>)
+Task.task_type_from_func(<6>
+	'sometask', <7>
+	func    = build_it, <8>
+	vars    = ['SRT'],
+	color   = 'RED',
+	ext_in  = '.in',
+	ext_out = '.out') <9>
 ---------------
 
 <1> Create a new task class executing a rule string

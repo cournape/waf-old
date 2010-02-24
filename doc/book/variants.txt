@@ -106,9 +106,19 @@ def configure(conf):
 	conf.env.NAME = 'bar'
 
 def build(bld):
-	bld(rule='echo ${NAME} > ${TGT}', target='test.txt')
-	bld(rule='echo ${NAME} > ${TGT}', target='test.txt'<8>, env=bld.env_of_name('debug').copy()) <9>
-	bld(rule='echo ${NAME} > ${TGT}', target='test.txt', env=bld.env_of_name('cfg_name').copy())
+	bld(
+		rule='echo ${NAME} > ${TGT}',
+		target='test.txt')
+
+	bld(
+		rule='echo ${NAME} > ${TGT}',
+		target='test.txt'<8>,
+		env=bld.env_of_name('debug').copy()) <9>
+
+	bld(
+		rule='echo ${NAME} > ${TGT}',
+		target='test.txt',
+		env=bld.env_of_name('cfg_name').copy())
 ---------------
 
 <1> Create a copy of the default data set.
