@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2007 (ita)
+# Thomas Nagy, 2007-2010 (ita)
 
 """
 debugging helpers for parallel compilation
@@ -16,10 +16,10 @@ plot 'test.dat' using 1:3 with linespoints
 
 import time, threading
 import Runner
+from Runner import TaskConsumer
 from Constants import *
 
 INTERVAL = 0.01
-
 
 mylock = threading.Lock()
 state = 0
@@ -29,47 +29,47 @@ def set_running(by):
 	state += by
 	mylock.release()
 
-
 def newrun(self):
-	m = self.master
+	if 1 == 1:
+		while 1:
+			tsk = TaskConsumer.ready.get()
+			m = tsk.master
+			if m.stop:
+				m.out.put(tsk)
+				continue
 
-	while 1:
-		tsk = m.ready.get()
-		if m.stop:
-			m.out.put(tsk)
-			continue
-
-		set_running(1)
-		try:
-			tsk.generator.bld.printout(tsk.display())
-			if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
-			else: ret = tsk.call_run()
-		except Exception, e:
-			# TODO add the stack error message
-			tsk.err_msg = str(e)
-			tsk.hasrun = EXCEPTION
-
-			# TODO cleanup
-			m.error_handler(tsk)
-			m.out.put(tsk)
-			set_running(-1)
-			continue
-		set_running(-1)
-
-		if ret:
-			tsk.err_code = ret
-			tsk.hasrun = CRASHED
-		else:
+			set_running(1)
 			try:
-				tsk.post_run()
-			except OSError:
-				tsk.hasrun = MISSING
-			else:
-				tsk.hasrun = SUCCESS
-		if tsk.hasrun != SUCCESS:
-			m.error_handler(tsk)
+				tsk.generator.bld.printout(tsk.display())
+				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
+				# actual call to task's run() function
+				else: ret = tsk.call_run()
+			except Exception, e:
+				tsk.err_msg = Utils.ex_stack()
+				tsk.hasrun = EXCEPTION
 
-		m.out.put(tsk)
+				m.error_handler(tsk)
+				m.out.put(tsk)
+				continue
+			set_running(-1)
+
+			if ret:
+				tsk.err_code = ret
+				tsk.hasrun = CRASHED
+			else:
+				try:
+					tsk.post_run()
+				except Utils.WafError:
+					pass
+				except Exception:
+					tsk.err_msg = Utils.ex_stack()
+					tsk.hasrun = EXCEPTION
+				else:
+					tsk.hasrun = SUCCESS
+			if tsk.hasrun != SUCCESS:
+				m.error_handler(tsk)
+
+			m.out.put(tsk)
 
 Runner.TaskConsumer.run = newrun
 
