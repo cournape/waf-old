@@ -7,11 +7,14 @@ debugging helpers for parallel compilation
 
 To output a stat file (data for gnuplot) when running tasks in parallel:
 
-#! /usr/bin/gnuplot -persist
-set terminal png
-set output "output.png"
-set yrange [-1:6]
-plot 'test.dat' using 1:3 with linespoints
+set terminal X11
+set ylabel "Amount of jobs running in parallel"
+set xlabel "Time in seconds"
+set title "Amount of jobs running in parallel (waf -j5)"
+unset label
+set yrange [-0.1:5.2]
+set ytic 1
+plot 'test.dat' using 1:3 with lines title "" lt 3
 """
 
 import time, threading
@@ -19,7 +22,7 @@ import Runner
 from Runner import TaskConsumer
 from Constants import *
 
-INTERVAL = 0.01
+INTERVAL = 0.05
 
 mylock = threading.Lock()
 state = 0
@@ -33,12 +36,12 @@ def newrun(self):
 	if 1 == 1:
 		while 1:
 			tsk = TaskConsumer.ready.get()
+			set_running(1)
 			m = tsk.master
 			if m.stop:
 				m.out.put(tsk)
 				continue
 
-			set_running(1)
 			try:
 				tsk.generator.bld.printout(tsk.display())
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
@@ -51,7 +54,6 @@ def newrun(self):
 				m.error_handler(tsk)
 				m.out.put(tsk)
 				continue
-			set_running(-1)
 
 			if ret:
 				tsk.err_code = ret
@@ -70,6 +72,7 @@ def newrun(self):
 				m.error_handler(tsk)
 
 			m.out.put(tsk)
+			set_running(-1)
 
 Runner.TaskConsumer.run = newrun
 
