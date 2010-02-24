@@ -13,7 +13,6 @@ import Utils
 def foo_context(Utils.Context):
 	def __init__(self):
 		print("a context for 'foo'")
-[source,python]
 ---------------
 
 Custom contexts may be provided for the functions 'configure' and 'build'.
@@ -110,4 +109,82 @@ def create_package(ctx): <6>
 <5> change the value of 'destdir' for installing the files into a temporary directory
 <6> command for creating the package
 <7> restore the value of 'destdir', in case if more commands are to be executed
+
+=== Adding a new command from a tool
+
+When the top-level wscript is read, it is converted into a python module and kept in memory. To add a new command dynamically,
+it is only necessary to inject the desired function into that module. We will now show how to load a waf tool to count the amount of task generators
+in the project.
+
+The waf tools are loaded once during the configuration and during the build. To ensure that the tool is always loaded, it is necessary to load its options:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('some_tool', tooldir='.')
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(rule='echo "hi"', always=True)
+	bld(rule='echo "there"', always=True)
+---------------
+
+Now our tool 'some_tool.py', located next to the 'wscript' file, will contain the following code:
+
+[source,python]
+---------------
+import Utils, Environment, Options, Build
+
+def set_options(opt): <1>
+    pass
+
+def num_targets(ctx): <2>
+    """return the amount of targets"""
+
+    bld = Build.BuildContext() <3>
+    proj = Environment.Environment(Options.lockfile) <4>
+    bld.load_dirs(proj['srcdir'], proj['blddir']) <5>
+    bld.load_envs()
+    bld.add_subdirs(ctx.curdir) <6>
+
+    print("So we have %r task generators" % len(bld.all_task_gen)) <7>
+
+Utils.g_module.__dict__['num_targets'] = num_targets <8>
+---------------
+
+<1> The function 'set_options' is called by 'tool_options' above
+<2> The command that will be injected dynamically from this tool
+<3> Declare a build context manually
+<4> Read the project settings
+<5> Initialize the build context
+<6> Read the project files, executing the methods 'build'
+<7> Access the declared task generators stored in the build context attribute 'all_task_gen'
+<8> Bind the function as a new command
+
+The execution output will be the following.
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/home/waf/tmp/nt/build'
+[1/2] echo "hi":
+hi
+[2/2] echo "there":
+there
+Waf: Leaving directory `/home/waf/tmp/nt/build'
+'build' finished successfully (0.015s)
+
+$ waf num_targets
+So we have 2 task generators
+'num_targets' finished successfully (0.003s)
+---------------
+
+Note that during the execution of `num_targets`, the task generator definitions have been read but no task was executed.
 
