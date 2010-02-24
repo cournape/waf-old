@@ -21,11 +21,9 @@ Software is now used to express the process of building software, it can take th
 
 === The Waf framework
 
-Build systems make assumptions on software it is trying to build, and are typically limited where it comes to processing other languages or different projects. For example, Ant is better suited than Make for managing Java projects, but is more limited than Make for managing simple c projects.
+Build systems make assumptions on software it is trying to build, and are typically limited where it comes to processing other languages or different projects. For example, Ant is better suited than Make for managing Java projects, but is more limited than Make for managing simple c projects. The programming tools are evolving constantly, making the creation of a complete build system for end-users impossible.
 
-There are so many different languages that creating a build system to support all the possible kind of projects out-of-the-box is likely to be difficult. It is much more interesting to create one which can be extended easily.
-
-The Waf framework is somewhat different than build systems, in the sense that it is essentially a library of components that are suitable for use in a build system. The default distribution contains various plugins for different programming languages and different tools (c, d, ocaml, java, etc).
+The Waf framework is somewhat different than traditional build systems in the sense that the focus is to support indirectly the major usecases encountered when working on a software project, without supporting a language directly. Waf is essentially a library of components that are suitable for use in a build system, with an emphasis on extensibility. Although the default distribution contains various plugins for different programming languages and different tools (c, d, ocaml, java, etc), it is by no means a finished product, and creating extensions is a recommended practice.
 
 === Objectives of this book
 
