@@ -161,7 +161,7 @@ set ytic 1
 plot 'test.dat' using 1:3 with lines title "" lt 2
 ---------------
 
-
+image::dev.eps["Tracing the threads being executed",width=420]
 
 
 === Obtaining the latest source code

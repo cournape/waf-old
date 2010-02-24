@@ -78,7 +78,7 @@ def build(bld):
 	bld(source=bld.path.ant_glob('*.txt', src=True, bld=False, dir=False))
 	bld(name='copysym', rule='cp ${SRC} ${TGT}', source='symbols.lang.in', target='symbols.lang', before='')
 
-	if 1 == 1:
+	if 0 == 1:
 		bld(rule='${ADOC} -a icons -a toc -n -d book -o ${TGT} -v ${SRC}',
 			source='waf_ug.txt', target='single.html', after='copy copysym repl', name='single', scan=ascii_doc_scan)
 
