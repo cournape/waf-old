@@ -519,6 +519,15 @@ def detect_platform():
 	return s
 
 def load_tool(tool, tooldir=None):
+	'''
+	load_tool: import a Python module, optionally using several directories.
+	@param tool [string]: name of tool to import.
+	@param tooldir [list]: directories to look for the tool.
+	@return: the loaded module.
+
+	Warning: this function is not thread-safe: plays with sys.path,
+					 so must run in sequence.
+	'''
 	if tooldir:
 		assert isinstance(tooldir, list)
 		sys.path = tooldir + sys.path
@@ -526,11 +535,11 @@ def load_tool(tool, tooldir=None):
 		try:
 			return __import__(tool)
 		except ImportError, e:
-			raise WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
+			Logs.error('Could not load the tool %r in %r:\n%s' % (tool, sys.path, e))
+			raise
 	finally:
 		if tooldir:
-			for d in tooldir:
-				sys.path.remove(d)
+			sys.path = sys.path[len(tooldir):]
 
 def readf(fname, m='r'):
 	"get the contents of a file, it is not used anywhere for the moment"
