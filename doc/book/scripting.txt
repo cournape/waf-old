@@ -132,31 +132,42 @@ def configure(conf):
 	pass
 
 def build(bld):
-	bld(rule='echo "hi"', always=True)
-	bld(rule='echo "there"', always=True)
+	bld(rule='echo "hi"', always=True, name='a')
+	bld(rule='echo "there"', always=True, name='b')
 ---------------
 
 Now our tool 'some_tool.py', located next to the 'wscript' file, will contain the following code:
 
 [source,python]
 ---------------
+import os
 import Utils, Environment, Options, Build
 
 def set_options(opt): <1>
-    pass
+	pass
 
-def num_targets(ctx): <2>
-    """return the amount of targets"""
+def list_targets(ctx): <2>
+	"""return the amount of targets"""
 
-    bld = Build.BuildContext() <3>
-    proj = Environment.Environment(Options.lockfile) <4>
-    bld.load_dirs(proj['srcdir'], proj['blddir']) <5>
-    bld.load_envs()
-    bld.add_subdirs(ctx.curdir) <6>
+	bld = Build.BuildContext() <3>
+	proj = Environment.Environment(Options.lockfile) <4>
+	bld.load_dirs(proj['srcdir'], proj['blddir']) <5>
+	bld.load_envs()
 
-    print("So we have %r task generators" % len(bld.all_task_gen)) <7>
+	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]]) <6>
 
-Utils.g_module.__dict__['num_targets'] = num_targets <8>
+	names = set([])
+	for x in bld.all_task_gen: <7>
+		try:
+			names.add(x.name or x.target)
+		except AttributeError:
+			pass
+
+	lst = list(names)
+	lst.sort()
+	for name in lst:
+		print(name)
+Utils.g_module.__dict__['list_targets'] = list_targets <8>
 ---------------
 
 <1> The function 'set_options' is called by 'tool_options' above
@@ -183,9 +194,17 @@ there
 Waf: Leaving directory `/home/waf/tmp/nt/build'
 'build' finished successfully (0.015s)
 
-$ waf num_targets
-So we have 2 task generators
-'num_targets' finished successfully (0.003s)
+$ waf list_targets
+a
+b
+'list_targets' finished successfully (0.003s)
+
+$ waf --targets=a
+Waf: Entering directory `/home/waf/tmp/nt/build'
+[1/1] a:
+hi
+Waf: Leaving directory `/home/waf/tmp/nt/build'
+'build' finished successfully (0.012s)
 ---------------
 
 Note that during the execution of `num_targets`, the task generator definitions have been read but no task was executed.
