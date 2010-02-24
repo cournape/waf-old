@@ -81,6 +81,27 @@ def build(bld):
 <3> A program using the static library declared previously
 <4> A list of references to existing libraries declared in the project (either a python list or a string containing the names space-separated)
 
+The library does not need to actually declare a target. Header-only libraries may be created to add common include paths to several targets:
+
+[source,python]
+---------------
+def build(bld):
+	bld(
+		uselib         = '',
+		export_incdirs = '.',
+		name           = 'common_includes')
+
+	main = bld(
+		features       = 'cc cprogram',
+		source         = 'main.c',
+		target         = 'some_app',
+		uselib_local   = 'common_includes')
+---------------
+
+NOTE: Include paths are only propagated when 'export_incdirs' is provided. The include paths are relative to the path of the task generator that declared them.
+
+NOTE: The local shared libraries and the uselib variables are propagated transitively, but the static libraries are not.
+
 ==== System libraries
 
 To link an application against various 'system libraries', several compilation flags and link flags must be given at once. To reduce the maintenance, a system called 'uselib' can be used to give all the flags at the same time:

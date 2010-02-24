@@ -185,12 +185,12 @@ Here are a few important points about scanner methods:
 . they are executed in a single main thread to avoid concurrency issues
 . the results of the scanner (tuple of two lists) are re-used between build executions (and it is possible to access programatically those results)
 . the make-like rules also accept a 'scan' argument (scanner methods are bound to the task rather than the task generators)
-. they are used by Waf internally for c/c++ support, to add dependencies dynamically on the header files (.c → .h)
+. they are used by Waf internally for c/c++ support, to add dependencies dynamically on the header files ('.c' → '.h')
 
 
 === Extension callbacks
 
-In the chain declaration from the previous sections, the attribute 'reentrant' was described to control if the generated files are to be processed or not. There are cases however where one of the two generated files must be declared (because it will be used as a dependency) but where it cannot be considered as a source file in itself (like a header in c/c++). Now consider the following two chains (uh.in → uh.a1 + uh.a2) and (uh.a1 → uh.b) in the following example:
+In the chain declaration from the previous sections, the attribute 'reentrant' was described to control if the generated files are to be processed or not. There are cases however where one of the two generated files must be declared (because it will be used as a dependency) but where it cannot be considered as a source file in itself (like a header in c/c++). Now consider the following two chains ('uh.in' → 'uh.a1' + 'uh.a2') and ('uh.a1' → 'uh.b') in the following example:
 
 [source,python]
 ---------------
