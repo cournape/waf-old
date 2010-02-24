@@ -170,7 +170,7 @@ $ waf distclean
 'distclean' finished successfully (0.000s)
 ---------------
 
-=== Packaging a project
+=== Packaging the project sources
 
 The command 'dist' is another predefined utility which is used to create an archive of the project. By using the script presented previously:
 
