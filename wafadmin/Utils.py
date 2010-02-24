@@ -263,16 +263,12 @@ def load_module(file_path, name=WSCRIPT_FILE):
 
 	module.waf_hash_val = code
 
-	module_dir = os.path.dirname(file_path)
-	sys.path.insert(0, module_dir)
+	sys.path.insert(0, os.path.dirname(file_path))
 	try:
-		exec(code, module.__dict__)
-	except Exception, e:
-		try:
-			raise WscriptError(traceback.format_exc(), file_path)
-		except:
-			raise e
-	sys.path.remove(module_dir)
+		exec(compile(code, file_path, 'exec'), module.__dict__)
+	except Exception:
+		raise WscriptError(traceback.format_exc(), file_path)
+	sys.path.pop(0)
 
 	g_loaded_modules[file_path] = module
 
@@ -590,9 +586,10 @@ class Context(object):
 				nexdir = os.path.join(self.curdir, x)
 
 			base = os.path.join(nexdir, WSCRIPT_FILE)
+			file_path = base + '_' + name
 
 			try:
-				txt = readf(base + '_' + name, m='rU')
+				txt = readf(file_path, m='rU')
 			except (OSError, IOError):
 				try:
 					module = load_module(base)
@@ -617,21 +614,18 @@ class Context(object):
 			else:
 				dc = {'ctx': self}
 				if getattr(self.__class__, 'pre_recurse', None):
-					dc = self.pre_recurse(txt, base + '_' + name, nexdir)
+					dc = self.pre_recurse(txt, file_path, nexdir)
 				old = self.curdir
 				self.curdir = nexdir
 				try:
 					try:
-						exec(txt, dc)
-					except Exception, e:
-						try:
-							raise WscriptError(traceback.format_exc(), base)
-						except:
-							raise e
+						exec(compile(txt, file_path, 'exec'), dc)
+					except Exception:
+						raise WscriptError(traceback.format_exc(), base)
 				finally:
 					self.curdir = old
 				if getattr(self.__class__, 'post_recurse', None):
-					self.post_recurse(txt, base + '_' + name, nexdir)
+					self.post_recurse(txt, file_path, nexdir)
 
 if is_win32:
 	old = shutil.copy2
