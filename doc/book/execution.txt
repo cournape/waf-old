@@ -196,7 +196,7 @@ New archive created: noname-1.0.tar.bz2 (sha='c16c97a51b39c7e5bee35bb6d932a12e29
 'dist' finished successfully (0.091s)
 ---------------
 
-By default, the project name and version are set to +noname+ and +1.0+. To change them, it is necessary to provide two additional variables in the top-level project file:
+By default, the project name and version are set to 'noname' and '1.0'. To change them, it is necessary to provide two additional variables in the top-level project file:
 
 [source,python]
 ---------------
