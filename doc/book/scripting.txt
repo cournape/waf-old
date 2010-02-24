@@ -70,9 +70,9 @@ def modify(ctx):
 
 === Executing commands as part of another command
 
-In the following scenario, packaging the build files requires an installation into a temporary directory.
+In the following scenario, the build files are installed into a temporary directory for packaging. This is different from the `waf dist` command which only packages the source files needed for the project.
 
-Since the contexts parameters passed to the commands usually derive from different classes. For this reason, it is not possible a command may not call another command.
+Because the context objects usually derive from different classes, it is usually forbidden to call a command from another commands. In the following example, the commands to execute are pushed onto a stack:
 
 [source,python]
 ---------------
@@ -102,15 +102,17 @@ def create_package(ctx): <6>
 	Options.options.destdir = back <7>
 ---------------
 
-<1> perform the installation
-<2> users will call 'waf package' to create the package
-<3> postpone the actual package creation
-<4> now the next command to execute is the installation, and after the installation, the package creation will be performed
-<5> change the value of 'destdir' for installing the files into a temporary directory
-<6> command for creating the package
-<7> restore the value of 'destdir', in case if more commands are to be executed
+<1> Perform the installation
+<2> Users will call 'waf package' to create the package
+<3> Postpone the actual package creation
+<4> Now the next command to execute is the installation, and after the installation, the package creation will be performed
+<5> Change the value of 'destdir' for installing the files into a temporary directory
+<6> Command for creating the package
+<7> Restore the value of 'destdir', in case if more commands are to be executed
 
-=== Adding a new command from a tool
+Note that the 'destdir' parameter is being passed between commands by means of a global option.
+
+=== Adding a new command from a waf tool
 
 When the top-level wscript is read, it is converted into a python module and kept in memory. To add a new command dynamically,
 it is only necessary to inject the desired function into that module. We will now show how to load a waf tool to count the amount of task generators
