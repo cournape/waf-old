@@ -527,9 +527,6 @@ def exec_rule(self):
 				raise Utils.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
 			tsk.inputs.append(y)
 
-	if getattr(self, 'always', None):
-		Task.always_run(cls)
-
 	if getattr(self, 'scan', None):
 		cls.scan = self.scan
 
@@ -541,6 +538,9 @@ def exec_rule(self):
 
 	if getattr(self, 'on_results', None):
 		Task.update_outputs(cls)
+
+	if getattr(self, 'always', None):
+		Task.always_run(cls)
 
 	for x in ['after', 'before']:
 		setattr(cls, x, getattr(self, x, []))
