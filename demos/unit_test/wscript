@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Richard Quirk, 2008
 
-import UnitTest, Utils
+import unittestw, Utils
 
 top = '.'
 out = 'build'
@@ -15,7 +15,7 @@ def configure(conf):
 	conf.check_tool('compiler_cxx')
 	conf.check_tool('unittest')
 
-	# this one requires cppunit
+	# the demo files require cppunit - but the waf tool does not
 	conf.check_cfg(package='cppunit', args='--cflags --libs')
 	if 'LIB_CPPUNIT' in conf.env:
 		if 'dl' not in conf.env.LIB_CPPUNIT:
@@ -31,4 +31,4 @@ def build(bld):
 		subdirs += ' tests'
 	bld.add_subdirs(subdirs)
 
-	bld.add_post_fun(UnitTest.summary)
+	bld.add_post_fun(unittestw.summary)
