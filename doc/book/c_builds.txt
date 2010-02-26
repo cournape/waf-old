@@ -45,7 +45,7 @@ def build(bld):
 <4> Target name, it is concerted to the name of the binary 'name.so' or 'name.exe' depending on the platform and the features.
 <5> Installation directory, this is where to install the library or program produced. The '$\{}' expression is a reference to a variable to be extracted from 'tgen.env'. By default it is set to '$\{PREFIX}/bin' for programs and '$\{PREFIX}/lib' for libraries. To disable the installation, set it to 'None'.
 <6> Version number for shared libraries. It is not used for programs or static libraries.
-<7> List of include paths, it may be either a python list, or a string containing the paths separated by spaces. The paths are used for both the command-line and for finding the implicit dependencies (headers). In general, include paths must be relative to the wscript file and given explicitly.
+<7> List of include paths, it may be either a python list, or a string containing the paths separated by spaces. The paths are used for both the command-line and for finding the implicit dependencies (headers). In general, include paths must be relative to the wscript folder and given explicitly.
 <8> Command-line defines: list of defines to add to the command-line with the '-D' prefix. To reduce the size of the command-line, it is possible to use a configuration header, see the following section for more details.
 <9> Command-line compilation flags, for the c++ language the attribute is called 'cxxflags'
 <10> Shared libraries may be given directly (use 'staticlib' and 'staticlibpath' for static libraries)
@@ -227,8 +227,9 @@ The contents of the config.h for this example are
 #endif /* _CONFIG_H_WAF */
 ---------------
 
+=== Include processing
 
-=== The include system
+==== Execution path and flags
 
 Include paths are used by the c/c++ compilers for finding the headers. When one header changes, the files are recompiled automatically. For example on a project having the following structure:
 
@@ -252,22 +253,22 @@ def build(bld):
         features = 'cc cprogram',
         source   = 'main.c',
         target   = 'myapp',
-        includes = '..')
+        includes = '.. .')
 ---------------
 
-The command-lines (execute with `waf -v`) will have the following form:
+The command-line (output by `waf -v`) will have the following form:
 
 [source,shishell]
 ---------------
-cc -Idefault -I.. ../src/main.c -c -o default/src/main_1.o
+cc -Idefault -I.. -Idefault/src -I../src ../src/main.c -c -o default/src/main_1.o
 ---------------
 
-There are a few things to remember:
+There are a few points to remember:
 
 . Commands (such as calling the compiler) are executed from the build directory
 . The includes are given relative to the directory of the current script
-. The include corresponding to the source directory are transformed as seen from the build directory (\'..' -> -I..)
-. The folder corresponding to the current build variant is added to the list of includes (\'..\' -> \'-Idefault')
+. The include corresponding to the source directory are transformed as seen from the build directory (\'..' -> \'-I..' and \'.' -> \'-I../src')
+. The folder corresponding to the current build variant is added to the list of includes (\'..' -> \'-Idefault' and \'.' -> \'-Idefault/src')
 
 ==== The Waf preprocessor
 
