@@ -405,21 +405,56 @@ Waf provides the method 'check_cfg' for querying config parameters:
 ---------------
 def configure(conf):
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0') <1>
-	conf.check_cfg(package='pango', atleast_version='0.0.0') <2>
-	conf.check_cfg(package='pango', exact_version='0.21')
-	conf.check_cfg(package='pango', max_version='9.0.0')
-	conf.check_cfg(package='pango', args='--cflags --libs') <3>
-	pango_version = conf.check_cfg(modversion='pango') <4>
-	conf.check_cfg(path='sdl-config', args='--cflags --libs', package='', uselib_store='SDL') <5>
+	pango_version = conf.check_cfg(modversion='pango', mandatory=True) <2>
+
+	conf.check_cfg(package='pango') <3>
+	conf.check_cfg(package='pango', uselib_store='MYPANGO', mandatory=True) <4>
+
+	conf.check_cfg(package='pango', args='"pango >= 1.0.0" --cflags --libs', <5>
+		msg="Checking for pango 1.0.0", mandatory=True) <6>
+
+	conf.check_cfg(path='sdl-config', args='--cflags --libs',
+		package='', uselib_store='SDL') <7>
 	conf.check_cfg(path='mpicc', args='--showme:compile --showme:link',
 		package='', uselib_store='OPEN_MPI')
 ---------------
 
 <1> Check for the pkg-config version
-<2> Check for a module version
-<3> Obtain the flags for a package and assign them to the uselib PANGO (calculated automatically from the package name, can be overridden with the attribute "uselib_store='MYPANGO'")
-<4> Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute "uselib_store='MYPANGO'".
-<5> Obtain the flags for a different configuration program (sdl-config). The example is applicable for other configuration programs such as wx-config, pcre-config, etc
+<2> Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute "uselib_store='MYPANGO'".
+<3> Obtain the flags for a package and assign them to the uselib PANGO (calculated automatically from the package name)
+<4> Store the flags to the uselib variable 'MYPANGO', and raise a configuration error if the package cannot be found
+<5> Use pkg-config clauses to ensure a particular version number.
+<6> Display a custom message on the output.
+<7> Obtain the flags for a different configuration program (sdl-config). The example is applicable for other configuration programs such as wx-config, pcre-config, etc
 
 Due to the amount of flags, the lack of standards between config applications, and to the output changing for different operating systems (-I for gcc, /I for msvc), the output of pkg-config is parsed, and the variables for the corresponding uselib are set in a go. The function 'parse_flags(line, uselib, env)' in the Waf module config_c.py performs the output analysis.
+
+The outputs are written in the build directory in the file 'config.log'. Here is an example of a 'config.log' file. Note that config commands are always executed by a shell:
+
+[source,shishell]
+---------------
+# project cpp_test (0.0.1) configured on Fri Feb 26 20:51:39 2010 by
+# waf 1.5.14 (abi 7, python 20602f0 on linux2)
+# using /home/waf/bin/waf configure
+#
+Checking for pkg-config version >= 0.0.0
+pkg-config --errors-to-stdout --print-errors --atleast-pkgconfig-version=0.0.0
+
+pkg-config --errors-to-stdout --print-errors --modversion pango
+
+Checking for pango
+pkg-config --errors-to-stdout --print-errors  pango
+
+Checking for pango
+pkg-config --errors-to-stdout --print-errors  pango
+
+Checking for pango 1.0.0
+pkg-config --errors-to-stdout --print-errors "pango >= 1.0.0" --cflags --libs pango
+
+Checking for sdl-config
+sdl-config --cflags --libs
+
+Checking for mpicc
+mpicc --showme:compile --showme:link
+---------------
 
