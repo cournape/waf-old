@@ -219,12 +219,20 @@ New archive created: webe-2.0.tar.bz2 (sha='7ccc338e2ff99b46d97e5301793824e5941d
 'dist' finished successfully (0.006s)
 ---------------
 
-The default compression format is http://www.bzip.org/[bzip2]. It may be changed to http://www.gzip.org/[gzip] by using the following code:
+The default compression format is http://www.bzip.org/[bzip2]. It may be changed to http://www.gzip.org/[gzip] by using the symbol 'gz':
 
 [source,python]
 ---------------
 import Scripting
 Scripting.g_gz = 'gz'
+---------------
+
+Or 'zip' for http://en.wikipedia.org/wiki/ZIP_%28file_format%29[zip] files:
+
+[source,python]
+---------------
+import Scripting
+Scripting.g_gz = 'zip'
 ---------------
 
 === Splitting a project into several files

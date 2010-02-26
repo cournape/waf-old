@@ -228,24 +228,48 @@ The contents of the config.h for this example are
 ---------------
 
 
-
 === The include system
 
-==== The Waf preprocessor
+Include paths are used by the c/c++ compilers for finding the headers. When one header changes, the files are recompiled automatically. For example on a project having the following structure:
 
-Include paths are used by the c/c++ compilers for finding the headers. When one header changes, the files are recompiled automatically. Includes must be given in the following form:
+[source,shishell]
+---------------
+$ tree
+.
+|-- foo.h
+|-- src
+|   |-- main.c
+|   `-- wscript
+`-- wscript
+---------------
+
+The file 'src/wscript' will contain the following code:
 
 [source,python]
 ---------------
 def build(bld):
-	bld(
-		features = 'cxx cprogram',
-		source   = 'main.cpp',
-		target   = 'test',
-		includes = '. .. ../../')
+    bld(
+        features = 'cc cprogram',
+        source   = 'main.c',
+        target   = 'myapp',
+        includes = '..')
 ---------------
 
-Local folders are given relative to the folder of the current script. The equivalent build directory folder is then added automatically for headers or source files produced in the build directory.
+The command-lines (execute with `waf -v`) will have the following form:
+
+[source,shishell]
+---------------
+cc -Idefault -I.. ../src/main.c -c -o default/src/main_1.o
+---------------
+
+There are a few things to remember:
+
+. Commands (such as calling the compiler) are executed from the build directory
+. The includes are given relative to the directory of the current script
+. The include corresponding to the source directory are transformed as seen from the build directory (\'..' -> -I..)
+. The folder corresponding to the current build variant is added to the list of includes (\'..\' -> \'-Idefault')
+
+==== The Waf preprocessor
 
 Waf uses a preprocessor written in Python for adding the dependencies on the headers. A simple parser looking at #include statements would miss constructs such as:
 
@@ -262,11 +286,7 @@ Using the compiler for finding the dependencies would not work for applications 
 #include "foo.moc"
 ---------------
 
-Using the Waf preprocessor also contributes to make the scripts strongly compiler-independent.
-
-==== Portability recommandations
-
-By default, the preprocessing does not climb to system headers. This may lead to missed depdendencies in the cases similar to the following:
+Since system headers are not tracked by default, the waf preprocessor may miss dependencies written in the following form:
 
 [source,c]
 ---------------
@@ -276,7 +296,7 @@ By default, the preprocessing does not climb to system headers. This may lead to
 #endif
 ---------------
 
-To write portable code and to ease debugging, it is strongly recommended to put all the conditions used in the project into a 'config.h' file.
+To write portable code and to ease debugging, it is strongly recommended to put all the conditions used within a project into a 'config.h' file.
 
 [source,python]
 ---------------
@@ -288,7 +308,7 @@ def configure(conf):
 	conf.write_config_header('config.h')
 ---------------
 
-Although it is discouraged, it is possible to enable the preprocessor to look into system headers by using the following code:
+For performance reasons, the dependencies are not added onto system headers by default. The following code may be used to enable this behaviour:
 
 [source,python]
 ---------------
@@ -310,11 +330,17 @@ To display the dependencies obtained or missed, use the following:
 [source,shishell]
 ---------------
 $ waf --zones=deps
+
+23:53:21 deps deps for src:///comp/waf/demos/qt4/src/window.cpp: <1>
+  [src:///comp/waf/demos/qt4/src/window.h, bld:///comp/waf/demos/qt4/src/window.moc]; <2>
+  unresolved ['QtGui', 'QGLWidget', 'QWidget'] <3>
 ---------------
 
+<1> File being preprocessed
+<2> Headers found
+<3> System headers discarded
+
 The dependency computation is performed only when the files are not up-to-date, so these commands will display something only when there is a file to compile.
-
-
 
 === Configuration helpers
 
