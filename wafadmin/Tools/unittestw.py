@@ -255,7 +255,8 @@ def exec_test(self):
 			add_path(fu, lst, 'LD_LIBRARY_PATH')
 
 
-	proc = Utils.pproc.Popen(filename, cwd=self.inputs[0].parent.abspath(self.env), env=fu, stderr=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE)
+	cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath(self.env)
+	proc = Utils.pproc.Popen(filename, cwd=cwd, env=fu, stderr=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE)
 	(stdout, stderr) = proc.communicate()
 
 	tup = (filename, proc.returncode, stdout, stderr)
@@ -264,7 +265,7 @@ def exec_test(self):
 	testlock.acquire()
 	try:
 		bld = self.generator.bld
-		Logs.debug("ut: %s %r", tup[0], tup[1])
+		Logs.debug("ut: %r", tup)
 		try:
 			bld.utest_results.append(tup)
 		except AttributeError:
@@ -272,7 +273,7 @@ def exec_test(self):
 	finally:
 		testlock.release()
 
-cls = Task.task_type_from_func('utest', func=exec_test, color='RED', ext_in='.bin')
+cls = Task.task_type_from_func('utest', func=exec_test, color='PINK', ext_in='.bin')
 
 old = cls.runnable_status
 def test_status(self):
