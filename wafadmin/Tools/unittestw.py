@@ -211,6 +211,9 @@ bld.add_post_fun(UnitTest.summary)
 import threading
 testlock = threading.Lock()
 
+def set_options(opt):
+	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
+
 @feature('test')
 @after('apply_link', 'vars_target_cprogram')
 def make_test(self):
@@ -261,6 +264,7 @@ def exec_test(self):
 	testlock.acquire()
 	try:
 		bld = self.generator.bld
+		Logs.debug("ut: %s %r", tup[0], tup[1])
 		try:
 			bld.utest_results.append(tup)
 		except AttributeError:
@@ -288,6 +292,4 @@ def summary(bld):
 			Utils.pprint(col, (code and 'FAIL' or 'ok') + " " + f)
 			if code: Utils.pprint('NORMAL', "%s\n %s\n %s" % (f, out, err))
 
-def set_options(opt):
-	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
 
