@@ -40,7 +40,7 @@ int main()
 
 def check_features(self):
 
-	mp = self.check(fragment=features_str, execute=1)
+	mp = self.check(fragment=features_str, execute=True)
 	t = Utils.to_hashtable(mp)
 
 	try:
@@ -144,11 +144,11 @@ mult10:
 	# something more complicated
 	conf.check(
 		fragment='#include <stdio.h>\nint main() { printf("%d", sizeof(int)); return 0; }\n',
-		define_name='booeah',
-		execute=1,
-		define_ret=1,
-		#quote=0,
-		msg='Checking for sizeof(int)')
+		define_name ='booeah',
+		execute     = True,
+		define_ret  = True,
+		#quote      = False,
+		msg         = 'Checking for sizeof(int)')
 
 	# the demo code, from above
 	conf.check_features()
