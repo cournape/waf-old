@@ -16,19 +16,10 @@ def configure(conf):
 	conf.check_tool('unittest')
 
 	# the demo files require cppunit - but the waf tool does not
-	conf.check_cfg(package='cppunit', args='--cflags --libs')
-	if 'LIB_CPPUNIT' in conf.env:
-		if 'dl' not in conf.env.LIB_CPPUNIT:
-			l = conf.check(lib='dl', uselib_store='CPPUNIT')
-	else:
-		conf.fatal('Install cppunit')
+	conf.check_cfg(package='cppunit', args='--cflags --libs', mandatory=True)
+	if 'dl' not in conf.env.LIB_CPPUNIT:
+		l = conf.check(lib='dl', uselib_store='CPPUNIT')
 
 def build(bld):
-	# process subfolders from here
-	subdirs = 'src'
-	# if cppunit was found in the config step, build unit tests too
-	if bld.env.LIB_CPPUNIT:
-		subdirs += ' tests'
-	bld.add_subdirs(subdirs)
-
+	bld.add_subdirs('src tests')
 	bld.add_post_fun(unittestw.summary)
