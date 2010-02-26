@@ -112,7 +112,7 @@ def validate_cfg(self, kw):
 			return
 
 	if not 'msg' in kw:
-		kw['msg'] = 'Checking for %s' % kw['package']
+		kw['msg'] = 'Checking for %s' % (kw['package'] or kw['path'])
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 	if not 'errmsg' in kw:
