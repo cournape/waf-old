@@ -430,7 +430,7 @@ def configure(conf):
 
 Due to the amount of flags, the lack of standards between config applications, and to the output changing for different operating systems (-I for gcc, /I for msvc), the output of pkg-config is parsed, and the variables for the corresponding uselib are set in a go. The function 'parse_flags(line, uselib, env)' in the Waf module config_c.py performs the output analysis.
 
-The outputs are written in the build directory in the file 'config.log':
+The outputs are written in the build directory into the file 'config.log':
 
 [source,shishell]
 ---------------
@@ -474,7 +474,7 @@ LIB_PANGO = ['pango-1.0', 'gobject-2.0', 'gmodule-2.0', 'glib-2.0']
 LINKFLAGS_OPEN_MPI = ['-pthread']
 PANGO_VERSION = '1.25.3'
 PREFIX = '/usr/local'
-defines = {'HAVE_OPEN_MPI': 1, 'HAVE_PANGO': 1, \
+defines = {'HAVE_OPEN_MPI': 1, 'HAVE_PANGO': 1,
 	'PANGO_VERSION': '"1.25.3"', 'HAVE_MYPANGO': 1}
 ---------------
 
