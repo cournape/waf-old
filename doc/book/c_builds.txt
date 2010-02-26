@@ -335,7 +335,7 @@ Besides the main parameters, the attributes from c/c++ task generators may be us
 def configure(conf):
 
 	conf.check(header_name='time.h', compile_mode='cc') <1>
-	conf.check_cc(function_name='printf', header_name="stdio.h", mandatory=1) <2>
+	conf.check_cc(function_name='printf', header_name="stdio.h", mandatory=True) <2>
 	conf.check_cc(fragment='int main() {2+2==4;}\n', define_name="boobah") <3>
 	conf.check_cc(lib='m', ccflags='-Wall', defines=['var=foo', 'x=y'], uselib_store='M') <4>
 	conf.check_cxx(lib='linux', uselib='M', cxxflags='-O2') <5>
@@ -343,10 +343,10 @@ def configure(conf):
 	conf.check_cc(fragment='''
 			#include <stdio.h>
 			int main() { printf("4"); return 0; } ''',
-		define_name="booeah",
-		execute="1",
-		define_ret="1",
-		msg="Checking for something") <6>
+		define_name = "booeah",
+		execute     = True,
+		define_ret  = True,
+		msg         = "Checking for something") <6>
 
 	conf.write_config_header('config.h') <7>
 ---------------
