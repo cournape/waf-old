@@ -412,7 +412,7 @@ def configure(conf):
 	pango_version = conf.check_cfg(modversion='pango') <4>
 	conf.check_cfg(path='sdl-config', args='--cflags --libs', package='', uselib_store='SDL') <5>
 	conf.check_cfg(path='mpicc', args='--showme:compile --showme:link',
-		package='', uselib_store='OPEN_MPI') <6>
+		package='', uselib_store='OPEN_MPI')
 ---------------
 
 <1> Check for the pkg-config version
@@ -420,7 +420,6 @@ def configure(conf):
 <3> Obtain the flags for a package and assign them to the uselib PANGO (calculated automatically from the package name, can be overridden with the attribute "uselib_store='MYPANGO'")
 <4> Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute "uselib_store='MYPANGO'".
 <5> Obtain the flags for a different configuration program (sdl-config). The example is applicable for other configuration programs such as wx-config, pcre-config, etc
-<6> The method check_cfg may be used for other '-config' applications too
 
 Due to the amount of flags, the lack of standards between config applications, and to the output changing for different operating systems (-I for gcc, /I for msvc), the output of pkg-config is parsed, and the variables for the corresponding uselib are set in a go. The function 'parse_flags(line, uselib, env)' in the Waf module config_c.py performs the output analysis.
 
