@@ -6,6 +6,7 @@ bld(
 	source   = 'AccumulatorTest.cpp',
 	target   = 'unit_test_program',
 	uselib   = 'CPPUNIT',
-	uselib_local = 'unittestmain useless'
+	uselib_local = 'unittestmain useless',
+	ut_cwd   = bld.path.find_dir('.').abspath()
 )
 
