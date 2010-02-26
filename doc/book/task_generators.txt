@@ -231,6 +231,18 @@ def infinite_loop(self):
 	self.meths.append('infinite_loop')
 ---------------
 
+Likewise, methods may be removed from the list of methods to execute:
+
+[source,python]
+---------------
+from TaskGen import feature
+
+@feature('*')
+@before('apply_core')
+def remove_apply_core(self):
+	self.meths.remove('apply_core')
+---------------
+
 The task generator method workflow is represented in the following illustration:
 
 image::posting.eps["Task generator workflow",width=320]
