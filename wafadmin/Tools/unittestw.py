@@ -288,9 +288,18 @@ def summary(bld):
 	lst = getattr(bld, 'utest_results', [])
 	if lst:
 		Utils.pprint('CYAN', 'execution summary')
+
+		total = len(lst)
+		tfail = len([x for x in lst if x[1]])
+
+		Utils.pprint('CYAN', '  tests that pass %d/%d' % (total-tfail, total))
 		for (f, code, out, err) in lst:
-			col = code and 'RED' or 'GREEN'
-			Utils.pprint(col, (code and 'FAIL' or 'ok') + " " + f)
-			if code: Utils.pprint('NORMAL', "%s\n %s\n %s" % (f, out, err))
+			if not code:
+				Utils.pprint('CYAN', '    %s' % f)
+
+		Utils.pprint('CYAN', '  tests that fail %d/%d' % (tfail, total))
+		for (f, code, out, err) in lst:
+			if code:
+				Utils.pprint('CYAN', '    %s' % f)
 
 
