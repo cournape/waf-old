@@ -113,5 +113,9 @@ Add the following to asciidoc/dblatex/asciidoc-dblatex.sty
   sensitive=false,
   morecomment=[l]{\$}
 }
+
+Set the following values in asciidoc-dblatex.xsl:
+  <xsl:param name="latex.output.revhistory">0</xsl:param>
+  <xsl:param name="doc.publisher.show">0</xsl:param>
 """
 
