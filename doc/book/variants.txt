@@ -78,6 +78,14 @@ $ tree -a
 <4> The configuration 'release' is used with a different lock file and a different build directory.
 <5> The contents of the project directory contain the two lock files and the two build folders.
 
+When waf is executed, it reads the variable 'WAFLOCK' on an internal variable, which may be modified programmatically:
+
+[source,python]
+---------------
+import Options
+Options.lockfile = '.lockfilename'
+---------------
+
 === Defining variants
 
 Using different build folders is very useful for checking at some point if a different configuration would compile properly. To create different kinds of builds at once, it is possible to use 'Waf variants' to predefine the configuration sets for specific output subdirectories.
