@@ -1,9 +1,11 @@
 
 == Glossary
 
-[horizontal]
-.Waf essential terms
-Task generator:: A task generator is an object instance of the class Task.task_gen. The task generators encapsulate the creation of various task instances at a time, and simplify the creation of ordering constraints between them (for example, compilation tasks are executed before link tasks).
-Task:: A Waf task is an object instance of the class Task.TaskBase. Waf tasks may be simple (Task.TaskBase) or related to the filesystem (Task.Task). Tasks represent the production of something during the build (files in general), and may be executed in sequence (with ordering constraints) or in parallel.
-Tool:: A Waf tool is a python module containing Waf-specific extensions. The Waf tools are located in the folder `wafadmin/Tools/` and usually contain a global variable 'detect' which may reference functions to execute in the configuration.
+[glossary]
+Task generator::
+	A task generator is an object instance of the class Task.task_gen. The task generators encapsulate the creation of various task instances at a time, and simplify the creation of ordering constraints between them (for example, compilation tasks are executed before link tasks).
+Task::
+	A Waf task is an object instance of the class Task.TaskBase. Waf tasks may be simple (Task.TaskBase) or related to the filesystem (Task.Task). Tasks represent the production of something during the build (files in general), and may be executed in sequence (with ordering constraints) or in parallel.
+Tool::
+	A Waf tool is a python module containing Waf-specific extensions. The Waf tools are located in the folder `wafadmin/Tools/` and usually contain a global variable 'detect' which may reference functions to execute in the configuration.
 
