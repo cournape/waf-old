@@ -23,3 +23,10 @@ def configure(conf):
 def build(bld):
 	bld.add_subdirs('src tests')
 	bld.add_post_fun(unittestw.summary)
+
+	# unittestw.summary is a pretty ugly function for displaying a report
+	# the results are kept on a list bld.utest_results as tuples (filename, returncode, stdout, stderr)
+	# so any kind of report may be generated
+
+	# debugging zone:  waf --zones=ut
+	# setting the cwd for a unit test execution: see tests/test1/wscript_build (ut_cwd)
