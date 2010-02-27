@@ -309,20 +309,21 @@ The following example illustrates how to produce a pkg-config file from a templa
 
 [source,python]
 ---------------
+top = '.'
+out = 'build'
+
 def configure(conf):
 	conf.check_tool('misc')
 
 def build(bld):
-	obj = bld('subst')
-	obj.source = 'test.pc.in'
-	obj.target = 'test.pc'
-	obj.dict   = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
-
-	# any kind of map will work, for example
-	# obj.dict = obj.env.get_merged_dict()
+	obj = bld(
+		features = 'subst',
+		source   = 'test.pc.in',
+		target   = 'test.pc')
+	obj.dict     = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
 ---------------
 
-The variables must be declared in the template file by enclosing the names between '@ characters' (m4 syntax).
+Any kind of map will work for 'obj.dict', for example env.get_merged_dict(). The variables must be declared in the template file by enclosing the names between '@ characters' (m4 syntax):
 
 [source,shishell]
 ---------------
@@ -335,101 +336,19 @@ Cflags: -I${includedir} @CFLAGS@
 
 The default substitution function may be replaced by changing the attribute 'func' of the task generator.
 
-=== Writing the output of a program into a header
-
-The example below demonstrates how to write the output of svnversion into a header without using a make-like rule. The command is always run, and the c/c++ compilation will be executed if the header changes (implicit dependencies obtained by the Waf preprocessor):
-
-[source,python]
----------------
-def build(bld):
-	# 1. A simple program
-	main = bld(
-		features = 'cc cprogram',
-		source = 'main.c',
-		target = 'test_c_program',
-		uselib_local = 'teststaticlib',
-		svn_header = 'ver.h' <1>
-	)
-	# 2. A simple static lib
-	staticlib = bld(
-		features = 'cc cstaticlib',
-		source = 'test_staticlib.c',
-		target = 'teststaticlib'
-	)
-
-import subprocess
-from Constants import RUN_ME
-from TaskGen import feature, after
-import Task, Utils
-
-@feature('cc')
-@after('apply_core')
-def process_svn(self): <2>
-	if getattr(self, 'svn_header', None):
-		tsk = self.create_task('svn_ver')
-		tsk.set_outputs(self.path.find_or_declare(self.svn_header))
-
-def get_svn_rev(): <3>
-	try:
-		p = subprocess.Popen(['svn', 'info', '--non-interactive'], stdout=subprocess.PIPE, \
-			stderr=subprocess.STDOUT, close_fds=False, env={'LANG' : 'C'})
-		stdout = p.communicate()[0]
-
-		if p.returncode == 0:
-			lines = stdout.splitlines(True)
-			for line in lines:
-				if line.startswith('Last Changed Rev'):
-					key, value = line.split(': ', 1)
-					return value.strip()
-		return '-1'
-	except:
-		return '-1'
-
-def svnvars(self): <4>
-	self.ver = get_svn_rev()
-	fi = open(self.outputs[0].abspath(self.env), 'w')
-	fi.write('#define  VER "%d"\n' % self.ver)
-	fi.close()
-
-cls = Task.task_type_from_func('svn_ver', vars=[], func=svnvars, color='BLUE', before='cc') <5>
-
-def always(self): <6>
-	return RUN_ME
-cls.runnable_status = always
-
-def post_run(self): <7>
-	sg = Utils.h_list(self.ver)
-	node = self.outputs[0]
-	variant = node.variant(self.env)
-	self.generator.bld.node_sigs[variant][node.id] = sg
-cls.post_run = post_run
----------------
-
-<1> Example in a user script, the attribute 'svn_header' is used to indicate a header to create as a build file
-<2> Process the attribute svn_header when present, create a task instance
-<3> A function for obtaining the svn version of the project
-<4> Obtain the svn version and write it to the header
-<5> Declaration of the task which will execute the svn processing
-<6> The task must be run each time - there is no signature involved
-<7> Mark the outputs as changed if necessary by changing the signature
-
-Task creation is performed through a new task generator method (process_svn) which is executed only when the task generator creates all its tasks. This organization makes it possible to compile only the code necessary for a specific target (tasks are created lazily, and are grouped by task generators). To address the scenario described, a new task type is created, and methods are replaced dynamically: runnable_status (execute each time), and post_run (change the signature of the outputs according to the contents of the file created).
-
 === A compiler producing source files with names unknown in advance
 
 The example below demonstrates how to tackle the following requirements:
 
 . A compiler 'produces source files' (.c files) which are to be processed
-. The source file names are 'not known in advance'
-. The task must be 'run only if necessary'
-. Other tasks 'may depend on the tasks' processing the source produced (compile and link the .c files)
+. The source file names are *not known in advance*
+. The task must be *run only if necessary*
+. Other tasks *may depend on the tasks* processing the source produced (compile and link the .c files)
 
 The main difficulty in this scenario is to store the information on the source file produced and to create the corresponding tasks each time.
 
 [source,python]
 ---------------
-## A DEMO ##
-
 VERSION='0.0.1'
 APPNAME='unknown_outputs'
 top = '.'
