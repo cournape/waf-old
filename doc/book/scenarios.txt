@@ -2,6 +2,104 @@
 
 This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.
 
+=== Building the compiler first
+
+The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
+
+. Create the compiler and all its intermediate tasks
+. Re-use the compiler in a second build step
+. The compiler will transform '.src' files into '.cpp' files, which will be processed too
+
+The first thing to do is to write the expected user script:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def build(bld):
+	bld( <1>
+		features = 'cxx cprogram',
+		source   = 'comp.cpp',
+		target   = 'comp',
+		name     = 'comp')
+
+	bld.add_group() <3>
+
+	bld(
+		features = 'cxx cprogram',
+		source   = 'main.cpp a.src', <4>
+		target   = 'foo')
+---------------
+
+<1> Build the compiler first, it will result in a binary named 'comp'
+<2> Give this task generator a name to access it by reference easily
+<3> Add a new build group to make certaint the compiler is complete before processing the next tasks
+<4> Provide a file 'a.src' to be transformed by 'comp' into 'a.cpp'
+
+The code to support this scenario may be added in the wscript file or into a waf tool:
+
+[source,python]
+---------------
+import Task
+Task.simple_task_type('src2cpp',
+	'${COMP} ${SRC} ${TGT}', <1>
+	color='PINK', before='cxx') <2>
+
+from TaskGen import extension
+@extension('.src')
+def process_src(self, node): <3>
+	tg = self.bld.name_to_obj('comp', self.env) <4>
+	tg.post() <5>
+
+	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <6>
+
+	name = tg.link_task.outputs[0].abspath(tg.env) <7>
+	tsk.env.COMP = name
+---------------
+
+<1> Declare a new task class for processing the source file by our compiler
+<2> The tasks of this class must be executed before c++ tasks
+<3> Files of extension '.src' are to be processed by this method
+<4> Obtain a reference on the task generator producing the compiler
+<5> Ensure that the compiler tasks are created, else calling `waf --targets=foo` would produce an error
+<6> Create the task 'a.src' -> 'a.cpp'
+<7> Get the node corresponding to the program 'comp' and obtain its absolute path
+<8> Bind the path to 'comp' for use in the rule
+
+The compilation results will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build -v
+'distclean' finished successfully (0.004s)
+Checking for program g++,c++             : ok /usr/bin/g++
+Checking for program cpp                 : ok /usr/bin/cpp
+Checking for program ar                  : ok /usr/bin/ar
+Checking for program ranlib              : ok /usr/bin/ranlib
+'configure' finished successfully (0.034s)
+Waf: Entering directory `/tmp/comp/build'
+[1/5] cxx: comp.cpp -> build/default/comp_1.o
+16:22:50 runner system command -> ['/usr/bin/g++', '../comp.cpp', '-c', '-o', 'default/comp_1.o']
+[2/5] cxx_link: build/default/comp_1.o -> build/default/comp <1>
+16:22:50 runner system command -> ['/usr/bin/g++', 'default/comp_1.o', '-o', '/tmp/comp/build/default/comp']
+[3/5] src2cpp: a.src -> build/default/a.cpp
+16:22:50 runner system command ->  /tmp/comp/build/default/comp ../a.src default/a.cpp <2>
+[4/5] cxx: main.cpp -> build/default/main_2.o
+16:22:50 runner system command -> ['/usr/bin/g++', '../main.cpp', '-c', '-o', 'default/main_2.o']
+[5/5] cxx_link: build/default/main_2.o -> build/default/foo
+16:22:50 runner system command -> ['/usr/bin/g++', 'default/main_2.o', '-o', '/tmp/comp/build/default/foo'] <3>
+Waf: Leaving directory `/tmp/comp/build'
+'build' finished successfully (0.194s)
+---------------
+
+<1> Creation of the 'comp' program
+<2> Use the compiler to generate 'a.cpp'
+<3> Compile and link 'a.cpp' and 'main.cpp' into the program 'foo'
+
 === Mixing extensions and c/c++ features
 
 ==== Files processed by a single task generator
@@ -80,18 +178,18 @@ srcdir = '.'
 blddir = 'out'
 
 def configure(ctx):
-    ctx.check_tool('g++')
+	ctx.check_tool('g++')
 
 def build(bld):
-    bld( <1>
-        source     = 'notify.idl',
-        name       = 'idl_gen')
+	bld( <1>
+		source     = 'notify.idl',
+		name       = 'idl_gen')
 
-    bld( <2>
-        features   = 'cxx cprogram',
-        source     = 'main.cpp',
-        target     = 'testprog',
-        add_source = 'idl_gen') <3>
+	bld( <2>
+		features   = 'cxx cprogram',
+		source     = 'main.cpp',
+		target     = 'testprog',
+		add_source = 'idl_gen') <3>
 ---------------
 
 <1> Process an idl file in a first task generator. Name this task generator 'idl_gen'
@@ -108,22 +206,22 @@ Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', before='cxx') <1>
 
 @extension('.idl')
 def compile_idl(self, node): <2>
-    c_node = node.change_ext('.cpp')
-    self.create_task('idl', node, c_node)
-    self.more_source = [c_node] <3>
+	c_node = node.change_ext('.cpp')
+	self.create_task('idl', node, c_node)
+	self.more_source = [c_node] <3>
 
 @feature('*')
 @before('apply_core')
 def process_add_source(self): <4>
-    if not getattr(self, 'add_source', None):
-        return
+	if not getattr(self, 'add_source', None):
+		return
 
-    for x in self.to_list(self.add_source): <5>
-        y = self.bld.name_to_obj(x, self.env) <6>
-        y.post() <7>
+	for x in self.to_list(self.add_source): <5>
+		y = self.bld.name_to_obj(x, self.env) <6>
+		y.post() <7>
 
-        if getattr(y, 'more_source', None):
-            self.allnodes.extend(y.more_source) <8>
+		if getattr(y, 'more_source', None):
+			self.allnodes.extend(y.more_source) <8>
 ---------------
 
 <1> The idl processing must be performed before any c++ task is executed
@@ -234,50 +332,6 @@ Cflags: -I${includedir} @CFLAGS@
 ---------------
 
 The default substitution function may be replaced by changing the attribute 'func' of the task generator.
-
-=== Building the compiler first
-
-The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
-
-. Compile the compiler with all its intermediate tasks
-. Re-use the compiler in a second build step
-
-This scenario demonstrates the 'bld.add_group' to segment the build into strictly sequential parts:
-
-[source,python]
----------------
-def build(bld):
-	env = bld.env_of_name('default')
-
-	import Task, ocaml
-	ocaml.open_re = re.compile('open ([a-zA-Z]+)', re.M)
-
-	Task.simple_task_type('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT} 2> /dev/null', color='RED')
-	Task.task_type_from_func('py2rcc', vars=[], func=compile_py, color='BLUE')
-
-	bld(
-		features='ocaml native', <1>
-		include = 'util',
-		source = bld.path.ant_glob('util/*.ml'),
-		target = 'util/ocaml+twt',
-		are_deps_set = True,
-		uselib='PP')
-
-	bld.add_group() <2>
-
-	bld(
-		features = 'ocaml c_object', <3>
-		source = 'src/armtlkto.c ' + bld.path.ant_glob('src/*.ml'),
-		includes = '. src',
-		target = 'camlprog',
-		are_deps_set = True,
-		uselib = 'TWT',
-		add_objects = [])
----------------
-
-<1> Create the compiler.
-<2> Create a new group
-<3> The rest of the build follows
 
 === Writing the output of a program into a header
 
