@@ -25,7 +25,7 @@ def build(bld):
 		features = 'cxx cprogram',
 		source   = 'comp.cpp',
 		target   = 'comp',
-		name     = 'comp')
+		name     = 'comp') <2>
 
 	bld.add_group() <3>
 
@@ -58,7 +58,7 @@ def process_src(self, node): <3>
 	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <6>
 
 	name = tg.link_task.outputs[0].abspath(tg.env) <7>
-	tsk.env.COMP = name
+	tsk.env.COMP = name <8>
 ---------------
 
 <1> Declare a new task class for processing the source file by our compiler
