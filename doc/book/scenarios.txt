@@ -100,6 +100,8 @@ Waf: Leaving directory `/tmp/comp/build'
 <2> Use the compiler to generate 'a.cpp'
 <3> Compile and link 'a.cpp' and 'main.cpp' into the program 'foo'
 
+NOTE: In the example above, the task generator 'foo' depends on the tasks created by the task generator 'tg' (get the path to the binary). Calling 'tg.post()' used to force 'tg' to create its tasks, and is only called during the processing of 'foo'. Doing it from the top-level would break the behaviour of `waf --targets=xyz`
+
 === Mixing extensions and c/c++ features
 
 ==== Files processed by a single task generator
