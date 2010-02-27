@@ -67,19 +67,26 @@ TaskGen.declare_chain(
 )
 
 def build(bld):
-	for k in ['pics', 'callouts']:
+	for k in ['pics']:
 		files = os.listdir(k)
 		for x in files:
 			if x == '.svn':
 				continue
 			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
 
+	for k in ['callouts']:
+		files = os.listdir(k)
+		for x in files:
+			if x == '.svn':
+				continue
+			bld.new_task_gen(name='copy', rule='cp ${SRC} ${SRC[0].parent.abspath(env)}/${SRC[0].name}', source=k+'/'+x)
+
 
 	bld(source=bld.path.ant_glob('*.txt', src=True, bld=False, dir=False))
 	bld(name='copysym', rule='cp ${SRC} ${TGT}', source='symbols.lang.in', target='symbols.lang', before='')
 
-	if 0 == 1:
-		bld(rule='${ADOC} -a icons -a toc -n -d book -o ${TGT} -v ${SRC}',
+	if 1 == 1:
+		bld(rule='${ADOC} -a icons=true -a iconsdir=. -a toc -n -d book -o ${TGT} -v ${SRC}',
 			source='waf_ug.txt', target='single.html', after='copy copysym repl', name='single', scan=ascii_doc_scan)
 
 	if 1 == 1:
