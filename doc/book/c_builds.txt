@@ -52,182 +52,6 @@ def build(bld):
 
 Additional pararameters may be added from a task generator reference. The next section describes a technique to gather the conditions into the configuration section.
 
-
-=== Library interaction (uselib)
-
-==== Local libraries
-
-To link a library against another one created in the same Waf project, the attribute 'uselib_local' may be used. The include paths, the link path and the library name are automatically exported, and the dependent binary is recompiled when the library changes:
-
-[source,python]
----------------
-def build(bld):
-	staticlib = bld(
-		features       = 'cc cstaticlib', <1>
-		source         = 'test_staticlib.c',
-		target         = 'teststaticlib',
-		export_incdirs = '.') <2>
-
-	main = bld(
-		features       = 'cc cprogram', <3>
-		source         = 'main.c',
-		target         = 'test_c_program',
-		includes       = '.',
-		uselib_local   = 'teststaticlib') <4>
----------------
-
-<1> A static library
-<2> Include paths to export for use with uselib_local (include paths are not added automatically). These folders are taken relatively to the current target.
-<3> A program using the static library declared previously
-<4> A list of references to existing libraries declared in the project (either a python list or a string containing the names space-separated)
-
-The library does not need to actually declare a target. Header-only libraries may be created to add common include paths to several targets:
-
-[source,python]
----------------
-def build(bld):
-	bld(
-		uselib         = '',
-		export_incdirs = '.',
-		name           = 'common_includes')
-
-	main = bld(
-		features       = 'cc cprogram',
-		source         = 'main.c',
-		target         = 'some_app',
-		uselib_local   = 'common_includes')
----------------
-
-NOTE: Include paths are only propagated when 'export_incdirs' is provided. The include paths are relative to the path of the task generator that declared them.
-
-NOTE: The local shared libraries and the uselib variables are propagated transitively, but the static libraries are not.
-
-==== System libraries
-
-To link an application against various 'system libraries', several compilation flags and link flags must be given at once. To reduce the maintenance, a system called 'uselib' can be used to give all the flags at the same time:
-
-[source,python]
----------------
-def configure(conf):
-	conf.env.CPPPATH_TEST = ['/usr/include'] <1>
-
-	if sys.platform != win32: <2>
-		conf.env.CCDEFINES_TEST = ['TEST']
-		conf.env.CCFLAGS_TEST   = ['-O0'] <3>
-		conf.env.LIB_TEST       = 'test'
-		conf.env.LIBPATH_TEST   = ['/usr/lib'] <4>
-		conf.env.LINKFLAGS_TEST = ['-g']
-		conf.env.CPPPATH_TEST   = ['/opt/gnome/include']
-
-def build(bld):
-	mylib = bld(
-		features = 'cc cstaticlib',
-		source   = 'test_staticlib.c',
-		target   = 'teststaticlib',
-		uselib   = 'TEST') <5>
-
-	if mylib.env.CC_NAME == 'gcc':
-		mylib.cxxflags = ['-O2'] <6>
----------------
-
-<1> For portability reasons, it is recommended to use CPPPATH instead of giving flags of the form -I/include. Note that the CPPPATH use used by both c and c++
-<2> Variables may be left undefined in platform-specific settings, yet the build scripts will remain identical.
-<3> Declare a few variables during the configuration, the variables follow the convention VAR_NAME
-<4> Values should be declared as lists excepts for LIB and STATICLIB
-<5> Add all the VAR_NAME corresponding to the uselib NAME, which is 'TEST' in this example
-<6> 'Model to avoid': setting the flags and checking for the configuration must be performed in the configuration section
-
-The variables used for c/c++ are the following:
-
-.Uselib variables and task generator attributes for c/c++
-[options="header"]
-|=================
-|Uselib variable | Attribute | Usage
-|LIB      |lib      | list of sharedlibrary names to use, without prefix or extension
-|STATICLIB|staticlib| list of static library names to use, without prefix or extension
-|LIBPATH  |libpath  | list of search path for shared and static libraries
-|RPATH    |rpath    | list of paths to hard-code into the binary during linking time
-|CXXFLAGS |cxxflags | flags to use during the compilation of c++ files
-|CCFLAGS  |ccflags  | flags to use during the compilation of c files
-|CPPPATH  |includes | include paths
-|CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
-|CCDEPS   |         | same as above, for c
-|FRAMEWORK|framework| list of frameworks to use, requires the waf tool 'osx'
-|FRAMEWORKPATH|frameworkpath| list of framework paths to use, requires the waf tool 'osx'
-|=================
-
-
-The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
-
-=== Specific settings by object files
-
-In some cases, it is necessary to re-use object files generated by another task generator to avoid recompilations. This is similar to copy-pasting code, so it is discouraged in general. Another use for this is to enable some compilation flags for specific files. The attribute "add_objects" can be used, like in the following example:
-
-[source,python]
----------------
-def build(bld):
-	some_objects = bld(
-		features       = 'cc', <1>
-		source         = 'test.c',
-		ccflags        = '-O3',
-		target         = 'my_objs')
-
-	main = bld(
-		features       = 'cc cprogram',
-		source         = 'main.c',
-		ccflags        = '-O2', <2>
-		target         = 'test_c_program',
-		add_objects    = 'my_objs') <3>
----------------
-
-<1> Files will be compiled in c mode, but no program or library will be produced
-<2> Different compilation flags may be used
-<3> The objects will be added automatically in the link stage
-
-=== Using configuration headers
-
-Adding lots of command-line define values increases the size of the command-line and conceals the useful information (differences). Some projects use headers which are generated during the configuration, they are not modified during the build and they are not installed or redistributed. This system is useful for huge projects, and has been made popular by autoconf-based projects.
-
-Writing configuration headers can be performed using the following methods:
-
-[source,python]
----------------
-def configure(conf):
-	conf.define('NOLIBF', 1)
-	conf.undefine('NOLIBF')
-	conf.define('LIBF', 1)
-	conf.define('LIBF_VERSION', '1.0.2')
-	conf.write_config_header('config.h')
----------------
-
-The code snipped will produce the following 'config.h' in the build directory:
-
-[source,shishell]
----------------
-build/
-|-- c4che
-|   |-- build.config.py
-|   `-- default.cache.py
-|-- config.log
-`-- default
-    `-- config.h
----------------
-
-The contents of the config.h for this example are
-
-[source,c]
----------------
-/* Configuration header created by Waf - do not edit */
-#ifndef _CONFIG_H_WAF
-#define _CONFIG_H_WAF
-
-/* #undef NOLIBF */
-#define LIBF 1
-#define LIBF_VERSION "1.0.2"
-
-#endif /* _CONFIG_H_WAF */
----------------
-
 === Include processing
 
 ==== Execution path and flags
@@ -352,7 +176,141 @@ $ waf --zones=deps
 
 The dependency computation is performed only when the files are not up-to-date, so these commands will display something only when there is a file to compile.
 
+
+=== Library interaction (uselib)
+
+==== Local libraries
+
+To link a library against another one created in the same Waf project, the attribute 'uselib_local' may be used. The include paths, the link path and the library name are automatically exported, and the dependent binary is recompiled when the library changes:
+
+[source,python]
+---------------
+def build(bld):
+	staticlib = bld(
+		features       = 'cc cstaticlib', <1>
+		source         = 'test_staticlib.c',
+		target         = 'teststaticlib',
+		export_incdirs = '.') <2>
+
+	main = bld(
+		features       = 'cc cprogram', <3>
+		source         = 'main.c',
+		target         = 'test_c_program',
+		includes       = '.',
+		uselib_local   = 'teststaticlib') <4>
+---------------
+
+<1> A static library
+<2> Include paths to export for use with uselib_local (include paths are not added automatically). These folders are taken relatively to the current target.
+<3> A program using the static library declared previously
+<4> A list of references to existing libraries declared in the project (either a python list or a string containing the names space-separated)
+
+The library does not need to actually declare a target. Header-only libraries may be created to add common include paths to several targets:
+
+[source,python]
+---------------
+def build(bld):
+	bld(
+		uselib         = '',
+		export_incdirs = '.',
+		name           = 'common_includes')
+
+	main = bld(
+		features       = 'cc cprogram',
+		source         = 'main.c',
+		target         = 'some_app',
+		uselib_local   = 'common_includes')
+---------------
+
+NOTE: Include paths are only propagated when 'export_incdirs' is provided. The include paths are relative to the path of the task generator that declared them.
+
+NOTE: The local shared libraries and the uselib variables are propagated transitively, but the static libraries are not.
+
+==== System libraries
+
+To link an application against various 'system libraries', several compilation flags and link flags must be given at once. To reduce the maintenance, a system called 'uselib' can be used to give all the flags at the same time:
+
+[source,python]
+---------------
+def configure(conf):
+	conf.env.CPPPATH_TEST = ['/usr/include'] <1>
+
+	if sys.platform != win32: <2>
+		conf.env.CCDEFINES_TEST = ['TEST']
+		conf.env.CCFLAGS_TEST   = ['-O0'] <3>
+		conf.env.LIB_TEST       = 'test'
+		conf.env.LIBPATH_TEST   = ['/usr/lib'] <4>
+		conf.env.LINKFLAGS_TEST = ['-g']
+		conf.env.CPPPATH_TEST   = ['/opt/gnome/include']
+
+def build(bld):
+	mylib = bld(
+		features = 'cc cstaticlib',
+		source   = 'test_staticlib.c',
+		target   = 'teststaticlib',
+		uselib   = 'TEST') <5>
+
+	if mylib.env.CC_NAME == 'gcc':
+		mylib.cxxflags = ['-O2'] <6>
+---------------
+
+<1> For portability reasons, it is recommended to use CPPPATH instead of giving flags of the form -I/include. Note that the CPPPATH use used by both c and c++
+<2> Variables may be left undefined in platform-specific settings, yet the build scripts will remain identical.
+<3> Declare a few variables during the configuration, the variables follow the convention VAR_NAME
+<4> Values should be declared as lists excepts for LIB and STATICLIB
+<5> Add all the VAR_NAME corresponding to the uselib NAME, which is 'TEST' in this example
+<6> 'Model to avoid': setting the flags and checking for the configuration must be performed in the configuration section
+
+The variables used for c/c++ are the following:
+
+.Uselib variables and task generator attributes for c/c++
+[options="header"]
+|=================
+|Uselib variable | Attribute | Usage
+|LIB      |lib      | list of sharedlibrary names to use, without prefix or extension
+|STATICLIB|staticlib| list of static library names to use, without prefix or extension
+|LIBPATH  |libpath  | list of search path for shared and static libraries
+|RPATH    |rpath    | list of paths to hard-code into the binary during linking time
+|CXXFLAGS |cxxflags | flags to use during the compilation of c++ files
+|CCFLAGS  |ccflags  | flags to use during the compilation of c files
+|CPPPATH  |includes | include paths
+|CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
+|CCDEPS   |         | same as above, for c
+|FRAMEWORK|framework| list of frameworks to use, requires the waf tool 'osx'
+|FRAMEWORKPATH|frameworkpath| list of framework paths to use, requires the waf tool 'osx'
+|=================
+
+
+The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
+
+==== Specific settings by object files
+
+In some cases, it is necessary to re-use object files generated by another task generator to avoid recompilations. This is similar to copy-pasting code, so it is discouraged in general. Another use for this is to enable some compilation flags for specific files. Although it is not exactly part of the library prossing, the attribute "add_objects" can be used for this purpose:
+
+[source,python]
+---------------
+def build(bld):
+	some_objects = bld(
+		features       = 'cc', <1>
+		source         = 'test.c',
+		ccflags        = '-O3',
+		target         = 'my_objs')
+
+	main = bld(
+		features       = 'cc cprogram',
+		source         = 'main.c',
+		ccflags        = '-O2', <2>
+		target         = 'test_c_program',
+		add_objects    = 'my_objs') <3>
+---------------
+
+<1> Files will be compiled in c mode, but no program or library will be produced
+<2> Different compilation flags may be used
+<3> The objects will be added automatically in the link stage
+
 === Configuration helpers
+
+==== Configuration tests
 
 The method 'check' is used to detect parameters using a small build project. The main parameters are the following
 
@@ -432,7 +390,52 @@ NOTE: The methods 'conf.check' all use task generators internally. This means th
 
 NOTE: The attribute 'compile_mode' may also contain user-defined task generator features.
 
-=== Pkg-config
+==== Creating configuration headers
+
+Adding lots of command-line define values increases the size of the command-line and conceals the useful information (differences). Some projects use headers which are generated during the configuration, they are not modified during the build and they are not installed or redistributed. This system is useful for huge projects, and has been made popular by autoconf-based projects.
+
+Writing configuration headers can be performed using the following methods:
+
+[source,python]
+---------------
+def configure(conf):
+	conf.define('NOLIBF', 1)
+	conf.undefine('NOLIBF')
+	conf.define('LIBF', 1)
+	conf.define('LIBF_VERSION', '1.0.2')
+	conf.write_config_header('config.h')
+---------------
+
+The code snipped will produce the following 'config.h' in the build directory:
+
+[source,shishell]
+---------------
+build/
+|-- c4che
+|   |-- build.config.py
+|   `-- default.cache.py
+|-- config.log
+`-- default
+    `-- config.h
+---------------
+
+The contents of the config.h for this example are
+
+[source,c]
+---------------
+/* Configuration header created by Waf - do not edit */
+#ifndef _CONFIG_H_WAF
+#define _CONFIG_H_WAF
+
+/* #undef NOLIBF */
+#define LIBF 1
+#define LIBF_VERSION "1.0.2"
+
+#endif /* _CONFIG_H_WAF */
+---------------
+
+
+==== Pkg-config
 
 Instead of duplicating the configuration detection in all dependent projects, configuration files may be written when libraries are installed. To ease the interaction with build systems based on Make (cannot query databases or apis), small applications have been created for reading the cache files and to interpret the parameters (with names traditionally ending in '-config'): http://pkg-config.freedesktop.org/wiki/[pkg-config], wx-config, sdl-config, etc.
 
