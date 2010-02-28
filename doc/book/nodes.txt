@@ -88,13 +88,14 @@ def build(ctx):
 		bld.init_variants() <4>
 
 		bld( <5>
-			rule='echo hi from the nested context!',
-			always=True)
+			rule   = 'echo hi from the nested context!',
+			always = True)
+
 		bld.compile() <6>
 
 	ctx( <7>
-		rule='echo hi from the main buildcontext',
-		always=True)
+		rule   = 'echo hi from the main buildcontext',
+		always = True)
 
 	do_it()
 ---------------
@@ -189,8 +190,12 @@ NOTE: Tasks created by task generators are somehow private objects. They should 
 
 === Obtaining nodes
 
-find_dir
-find_or_declare
-find_resource
+For obtaining modes, three main methods are commonly used:
+
+. find_dir: return a directory node or None if the folder cannot be found on the system. By calling this method, the corresponding folders in the build directory will be created for each variant.
+. find_resource: return a source node, or a build node if a build node with the given name exist, or None if no such node exists.
+. find_or_declare: Return a build node. If no corresponding build node exist, it will be created first.
+
+
 
 

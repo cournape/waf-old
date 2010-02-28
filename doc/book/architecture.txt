@@ -52,19 +52,6 @@ The build context holds all the information necessary for a build. To accelerate
 |id_nodes| Sequence for generating unique node instance ids (id of the last Node created)
 |=================
 
-==== Build context access
-
-In previous Waf releases, the build context was supposed to be a unique object (one build active at a time). To enable the use of Waf as a library, the dependency on the singleton 'Build.bld' was removed. This implies that each object should be able to obtain its build context from its attributes. Here are a few examples:
-
-.Build context access
-[options="header"]
-|=================
-|Object type| Build context access
-|Node| self.__class__.bld
-|task_gen| self.bld
-|Task| self.generator.bld
-|=================
-
 ==== Parallelization concerns
 
 Build contexts perform an 'os.chdir' call before starting to execute the tasks. When running build contexts within build contexts (tasks), the current working directory may cause various problems. To work around them, it may be necessary to change the compilation rules (compile from the file system root) and to inject code (replace bld.compile).
