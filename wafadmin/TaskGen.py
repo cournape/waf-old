@@ -542,7 +542,7 @@ def exec_rule(self):
 	if getattr(self, 'always', None):
 		Task.always_run(cls)
 
-	for x in ['after', 'before']:
+	for x in ['after', 'before', 'ext_in', 'ext_out']:
 		setattr(cls, x, getattr(self, x, []))
 feature('*')(exec_rule)
 before('apply_core')(exec_rule)
