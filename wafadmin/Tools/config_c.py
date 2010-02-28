@@ -126,22 +126,28 @@ def validate_cfg(self, kw):
 @conf
 def cmd_and_log(self, cmd, kw):
 	Logs.debug('runner: %s\n' % cmd)
-	if self.log: self.log.write('%s\n' % cmd)
+	if self.log:
+		self.log.write('%s\n' % cmd)
 
 	try:
-		p = Utils.pproc.Popen(cmd, stdout=Utils.pproc.PIPE, shell=True)
-		output = p.communicate()[0]
-	except OSError:
-		self.fatal('fail')
+		p = Utils.pproc.Popen(cmd, stdout=Utils.pproc.PIPE, stderr=Utils.pproc.PIPE, shell=True)
+		(out, err) = p.communicate()
+	except OSError, e:
+		self.log.write('error %r' % e)
+		self.fatal(str(e))
+	else:
+		if self.log:
+			self.log.write(out)
+			self.log.write(err)
 
 	if p.returncode:
 		if not kw.get('errmsg', ''):
 			if kw.get('mandatory', False):
-				kw['errmsg'] = output.strip()
+				kw['errmsg'] = out.strip()
 			else:
 				kw['errmsg'] = 'fail'
 		self.fatal('fail')
-	return output
+	return out
 
 @conf
 def exec_cfg(self, kw):
