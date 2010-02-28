@@ -188,14 +188,64 @@ Waf: Leaving directory `/tmp/nested/build'
 
 NOTE: Tasks created by task generators are somehow private objects. They should not be manipulated directly in the 'build' function, but rather by task generator methods.
 
-=== Obtaining nodes
+=== Using nodes
 
-For obtaining modes, three main methods are commonly used:
+==== Obtaining nodes
+
+Three main Node methods are commonly used for accessing the file system:
 
 . find_dir: return a directory node or None if the folder cannot be found on the system. By calling this method, the corresponding folders in the build directory will be created for each variant.
-. find_resource: return a source node, or a build node if a build node with the given name exist, or None if no such node exists.
-. find_or_declare: Return a build node. If no corresponding build node exist, it will be created first.
+. find_resource: return a source node, or a build node if a build node with the given name exist, or None if no such node exists. This method may call 'find_dir' internally.
+. find_or_declare: Return a build node. If no corresponding build node exist, it will be created first. This method may call 'find_dir' internally.
 
+These methods interact with the filesystem, and may create other nodes such as intermediate folders. It is important to avoid their usage in a context of concurrency (threading). In general, this means avoiding node manipulations in the methods that execute the tasks.
 
+==== Obtaining the absolute path
+
+The method 'abspath' is used to obtain the absolute path for a node. In the following example, three nodes are used:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	pass
+
+def build(ctx):
+	dir = ctx.path <1>
+	src = ctx.path.find_resource('wscript')
+	bld = ctx.path.find_or_declare('out.out')
+
+	print(src.abspath(ctx.env)) <2>
+	print(bld.abspath(ctx.env))
+	print(dir.abspath(ctx.env)) <3>
+	print(dir.abspath())
+---------------
+
+<1> Directory node, source node and build node
+<2> Computing the absolute path for source node or a build node takes a configuration set as parameter
+<3> Computing the absolute path for a directory may use a configuration set or not
+
+Here is the execution trace:
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.005s)
+Waf: Entering directory `/tmp/nested/build'
+/tmp/nested/wscript <1>
+/tmp/nested/build/default/out.out <2>
+/tmp/nested/build/default/
+/tmp/nested
+Waf: Leaving directory `/tmp/nested/build'
+'build' finished successfully (0.003s)
+---------------
+
+<1> Absolute path for the source node
+<2> The absolute path for the build node depends on the variant in use
+<3> When a configuration set is provided, the absolute path for a directory node is the build directory representation including the variant
+<4> When no configuration set is provided, the directory node absolute path is the one for the source directory
 
 
