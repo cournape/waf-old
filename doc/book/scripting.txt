@@ -1,4 +1,4 @@
-== Advanced command definition
+== Advanced command definitions
 
 === Providing a custom command context
 
