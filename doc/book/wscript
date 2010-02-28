@@ -83,7 +83,7 @@ def build(bld):
 
 
 	bld(source=bld.path.ant_glob('*.txt', src=True, bld=False, dir=False))
-	bld(name='copysym', rule='cp ${SRC} ${TGT}', source='symbols.lang.in', target='symbols.lang', before='')
+	bld(name='copysym', rule='cp ${SRC} symbols.lang', source='symbols.lang.in', before='single')
 
 	if 1 == 1:
 		bld(rule='${ADOC} -a icons=true -a iconsdir=. -a toc -n -d book -o ${TGT} -v ${SRC}',
