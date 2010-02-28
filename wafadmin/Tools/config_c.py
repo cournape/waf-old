@@ -100,6 +100,11 @@ def validate_cfg(self, kw):
 	if 'modversion' in kw:
 		return
 
+	if 'variables' in kw:
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for %s variables' % kw['package']
+		return
+
 	# checking for the version of a module, for the moment, one thing at a time
 	for x in cfg_ver.keys():
 		y = x.replace('-', '_')
@@ -165,6 +170,18 @@ def exec_cfg(self, kw):
 		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['modversion'])), version)
 		return version
 
+	# retrieving variables of a module
+	if 'variables' in kw:
+		env = kw.get('env', self.env)
+		uselib = kw.get('uselib_store', kw['package'].upper())
+		vars = Utils.to_list(kw['variables'])
+		for v in vars:
+			val = self.cmd_and_log('%s --variable=%s %s' % (kw['path'], v, kw['package']), kw).strip()
+			env.append_unique('%s_%s' % (uselib, v), val)
+		if not 'okmsg' in kw:
+			kw['okmsg'] = 'ok'
+		return
+
 	lst = [kw['path']]
 	for key, val in kw.get('define_variable', {}).iteritems():
 		lst.append('--define-variable=%s=%s' % (key, val))
@@ -186,7 +203,8 @@ def exec_cfg(self, kw):
 def check_cfg(self, *k, **kw):
 	"""
 	for pkg-config mostly, but also all the -config tools
-	conf.check_cfg( path='mpicc', args='--showme:compile --showme:link', package='', uselib_store='OPEN_MPI' )
+	conf.check_cfg(path='mpicc', args='--showme:compile --showme:link', package='', uselib_store='OPEN_MPI')
+	conf.check_cfg(package='dbus-1', variables='system_bus_default_address session_bus_services_dir')
 	"""
 
 	self.validate_cfg(kw)
