@@ -1,10 +1,10 @@
 == Build context and nodes
 
-The following chapter serves as a quick description of the node system as used in waf 1.5.
+Node objects are only visible through a few object (bld.path), and are used internally by task objects. Although the usage is somewhat restricted, there are a few useful applications from user scripts.
 
 === Node types
 
-The nodes are use for representing the filesystem. There are only 3 node types:
+Although nodes are use for representing the filesystem, there are only 3 node types:
 
 . Source nodes represent source files present on the file system. The signature for a source node is the hash of the file contents.
 . Build nodes represent files created under the build directory. While build nodes are not bound to the build variant, the build nodes may have several signatures corresponding to the variants in which the files have been created (the signature is the signature of the task that created the file).
@@ -32,7 +32,7 @@ $ tree
 `-- wscript
 ---------------
 
-Yet, there are only three nodes associated with the project:
+And the filesystem representation will consist in only three nodes:
 
 [source,shishell]
 ---------------
@@ -199,6 +199,18 @@ Three main Node methods are commonly used for accessing the file system:
 . find_or_declare: Return a build node. If no corresponding build node exist, it will be created first. This method may call 'find_dir' internally.
 
 These methods interact with the filesystem, and may create other nodes such as intermediate folders. It is important to avoid their usage in a context of concurrency (threading). In general, this means avoiding node manipulations in the methods that execute the tasks.
+
+Although nodes have an attribute named 'parent', it is usually better to access the hierarchy by calling 'find_dir' with a relative path. For example:
+
+[source,python]
+---------------
+def build(bld):
+	p = bld.path.parent.find_dir('src') <1>
+	p = bld.path.find_dir('../src') <2>
+---------------
+
+<1> Bad, do not use.
+<2> Recommended. Separators such as '/' are converted automatically and does not need to be the os separator.
 
 ==== Obtaining the absolute path
 
