@@ -1,7 +1,7 @@
 
 == The scheduler for executing the tasks
 
-Tasks are executed in parallel during the build phase, with a few restrictions.
+Tasks are executed in parallel during the build phase, yet with a few restrictions.
 
 === The task execution model
 
