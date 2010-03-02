@@ -30,8 +30,8 @@ ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 
 """
 
-import os, sys, fnmatch, re
-import Utils
+import os, sys, fnmatch, re, stat
+import Utils, Constants
 
 UNDEFINED = 0
 DIR = 1
@@ -655,6 +655,36 @@ class Node(object):
 			return " ".join([x.relpath_gen(self) for x in ret])
 
 		return ret
+
+	def update_build_dir(self, env=None):
+
+		if not env:
+			for env in bld.all_envs:
+				self.update_build_dir(env)
+			return
+
+		path = self.abspath(env)
+
+		lst = Utils.listdir(path)
+		try:
+			self.__class__.bld.cache_dir_contents[self.id].update(lst)
+		except KeyError:
+			self.__class__.bld.cache_dir_contents[self.id] = set(lst)
+		self.__class__.bld.cache_scanned_folders[self.id] = True
+
+		for k in lst:
+			npath = path + os.sep + k
+			st = os.stat(npath)
+			if stat.S_ISREG(st[stat.ST_MODE]):
+				ick = self.find_or_declare(k)
+				if not (ick.id in self.__class__.bld.node_sigs[env.variant()]):
+					self.__class__.bld.node_sigs[env.variant()][ick.id] = Constants.SIG_NIL
+			elif stat.S_ISDIR(st[stat.ST_MODE]):
+				child = self.find_dir(k)
+				if not child:
+					child = self.ensure_dir_node_from_path(k)
+				child.update_build_dir(env)
+
 
 class Nodu(Node):
 	pass
