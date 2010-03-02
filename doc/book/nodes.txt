@@ -212,7 +212,9 @@ def build(bld):
 <1> Bad, do not use.
 <2> Recommended. Separators such as '/' are converted automatically and does not need to be the os separator.
 
-==== Obtaining the absolute path
+WARNING: Node instances must not be created manually.
+
+==== The absolute path
 
 The method 'abspath' is used to obtain the absolute path for a node. In the following example, three nodes are used:
 
@@ -260,4 +262,98 @@ Waf: Leaving directory `/tmp/nested/build'
 <3> When a configuration set is provided, the absolute path for a directory node is the build directory representation including the variant
 <4> When no configuration set is provided, the directory node absolute path is the one for the source directory
 
+NOTE: Several other methods such as 'relpath_gen' or 'srcpath' are provided. See the http://freehackers.org/~tnagy/wafdoc/index.html[api documentation]
+
+=== Searching for nodes
+
+==== ant_glob
+
+The http://ant.apache.org/manual/dirtasks.html[Ant-like] Node method 'ant_glob' is used for finding nodes or files.
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	pass
+
+def build(ctx):
+	print(ctx.path.ant_glob('**/*', src=True, bld=False, dir=False, flat=False))
+	print(ctx.path.ant_glob('**/*', src=True, bld=False, dir=False, flat=True))
+---------------
+
+The results will be:
+
+[source,shishell]
+---------------
+$ waf
+wscript .lock-wscript
+[src:///tmp/ant/wscript, src:///tmp/ant/.lock-wscript]
+---------------
+
+The behaviour of 'ant_glob' will be recursive if the expression contains '**'. It is therefore a good idea to limit the expression to what is strictly necessary.
+
+==== update_build_dir
+
+By default, 'ant_glob' will only find the files for folders that exist in the build directory. If new folders are created manually in the build directory, they must be declared somehow. Here is an example:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+    conf.find_program('touch', mandatory=True)
+
+def build(bld):
+    bld(rule='mkdir -p default/a/b/c/ && touch default/a/b/c/foo.txt', name='blah')
+
+    def printi(bld):
+        print(' before update %r' % bld.path.ant_glob('**/*.txt', bld=True))
+        bld.path.update_build_dir(bld.env)
+        print(' after update  %r' % bld.path.ant_glob('**/*.txt', bld=True))
+
+    bld.add_post_fun(printi)
+---------------
+
+The tree generated during the build will be the following:
+
+[source,shishell]
+---------------
+$ tree
+.
+|-- build
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+|       `-- a
+|           `-- b
+|               `-- c
+|                   `-- foo.txt
+`-- wscript
+---------------
+
+The output from the execution will be:
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+Checking for program touch               : ok /usr/bin/touch
+'configure' finished successfully (0.003s)
+Waf: Entering directory `/comp/waf/demos/simple_scenarios/magic_outputs/build'
+[1/1] blah:
+Waf: Leaving directory `/comp/waf/demos/simple_scenarios/magic_outputs/build'
+ before update '' <1>
+ after update  'a/b/c/foo.txt' <2>
+'build' finished successfully (0.018s)
+---------------
+
+<1> Files created in the build directory by a foreign process are ignored
+<2> Read the contents from the build directory
+
+NOTE: In 'update_build_dir', the parameter 'env' is optional. When unset, all variants are considered.
 
