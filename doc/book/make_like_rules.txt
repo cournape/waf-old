@@ -1,8 +1,10 @@
 == Rule-based task generators (Make-like)
 
-Rule-based task generators are a particular category of task generators producing exactly one task at a time.
+This chapter illustrates how to perform common transformations used during the build phase through the use of rule-based task generators.
 
 === Declaration and usage
+
+Rule-based task generators are a particular category of task generators producing exactly one task (transformation) at a time.
 
 The following example presents a simple example of a task generator producing the file 'foobar.txt' from the project file 'wscript' by executing a copy (the command `cp`). Let's create a new project in the folder '/tmp/rule/' containing the following 'wscript' file:
 
@@ -72,6 +74,8 @@ Waf: Leaving directory `/tmp/rule/out'
 <5> Since the source has changed, the target is created once again.
 
 The target is created once again whenever the source files or the rule change. This is achieved by computing a signature for the targets, and storing that signature between executions. By default, the signature is computed by hashing the rule and the source files (MD5 by default).
+
+NOTE: The task (or transformation) are only executed during the build phase, after all build functions have been read
 
 === Rule functions
 

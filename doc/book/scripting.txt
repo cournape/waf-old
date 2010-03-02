@@ -1,5 +1,7 @@
 == Advanced command definitions
 
+The waf operations (commands) may be extended to perform non-trivial operations easily. This chapter demonstrates several common patterns found in real-world project scripts.
+
 === Providing a custom command context
 
 The context for a command is created automatically, and is derived from the class 'Utils.Context'. Custom context instance may be provided in the following manner:
@@ -42,7 +44,8 @@ out = 'build'
 import Scripting
 
 def test(ctx):
-	Scripting.commands += ['distclean', 'configure', 'setup', 'build', 'modify', 'build']
+	lst = 'distclean configure setup build modify build'.split()
+	Scripting.commands += lst
 
 def configure(conf):
 	conf.check_tool('gcc')

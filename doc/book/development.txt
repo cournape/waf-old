@@ -1,5 +1,7 @@
 == Using the development version
 
+A few notes on the waf development follow.
+
 === Tracing the execution
 
 The generic flags to add more information to the stack traces or to the messages is '-v' (verbosity), it is used to display the command-lines executed during a build:

@@ -1,5 +1,7 @@
 == The scripting system
 
+This chapter provides a practical overview of the waf usage in a software project.
+
 === Setting up a project
 
 The Waf projects are structured based on the following concepts:

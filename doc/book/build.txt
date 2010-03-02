@@ -1,5 +1,7 @@
 == The build phase
 
+The build phase consists in generating the project outputs as build files. It is usually executed after the configuration phase.
+
 === Declaring new targets
 
 Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:

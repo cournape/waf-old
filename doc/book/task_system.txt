@@ -1,11 +1,17 @@
 
 == The Task system
 
+Task objects are created by task generators. They represent atomic transformations performed in the build phase.
+
 === Task creation and execution
 
 Creating all tasks by hand is a tedious process that the task generators may automate. Before starting the build, Waf asks each task generator to produce the corresponding tasks. If Waf is launched from a sub folder inside the source directory, it will try to avoid the creation of the tasks that are not relevant for that particular sub folder (optimization).
 
-The tasks are not executed immediately, for example it is not necessary to rebuild an application if the source files have not changed. Some tasks may also depend on other tasks which may not be created yet. For this reasons Waf delays the execution of tasks to the point when all build functions have been executed.
+Here are a few motives for using the task generators to create the tasks instead of creating them manually:
+
+. Lazy creation: building only a part of the project is a common scenario
+. Filesystem access: the filesystem requirements such as new folders will be created ahead of time
+. Concurrency issues: tasks are executed in parallel and may lead to complex bugs if initialized improperly
 
 A summary can be found on the following diagram:
 

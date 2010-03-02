@@ -1,6 +1,6 @@
 == Build context and nodes
 
-Node objects are only visible through a few object (bld.path), and are used internally by task objects. Although the usage is somewhat restricted, there are a few useful applications from user scripts.
+Node objects are only visible through a few object (bld.path), and are used internally by task objects. Although their usage is somewhat restricted, there are a few useful applications from user scripts.
 
 === Node types
 

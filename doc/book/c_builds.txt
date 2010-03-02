@@ -1,5 +1,7 @@
 == C and C++ projects
 
+Although Waf is language neutral, it is commonly used for C and C++ projects. This chapter describes the waf tools used for this purpose.
+
 === Common script for C/C++ applications
 
 The c/c++ builds consist in transforming source files into object files, and to assemble the object files at the end. In theory a single programming language should be sufficient for writing any application, but in practice this does not scale:

@@ -1,6 +1,8 @@
 
 == The scheduler for executing the tasks
 
+Tasks are executed in parallel during the build phase, with a few restrictions.
+
 === The task execution model
 
 Task dependencies and task ordering specify the exact order in which tasks must be executed. When tasks are executed in parallel, different algorithms may be used to improve the compilation times. For example, tasks that are known to last longer may be launched first. Linking tasks that use a lot of ram (in the context of c++ applications) may be launched alone to avoid disk thrashing by saving RAM.

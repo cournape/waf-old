@@ -1,6 +1,6 @@
 == Advanced scenarios
 
-This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.
+This chapter demonstrates a few examples of the waf library for more complicated and less common scenarios.
 
 === Building the compiler first
 

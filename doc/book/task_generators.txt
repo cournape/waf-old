@@ -1,5 +1,7 @@
 == General purpose task generators
 
+So far, various task generators uses have been demonstrated. This chapter provides a detailed description of task generator structure and usage.
+
 === Task generator definition
 
 The chapter on make-like rules illustrated how the attribute 'rule' is processed. Then the chapter on name and extension-based file processing illustrated how the attribute 'source' is processed (in the absence of the rule attribute). To process 'any attribute', the following properties should hold:

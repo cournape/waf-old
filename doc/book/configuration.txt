@@ -1,5 +1,7 @@
 == The configuration system
 
+The configuration step is used to check if the requiremements for working on a project are met. The parameters are then stored for further use.
+
 === Storing configuration sets
 
 Configuration sets are instances of the class 'Environment'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:

@@ -1,5 +1,7 @@
 == Build copies and variants
 
+A common scenario is to duplicate the outputs for a particular build phase. The copy may be performed into another build directory, or into subfolders of the same tree called variants.
+
 === Using several build folders
 
 It is not possible to use several Waf instances concurrently over the same build folder. Yet, several Waf instances may use the project at the same time. For this, two options must be set:

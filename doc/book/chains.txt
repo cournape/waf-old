@@ -1,8 +1,10 @@
 == Name and extension-based file processing
 
+Transformations may be performed automatically based on the file name or on the extension.
+
 === Refactoring repeated rule-based task generators into implicit rules
 
-The explicit rules described in the previous section become limited for processing several files of the same kind. The following code may lead to unmaintainable scripts and to slow builds:
+The explicit rules described in the previous chapter become limited for processing several files of the same kind. The following code may lead to unmaintainable scripts and to slow builds (for loop):
 
 [source, python]
 ----------------
