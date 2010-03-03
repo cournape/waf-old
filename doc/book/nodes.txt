@@ -97,7 +97,7 @@ def build(ctx):
 		rule   = 'echo hi from the main buildcontext',
 		always = True)
 
-	do_it()
+	do_it() <8>
 ---------------
 
 <1> Create a new build context.
@@ -142,7 +142,7 @@ def build(bld):
     print('root %r' % type(bld.root)) <1>
     print('path %r' % bld.path) <2>
     print('path %r' % bld.srcnode) <3>
-    print('bld %r' % bld.path.__class__.bld)
+    print('bld %r' % bld.path.__class__.bld) <4>
 
     def fun(task):
         print("task %r %r -> %r" % (
@@ -251,8 +251,8 @@ $ waf distclean configure build
 Waf: Entering directory `/tmp/nested/build'
 /tmp/nested/wscript <1>
 /tmp/nested/build/default/out.out <2>
-/tmp/nested/build/default/
-/tmp/nested
+/tmp/nested/build/default/ <3>
+/tmp/nested <4>
 Waf: Leaving directory `/tmp/nested/build'
 'build' finished successfully (0.003s)
 ---------------
