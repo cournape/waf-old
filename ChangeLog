@@ -6,8 +6,8 @@ NEW IN WAF 1.5.14
 * fixed a regression with always + on_results
 * capture the stderr/stdout on unit test execution
 * execute unit tests in parallel
-* suport for variables in pkg-config tests
-? fix for the ant_glob behaviour
+* support for variables in pkg-config tests
+* read files generated in the build directory by foreign processes
 
 NEW IN WAF 1.5.13
 -----------------
