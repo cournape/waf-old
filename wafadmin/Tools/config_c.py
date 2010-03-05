@@ -135,10 +135,13 @@ def cmd_and_log(self, cmd, kw):
 	except OSError, e:
 		self.log.write('error %r' % e)
 		self.fatal(str(e))
-	else:
-		if self.log:
-			self.log.write(out)
-			self.log.write(err)
+
+	out = str(out)
+	err = str(err)
+
+	if self.log:
+		self.log.write(out)
+		self.log.write(err)
 
 	if p.returncode:
 		if not kw.get('errmsg', ''):

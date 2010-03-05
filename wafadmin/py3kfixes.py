@@ -98,7 +98,6 @@ def r7(code):
 	code = code.replace('class task_gen(object):\n\t__metaclass__=register_obj', 'class task_gen(object, metaclass=register_obj):')
 	return code
 
-@subst('Tools/config_c.py')
 @subst('Tools/python.py')
 def r8(code):
 	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
@@ -108,7 +107,6 @@ def r8(code):
 def r9(code):
 	code = code.replace('f.write(c)', 'f.write(c.encode("utf-8"))')
 	return code
-
 
 def fixdir(dir):
 	global all_modifs
