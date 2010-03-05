@@ -277,11 +277,11 @@ class ConfigurationContext(Utils.Context):
 				if ret: break
 
 		self.check_message_1('Check for program %s' % ' or '.join(filename))
-		self.log.write('  find program=%r paths=%r var=%r -> %r\n' % (filename, path_list, var, ret))
+		self.log.write('  find program=%r paths=%r var=%r\n  -> %r\n' % (filename, path_list, var, ret))
 		if ret:
-			self.check_message_2(str(ret), 'GREEN')
+			Utils.pprint('GREEN', str(ret))
 		else:
-			self.check_message_2('not found', 'YELLOW')
+			Utils.pprint('YELLOW', 'not found')
 			if mandatory:
 				self.fatal('The program %r is required' % filename)
 
