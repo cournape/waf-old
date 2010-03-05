@@ -30,3 +30,13 @@ def build(bld):
 
 	# debugging zone:  waf --zones=ut
 	# setting the cwd for a unit test execution: see tests/test1/wscript_build (ut_cwd)
+
+"""
+old waf versions upgrade: add a "check" command
+
+def check(ctx):
+	ut = UnitTest.unit_test()
+	ut.change_to_testfile_dir = True
+	ut.run()
+	ut.print_results()
+"""
