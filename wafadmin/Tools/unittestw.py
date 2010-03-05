@@ -212,7 +212,7 @@ import threading
 testlock = threading.Lock()
 
 def set_options(opt):
-	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
+	opt.add_option('--alltests', action='store_true', default=True, help='Exec all unit tests', dest='all_tests')
 
 @feature('test')
 @after('apply_link', 'vars_target_cprogram')
