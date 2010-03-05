@@ -22,22 +22,23 @@ def configure(conf):
 
 def build(bld):
 	bld.add_subdirs('src tests')
+
+	# unittestw.summary is a pretty ugly function for displaying a report (feel free to improve!)
+	# results -> bld.utest_results [(filename, returncode, stdout, stderr), (..., ), ...]
 	bld.add_post_fun(unittestw.summary)
 
-	# unittestw.summary is a pretty ugly function for displaying a report
-	# the results are kept on a list bld.utest_results as tuples (filename, returncode, stdout, stderr)
-	# so any kind of report may be generated
-
-	# to execute all tests
+	# to execute all tests:
 	# $ waf --alltests
 	# to set this behaviour permanenly:
 	Options.options.all_tests = True
 
-	# debugging zone:  waf --zones=ut
+	# debugging zone:
+	# $ waf --zones=ut
 	# setting the cwd for a unit test execution: see tests/test1/wscript_build (ut_cwd)
 
 """
-old waf versions upgrade: add a "check" command
+old waf versions upgrade:
+if the method check does not exist, add it:
 
 def check(ctx):
 	ut = UnitTest.unit_test()
