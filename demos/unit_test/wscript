@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Richard Quirk, 2008
 
-import unittestw, Utils
+import unittestw, Utils, Options
 
 top = '.'
 out = 'build'
@@ -27,6 +27,11 @@ def build(bld):
 	# unittestw.summary is a pretty ugly function for displaying a report
 	# the results are kept on a list bld.utest_results as tuples (filename, returncode, stdout, stderr)
 	# so any kind of report may be generated
+
+	# to execute all tests
+	# $ waf --alltests
+	# to set this behaviour permanenly:
+	Options.options.all_tests = True
 
 	# debugging zone:  waf --zones=ut
 	# setting the cwd for a unit test execution: see tests/test1/wscript_build (ut_cwd)
