@@ -8,6 +8,7 @@ NEW IN WAF 1.5.14
 * execute unit tests in parallel
 * support for variables in pkg-config tests
 * read files generated in the build directory by foreign processes
+* better config.log output
 
 NEW IN WAF 1.5.13
 -----------------
