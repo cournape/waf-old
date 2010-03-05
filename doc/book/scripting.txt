@@ -12,7 +12,7 @@ def foo(ctx):
 	pass
 
 import Utils
-def foo_context(Utils.Context):
+class foo_context(Utils.Context):
 	def __init__(self):
 		print("a context for 'foo'")
 ---------------
