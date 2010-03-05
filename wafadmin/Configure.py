@@ -237,7 +237,8 @@ class ConfigurationContext(Utils.Context):
 
 	def check_message_1(self, sr):
 		self.line_just = max(self.line_just, len(sr))
-		self.log.write(sr + '\n\n')
+		for x in ('\n', self.line_just * '-', '\n', sr, '\n'):
+			self.log.write(x)
 		Utils.pprint('NORMAL', "%s :" % sr.ljust(self.line_just), sep='')
 
 	def check_message_2(self, sr, color='GREEN'):
