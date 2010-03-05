@@ -242,6 +242,8 @@ class ConfigurationContext(Utils.Context):
 		Utils.pprint('NORMAL', "%s :" % sr.ljust(self.line_just), sep='')
 
 	def check_message_2(self, sr, color='GREEN'):
+		self.log.write(sr)
+		self.log.write('\n')
 		Utils.pprint(color, sr)
 
 	def check_message(self, th, msg, state, option=''):
@@ -274,10 +276,15 @@ class ConfigurationContext(Utils.Context):
 				ret = find_program_impl(self.env, x, path_list, var, environ=self.environ)
 				if ret: break
 
-		self.check_message('program', ','.join(filename), ret, ret)
-		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
-		if not ret and mandatory:
-			self.fatal('The program %r could not be found' % filename)
+		self.check_message_1('Check for program %s' % ' or '.join(filename))
+		self.log.write('  find program=%r paths=%r var=%r -> %r\n' % (filename, path_list, var, ret))
+		if ret:
+			self.check_message_2(str(ret), 'GREEN')
+		else:
+			self.check_message_2('not found', 'YELLOW')
+			if mandatory:
+				self.fatal('The program %r is required' % filename)
+
 		if var:
 			self.env[var] = ret
 		return ret
