@@ -329,10 +329,13 @@ def apply_link(self):
 	self.link_task = tsk
 
 @feature('cc', 'cxx')
-@after('apply_link', 'init_cc', 'init_cxx')
+@after('apply_link', 'init_cc', 'init_cxx', 'apply_core')
 def apply_lib_vars(self):
 	"""after apply_link because of 'link_task'
 	after default_cc because of the attribute 'uselib'"""
+
+	# after 'apply_core' in case if 'cc' if there is no link
+
 	env = self.env
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
