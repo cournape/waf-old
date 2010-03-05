@@ -235,7 +235,7 @@ def ex_stack():
 	if Logs.verbose > 1:
 		exc_lines = traceback.format_exception(exc_type, exc_value, tb)
 		return ''.join(exc_lines)
-	return exc_value.message
+	return str(exc_value)
 
 def to_list(sth):
 	if isinstance(sth, str):
