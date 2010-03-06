@@ -799,8 +799,8 @@ class Task(TaskBase):
 						variant = v.variant(self.env)
 						try:
 							v = bld.node_sigs[variant][v.id]
-						except KeyError: # make it fatal?
-							v = ''
+						except KeyError:
+							raise Utils.WafError('Missing node signature for %r (required by %r)' % (v, self))
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
 					m.update(v)
