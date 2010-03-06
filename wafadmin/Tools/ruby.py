@@ -9,7 +9,7 @@ from Configure import conf
 
 @feature('rubyext')
 @before('apply_incpaths', 'apply_type_vars', 'apply_lib_vars', 'apply_bundle')
-@after('default_cc')
+@after('default_cc', 'vars_target_cshlib')
 def init_rubyext(self):
 	self.default_install_path = '${ARCHDIR_RUBY}'
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
