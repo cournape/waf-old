@@ -4,7 +4,7 @@
 
 import os
 import Task, Options, Utils
-from TaskGen import before, feature
+from TaskGen import before, feature, after
 from Configure import conf
 
 @feature('rubyext')
