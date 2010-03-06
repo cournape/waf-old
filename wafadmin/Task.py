@@ -782,7 +782,7 @@ class Task(TaskBase):
 			try:
 				m.update(bld.node_sigs[variant][x.id])
 			except KeyError:
-				raise Utils.WafError('No signature for node %r in %r. Check the task execution order (after/before/ext_in/ext_out)' % (x, self))
+				raise Utils.WafError('Missing signature for node %r in %r (required)' % (x, self))
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
