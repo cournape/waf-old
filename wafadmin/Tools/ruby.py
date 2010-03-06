@@ -4,13 +4,12 @@
 
 import os
 import Task, Options, Utils
-from TaskGen import taskgen, before, feature
+from TaskGen import before, feature
 from Configure import conf
 
-@taskgen
-@before('apply_incpaths', 'apply_type_vars', 'apply_lib_vars')
 @feature('rubyext')
-@before('apply_bundle')
+@before('apply_incpaths', 'apply_type_vars', 'apply_lib_vars', 'apply_bundle')
+@after('default_cc')
 def init_rubyext(self):
 	self.default_install_path = '${ARCHDIR_RUBY}'
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
@@ -19,8 +18,8 @@ def init_rubyext(self):
 	if not 'RUBYEXT' in self.uselib:
 		self.uselib.append('RUBYEXT')
 
-@before('apply_link')
 @feature('rubyext')
+@before('apply_link')
 def apply_ruby_so_name(self):
 	self.env['shlib_PATTERN'] = self.env['rubyext_PATTERN']
 
