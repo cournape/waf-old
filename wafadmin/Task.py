@@ -613,11 +613,7 @@ class Task(TaskBase):
 		bld = self.generator.bld
 
 		# first compute the signature
-		try:
-			new_sig = self.signature()
-		except KeyError:
-			debug("task: something is wrong, computing the task %r signature failed", self)
-			return RUN_ME
+		new_sig = self.signature()
 
 		# compare the signature to a signature computed previously
 		key = self.unique_id()
@@ -786,7 +782,7 @@ class Task(TaskBase):
 			try:
 				m.update(bld.node_sigs[variant][x.id])
 			except KeyError:
-				Utils.WafError('Undefined signature for node %r in %r (check the build order?)' % (x, self))
+				raise Utils.WafError('No signature for node %r in %r. Check the build order: after/before/ext_in/ext_out' % (x, self))
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
