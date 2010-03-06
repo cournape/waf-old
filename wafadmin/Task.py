@@ -783,7 +783,10 @@ class Task(TaskBase):
 				bld.rescan(x.parent)
 
 			variant = x.variant(self.env)
-			m.update(bld.node_sigs[variant][x.id])
+			try:
+				m.update(bld.node_sigs[variant][x.id])
+			except KeyError:
+				Utils.WafError('Undefined signature for node %r in %r (check the build order?)' % (x, self))
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
