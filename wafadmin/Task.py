@@ -863,7 +863,14 @@ class Task(TaskBase):
 		bld.raw_deps[key] = names
 
 		# recompute the signature and return it
-		sig = self.compute_sig_implicit_deps()
+		try:
+			sig = self.compute_sig_implicit_deps()
+		except KeyError:
+			try:
+				nodes = bld.node_deps.get(self.unique_id(), [])
+			except:
+				nodes = '?'
+			raise Utils.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
 
 		return sig
 
