@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006, 2007, 2008
 
-VERSION="1.5.14"
+VERSION="1.5.15"
 APPNAME='waf'
 REVISION=''
 srcdir='.'
