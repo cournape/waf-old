@@ -46,7 +46,7 @@ def check_features(self):
 	try:
 		is_big = int(t['bigendian'])
 	except KeyError:
-		raise Configure.ConfigurationError('endian test failed '+code)
+		raise Configure.ConfigurationError('endian test failed %s (see the config.log)' % features_str)
 
 	if is_big: strbig = 'big endian'
 	else: strbig = 'little endian'
