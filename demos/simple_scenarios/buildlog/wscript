@@ -9,6 +9,10 @@ out = 'build'
 # containing all the output during the build phase
 # you may add this snippet anywhere in your project (wscript)
 
+# run
+# "waf distclean configure build"
+# less -R build/build.log
+
 import Build, os, sys, logging
 old = Build.BuildContext.compile
 def compile(self):
