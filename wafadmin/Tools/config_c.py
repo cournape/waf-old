@@ -396,23 +396,25 @@ def validate_c(self, kw):
 def post_check(self, *k, **kw):
 	"set the variables after a test was run successfully"
 
-	is_success = 0
+	is_success = False
 	if kw['execute']:
 		if kw['success']:
-			is_success = kw['success']
+			is_success = True
 	else:
 		is_success = (kw['success'] == 0)
 
-	def define_or_stuff():
-		nm = kw['define_name']
-		if isinstance(is_success, str):
-			self.define(kw['define_name'], is_success, quote=kw.get('quote', 1))
-		else:
-			self.define_cond(kw['define_name'], is_success)
-
 	if 'define_name' in kw:
 		if 'header_name' in kw or 'function_name' in kw or 'type_name' in kw or 'fragment' in kw:
-			define_or_stuff()
+			if kw['execute']:
+				if isinstance(kw['success'], str):
+					if kw['success']:
+						self.define(kw['define_name'], kw['success'], quote=kw.get('quote', 1))
+					else:
+						self.define_cond(kw['define_name'], True)
+				else:
+					self.define_cond(kw['define_name'], False)
+			else:
+				self.define_cond(kw['define_name'], is_success)
 
 	if is_success and 'uselib_store' in kw:
 		import cc, cxx
@@ -539,11 +541,18 @@ def run_c_code(self, *k, **kw):
 	# if we need to run the program, try to get its result
 	if kw['execute']:
 		args = Utils.to_list(kw.get('exec_args', []))
-		try:
-			data = Utils.cmd_output([lastprog] + args).strip()
-		except ValueError, e:
+		proc = Utils.pproc.Popen([lastprog], *args, stdout=Utils.pproc.PIPE, stderr=Utils.pproc.PIPE)
+		(out, err) = proc.communicate()
+		w = self.log.write
+		w(str(out))
+		w('\n')
+		w(str(err))
+		w('\n')
+		w('returncode %r' % proc.returncode)
+		w('\n')
+		if proc.returncode:
 			self.fatal(Utils.ex_stack())
-		ret = data
+		ret = str(out)
 
 	return ret
 
