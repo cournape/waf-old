@@ -13,7 +13,9 @@ out = 'build'
 # "waf distclean configure build"
 # less -R build/build.log
 
-import Build, os, sys, logging
+import os, sys, logging
+import Build, Utils
+
 old = Build.BuildContext.compile
 def compile(self):
 	class tee(object):
@@ -28,14 +30,31 @@ def compile(self):
 			self.dup.flush()
 		def fileno(self):
 			return self.orig.fileno()
+
 	try:
 		stdout = sys.stdout
 		stderr = sys.stderr
 		log = open(os.path.join(self.bldnode.abspath(), 'build.log'), 'w')
 		sys.stderr = sys.stdout = tee(stdout, log)
-		oldlog = self.log
-		if self.log:
-			self.log = tee(oldlog, log)
+
+		old_exec_command = Build.BuildContext.exec_command
+		def exec_command(self, s, **kw):
+			if 'log' in kw:
+				kw['stdout'] = kw['stderr'] = kw['log']
+				del(kw['log'])
+			else:
+				kw['stdout'] = kw['stderr'] = Utils.pproc.PIPE
+			kw['shell'] = isinstance(s, str)
+
+			try:
+				proc = Utils.pproc.Popen(s, **kw)
+				(out, err) = proc.communicate()
+				sys.stdout.write(out)
+				sys.stderr.write(err)
+				return proc.returncode
+			except OSError:
+				return -1
+		Build.BuildContext.exec_command = exec_command
 
 		foo = logging.getLogger()
 		for h in foo.handlers:
@@ -47,7 +66,7 @@ def compile(self):
 	finally:
 		sys.stdout = stdout
 		sys.stderr = stderr
-		self.log = oldlog
+		Build.BuildContext.exec_command = old_exec_command
 
 		foo = logging.getLogger()
 		for h in foo.handlers:
