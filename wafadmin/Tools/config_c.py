@@ -552,7 +552,7 @@ def run_c_code(self, *k, **kw):
 		w('\n')
 		if proc.returncode:
 			self.fatal(Utils.ex_stack())
-		ret = str(out)
+		ret = out
 
 	return ret
 

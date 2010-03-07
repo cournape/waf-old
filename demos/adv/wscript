@@ -41,8 +41,12 @@ int main()
 def check_features(self):
 
 	mp = self.check(fragment=features_str, execute=True)
-	t = Utils.to_hashtable(mp)
+	try:
+		mp = mp.decode('utf-8')
+	except:
+		pass
 
+	t = Utils.to_hashtable(mp)
 	try:
 		is_big = int(t['bigendian'])
 	except KeyError:
