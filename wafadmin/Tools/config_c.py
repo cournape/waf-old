@@ -406,9 +406,10 @@ def post_check(self, *k, **kw):
 	if 'define_name' in kw:
 		if 'header_name' in kw or 'function_name' in kw or 'type_name' in kw or 'fragment' in kw:
 			if kw['execute']:
-				if isinstance(kw['success'], str):
-					if kw['success']:
-						self.define(kw['define_name'], kw['success'], quote=kw.get('quote', 1))
+				key = kw['success']
+				if isinstance(key, str):
+					if key:
+						self.define(kw['define_name'], key, quote=kw.get('quote', 1))
 					else:
 						self.define_cond(kw['define_name'], True)
 				else:
