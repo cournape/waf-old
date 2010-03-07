@@ -190,8 +190,36 @@ mult10:
 	#conf.env.defines = [] # to remove defines, modify the list held by env.defines
 	conf.define('DEBUG', 1)
 	conf.define('sep', '\\', quote=True)
+
+	# a few tests
+	conf.check(
+		fragment='int main() { ',
+		define_name = 'AAA',
+		execute=True
+		)
+	conf.check(
+		fragment='int main() { return 0; }',
+		define_name = 'BBB',
+		execute=True
+		)
+	conf.check(
+		fragment='int main() { return 1; }',
+		define_name = 'CCC',
+		execute=True
+		)
+	conf.check(
+		fragment='#include <stdio.h>\nint main() { printf("hi there");\n return 0; }\n',
+		define_name = 'DDD',
+		execute=True
+		)
+	conf.check(
+		fragment='#include <stdio.h>\nint main() { printf("hi there");\n return 1; }\n',
+		define_name = 'EEE',
+		execute=True
+		)
 	conf.write_config_header('config.h', env=env_variant2)
 
+	# jump to another configuration module
 	conf.sub_config('src')
 
 def build(bld):
