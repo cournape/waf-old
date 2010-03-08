@@ -30,7 +30,8 @@ def build(bld):
 
 	if Options.options.compile_targets:
 		# give for example "waf --targets=g3"
-		# the stages before will be completed, so g1 will be generated too
+		# the build groups before the group of g3 will be processed
+		# for example, g3 may use g1 for some purpose
 
 		@feature('*')
 		def target_groups(self):
