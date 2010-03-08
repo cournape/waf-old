@@ -10,6 +10,9 @@ out = 'build'
 
 import Options
 
+# implement build stages, groups have task generators,
+# all tasks in a group are processed before processing the next
+
 def set_options(opt):
 	opt.tool_options('compiler_cc')
 
@@ -29,12 +32,14 @@ import Options
 def build(bld):
 
 	if Options.options.compile_targets:
-		# give for example "waf --targets=g3"
+		# Give for example "waf --targets=g3"
 		# the build groups before the group of g3 will be processed
 		# for example, g3 may use g1 for some purpose
 
+		# do not enable on all targets for it has has O(n2) behaviour
+
 		@feature('*')
-		def target_groups(self):
+		def force_previous_groups(self):
 
 			my_id = id(self)
 
