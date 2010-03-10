@@ -8,7 +8,7 @@ and prepare the dependency calculation for the next run
 """
 
 import os, re, threading
-import Task, Logs, Utils
+import Task, Logs, Utils, preproc
 
 lock = threading.Lock()
 
@@ -47,6 +47,10 @@ def post_run(self):
 	f = re.compile("^("+self.env.variant()+"|\.\.)[\\/](.*)$")
 	for x in val:
 		if os.path.isabs(x):
+
+			if not preproc.go_absolute:
+				continue
+
 			lock.acquire()
 			try:
 				node = bld.root.find_resource(x)
