@@ -27,6 +27,9 @@ re_src = re.compile("^(\.\.)[\\/](.*)$")
 def post_run(self):
 	# The following code is executed by threads, it is not safe, so a lock is needed...
 
+	if getattr(self, 'cached', None):
+		return Task.Task.post_run(self)
+
 	name = self.outputs[0].abspath(self.env)
 	name = name.rstrip('.o') + '.d'
 	txt = Utils.readf(name)
