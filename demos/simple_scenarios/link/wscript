@@ -1,0 +1,40 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+# these variables are mandatory ('/' are converted automatically)
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+# ------------- #
+import Task
+from TaskGen import feature, after
+t = Task.simple_task_type('link', 'ln -sf ${SRC} ${SRC[0].__class__.bld.bldnode.abspath()}', color='PINK', ext_in='.bin')
+t.quiet = True
+
+@feature('linkme')
+@after('apply_link')
+def link_me(self):
+	tsk = self.create_task('link', self.link_task.outputs[0])
+	print tsk
+# ------------- #
+
+
+def build(bld):
+
+	bld(
+		features = 'cc cshlib linkme',
+		source = 'main.c',
+		target = 'foo'
+	)
+
