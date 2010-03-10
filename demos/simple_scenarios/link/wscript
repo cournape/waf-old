@@ -28,7 +28,6 @@ t.quiet = True
 @after('apply_link')
 def link_me(self):
 	tsk = self.create_task('link', self.link_task.outputs[0])
-	print tsk
 # ------------- #
 
 
