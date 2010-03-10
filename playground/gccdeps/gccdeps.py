@@ -1,33 +1,20 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2008 (ita)
+# Thomas Nagy, 2008-2010 (ita)
 
 """
 Execute the tasks with gcc -MD, read the dependencies from the .d file
 and prepare the dependency calculation for the next run
 """
 
-import os, re
-import threading
-import Task, Logs
-from TaskGen import feature, before
+import os, re, threading
+import Task, Logs, Utils
 
 lock = threading.Lock()
 
-# change to '-MMD' if you don't want to check system header files too.
-preprocessor_flag = '-MD'
 
-@feature('cc')
-@before('apply_core')
-def add_mmd_cc(self):
-	if self.env.get_flat('CCFLAGS').find(preprocessor_flag) < 0:
-		self.env.append_value('CCFLAGS', preprocessor_flag)
-
-@feature('cxx')
-@before('apply_core')
-def add_mmd_cxx(self):
-	if self.env.get_flat('CXXFLAGS').find(preprocessor_flag) < 0:
-		self.env.append_value('CXXFLAGS', preprocessor_flag)
+def detect(conf):
+	conf.env.append_unique('CCFLAGS', '-MD')
 
 def scan(self):
 	"the scanner does not do anything initially"
@@ -35,55 +22,69 @@ def scan(self):
 	names = []
 	return (nodes, names)
 
+re_src = re.compile("^(\.\.)[\\/](.*)$")
+
 def post_run(self):
 	# The following code is executed by threads, it is not safe, so a lock is needed...
-	lock.acquire()
 
-	try:
-		name = self.outputs[0].abspath(self.env)
-		name = name.rstrip('.o') + '.d'
+	name = self.outputs[0].abspath(self.env)
+	name = name.rstrip('.o') + '.d'
+	txt = Utils.readf(name)
+	#os.unlink(name)
 
-		f = open(name, 'r')
-		txt = f.read()
-		f.close()
-		os.unlink(name)
+	txt = txt.replace('\\\n', '')
 
-		txt = txt.replace('\\\n', '')
+	lst = txt.strip().split(':')
+	val = ":".join(lst[1:])
+	val = val.split()
 
-		lst = txt.strip().split(':')
-		val = ":".join(lst[1:])
-		val = val.split()
+	nodes = []
+	bld = self.generator.bld
 
-		nodes = []
-		bld = self.generator.bld
-
-
-		f = re.compile("^("+self.env.variant()+"|\.\.)[\\/](.*)$")
-		for x in val:
-			if os.path.isabs(x):
+	f = re.compile("^("+self.env.variant()+"|\.\.)[\\/](.*)$")
+	for x in val:
+		if os.path.isabs(x):
+			lock.acquire()
+			try:
 				node = bld.root.find_resource(x)
+			finally:
+				lock.release()
+		else:
+			g = re.search(re_src, x)
+			if g:
+				x = g.group(2)
+				lock.acquire()
+				try:
+					node = bld.bldnode.parent.find_resource(x)
+				finally:
+					lock.release()
 			else:
 				g = re.search(f, x)
 				if g:
 					x = g.group(2)
-				node = bld.srcnode.find_resource(x)
+					lock.acquire()
+					try:
+						node = bld.srcnode.find_resource(x)
+					finally:
+						lock.release()
 
-			if not node:
-				raise ValueError('could not find ' + x)
-			else:
-				nodes.append(node)
+		if not node:
+			if x.rfind('.c') < 0:
+				raise ValueError('could not find %r for %r' % (x, self))
+		else:
+			nodes.append(node)
 
-		Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
+	Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
 
-		bld.node_deps[self.unique_id()] = nodes
-		bld.raw_deps[self.unique_id()] = []
+	bld.node_deps[self.unique_id()] = nodes
+	bld.raw_deps[self.unique_id()] = []
 
-		try: del self.cache_sig
-		except: pass
+	try:
+		del self.cache_sig
+	except:
+		pass
 
-		Task.Task.post_run(self)
-	finally:
-		lock.release()
+	Task.Task.post_run(self)
 
 for name in 'cc cxx'.split():
 	try:
