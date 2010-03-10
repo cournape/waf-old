@@ -249,4 +249,3 @@ The task generator method workflow is represented in the following illustration:
 
 image::posting.eps["Task generator workflow",width=320]
 
-
