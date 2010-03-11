@@ -75,9 +75,13 @@ def post_run(self):
 					finally:
 						lock.release()
 
+		if id(node) == id(self.inputs[0]):
+			# ignore the source file, it is already in the dependencies
+			# this way, successful config tests may be retrieved from the cache
+			continue
+
 		if not node:
-			if x.rfind('.c') < 0:
-				raise ValueError('could not find %r for %r' % (x, self))
+			raise ValueError('could not find %r for %r' % (x, self))
 		else:
 			nodes.append(node)
 
