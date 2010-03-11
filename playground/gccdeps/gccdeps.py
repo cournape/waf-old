@@ -12,10 +12,19 @@ import Task, Logs, Utils, preproc
 
 lock = threading.Lock()
 
+preprocessor_flag = '-MD'
 
-def detect(conf):
-	conf.env.append_unique('CCFLAGS', '-MD')
-	conf.env.append_unique('CXXFLAGS', '-MD')
+@feature('cc')
+@before('apply_core')
+def add_mmd_cc(self):
+	if self.env.get_flat('CCFLAGS').find(preprocessor_flag) < 0:
+		self.env.append_value('CCFLAGS', preprocessor_flag)
+
+@feature('cxx')
+@before('apply_core')
+def add_mmd_cxx(self):
+	if self.env.get_flat('CXXFLAGS').find(preprocessor_flag) < 0:
+		self.env.append_value('CXXFLAGS', preprocessor_flag)
 
 def scan(self):
 	"the scanner does not do anything initially"
