@@ -15,6 +15,7 @@ lock = threading.Lock()
 
 def detect(conf):
 	conf.env.append_unique('CCFLAGS', '-MD')
+	conf.env.append_unique('CXXFLAGS', '-MD')
 
 def scan(self):
 	"the scanner does not do anything initially"
