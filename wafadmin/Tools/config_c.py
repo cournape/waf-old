@@ -186,7 +186,8 @@ def exec_cfg(self, kw):
 		vars = Utils.to_list(kw['variables'])
 		for v in vars:
 			val = self.cmd_and_log('%s --variable=%s %s' % (kw['path'], v, kw['package']), kw).strip()
-			env.append_unique('%s_%s' % (uselib, v), val)
+			var = '%s_%s' % (uselib, v)
+			env[var] = val
 		if not 'okmsg' in kw:
 			kw['okmsg'] = 'ok'
 		return
