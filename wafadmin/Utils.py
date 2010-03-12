@@ -282,6 +282,15 @@ def set_main_module(file_path):
 	g_module = load_module(file_path, 'wscript_main')
 	g_module.root_path = file_path
 
+	try:
+		g_module.APPNAME
+	except:
+		g_module.APPNAME = 'noname'
+	try:
+		g_module.VERSION
+	except:
+		g_module.VERSION = '1.0'
+
 	# note: to register the module globally, use the following:
 	# sys.modules['wscript_main'] = g_module
 
