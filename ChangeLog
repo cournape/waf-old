@@ -1,6 +1,7 @@
 NEW IN WAF 1.5.15
 -----------------
-.
+* Minor vala improvements
+* Fixed the 'args' parameter in conf.check(...)
 
 NEW IN WAF 1.5.14
 -----------------
