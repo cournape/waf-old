@@ -1,0 +1,37 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+def build(bld):
+	for i in xrange(1, 10):
+		bld(features = 'cc cprogram', source = 'main.c', target = 'test%d' % i)
+
+
+	import Task, Options
+
+	def display(self):
+		if Options.options.progress_bar != 0:
+			return Task.display(self)
+		return "[CC] %s\n" % self.outputs[0].bldpath(self.env)
+	Task.TaskBase.classes['cc'].display = display
+
+	def display(self):
+		if Options.options.progress_bar == 2:
+			return Task.display(self)
+		return "[LD] %s\n" % self.outputs[0].bldpath(self.env)
+	Task.TaskBase.classes['cc_link'].display = display
+
+
+
