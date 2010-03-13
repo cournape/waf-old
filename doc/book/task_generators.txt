@@ -332,7 +332,7 @@ Waf: Leaving directory `/tmp/targets/build'
 
 <1> The other task generator has not created any task yet
 <2> A task generator creates all its tasks by calling its method `post()`
-<3> Although `--targets=B` was requested, the target 'A' was executed too
+<3> Although `--targets=B` was requested, the task from target 'A' was created and executed too
 
 In practice, the dependencies will often re-use the task objects created by the other task generator: node, configuration set, etc. This is used by the uselib system (see the next chapter on c/c++ builds).
 
