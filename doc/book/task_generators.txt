@@ -249,3 +249,90 @@ The task generator method workflow is represented in the following illustration:
 
 image::posting.eps["Task generator workflow",width=320]
 
+=== Expressing abstract dependencies between task generators
+
+We will now illustrate how task generator methods can be used to express abstract dependencies between task generator objects. Here is a new project file located under '/tmp/targets/':
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(rule='echo A', always=True, name='A')
+	bld(rule='echo B', always=True, name='B')
+---------------
+
+By executing 'waf --targets=B', only the task generator 'B' will create its tasks, and the output will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build --targets=B
+'distclean' finished successfully (0.000s)
+'configure' finished successfully (0.042s)
+Waf: Entering directory `/tmp/targets/build'
+[1/1] B:
+B
+Waf: Leaving directory `/tmp/targets/build'
+'build' finished successfully (0.032s)
+---------------
+
+Here is a way to ensure that the task generator 'A' has created its tasks when 'B' does:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bld(rule='echo A', always=True, name='A')
+    bld(rule='echo B', always=True, name='B', depends_on='A')
+
+from TaskGen import feature, before
+@feature('*') <1>
+@before('apply_rule')
+def post_the_other(self):
+    deps = getattr(self, 'depends_on', []) <2>
+    for name in self.to_list(deps):
+        other = self.bld.name_to_obj(name, self.env) <3>
+        print('other task generator tasks (before) %s' % other.tasks)
+        other.post() <4>
+        print('other task generator tasks (after) %s' % other.tasks)
+---------------
+
+<1> This method will be executed for all task generators, before the attribute `rule` is processed
+<2> Try to process the attribute `depends_on`, if present
+<3> Obtain the task generator by name, and for the same variant
+<4> Force the other task generator to create its tasks
+
+The output will be:
+
+[source,shishell]
+---------------
+$ waf distclean configure build --targets=B
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/targets/build'
+other task generator tasks (before) [] <1>
+other task generator tasks (after) [ <2>
+        {task: A  -> }]
+[1/2] B:
+B
+[2/2] A: <3>
+A
+Waf: Leaving directory `/tmp/targets/build'
+'build' finished successfully (0.014s)
+---------------
+
+<1> The other task generator has not created any task yet
+<2> A task generator creates all its tasks by calling its method `post()`
+<3> Although `--targets=B` was requested, the target 'A' was executed too
+
+In practice, the dependencies will often re-use the task objects created by the other task generator: node, configuration set, etc. This is used by the uselib system (see the next chapter on c/c++ builds).
+
