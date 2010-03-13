@@ -1,10 +1,24 @@
 Waf 1.5
 -------
 
-docs
-scan the build directory for files created magically + fix the behaviour of ant_glob
+docs:
+
+# enforce the after= ordering constraints in the javac task generators
+from TaskGen import after, feature
+@feature('*')
+@after('apply_core', 'apply_java', 'apply_subst')
+def process_after(self):
+	lst = self.to_list(getattr(self, 'after', []))
+	print(self.name)
+	for x in lst:
+		obj = self.bld.name_to_obj(x,self.bld.env)
+		if not obj: break
+		obj.post()
+		for a in obj.tasks:
+			for b in self.tasks:
+				b.set_run_after(a)
 
 --------------------------------------
-Last update: 19/02/2010
+Last update: 13/03/2010
 Contact -> http://code.google.com/p/waf
 
