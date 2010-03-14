@@ -33,6 +33,7 @@ def scan(self):
 	names = []
 	return (nodes, names)
 
+re_o = re.compile("\.o$")
 re_src = re.compile("^(\.\.)[\\/](.*)$")
 
 def post_run(self):
@@ -42,7 +43,7 @@ def post_run(self):
 		return Task.Task.post_run(self)
 
 	name = self.outputs[0].abspath(self.env)
-	name = name.rstrip('.o') + '.d'
+	name = re_o.sub('.d', name)
 	txt = Utils.readf(name)
 	#os.unlink(name)
 
