@@ -100,9 +100,7 @@ class qxx_task(Task.Task):
 			mocfiles.append(d)
 
 			# find the extension - this search is done only once
-			ext = ''
-			try: ext = Options.options.qt_header_ext
-			except AttributeError: pass
+			ext = getattr(Options.options, 'qt_header_ext', '')
 
 			if not ext:
 				base2 = d[:-4]
@@ -246,9 +244,7 @@ def apply_qt4(self):
 			if update:
 				trans.append(t.inputs[0])
 
-		trans_qt4 = False
-		try: trans_qt4 = Options.options.trans_qt4
-		except AttributeError: pass
+		trans_qt4 = getattr(Options.options, 'trans_qt4', False)
 		if update and trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
 			# FIXME may be broken
@@ -464,9 +460,7 @@ def detect_qt4(conf):
 	process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 	# rpath if wanted
-	want_rpath = 1
-	try: want_rpath = Options.options.want_rpath
-	except AttributeError: pass
+	want_rpath = getattr(Options.options, 'want_rpath', 1)
 	if want_rpath:
 		def process_rpath(vars_, coreval):
 			for d in vars_:
