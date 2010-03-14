@@ -246,7 +246,10 @@ def apply_qt4(self):
 			if update:
 				trans.append(t.inputs[0])
 
-		if update and Options.options.trans_qt4:
+		trans_qt4 = False
+		try: trans_qt4 = Options.options.trans_qt4
+		except AttributeError: pass
+		if update and trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
 			# FIXME may be broken
 			u = Task.TaskCmd(translation_update, self.env, 2)
@@ -461,7 +464,10 @@ def detect_qt4(conf):
 	process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 	# rpath if wanted
-	if Options.options.want_rpath:
+	want_rpath = 1
+	try: want_rpath = Options.options.want_rpath
+	except AttributeError: pass
+	if want_rpath:
 		def process_rpath(vars_, coreval):
 			for d in vars_:
 				var = d.upper()
