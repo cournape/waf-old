@@ -122,7 +122,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	except KeyError:
 		pass
 	proc = Utils.pproc.Popen([python_exe, "-c", '\n'.join(program)], stdout=Utils.pproc.PIPE, env=os_env)
-	output = proc.communicate()[0].split("\n")
+	output = str(proc.communicate()[0]).split("\n") # do not touch, python3
 	if proc.returncode:
 		if Options.options.verbose:
 			warn("Python program to extract python configuration variables failed:\n%s"
@@ -140,7 +140,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 		elif s[0].isdigit():
 			return_values.append(int(s))
 		else: break
-	return return_values
+	return tuple(return_values)
 
 @conf
 def check_python_headers(conf):
