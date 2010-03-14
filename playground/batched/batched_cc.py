@@ -83,6 +83,24 @@ class batch_task(Task.Task):
 		self.env.SRCLST = srclst
 		self.cwd = slaves[0].inputs[0].parent.abspath(self.env)
 
+		env = self.env
+		app = env.append_unique
+		cpppath_st = env['CPPPATH_ST']
+		env._CCINCFLAGS = env.CXXINCFLAGS = []
+
+		# local flags come first
+		# set the user-defined includes paths
+		for i in env['INC_PATHS']:
+			app('_CCINCFLAGS', cpppath_st % i.abspath())
+			app('_CXXINCFLAGS', cpppath_st % i.abspath())
+			app('_CCINCFLAGS', cpppath_st % i.abspath(env))
+			app('_CXXINCFLAGS', cpppath_st % i.abspath(env))
+
+		# set the library include paths
+		for i in env['CPPPATH']:
+			app('_CCINCFLAGS', cpppath_st % i)
+			app('_CXXINCFLAGS', cpppath_st % i)
+
 		if self.slaves[0].__class__.__name__ == 'cc':
 			ret = cc_fun(self)
 		else:
