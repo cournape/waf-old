@@ -38,7 +38,6 @@ cxx_fun = Task.compile_fun_noshell('batched_cxx', cc_str)[0]
 count = 70000
 class batch_task(Task.Task):
 	color = 'RED'
-	before = 'cc_link cxx_link static_link'
 
 	def __str__(self):
 		return '(batch compilation)\n'
@@ -123,13 +122,16 @@ def wrap(fun):
 		task = fun(self, node)
 		if not getattr(self, 'masters', None):
 			self.masters = {}
+			self.allmasters = []
 
 		if not node.parent.id in self.masters:
 			m = self.masters[node.parent.id] = self.master = self.create_task('batch')
+			self.allmasters.append(m)
 		else:
 			m = self.masters[node.parent.id]
 			if len(m.slaves) > MAX_BATCH:
 				m = self.masters[node.parent.id] = self.master = self.create_task('batch')
+				self.allmasters.append(m)
 
 		m.add_slave(task)
 		return task
@@ -140,6 +142,13 @@ extension(cc.EXT_CC)(c_hook)
 
 cxx_hook = wrap(cxx.cxx_hook)
 extension(cxx.EXT_CXX)(cxx_hook)
+
+
+@feature('cprogram', 'cshlib', 'cstaticlib')
+@after('apply_link')
+def link_after_masters(self):
+	for m in self.allmasters:
+		self.link_task.set_run_after(m)
 
 for c in ['cc', 'cxx']:
 	t = Task.TaskBase.classes[c]
