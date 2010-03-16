@@ -461,8 +461,9 @@ class Node(object):
 		"path seen from the build dir default/src/foo.cpp"
 		if self.id & 3 == FILE:
 			return self.relpath_gen(self.__class__.bld.bldnode)
-		if self.path_to_parent(self.__class__.bld.srcnode) is not '':
-			return os.path.join(env.variant(), self.path_to_parent(self.__class__.bld.srcnode))
+		p = self.path_to_parent(self.__class__.bld.srcnode)
+		if p is not '':
+			return env.variant() + os.sep + p
 		return env.variant()
 
 	def srcpath(self, env=None):
