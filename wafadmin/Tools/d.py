@@ -386,6 +386,12 @@ def apply_d_vars(self):
 	# now process the library paths
 	# apply same path manipulation as used with import paths
 	for path in libpaths:
+		if not os.path.isabs(path):
+			node = self.path.find_resource(path)
+			if not node:
+				raise Utils.WafError('could not find libpath %r from %r' % (path, self))
+			path = node.abspath(self.env)
+
 		env.append_unique('DLINKFLAGS', libpath_st % path)
 
 	# add libraries
