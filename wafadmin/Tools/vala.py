@@ -31,7 +31,7 @@ class valac_task(Task.Task):
 
 		if self.profile:
 			cmd.append('--profile=%s' % self.profile)
-			
+
 		if self.target_glib:
 			cmd.append('--target-glib=%s' % self.target_glib)
 
@@ -201,17 +201,17 @@ def vala_file(self, node):
 				self.includes.append(self.path.find_dir(include).abspath(self.env))
 			except AttributeError:
 				Logs.warn("Unable to locate include directory: '%s'" % include)
-		
+
 		if valatask.profile == 'gobject':
 			if hasattr(self, 'target_glib'):
 				Logs.warn ('target_glib on vala tasks is deprecated --vala-target-glib=MAJOR.MINOR from the vala tool options')
 
 			if getattr(Options.options, 'vala_target_glib', None):
 				valatask.target_glib = Options.options.vala_target_glib
-				
+
 			if not 'GOBJECT' in self.uselib:
 				self.uselib.append('GOBJECT')
-			
+
 		if hasattr(self, 'threading'):
 			if valatask.profile == 'gobject':
 				valatask.threading = self.threading
@@ -266,17 +266,17 @@ def detect(conf):
 		if getattr(Options.options, 'vala_target_glib', None):
 			pkg_args['atleast_version'] = Options.options.vala_target_glib
 
-		conf.check_cfg (**pkg_args)
-	
+		conf.check_cfg(**pkg_args)
+
 	if not conf.env["HAVE_GTHREAD"]:
 		pkg_args = {'package':      'gthread-2.0',
 		            'uselib_store': 'GTHREAD',
 		            'args':         '--cflags --libs'}
 		if getattr(Options.options, 'vala_target_glib', None):
-			pkg_args['atleast_version'] = Options.options.vala_target_glib			
-		
-		conf.check_cfg (**pkg_args)
-		
+			pkg_args['atleast_version'] = Options.options.vala_target_glib
+
+		conf.check_cfg(**pkg_args)
+
 	try:
 		output = Utils.cmd_output(valac + " --version", silent=True)
 		version = output.split(' ', 1)[-1].strip().split(".")
@@ -303,4 +303,5 @@ def set_options (opt):
 	valaopts = opt.add_option_group('Vala Compiler Options')
 	valaopts.add_option ('--vala-target-glib', default=None,
 	                     dest='vala_target_glib', metavar='MAJOR.MINOR',
-	                     help='Target version of glib for Vala GObject code generation.')
+	                     help='Target version of glib for Vala GObject code generation')
+
