@@ -1,7 +1,10 @@
 NEW IN WAF 1.5.15
 -----------------
 * Minor vala improvements
+* MSVC detection improvements
 * Fixed the 'args' parameter in conf.check(...)
+* Fixed a regression for the python.py tool on Python 3.x
+* Scanner methods are executed properly whenever the source change
 
 NEW IN WAF 1.5.14
 -----------------
