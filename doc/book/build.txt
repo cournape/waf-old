@@ -59,7 +59,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 
 === Finding folders and files through node objects
 
-In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed fron the build context:
+In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed from the build context:
 
 . `root`: node representing the root of the file system, or the folder containing the drive letters on win32 systems
 . `path`: node representing the path of the script being read (path to the wscript file)

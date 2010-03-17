@@ -1,4 +1,4 @@
-The Waf Book (v1.5.15)
+The Waf Book (v1.5.14)
 ======================
 :author: Thomas Nagy
 :quotes.++:
@@ -16,7 +16,7 @@ purposes. The license for this book is
 
 As software is becoming increasingly complex, the process of creating software is becoming more complex too. Today's software uses various languages, requires various compilers, and the input data is spread into many files.
 
-Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), of compilers (CMake, Qmake), or complete applications (SCons, Maven, Waf). The term `build system' is used to design the tools used to build applications.
+Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), or compilers (CMake, Qmake), or complete applications (SCons, Maven, Waf). The term `build system' is used to design the tools used to build applications.
 
 === The Waf framework
 

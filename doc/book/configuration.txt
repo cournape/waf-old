@@ -198,7 +198,7 @@ from Configure import conftest <1>
 
 @conftest
 def detect(conf): <2>
-	print('→ detect fron dang!')
+	print('→ detect from dang!')
 
 @conftest
 def test_hello(conf):
@@ -263,7 +263,7 @@ $ waf distclean configure build
 'distclean' finished successfully (0.002s)
 → there is no method conf.check_cc
 → method conf.check_cc (ConfigurationContext.check_cc)
-→ detect fron dang!
+→ detect from dang!
 → test from dang!
 'configure' finished successfully (0.003s)
 Waf: Entering directory `/tmp/smallproject/build'
