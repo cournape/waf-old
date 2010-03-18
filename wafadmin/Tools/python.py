@@ -55,7 +55,7 @@ def init_pyembed(self):
 
 @extension(EXT_PY)
 def process_py(self, node):
-	if not (self.bld.is_install or self.install_path):
+	if not (self.bld.is_install and self.install_path):
 		return
 	def inst_py(ctx):
 		install_pyfile(self, node)
