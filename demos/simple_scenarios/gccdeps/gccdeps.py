@@ -109,6 +109,13 @@ def post_run(self):
 
 	Task.Task.post_run(self)
 
+import Constants, Utils
+def sig_implicit_deps(self):
+	try:
+		return Task.Task.sig_implicit_deps(self)
+	except Utils.WafError:
+		return Constants.SIG_NIL
+
 for name in 'cc cxx'.split():
 	try:
 		cls = Task.TaskBase.classes[name]
@@ -117,4 +124,5 @@ for name in 'cc cxx'.split():
 	else:
 		cls.post_run = post_run
 		cls.scan = scan
+		cls.sig_implicit_deps = sig_implicit_deps
 
