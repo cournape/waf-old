@@ -5,8 +5,9 @@
 VERSION="1.6.0"
 APPNAME='waf'
 REVISION=''
-srcdir='.'
-blddir='build'
+
+top = '.'
+out = 'build'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']

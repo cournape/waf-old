@@ -4,6 +4,7 @@ Waf 1.6
 The points listed with a '+' indicate potential sub-projects (contributions will be welcome)
 
 General
+- remove the variants
 - rename srcdir/blddir to top/out
 - os.environ control during task execution
 - multiprocess for distributed compilation (vs threads)
