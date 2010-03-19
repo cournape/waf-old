@@ -315,11 +315,11 @@ def build(bld):
 
 	dir = os.path.join('lib', 'waf-%s-%s' % (VERSION, REVISION), 'wafadmin')
 
-	wafadmin = bld('py')
+	wafadmin = bld(features = 'py')
 	wafadmin.find_sources_in_dirs('wafadmin', exts=['.py'])
 	wafadmin.install_path = os.path.join('${PREFIX}', dir)
 
-	tools = bld('py')
+	tools = bld(features = 'py')
 	tools.find_sources_in_dirs('wafadmin/Tools', exts=['.py'])
 	tools.install_path = os.path.join('${PREFIX}', dir, 'Tools')
 
