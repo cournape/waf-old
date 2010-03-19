@@ -1,7 +1,18 @@
 Waf 1.5
 -------
 
+remove the call to perl for editing the files in "waf --make-waf"
+
 docs:
+
+
+- the different levels of coupling
+
+task generator -> task generator (--targets)
+task -> other task (build order)
+task -> other task (mere existence)
+
+
 
 # enforce the after= ordering constraints in the javac task generators
 from TaskGen import after, feature
@@ -18,7 +29,48 @@ def process_after(self):
 			for b in self.tasks:
 				b.set_run_after(a)
 
+
+
+
+
+import Node, Environment
+
+def vari(self):
+        return "default"
+Environment.Environment.variant = vari
+
+def variant(self, env):
+        if not env: return 0
+        elif self.id & 3 == Node.FILE: return 0
+        else: return "default"
+Node.Node.variant = variant
+
+
+import TaskGen, Task
+
+def create_task(self, name, src=None, tgt=None):
+    task = Task.TaskBase.classes[name](self.env, generator=self)
+    if src:
+        task.set_inputs(src)
+    if tgt:
+        task.set_outputs(tgt)
+    return task
+TaskGen.task_gen.create_task = create_task
+
+def hash_constraints(self):
+        a = self.attr
+        sum = hash((str(a('before', '')),
+            str(a('after', '')),
+            str(a('ext_in', '')),
+            str(a('ext_out', '')),
+            self.__class__.maxjobs))
+        return sum
+Task.TaskBase.hash_constraints = hash_constraints
+
+
+
+
 --------------------------------------
-Last update: 13/03/2010
+Last update: 19/03/2010
 Contact -> http://code.google.com/p/waf
 
