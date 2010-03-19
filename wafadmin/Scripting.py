@@ -199,7 +199,7 @@ def run_commands():
 
 		run_command(cmd_name)
 
-		timer.stop()
+		#timer.stop()
 		if not Options.options.progress_bar:
 			elapsed = ' (%s)' % str(timer)
 

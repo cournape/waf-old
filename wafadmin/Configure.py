@@ -362,6 +362,9 @@ class ConfigurationContext(Utils.Context):
 			self.check_message_2(bld)
 
 	def finalize(self):
+
+		# why the duplication?
+
 		self.store()
 
 		# this will write a configure lock so that subsequent builds will
@@ -390,12 +393,10 @@ class ConfigurationContext(Utils.Context):
 
 def conf(f):
 	"decorator: attach new configuration functions"
+	ConfigurationContext.tests[f.__name__] = f
 	setattr(ConfigurationContext, f.__name__, f)
 	return f
 
-def conftest(f):
-	"decorator: attach new configuration tests (registered as strings)"
-	ConfigurationContext.tests[f.__name__] = f
-	return conf(f)
-
+# TODO eliminate
+conftest = conf
 
