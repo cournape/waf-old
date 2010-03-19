@@ -1135,7 +1135,7 @@ def extract_deps(tasks):
 		except: # this is on purpose
 			pass
 
-		variant = x.env.variant()
+		v = x.env.variant()
 		key = x.unique_id()
 		for k in x.generator.bld.node_deps.get(x.unique_id(), []):
 			try: dep_to_task[(v, k.id)].append(x)
