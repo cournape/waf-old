@@ -7,6 +7,12 @@ It requires python 3
 
 Most of the work is on the data structure at the moment
 
+
+
+- the build context instance will initialize itself with the srcdir and output directory specified in the lockfile
+- there are no variants anymore
+
+
 ---------------------------
 Thomas Nagy, 2010 (ita)
 

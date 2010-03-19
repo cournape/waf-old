@@ -69,8 +69,11 @@ class BuildContext(Utils.Context):
 	def __init__(self, start_dir=None):
 		super(BuildContext, self).__init__(start_dir)
 
-		global bld
-		bld = self
+		# output directory
+		self.outdir = None
+
+
+		############ stuff below has not been reviewed
 
 		self.task_manager = Task.TaskManager()
 
@@ -97,7 +100,7 @@ class BuildContext(Utils.Context):
 		# ======================================= #
 		# cache variables
 
-		# local cache for absolute paths - cache_node_abspath[variant][node]
+		# local cache for absolute paths - cache_node_abspath[node]
 		self.cache_node_abspath = {}
 
 		# list of folders that are already scanned
@@ -112,8 +115,7 @@ class BuildContext(Utils.Context):
 
 		# build dir variants (release, debug, ..)
 		for v in 'cache_node_abspath task_sigs node_deps raw_deps node_sigs'.split():
-			var = {}
-			setattr(self, v, var)
+			setattr(self, v, {})
 
 		self.cache_dir_contents = {}
 
@@ -330,8 +332,6 @@ class BuildContext(Utils.Context):
 
 				self.all_envs[name] = env
 
-		self.init_variants()
-
 		for env in self.all_envs.values():
 			for f in env[CFG_FILES]:
 				newnode = self.path.find_or_declare(f)
@@ -340,7 +340,7 @@ class BuildContext(Utils.Context):
 				except (IOError, AttributeError):
 					error("cannot find "+f)
 					hash = SIG_NIL
-				self.node_sigs[env.variant()][newnode.id] = hash
+				self.node_sigs[newnode.id] = hash
 
 		# TODO: hmmm, these nodes are removed from the tree when calling rescan()
 		self.bldnode = self.root.find_dir(self.bldnode.abspath())
@@ -357,23 +357,6 @@ class BuildContext(Utils.Context):
 
 		module = Utils.load_tool(tool, tooldir)
 		if hasattr(module, "setup"): module.setup(self)
-
-	def init_variants(self):
-		debug('build: init variants')
-
-		lstvariants = []
-		for env in self.all_envs.values():
-			if not env.variant() in lstvariants:
-				lstvariants.append(env.variant())
-		self.lst_variants = lstvariants
-
-		debug('build: list of variants is %r' % lstvariants)
-
-		for name in lstvariants+[0]:
-			for v in 'node_sigs cache_node_abspath'.split():
-				var = getattr(self, v)
-				if not name in var:
-					var[name] = {}
 
 	# ======================================= #
 	# node and folder handling
@@ -412,8 +395,6 @@ class BuildContext(Utils.Context):
 		if not self.bldnode:
 			self.bldnode = self.root.ensure_dir_node_from_path(blddir)
 
-		self.init_variants()
-
 	def rescan(self, src_dir_node):
 		"""
 		look the contents of a (folder)node and update its list of childs
@@ -422,7 +403,7 @@ class BuildContext(Utils.Context):
 		* remove the nodes for the files that have disappeared
 		* remove the signatures for the build files that have disappeared
 		* cache the results of os.listdir
-		* create the build folder equivalent (mkdir) for each variant
+		* create the build folder equivalent (mkdir)
 		src/bar -> build/default/src/bar, build/release/src/bar
 
 		when a folder in the source directory is removed, we do not check recursively
@@ -453,7 +434,7 @@ class BuildContext(Utils.Context):
 		self.cache_dir_contents[src_dir_node.id] = lst
 
 		# hash the existing source files, remove the others
-		cache = self.node_sigs[0]
+		cache = self.node_sigs
 		for x in src_dir_node.childs.values():
 			if x.id & 3 != Node.FILE: continue
 			if x.name in lst:
@@ -482,29 +463,23 @@ class BuildContext(Utils.Context):
 
 		# list the files in the build dirs
 		try:
-			for variant in self.lst_variants:
-				sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
-				self.listdir_bld(src_dir_node, sub_path, variant)
+			sub_path = os.path.join(self.bldnode.abspath(), 'default' , *lst)
+			self.listdir_bld(src_dir_node, sub_path)
 		except OSError:
 
-			# listdir failed, remove the build node signatures for all variants
 			for node in src_dir_node.childs.values():
 				if node.id & 3 != Node.BUILD:
 					continue
-
-				for dct in self.node_sigs:
-					if node.id in dct:
-						dict.__delitem__(node.id)
+				self.node_sigs.__delitem__(node.id)
 
 				# the policy is to avoid removing nodes representing directories
 				src_dir_node.childs.__delitem__(node.name)
 
-			for variant in self.lst_variants:
-				sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
-				try:
-					os.makedirs(sub_path)
-				except OSError:
-					pass
+			sub_path = os.path.join(self.outdir , *lst)
+			try:
+				os.makedirs(sub_path)
+			except OSError:
+				pass
 
 	# ======================================= #
 	def listdir_src(self, parent_node):

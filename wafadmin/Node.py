@@ -184,7 +184,7 @@ class Node(object):
 			return None
 
 		child = self.__class__(name, parent, FILE)
-		tree.node_sigs[0][child.id] = st
+		tree.node_sigs[child.id] = st
 		return child
 
 	def find_or_declare(self, lst):
@@ -370,7 +370,7 @@ class Node(object):
 		ln = tree.launch_node()
 
 		if self.id & 3 == FILE: return self.relpath_gen(ln)
-		else: return os.path.join(tree.bldnode.relpath_gen(ln), env.variant(), self.relpath_gen(tree.srcnode))
+		else: return os.path.join(tree.bldnode.relpath_gen(ln), self.relpath_gen(tree.srcnode))
 
 	def is_child_of(self, node):
 		"does this node belong to the subtree node"
@@ -380,12 +380,6 @@ class Node(object):
 			diff -= 1
 			p = p.parent
 		return p.id == node.id
-
-	def variant(self, env):
-		"variant, or output directory for this node, a source has for variant 0"
-		if not env: return 0
-		elif self.id & 3 == FILE: return 0
-		else: return env.variant()
 
 	def height(self):
 		"amount of parents"
@@ -399,40 +393,28 @@ class Node(object):
 
 	# helpers for building things
 
-	def abspath(self, env=None):
+	def abspath(self):
 		"""
 		absolute path
-		@param env
-			* obligatory for build nodes: build/variant/src/dir/bar.o
-			* optional for dirs: get either src/dir or build/variant/src/dir
-			* excluded for source nodes: src/dir/bar.c
-
-		Instead of computing the absolute path each time again,
-		store the already-computed absolute paths in one of (variants+1) dictionaries:
-		bld.cache_node_abspath[0] holds absolute paths for source nodes.
-		bld.cache_node_abspath[variant] holds the absolute path for the build nodes
-		which reside in the variant given by env.
+		cache into the build context, cache_node_abspath
 		"""
 		## absolute path - hot zone, so do not touch
 
-		# less expensive
-		variant = (env and (self.id & 3 != FILE) and env.variant()) or 0
-
-		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
+		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
 		if ret: return ret
 
-		if not variant:
-			# source directory
+		id = self.id
+		if id & 3 == BUILD:
+			val = os.sep.join((self.__class__.bld.bldpath, self.path_to_parent(self.__class__.bld.srcnode)))
+		else:
 			if not self.parent:
 				val = os.sep == '/' and os.sep or ''
 			elif not self.parent.name: # root
 				val = (os.sep == '/' and os.sep or '') + self.name
 			else:
 				val = self.parent.abspath() + os.sep + self.name
-		else:
-			# build directory
-			val = os.sep.join((self.__class__.bld.bldnode.abspath(), variant, self.path_to_parent(self.__class__.bld.srcnode)))
-		self.__class__.bld.cache_node_abspath[variant][self.id] = val
+
+		self.__class__.bld.cache_node_abspath[id] = val
 		return val
 
 	def change_ext(self, ext):
@@ -446,40 +428,40 @@ class Node(object):
 
 		return self.parent.find_or_declare([name])
 
-	def src_dir(self, env):
+	def src_dir(self):
 		"src path without the file name"
-		return self.parent.srcpath(env)
+		return self.parent.srcpath()
 
-	def bld_dir(self, env):
+	def bld_dir(self):
 		"build path without the file name"
-		return self.parent.bldpath(env)
+		return self.parent.bldpath()
 
-	def bld_base(self, env):
+	def bld_base(self):
 		"build path without the extension: src/dir/foo(.cpp)"
 		s = os.path.splitext(self.name)[0]
-		return os.path.join(self.bld_dir(env), s)
+		return self.bld_dir() + os.sep + s
 
-	def bldpath(self, env=None):
+	def bldpath(self):
 		"path seen from the build dir default/src/foo.cpp"
 		if self.id & 3 == FILE:
 			return self.relpath_gen(self.__class__.bld.bldnode)
 		if self.path_to_parent(self.__class__.bld.srcnode) is not '':
-			return os.path.join(env.variant(), self.path_to_parent(self.__class__.bld.srcnode))
-		return env.variant()
+			return self.path_to_parent(self.__class__.bld.srcnode)
+		return '.'
 
-	def srcpath(self, env=None):
+	def srcpath(self):
 		"path in the srcdir from the build dir ../src/foo.cpp"
 		if self.id & 3 == BUILD:
-			return self.bldpath(env)
+			return self.bldpath()
 		return self.relpath_gen(self.__class__.bld.bldnode)
 
-	def read(self, env):
+	def read(self):
 		"get the contents of a file, it is not used anywhere for the moment"
-		return Utils.readf(self.abspath(env))
+		return Utils.readf(self.abspath())
 
-	def dir(self, env):
+	def dir(self):
 		"scons-like"
-		return self.parent.abspath(env)
+		return self.parent.abspath()
 
 	def file(self):
 		"scons-like"

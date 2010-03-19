@@ -533,7 +533,7 @@ class Task(TaskBase):
 		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
 
 	def unique_id(self):
-		"get a unique id: hash the node paths, the variant, the class, the function"
+		"get a unique id: hash the node paths, the class, the function"
 		try:
 			return self.uid
 		except AttributeError:
@@ -541,7 +541,6 @@ class Task(TaskBase):
 			m = md5()
 			up = m.update
 			up(self.__class__.__name__.encode())
-			up(self.env.variant().encode())
 			p = None
 			for x in self.inputs + self.outputs:
 				if p != x.parent.id:
@@ -626,9 +625,8 @@ class Task(TaskBase):
 
 		# compare the signatures of the outputs
 		for node in self.outputs:
-			variant = node.variant(env)
 			try:
-				if bld.node_sigs[variant][node.id] != new_sig:
+				if bld.node_sigs[node.id] != new_sig:
 					return RUN_ME
 			except KeyError:
 				debug("task: task %r must run as the output nodes do not exist" % self)
@@ -648,7 +646,6 @@ class Task(TaskBase):
 		sig = self.signature()
 
 		cnt = 0
-		variant = env.variant()
 		for node in self.outputs:
 			# check if the node exists ..
 			try:
@@ -659,7 +656,7 @@ class Task(TaskBase):
 				raise Utils.WafError
 
 			# important, store the signature for the next run
-			bld.node_sigs[variant][node.id] = sig
+			bld.node_sigs[node.id] = sig
 
 			# We could re-create the signature of the task with the signature of the outputs
 			# in practice, this means hashing the output files
@@ -685,7 +682,6 @@ class Task(TaskBase):
 
 		cnt = 0
 		for node in self.outputs:
-			variant = node.variant(env)
 
 			ssig = sig.encode('hex')
 			orig = os.path.join(Options.cache_global, '%s_%d_%s' % (ssig, cnt, node.name))
@@ -700,8 +696,8 @@ class Task(TaskBase):
 				cnt += 1
 
 		for node in self.outputs:
-			self.generator.bld.node_sigs[variant][node.id] = sig
-			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
+			self.generator.bld.node_sigs[node.id] = sig
+			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath())
 
 		return 1
 
@@ -728,8 +724,7 @@ class Task(TaskBase):
 			if not x.parent.id in bld.cache_scanned_folders:
 				bld.rescan(x.parent)
 
-			variant = x.variant(self.env)
-			m.update(bld.node_sigs[variant][x.id])
+			m.update(bld.node_sigs[x.id])
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
@@ -743,9 +738,8 @@ class Task(TaskBase):
 				for v in d:
 					if isinstance(v, Node.Node):
 						bld.rescan(v.parent)
-						variant = v.variant(self.env)
 						try:
-							v = bld.node_sigs[variant][v.id]
+							v = bld.node_sigs[v.id]
 						except KeyError: # make it fatal?
 							v = ''
 					elif hasattr(v, '__call__'):
@@ -753,7 +747,7 @@ class Task(TaskBase):
 					m.update(v)
 
 		for x in self.deps_nodes:
-			v = bld.node_sigs[x.variant(self.env)][x.id]
+			v = bld.node_sigs[x.id]
 			m.update(v)
 
 		return m.digest()
@@ -833,9 +827,9 @@ class Task(TaskBase):
 
 			# if the parent folder is removed, a KeyError will be thrown
 			if k.id & 3 == 2: # Node.FILE:
-				upd(tstamp[0][k.id])
+				upd(tstamp[k.id])
 			else:
-				upd(tstamp[env.variant()][k.id])
+				upd(tstamp[k.id])
 
 		return m.digest()
 
@@ -990,8 +984,7 @@ def update_outputs(cls):
 	def post_run(self):
 		old_post_run(self)
 		bld = self.outputs[0].__class__.bld
-		bld.node_sigs[self.env.variant()][self.outputs[0].id] = \
-		Utils.h_file(self.outputs[0].abspath(self.env))
+		bld.node_sigs[self.outputs[0].id] = Utils.h_file(self.outputs[0].abspath())
 	cls.post_run = post_run
 
 def extract_outputs(tasks):
@@ -1036,14 +1029,13 @@ def extract_deps(tasks):
 	# map the output nodes to the tasks producing them
 	out_to_task = {}
 	for x in tasks:
-		v = x.env.variant()
 		try:
 			lst = x.outputs
 		except AttributeError:
 			pass
 		else:
 			for node in lst:
-				out_to_task[(v, node.id)] = x
+				out_to_task[node.id] = x
 
 	# map the dependencies found to the tasks compiled
 	dep_to_task = {}
