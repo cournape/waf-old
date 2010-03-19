@@ -38,5 +38,6 @@ Docs
 + enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
 Merge
+- task processing fixes
 - atomic wafcache operations (#572)
 
