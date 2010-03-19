@@ -242,7 +242,6 @@ def copytree(src, dst, build_dir):
 		else:
 			shutil.copy2(srcname, dstname)
 
-# TODO in waf 1.6, change this method if "srcdir == blddir" is allowed
 def distclean(ctx=None):
 	'''removes the build directory'''
 	lst = os.listdir('.')

@@ -33,8 +33,8 @@ SIG_NIL = b'iluvcuteoverload'
 VARIANT = '_VARIANT_'
 DEFAULT = 'default'
 
-SRCDIR  = 'srcdir'
-BLDDIR  = 'blddir'
+SRCDIR  = 'top'
+BLDDIR  = 'out'
 APPNAME = 'APPNAME'
 VERSION = 'VERSION'
 
