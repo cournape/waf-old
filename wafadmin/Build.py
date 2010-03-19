@@ -113,7 +113,6 @@ class BuildContext(Utils.Context):
 		# ======================================= #
 		# tasks and objects
 
-		# build dir variants (release, debug, ..)
 		for v in 'cache_node_abspath task_sigs node_deps raw_deps node_sigs'.split():
 			setattr(self, v, {})
 
@@ -465,6 +464,19 @@ class BuildContext(Utils.Context):
 		try:
 			sub_path = os.path.join(self.bldnode.abspath(), 'default' , *lst)
 			self.listdir_bld(src_dir_node, sub_path)
+			i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
+
+			lst = set(Utils.listdir(path))
+			node_names = set([x.name for x in i_existing_nodes])
+			remove_names = node_names - lst
+
+			# remove the stamps of the build nodes that no longer exist on the filesystem
+			ids_to_remove = [x.id for x in i_existing_nodes if x.name in remove_names]
+			cache = self.node_sigs[variant]
+			for nid in ids_to_remove:
+				if nid in cache:
+					cache.__delitem__(nid)
+
 		except OSError:
 
 			for node in src_dir_node.childs.values():
@@ -482,30 +494,6 @@ class BuildContext(Utils.Context):
 				pass
 
 	# ======================================= #
-	def listdir_src(self, parent_node):
-		"""do not use, kept for compatibility"""
-		pass
-
-	def remove_node(self, node):
-		"""do not use, kept for compatibility"""
-		pass
-
-	def listdir_bld(self, parent_node, path, variant):
-		"""in this method we do not add timestamps but we remove them
-		when the files no longer exist (file removed in the build dir)"""
-
-		i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
-
-		lst = set(Utils.listdir(path))
-		node_names = set([x.name for x in i_existing_nodes])
-		remove_names = node_names - lst
-
-		# remove the stamps of the build nodes that no longer exist on the filesystem
-		ids_to_remove = [x.id for x in i_existing_nodes if x.name in remove_names]
-		cache = self.node_sigs[variant]
-		for nid in ids_to_remove:
-			if nid in cache:
-				cache.__delitem__(nid)
 
 	def get_env(self):
 		return self.env_of_name('default')
@@ -531,16 +519,6 @@ class BuildContext(Utils.Context):
 		except AttributeError:
 			self.p_ln = self.root.find_dir(Options.launch_dir)
 			return self.p_ln
-
-	def glob(self, pattern, relative=True):
-		"files matching the pattern, seen from the current folder"
-		path = self.path.abspath()
-		files = [self.root.find_resource(x) for x in glob.glob(path+os.sep+pattern)]
-		if relative:
-			files = [x.path_to_parent(self.path) for x in files if x]
-		else:
-			files = [x.abspath() for x in files if x]
-		return files
 
 	## the following methods are candidates for the stable apis ##
 
@@ -1036,3 +1014,4 @@ class CleanContext(BuildContext):
 			self.clean()
 		finally:
 			self.save()
+

@@ -990,15 +990,9 @@ def update_outputs(cls):
 def extract_outputs(tasks):
 	"""file_deps: Infer additional dependencies from task input and output nodes
 	"""
-	v = {}
+	ins = {}
+	outs = {}
 	for x in tasks:
-		try:
-			(ins, outs) = v[x.env.variant()]
-		except KeyError:
-			ins = {}
-			outs = {}
-			v[x.env.variant()] = (ins, outs)
-
 		for a in getattr(x, 'inputs', []):
 			try: ins[a.id].append(x)
 			except KeyError: ins[a.id] = [x]
@@ -1006,12 +1000,11 @@ def extract_outputs(tasks):
 			try: outs[a.id].append(x)
 			except KeyError: outs[a.id] = [x]
 
-	for (ins, outs) in v.values():
-		links = set(ins.keys()).intersection(outs.keys())
-		for k in links:
-			for a in ins[k]:
-				for b in outs[k]:
-					a.set_run_after(b)
+	links = set(ins.keys()).intersection(outs.keys())
+	for k in links:
+		for a in ins[k]:
+			for b in outs[k]:
+				a.set_run_after(b)
 
 def extract_deps(tasks):
 	"""file_deps: Infer additional dependencies from task input and output nodes and from implicit dependencies
@@ -1045,11 +1038,10 @@ def extract_deps(tasks):
 		except: # this is on purpose
 			pass
 
-		variant = x.env.variant()
 		key = x.unique_id()
 		for k in x.generator.bld.node_deps.get(x.unique_id(), []):
-			try: dep_to_task[(v, k.id)].append(x)
-			except KeyError: dep_to_task[(v, k.id)] = [x]
+			try: dep_to_task[k.id].append(x)
+			except KeyError: dep_to_task[k.id] = [x]
 
 	# now get the intersection
 	deps = set(dep_to_task.keys()).intersection(set(out_to_task.keys()))

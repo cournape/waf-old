@@ -58,19 +58,6 @@ class ConfigSet(object):
 	def __delitem__(self, key, value):
 		del self.table[key]
 
-	def set_variant(self, name):
-		self.table[VARIANT] = name
-
-	def variant(self):
-		try:
-			while 1:
-				x = self.table.get(VARIANT, None)
-				if not x is None:
-					return x
-				self = self.parent
-		except AttributeError:
-			return DEFAULT
-
 	def derive(self):
 		newenv = ConfigSet()
 		newenv.parent = self
