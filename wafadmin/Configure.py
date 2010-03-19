@@ -385,7 +385,7 @@ class ConfigurationContext(Utils.Context):
 			env.store(os.path.join(self.srcdir, Options.lockfile))
 
 		env.store(Options.lockfile)
-
+		Options.topdir = self.srcdir
 		Options.options.compile_targets = self.targets
 
 def conf(f):

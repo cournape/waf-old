@@ -101,6 +101,7 @@ def find_wscript_file(current_dir):
 				candidate = current_dir
 			else:
 				candidate = env['cwd']
+			Options.topdir = candidate
 			break
 		current_dir = os.path.dirname(current_dir) # climb up
 
