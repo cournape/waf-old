@@ -32,11 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import os, sys
 if sys.hexversion<0x300000f:
-	raise ImportError("Waf 1.6 requires Python >= 3.0 (for now)")
-
-if 'PSYCOWAF' in os.environ:
-	try:import psyco;psyco.full()
-	except:pass
+	raise ImportError('Waf 1.6 requires Python >= 3.0 (for now)')
 
 VERSION="1.6.0"
 REVISION="x"
