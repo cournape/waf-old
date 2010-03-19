@@ -1,9 +1,0 @@
-#! /usr/bin/env python
-# encoding: utf-8
-# Thomas Nagy, 2006-2009 (ita)
-
-def build(bld):
-	bld.new_task_gen(
-		features = 'intltool_po',
-		appname = 'gnome-hello')
-
