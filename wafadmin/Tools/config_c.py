@@ -634,7 +634,7 @@ def write_config_header(self, configfile='', env='', guard='', top=False):
 		diff = ''
 	else:
 		diff = Utils.diff_path(self.srcdir, self.curdir)
-	full = os.sep.join([self.blddir, env.variant(), diff, configfile])
+	full = os.sep.join([self.blddir, diff, configfile])
 	full = os.path.normpath(full)
 	(dir, base) = os.path.split(full)
 

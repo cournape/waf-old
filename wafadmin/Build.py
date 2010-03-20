@@ -460,7 +460,7 @@ class BuildContext(Utils.Context):
 			h2 -= 1
 		lst.reverse()
 
-		# list the files in the build dirs
+		# list the files in the build directory
 		try:
 			sub_path = os.path.join(self.bldnode.abspath(), 'default' , *lst)
 			self.listdir_bld(src_dir_node, sub_path)
@@ -472,10 +472,12 @@ class BuildContext(Utils.Context):
 
 			# remove the stamps of the build nodes that no longer exist on the filesystem
 			ids_to_remove = [x.id for x in i_existing_nodes if x.name in remove_names]
-			cache = self.node_sigs[variant]
+			cache = self.node_sigs
 			for nid in ids_to_remove:
-				if nid in cache:
+				try:
 					cache.__delitem__(nid)
+				except KeyError:
+					pass
 
 		except OSError:
 
@@ -547,25 +549,23 @@ class BuildContext(Utils.Context):
 		self.cache_sig_vars[idx] = ret
 		return ret
 
-	def name_to_obj(self, name, env):
+	def name_to_obj(self, name):
 		"""retrieve a task generator from its name or its target name
 		remember that names must be unique"""
 		cache = self.task_gen_cache_names
 		if not cache:
 			# create the index lazily
 			for x in self.all_task_gen:
-				vt = x.env.variant() + '_'
 				if x.name:
-					cache[vt + x.name] = x
+					cache[x.name] = x
 				else:
 					if isinstance(x.target, str):
 						target = x.target
 					else:
 						target = ' '.join(x.target)
-					v = vt + target
-					if not cache.get(v, None):
-						cache[v] = x
-		return cache.get(env.variant() + '_' + name, None)
+					if not cache.get(target, None):
+						cache[target] = x
+		return cache.get(name, None)
 
 	def flush(self, all=1):
 		"""tell the task generators to create the tasks"""
