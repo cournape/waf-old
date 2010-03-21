@@ -6,6 +6,8 @@ NEW IN WAF 1.5.15
 * Fixed a regression for the python.py tool on Python 3.x
 * Scanner methods are executed properly whenever the source change
 * gccdeps.py improvements
+* stop faster when an error occurs
+* fix for ccache + suncc
 
 NEW IN WAF 1.5.14
 -----------------
