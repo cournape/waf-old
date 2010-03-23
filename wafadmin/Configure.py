@@ -187,23 +187,6 @@ class ConfigurationContext(Utils.Context):
 		self.hash = hash((self.hash, getattr(name_or_mod, 'waf_hash_val', name_or_mod)))
 		self.files.append(path)
 
-	def store(self, file=''):
-		"save the config results into the cache file"
-		if not os.path.isdir(self.cachedir):
-			os.makedirs(self.cachedir)
-
-		if not file:
-			file = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
-		file.write('version = 0x%x\n' % HEXVERSION)
-		file.write('tools = %r\n' % self.tools)
-		file.close()
-
-		if not self.all_envs:
-			self.fatal('nothing to store in the configuration context!')
-		for key in self.all_envs:
-			tmpenv = self.all_envs[key]
-			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
-
 	def set_env_name(self, name, env):
 		"add a new environment called name"
 		self.all_envs[name] = env
@@ -360,6 +343,26 @@ class ConfigurationContext(Utils.Context):
 		if 'incomplete_bld' in vars():
 			self.check_message_1('Setting blddir to')
 			self.check_message_2(bld)
+
+	def store(self, file=''):
+		"save the config results into the cache file"
+		try:
+			os.makedirs(self.cachedir)
+		except:
+			pass
+
+		if not file:
+			file = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
+
+		file.write('version = 0x%x\n' % HEXVERSION)
+		file.write('tools = %r\n' % self.tools)
+		file.close()
+
+		if not self.all_envs:
+			self.fatal('nothing to store in the configuration context!')
+		for key in self.all_envs:
+			tmpenv = self.all_envs[key]
+			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
 
 	def finalize(self):
 
