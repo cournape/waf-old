@@ -78,7 +78,7 @@ Main commands (example: ./waf build -j4)
 
 setattr(optparse.OptionParser, 'get_usage', get_usage)
 
-def create_parser(module=None):
+def create_parser():
 	Logs.debug('options: create_parser is called')
 	parser = optparse.OptionParser(conflict_handler="resolve", version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
 
@@ -159,17 +159,14 @@ def create_parser(module=None):
 
 	return parser
 
-# TODO waf 1.6
-# 2. instead of a class attribute, use a module (static 'parser')
-
 @command_context('', 'set_options')
 class OptionsContext(Utils.Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
 
-	def __init__(self, module=None):
+	def __init__(self):
 		super(self.__class__, self).__init__()
-		self.parser = create_parser(module)
+		self.parser = create_parser()
 
 	# pass through to optparse
 	def add_option(self, *k, **kw):

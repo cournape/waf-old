@@ -154,8 +154,7 @@ def prepare_top_wscript(wscript_path):
 		Utils.g_module.set_options = Utils.nada
 
 def parse_options():
-	opt = Options.OptionsContext(Utils.g_module)
-	opt.execute()
+	opt = Options.OptionsContext().execute()
 
 	if not Options.commands:
 		Options.commands = ['build']
@@ -182,12 +181,10 @@ def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
 	global current_command
 	current_command = cmd_name
-	context = Utils.create_context(cmd_name)
-	context.execute()
+	Utils.create_context(cmd_name).execute()
 
 def run_commands():
 	run_command('init')
-
 	while Options.commands:
 		cmd_name = Options.commands.pop(0)
 
@@ -196,7 +193,6 @@ def run_commands():
 		if not Options.options.progress_bar:
 			elapsed = ' (%s)' % str(timer)
 		info('%r finished successfully%s' % (cmd_name, elapsed))
-
 	run_command('shutdown')
 
 ###########################################################################################
