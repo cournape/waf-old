@@ -158,17 +158,12 @@ def parse_options():
 	opt = Options.OptionsContext(start_dir, Utils.g_module)
 	opt.execute()
 
-	# Add the commands init and shutdown
-	# Add 'build' if no command was specified
-	# TODO this is unlikely to work
-	sanitized_commands = ['init']
-	sanitized_commands += Options.commands or ['build']
-	sanitized_commands.append('shutdown')
-	Options.commands = sanitized_commands
+	if not Options.commands:
+		Options.commands = ['build']
 
 	if 'install' in sys.argv or 'uninstall' in sys.argv:
-		# absolute path only if set
-		Options.options.destdir = Options.options.destdir and os.path.abspath(os.path.expanduser(Options.options.destdir))
+		if Options.options.destdir:
+			Options.options.destdir = os.path.abspath(os.path.expanduser(Options.options.destdir))
 
 	# process some internal Waf options
 	Logs.verbose = Options.options.verbose
@@ -176,9 +171,11 @@ def parse_options():
 
 	if Options.options.zones:
 		Logs.zones = Options.options.zones.split(',')
-		if not Logs.verbose: Logs.verbose = 1
+		if not Logs.verbose:
+			Logs.verbose = 1
 	elif Logs.verbose > 0:
 		Logs.zones = ['runner']
+
 	if Logs.verbose > 2:
 		Logs.zones = ['*']
 
@@ -195,6 +192,8 @@ def run_command(cmd_name):
 	context.execute()
 
 def run_commands():
+	run_command('init')
+
 	while Options.commands:
 		cmd_name = Options.commands.pop(0)
 
@@ -202,9 +201,9 @@ def run_commands():
 		run_command(cmd_name)
 		if not Options.options.progress_bar:
 			elapsed = ' (%s)' % str(timer)
+		info('%r finished successfully%s' % (cmd_name, elapsed))
 
-		if cmd_name not in ['init', 'shutdown']:
-			info('%r finished successfully%s' % (cmd_name, elapsed))
+	run_command('shutdown')
 
 ###########################################################################################
 
