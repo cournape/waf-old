@@ -10,11 +10,11 @@ from Logs import error, warn, info
 from Constants import *
 
 g_gz = 'bz2'
-#commands = []
+
 current_command = ''
 """Name of the currently executing command"""
-start_dir = ''
-"""Directory containing the top-level wscript from which all commands should be run"""
+
+
 build_dir_override = None
 
 def waf_entry_point(tools_directory, current_directory, version, wafdir):
@@ -121,8 +121,7 @@ def find_wscript_file(current_dir):
 		os.chdir(candidate)
 	except OSError:
 		raise Utils.WafError("the folder %r is unreadable" % candidate)
-	global start_dir
-	start_dir = candidate
+	Utils.start_dir = candidate
 	return os.path.join(candidate, WSCRIPT_FILE)
 
 def prepare_top_wscript(wscript_path):
@@ -155,7 +154,7 @@ def prepare_top_wscript(wscript_path):
 		Utils.g_module.set_options = Utils.nada
 
 def parse_options():
-	opt = Options.OptionsContext(start_dir, Utils.g_module)
+	opt = Options.OptionsContext(Utils.g_module)
 	opt.execute()
 
 	if not Options.commands:
@@ -181,14 +180,9 @@ def parse_options():
 
 def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
-	global current_command, start_dir
+	global current_command
 	current_command = cmd_name
-	context = Utils.create_context(cmd_name, start_dir)
-
-	# if the class attribute is missing, set an instance attribute
-	# with the function name
-	if not getattr(context.__class__, 'function_name', None):
-		setattr(context, 'function_name', cmd_name)
+	context = Utils.create_context(cmd_name)
 	context.execute()
 
 def run_commands():

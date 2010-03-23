@@ -624,9 +624,18 @@ def diff_path(top, subdir):
 	diff = subdir[len(top) - len(subdir):]
 	return os.path.join(*diff)
 
+
+start_dir = ''
+"""Directory containing the top-level wscript from which all commands should be run"""
+
 context_dict = {}
 def create_context(cmd_name, *k, **kw):
-	return context_dict.get(cmd_name, Context)(*k, **kw)
+	try:
+		return context_dict[cmd_name](*k, **kw)
+	except KeyError:
+		ctx = Context(*k, **kw)
+		ctx.function_name = cmd_name
+		return ctx
 
 class command_context(object):
 	"""
@@ -647,8 +656,11 @@ class Context(object):
 	Base class for command contexts. Those objects are passed as the arguments
 	of user functions (commands) defined in Waf scripts.
 	"""
-	def __init__(self, start_dir=None):
-		self.curdir = start_dir or os.getcwd()
+	def __init__(self, start=None):
+		if not start:
+			global start_dir
+			start = start_dir
+		self.curdir = start
 
 	def pre_recurse(self, obj, f, d):
 		pass

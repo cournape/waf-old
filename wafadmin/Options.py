@@ -167,8 +167,8 @@ class OptionsContext(Utils.Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
 
-	def __init__(self, start_dir=None, module=None):
-		super(self.__class__, self).__init__(start_dir)
+	def __init__(self, module=None):
+		super(self.__class__, self).__init__()
 		self.parser = create_parser(module)
 
 	# pass through to optparse
