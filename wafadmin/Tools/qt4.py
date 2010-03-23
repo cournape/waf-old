@@ -425,6 +425,11 @@ def detect_qt4(conf):
 						env.append_unique(kind + 'LIB_' + uselib, lib + d + ext)
 						conf.check_message_2('ok ' + path, 'GREEN')
 						break
+					path = os.path.join(qtbin, pat % (lib + d + ext))
+					if os.path.exists(path):
+						env.append_unique(kind + 'LIB_' + uselib, lib + d + ext)
+						conf.check_message_2('ok ' + path, 'GREEN')
+						break
 				else:
 					conf.check_message_2('not found', 'YELLOW')
 					continue
