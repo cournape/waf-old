@@ -130,18 +130,22 @@ try:
 
 except ImportError:
 	try:
-		from hashlib import md5
-	except ImportError:
-		from md5 import md5
+		try:
+			from hashlib import md5
+		except ImportError:
+			from md5 import md5
 
-	def h_file(filename):
-		f = open(filename, 'rb')
-		m = md5()
-		while (filename):
-			filename = f.read(100000)
-			m.update(filename)
-		f.close()
-		return m.digest()
+		def h_file(filename):
+			f = open(filename, 'rb')
+			m = md5()
+			while (filename):
+				filename = f.read(100000)
+				m.update(filename)
+			f.close()
+			return m.digest()
+	except ImportError:
+		# portability fixes may be added elsewhere (although, md5 should be everywhere by now)
+		md5 = None
 
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
