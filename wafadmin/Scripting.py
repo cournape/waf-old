@@ -36,7 +36,7 @@ def waf_entry_point(tools_directory, current_directory, version, wafdir):
 
 	try:
 		wscript_path = find_wscript_file(current_directory)
-		prepare_wscript(wscript_path)
+		prepare_top_wscript(wscript_path)
 		parse_options()
 		run_commands()
 	except Exception as e:
@@ -125,7 +125,7 @@ def find_wscript_file(current_dir):
 	start_dir = candidate
 	return os.path.join(candidate, WSCRIPT_FILE)
 
-def prepare_wscript(wscript_path):
+def prepare_top_wscript(wscript_path):
 	"""Load the Python module contained in the wscript file and prepare it
 	for execution. This includes adding standard functions that might be undefined."""
 
