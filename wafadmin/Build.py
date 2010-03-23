@@ -982,14 +982,14 @@ class BuildContext(Utils.Context):
 # The classes below are stubs that integrate functionality from Scripting.py
 # for now. TODO: separate more functionality from the build context.
 
-@command_context('install','build')
+@command_context('install', 'build')
 class InstallContext(BuildContext):
 	def run_user_code(self):
 		self.is_install = INSTALL
 		self.execute_build()
 		self.install()
 
-@command_context('uninstall','build')
+@command_context('uninstall', 'build')
 class UninstallContext(BuildContext):
 	def run_user_code(self):
 		self.is_install = UNINSTALL
@@ -1005,7 +1005,7 @@ class UninstallContext(BuildContext):
 		finally:
 			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
-@command_context('clean','build')
+@command_context('clean', 'build')
 class CleanContext(BuildContext):
 	def run_user_code(self):
 		self.is_install = 0 # False

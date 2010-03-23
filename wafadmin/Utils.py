@@ -6,37 +6,6 @@
 Utilities and cross-platform fixes.
 """
 
-"""
-Utilities, the stable ones are the following:
-
-* h_file: compute a unique value for a file (hash), it uses
-  the module fnv if it is installed (see waf/utils/fnv & http://code.google.com/p/waf/wiki/FAQ)
-  else, md5 (see the python docs)
-
-  For large projects (projects with more than 15000 files) or slow hard disks and filesystems (HFS)
-  it is possible to use a hashing based on the path and the size (may give broken cache results)
-  The method h_file MUST raise an OSError if the file is a folder
-
-	import stat
-	def h_file(filename):
-		st = os.stat(filename)
-		if stat.S_ISDIR(st[stat.ST_MODE]): raise IOError('not a file')
-		m = Utils.md5()
-		m.update(str(st.st_mtime))
-		m.update(str(st.st_size))
-		m.update(filename)
-		return m.digest()
-
-	To replace the function in your project, use something like this:
-	import Utils
-	Utils.h_file = h_file
-
-* h_list
-* h_fun
-* get_term_cols
-* ordered_dict
-"""
-
 import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
 from collections import UserDict
 import Logs
@@ -91,32 +60,16 @@ class WscriptError(WafError):
 				return (frame[0], frame[1])
 		return (None, None)
 
-try:
-	from fnv import new as md5
-	import Constants
-	Constants.SIG_NIL = b'signofnv'
+from hashlib import md5
 
-	def h_file(filename):
-		m = md5()
-		try:
-			m.hfile(filename)
-			x = m.digest()
-			if x is None: raise OSError("not a file")
-			return x
-		except SystemError:
-			raise OSError("not a file" + filename)
-
-except ImportError:
-	from hashlib import md5
-
-	def h_file(filename):
-		f = open(filename, 'rb')
-		m = md5()
-		while (filename):
-			filename = f.read(100000)
-			m.update(filename)
-		f.close()
-		return m.digest()
+def h_file(filename):
+	f = open(filename, 'rb')
+	m = md5()
+	while (filename):
+		filename = f.read(100000)
+		m.update(filename)
+	f.close()
+	return m.digest()
 
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
