@@ -15,9 +15,6 @@ is_win32 = sys.platform == 'win32'
 indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 class WafError(Exception):
-	"""
-	FIXME
-	"""
 	def __init__(self, *args):
 		self.args = args
 		try:
@@ -29,9 +26,6 @@ class WafError(Exception):
 		return str(len(self.args) == 1 and self.args[0] or self.args)
 
 class WscriptError(WafError):
-	"""
-	FIXME
-	"""
 	def __init__(self, message, wscript_file=None):
 		if wscript_file:
 			self.wscript_file = wscript_file
