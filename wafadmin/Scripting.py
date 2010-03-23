@@ -158,11 +158,12 @@ def parse_options():
 	opt = Options.OptionsContext(start_dir, Utils.g_module)
 	opt.execute()
 
-	# sanitize the command line - add init and shutdown
+	# Add the commands init and shutdown
 	# Add 'build' if no command was specified
+	# TODO this is unlikely to work
 	sanitized_commands = ['init']
 	sanitized_commands += Options.commands or ['build']
-	sanitized_commands += ['shutdown']
+	sanitized_commands.append('shutdown')
 	Options.commands = sanitized_commands
 
 	if 'install' in sys.argv or 'uninstall' in sys.argv:
@@ -194,17 +195,18 @@ def run_command(cmd_name):
 	context.execute()
 
 def run_commands():
-	for cmd_name in Options.commands:
+	while Options.commands:
+		cmd_name = Options.commands.pop(0)
+
 		timer = Utils.Timer()
-
 		run_command(cmd_name)
-
-		#timer.stop()
 		if not Options.options.progress_bar:
 			elapsed = ' (%s)' % str(timer)
 
 		if cmd_name not in ['init', 'shutdown']:
 			info('%r finished successfully%s' % (cmd_name, elapsed))
+
+###########################################################################################
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg _MTN _darcs Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
