@@ -159,7 +159,7 @@ def create_parser():
 
 	return parser
 
-@command_context('', 'set_options')
+@command_context('', 'options')
 class OptionsContext(Utils.Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
@@ -175,10 +175,6 @@ class OptionsContext(Utils.Context):
 		return self.parser.add_option_group(*k, **kw)
 	def get_option_group(self, opt_str):
 		return self.parser.get_option_group(opt_str)
-
-	# deprecated - use the generic "recurse" method instead
-	def sub_options(self, d):
-		self.recurse(d, name='set_options')
 
 	def tool_options(self, tool_list, *k, **kw):
 		Utils.python_version_guard()
