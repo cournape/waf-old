@@ -936,7 +936,6 @@ class BuildContext(Context):
 		info("Waf: Entering directory `%s'" % self.bldnode.abspath())
 
 	def run_user_code(self):
-		# FIXME WTF?
 		self.is_install = 0
 		self.execute_build()
 

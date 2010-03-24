@@ -12,10 +12,6 @@ from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 
-# TODO remove in waf 1.6 the following two
-# commands = {}
-is_install = False
-
 options = {}
 """A dictionary of options received from parsing"""
 commands = []
