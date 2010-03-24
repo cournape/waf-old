@@ -44,11 +44,6 @@ UNDEFINED = ()
 BREAK = "break"
 CONTINUE = "continue"
 
-# task scheduler options
-JOBCONTROL = "JOBCONTROL"
-MAXPARALLEL = "MAXPARALLEL"
-NORMAL = "NORMAL"
-
 # task state
 NOT_RUN = 0
 MISSING = 1

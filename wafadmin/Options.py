@@ -41,8 +41,11 @@ class opt_parser(optparse.OptionParser):
 		p('-p', '--progress', dest='progress_bar', default=0, action='count', help= '-p: progress bar; -pp: ide output')
 		p('--targets',        dest='compile_targets', default='', action='store', help='build given task generators, e.g. "target1,target2"')
 
+		p('-d', '--download', dest='dl_tools', default='', action='store', help='download a plugin, e.g. "java:1.1,c:1.2"')
+
 		gr = optparse.OptionGroup(self, 'configuration options')
 		self.add_option_group(gr)
+
 		#gr.add_option('-b', '--blddir', action  = 'store', default = '', help    = 'build dir for the project (configuration)', dest    = 'blddir')
 		#gr.add_option('-s', '--srcdir', action  = 'store', default = '', help    = 'src dir for the project (configuration)', dest    = 'srcdir')
 

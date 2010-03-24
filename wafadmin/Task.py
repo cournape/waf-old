@@ -25,12 +25,6 @@ and #3 applies to the task instances.
 
 --
 
-To try, use something like this in your code:
-import Constants, Task
-Task.algotype = Constants.MAXPARALLEL
-
---
-
 There are two concepts with the tasks (individual units of change):
 * dependency (if 1 is recompiled, recompile 2)
 * order (run 2 after 1)
@@ -49,10 +43,6 @@ import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, warn, error
 from Constants import *
 from Base import WafError
-
-algotype = NORMAL
-#algotype = JOBCONTROL
-#algotype = MAXPARALLEL
 
 COMPILE_TEMPLATE_SHELL = '''
 def f(task):
@@ -76,16 +66,6 @@ def f(task):
 	return task.exec_command(lst, cwd=wd)
 '''
 
-
-"""
-Enable different kind of dependency algorithms:
-1 make groups: first compile all cpps and then compile all links (NORMAL)
-2 parallelize all (each link task run after its dependencies) (MAXPARALLEL)
-3 like 1 but provide additional constraints for the parallelization (MAXJOBS)
-
-In theory 1. will be faster than 2 for waf, but might be slower for builds
-The scheme 2 will not allow for running tasks one by one so it can cause disk thrashing on huge builds
-"""
 
 file_deps = Utils.nada
 """
@@ -196,18 +176,7 @@ class TaskGroup(object):
 
 	def get_next_set(self):
 		"next list of tasks to execute using max job settings, returns (maxjobs, task_list)"
-		global algotype
-		if algotype == NORMAL:
-			tasks = self.tasks_in_parallel()
-			maxj = MAXJOBS
-		elif algotype == JOBCONTROL:
-			(maxj, tasks) = self.tasks_by_max_jobs()
-		elif algotype == MAXPARALLEL:
-			tasks = self.tasks_with_inner_constraints()
-			maxj = MAXJOBS
-		else:
-			raise WafError("unknown algorithm type %s" % (algotype))
-
+		(maxj, tasks) = self.tasks_in_parallel()
 		if not tasks: return ()
 		return (maxj, tasks)
 
@@ -300,45 +269,6 @@ class TaskGroup(object):
 			raise WafError("circular order constraint detected %r" % remainder)
 
 		return toreturn
-
-	def tasks_by_max_jobs(self):
-		"(JOBCONTROL) returns the tasks that can run in parallel with the max amount of jobs"
-		if not self.ready: self.prepare()
-		if not self.temp_tasks: self.temp_tasks = self.tasks_in_parallel()
-		if not self.temp_tasks: return (None, None)
-
-		maxjobs = MAXJOBS
-		ret = []
-		remaining = []
-		for t in self.temp_tasks:
-			m = getattr(t, "maxjobs", getattr(self.__class__, "maxjobs", MAXJOBS))
-			if m > maxjobs:
-				remaining.append(t)
-			elif m < maxjobs:
-				remaining += ret
-				ret = [t]
-				maxjobs = m
-			else:
-				ret.append(t)
-		self.temp_tasks = remaining
-		return (maxjobs, ret)
-
-	def tasks_with_inner_constraints(self):
-		"""(MAXPARALLEL) returns all tasks in this group, but add the constraints on each task instance
-		as an optimization, it might be desirable to discard the tasks which do not have to run"""
-		if not self.ready: self.prepare()
-
-		if getattr(self, "done", None): return None
-
-		for p in self.cstr_order:
-			for v in self.cstr_order[p]:
-				for m in self.cstr_groups[p]:
-					for n in self.cstr_groups[v]:
-						n.set_run_after(m)
-		self.cstr_order = defaultdict(set)
-		self.cstr_groups = defaultdict(list)
-		self.done = 1
-		return self.tasks[:] # make a copy
 
 class store_task_type(type):
 	"store the task types that have a name ending in _task into a map (remember the existing task types)"

@@ -969,10 +969,6 @@ class BuildContext(Context):
 		try: self.post_funs.append(meth)
 		except AttributeError: self.post_funs = [meth]
 
-	def use_the_magic(self):
-		Task.algotype = Task.MAXPARALLEL
-		Task.file_deps = Task.extract_deps
-
 	install_as = group_method(install_as)
 	install_files = group_method(install_files)
 	symlink_as = group_method(symlink_as)
