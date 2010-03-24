@@ -24,14 +24,6 @@ try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
 platform = Utils.unversioned_sys_platform()
 
-# Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
-default_prefix = os.environ.get('PREFIX')
-if not default_prefix:
-	if platform == 'win32': default_prefix = tempfile.gettempdir()
-	else: default_prefix = '/usr/local/'
-
-default_destdir = os.environ.get('DESTDIR', '')
-
 
 class opt_parser(optparse.OptionParser):
 	def __init__(self):
@@ -41,76 +33,30 @@ class opt_parser(optparse.OptionParser):
 		p = self.add_option
 
 		jobs = Utils.job_count()
-		p('-j', '--jobs',
-		type    = 'int',
-		default = jobs,
-		help    = 'amount of parallel jobs (%r)' % jobs,
-		dest    = 'jobs')
-
-		p('-k', '--keep',
-		action  = 'store_true',
-		default = False,
-		help    = 'keep running happily on independent task groups',
-		dest    = 'keep')
-
-		p('-v', '--verbose',
-		action  = 'count',
-		default = 0,
-		help    = 'verbosity level -v -vv or -vvv [default: 0]',
-		dest    = 'verbose')
-
-		p('--nocache',
-		action  = 'store_true',
-		default = False,
-		help    = 'ignore the WAFCACHE (if set)',
-		dest    = 'nocache')
-
-		p('--zones',
-		action  = 'store',
-		default = '',
-		help    = 'debugging zones (task_gen, deps, tasks, etc)',
-		dest    = 'zones')
-
-		p('-p', '--progress',
-		action  = 'count',
-		default = 0,
-		help    = '-p: progress bar; -pp: ide output',
-		dest    = 'progress_bar')
-
-		p('--targets',
-		action  = 'store',
-		default = '',
-		help    = 'build given task generators, e.g. "target1,target2"',
-		dest    = 'compile_targets')
+		p('-j', '--jobs',     dest='jobs',    default=jobs, type='int', help='amount of parallel jobs (%r)' % jobs)
+		p('-k', '--keep',     dest='keep',    default=False, action='store_true', help='keep running happily on independent task groups')
+		p('-v', '--verbose',  dest='verbose', default=0,     action='count', help='verbosity level -v -vv or -vvv [default: 0]')
+		p('--nocache',        dest='nocache', default=False, action='store_true', help='ignore the WAFCACHE (if set)')
+		p('--zones',          dest='zones',   default='',    action='store', help='debugging zones (task_gen, deps, tasks, etc)')
+		p('-p', '--progress', dest='progress_bar', default=0, action='count', help= '-p: progress bar; -pp: ide output')
+		p('--targets',        dest='compile_targets', default='', action='store', help='build given task generators, e.g. "target1,target2"')
 
 		gr = optparse.OptionGroup(self, 'configuration options')
 		self.add_option_group(gr)
-		gr.add_option('-b', '--blddir',
-		action  = 'store',
-		default = '',
-		help    = 'build dir for the project (configuration)',
-		dest    = 'blddir')
-		gr.add_option('-s', '--srcdir',
-		action  = 'store',
-		default = '',
-		help    = 'src dir for the project (configuration)',
-		dest    = 'srcdir')
-		gr.add_option('--prefix',
-		help    = 'installation prefix (configuration) [default: %r]' % default_prefix,
-		default = default_prefix,
-		dest    = 'prefix')
+		#gr.add_option('-b', '--blddir', action  = 'store', default = '', help    = 'build dir for the project (configuration)', dest    = 'blddir')
+		#gr.add_option('-s', '--srcdir', action  = 'store', default = '', help    = 'src dir for the project (configuration)', dest    = 'srcdir')
 
+		default_prefix = os.environ.get('PREFIX')
+		if not default_prefix:
+			if platform == 'win32': default_prefix = tempfile.gettempdir()
+			else: default_prefix = '/usr/local/'
+		gr.add_option('--prefix', dest='prefix', default=default_prefix, help='installation prefix (configuration) [default: %r]' % default_prefix)
+
+		default_destdir = os.environ.get('DESTDIR', '')
 		gr = optparse.OptionGroup(self, 'installation options')
 		self.add_option_group(gr)
-		gr.add_option('--destdir',
-		help    = 'installation root [default: %r]' % default_destdir,
-		default = default_destdir,
-		dest    = 'destdir')
-		gr.add_option('-f', '--force',
-		action  = 'store_true',
-		default = False,
-		help    = 'force file installation',
-		dest    = 'force')
+		gr.add_option('--destdir', help='installation root [default: %r]' % default_destdir, default=default_destdir, dest='destdir')
+		gr.add_option('-f', '--force', dest='force', default=False, action='store_true', help='force file installation')
 
 	def usage(self):
 		cmds_str = []
