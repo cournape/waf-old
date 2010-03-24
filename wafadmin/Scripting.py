@@ -160,10 +160,6 @@ def parse_options():
 	if not Options.commands:
 		Options.commands = ['build']
 
-	if 'install' in sys.argv or 'uninstall' in sys.argv:
-		if Options.options.destdir:
-			Options.options.destdir = os.path.abspath(os.path.expanduser(Options.options.destdir))
-
 	# process some internal Waf options
 	Logs.verbose = Options.options.verbose
 	Logs.init_log()
