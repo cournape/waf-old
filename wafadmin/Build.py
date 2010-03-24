@@ -72,13 +72,23 @@ class BuildContext(Context):
 		# output directory
 		self.outdir = None
 
-
-		############ stuff below has not been reviewed
-
+		# the manager will hold the tasks
 		self.task_manager = Task.TaskManager()
 
 		# instead of hashing the nodes, we assign them a unique id when they are created
 		self.id_nodes = 0
+
+		# bind the build context to the nodes in use
+		# this means better encapsulation and no build context singleton
+		class node_class(Node.Node):
+			pass
+		self.node_class = node_class
+		self.node_class.__module__ = "Node"
+		self.node_class.__name__ = "Nod3"
+		self.node_class.bld = self
+
+		############ stuff below has not been reviewed
+
 		self.idx = {}
 
 		# map names to environments, the 'default' must be defined
@@ -126,15 +136,6 @@ class BuildContext(Context):
 		self.root = None
 		self.srcnode = None
 		self.bldnode = None
-
-		# bind the build context to the nodes in use
-		# this means better encapsulation and no build context singleton
-		class node_class(Node.Node):
-			pass
-		self.node_class = node_class
-		self.node_class.__module__ = "Node"
-		self.node_class.__name__ = "Nodu"
-		self.node_class.bld = self
 
 		self.is_install = None
 

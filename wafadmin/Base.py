@@ -10,7 +10,16 @@ import traceback, os, imp, sys
 from Constants import *
 
 start_dir = ''
-"""Directory containing the top-level wscript from which all commands should be run"""
+"""
+#TODO ?
+Directory containing the top-level wscript from which all commands should be run
+"""
+
+g_module = None
+"""
+wscript file representing the entry point of the project
+"""
+
 
 def readf(fname, m='r'):
 	"""
@@ -209,13 +218,8 @@ class Context(object):
 g_loaded_modules = {}
 """
 Dictionary holding already loaded modules, keyed by their absolute path.
+private cache
 """
-
-g_module=None
-"""
-Currently executing module.
-"""
-
 def load_module(file_path, name=WSCRIPT_FILE):
 	"""
 	Load a Python source file containing user code.

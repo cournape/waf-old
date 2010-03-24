@@ -123,7 +123,7 @@ class Node(object):
 
 	def __copy__(self):
 		"nodes are not supposed to be copied"
-		raise WafError('nodes are not supposed to be cloned')
+		raise WafError('nodes are not supposed to be copied')
 
 	def get_type(self):
 		return self.id & 3
