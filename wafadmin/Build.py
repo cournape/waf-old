@@ -16,7 +16,7 @@ except: import pickle as cPickle
 import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Configure
 from Logs import debug, error, info
 from Constants import *
-from Base import command_context, WafError, Context
+from Base import command_context, WafError, Context, load_tool
 
 SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
@@ -353,9 +353,7 @@ class BuildContext(Context):
 			for i in tool: self.setup(i, tooldir)
 			return
 
-		if not tooldir: tooldir = Options.tooldir
-
-		module = Utils.load_tool(tool, tooldir)
+		module = Base.load_tool(tool, tooldir)
 		if hasattr(module, "setup"): module.setup(self)
 
 	# ======================================= #

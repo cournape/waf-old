@@ -136,5 +136,5 @@ sys.path = [w, t, f] + sys.path
 
 if __name__ == '__main__':
 	import Scripting
-	Scripting.waf_entry_point(t, cwd, VERSION, wafdir)
+	Scripting.waf_entry_point(cwd, VERSION, wafdir)
 

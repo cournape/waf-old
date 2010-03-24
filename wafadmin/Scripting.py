@@ -19,14 +19,13 @@ current_command = ''
 
 build_dir_override = None
 
-def waf_entry_point(tools_directory, current_directory, version, wafdir):
+def waf_entry_point(current_directory, version, wafdir):
 	"""This is the main entry point, all Waf execution starts here."""
 
 	if WAFVERSION != version:
 		error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
 		sys.exit(1)
 
-	Options.tooldir = [tools_directory]
 	Options.launch_dir = current_directory
 
 	if '--version' in sys.argv:
