@@ -67,12 +67,6 @@ def f(task):
 '''
 
 
-file_deps = Utils.nada
-"""
-Additional dependency pre-check may be added by replacing the function file_deps.
-e.g. extract_outputs, extract_deps below.
-"""
-
 class TaskManager(object):
 	"""The manager is attached to the build object, it holds a list of TaskGroup"""
 	def __init__(self):
@@ -170,7 +164,7 @@ class TaskGroup(object):
 	def prepare(self):
 		"prepare the scheduling"
 		self.ready = 1
-		file_deps(self.tasks)
+		extract_outputs(self.tasks)
 		self.make_cstr_groups()
 		self.extract_constraints()
 
@@ -919,8 +913,6 @@ def update_outputs(cls):
 	cls.post_run = post_run
 
 def extract_outputs(tasks):
-	"""file_deps: Infer additional dependencies from task input and output nodes
-	"""
 	ins = {}
 	outs = {}
 	for x in tasks:
@@ -936,56 +928,4 @@ def extract_outputs(tasks):
 		for a in ins[k]:
 			for b in outs[k]:
 				a.set_run_after(b)
-
-def extract_deps(tasks):
-	"""file_deps: Infer additional dependencies from task input and output nodes and from implicit dependencies
-	returned by the scanners - that will only work if all tasks are created
-
-	this is aimed at people who have pathological builds and who do not care enough
-	to implement the build dependencies properly
-
-	with two loops over the list of tasks, do not expect this to be really fast
-	"""
-
-	# first reuse the function above
-	extract_outputs(tasks)
-
-	# map the output nodes to the tasks producing them
-	out_to_task = {}
-	for x in tasks:
-		try:
-			lst = x.outputs
-		except AttributeError:
-			pass
-		else:
-			for node in lst:
-				out_to_task[node.id] = x
-
-	# map the dependencies found to the tasks compiled
-	dep_to_task = {}
-	for x in tasks:
-		try:
-			x.signature()
-		except: # this is on purpose
-			pass
-
-		key = x.unique_id()
-		for k in x.generator.bld.node_deps.get(x.unique_id(), []):
-			try: dep_to_task[k.id].append(x)
-			except KeyError: dep_to_task[k.id] = [x]
-
-	# now get the intersection
-	deps = set(dep_to_task.keys()).intersection(set(out_to_task.keys()))
-
-	# and add the dependencies from task to task
-	for idx in deps:
-		for k in dep_to_task[idx]:
-			k.set_run_after(out_to_task[idx])
-
-	# cleanup, remove the signatures
-	for x in tasks:
-		try:
-			delattr(x, 'cache_sig')
-		except AttributeError:
-			pass
 
