@@ -148,15 +148,9 @@ class ConfigSet(object):
 			tbl[g(2)] = eval(g(3))
 		Logs.debug('env: %s' % str(self.table))
 
-	def get_destdir(self):
-		"return the destdir, useful for installing"
-		if self.__getitem__('NOINSTALL'): return ''
-		return Options.options.destdir
-
 	def update(self, d):
 		for k, v in d.items():
 			self[k] = v
-
 
 	def __getattr__(self, name):
 		if name in self.__slots__:
