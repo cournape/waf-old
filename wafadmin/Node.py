@@ -94,7 +94,7 @@ class Node(object):
 		# for setting: new type = type + x - type & 3
 
 		if parent and name in parent.childs:
-			raise Utils.WafError('node %s exists in the parent files %r already' % (name, parent))
+			raise WafError('node %s exists in the parent files %r already' % (name, parent))
 
 		if parent: parent.childs[name] = self
 
@@ -119,11 +119,11 @@ class Node(object):
 
 	def __hash__(self):
 		"expensive, make certain it is not used"
-		raise Utils.WafError('nodes, you are doing it wrong')
+		raise WafError('nodes, you are doing it wrong')
 
 	def __copy__(self):
 		"nodes are not supposed to be copied"
-		raise Utils.WafError('nodes are not supposed to be cloned')
+		raise WafError('nodes are not supposed to be cloned')
 
 	def get_type(self):
 		return self.id & 3
@@ -204,7 +204,7 @@ class Node(object):
 		if node:
 			tp = node.id & 3
 			if tp != BUILD:
-				raise Utils.WafError("find_or_declare returns a build node, not a source nor a directory %r" % lst)
+				raise WafError("find_or_declare returns a build node, not a source nor a directory %r" % lst)
 			return node
 		node = self.__class__(name, parent, BUILD)
 		return node

@@ -8,6 +8,7 @@ import sys, random, time, threading, traceback
 from queue import Queue
 import Build, Utils, Logs, Options
 from Logs import debug, error
+from Base import WafError
 from Constants import *
 
 GAP = 15
@@ -63,7 +64,7 @@ class TaskConsumer(threading.Thread):
 			else:
 				try:
 					tsk.post_run()
-				except Utils.WafError:
+				except WafError:
 					pass
 				except Exception:
 					tsk.err_msg = Utils.ex_stack()

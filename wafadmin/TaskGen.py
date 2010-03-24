@@ -22,10 +22,11 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import os, traceback, copy
-from collections import defaultdict
 import Build, Task, Utils, Logs, Options
+from collections import defaultdict
 from Logs import debug, error, warn
 from Constants import *
+from Base import WafError, WscriptError
 
 typos = {
 'sources':'source',
@@ -179,7 +180,7 @@ class task_gen(object):
 					else:
 						tmp.append(x)
 
-		if prec: raise Utils.WafError("graph has a cycle %s" % str(prec))
+		if prec: raise WafError("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
 
@@ -189,7 +190,7 @@ class task_gen(object):
 			try:
 				v = getattr(self, x)
 			except AttributeError:
-				raise Utils.WafError("tried to retrieve %s which is not a valid method" % x)
+				raise WafError("tried to retrieve %s which is not a valid method" % x)
 			debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 
@@ -270,7 +271,7 @@ def declare_extension(var, func):
 		for x in Utils.to_list(var):
 			task_gen.mappings[x] = func
 	except:
-		raise Utils.WscriptError('declare_extension takes either a list or a string %r' % var)
+		raise WscriptError('declare_extension takes either a list or a string %r' % var)
 	task_gen.mapped[func.__name__] = func
 
 def declare_order(*k):
@@ -317,7 +318,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 					self.allnodes.append(out_source[i])
 		else:
 			# XXX: useless: it will fail on Utils.to_list above...
-			raise Utils.WafError("do not know how to process %s" % str(ext))
+			raise WafError("do not know how to process %s" % str(ext))
 
 		tsk = self.create_task(name, node, out_source)
 
@@ -380,7 +381,7 @@ def extension(var):
 			for x in Utils.to_list(var):
 				task_gen.mappings[x] = func
 		except:
-			raise Utils.WafError('extension takes either a list or a string %r' % var)
+			raise WafError('extension takes either a list or a string %r' % var)
 		task_gen.mapped[func.__name__] = func
 		return func
 	return deco
@@ -402,7 +403,7 @@ def apply_core(self):
 			x(self, filename)
 		else:
 			node = find_resource(filename)
-			if not node: raise Utils.WafError("source not found: '%s' in '%s'" % (filename, str(self.path)))
+			if not node: raise WafError("source not found: '%s' in '%s'" % (filename, str(self.path)))
 			self.allnodes.append(node)
 
 	for node in self.allnodes:
@@ -410,7 +411,7 @@ def apply_core(self):
 		x = self.get_hook(node.suffix())
 
 		if not x:
-			raise Utils.WafError("Cannot guess how to process %s (got mappings %r in %r) -> try conf.check_tool(..)?" % \
+			raise WafError("Cannot guess how to process %s (got mappings %r in %r) -> try conf.check_tool(..)?" % \
 				(str(node), self.__class__.mappings.keys(), self.__class__))
 		x(self, node)
 feature('*')(apply_core)
@@ -462,7 +463,7 @@ def exec_rule(self):
 		for x in self.to_list(self.source):
 			y = self.path.find_resource(x)
 			if not y:
-				raise Utils.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
+				raise WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
 			tsk.inputs.append(y)
 
 	if getattr(self, 'always', None):

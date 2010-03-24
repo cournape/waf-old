@@ -7,7 +7,7 @@
 
 import os, sys, imp, types, tempfile, optparse
 import Logs, Utils
-from Utils import command_context
+from Base import command_context, Context
 from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -82,7 +82,7 @@ def create_parser():
 	Logs.debug('options: create_parser is called')
 	parser = optparse.OptionParser(conflict_handler="resolve", version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
 
-	parser.formatter.width = Utils.get_term_cols()
+	parser.formatter.width = Logs.get_term_cols()
 	p = parser.add_option
 
 	jobs = Utils.job_count()
@@ -160,7 +160,7 @@ def create_parser():
 	return parser
 
 @command_context('', 'options')
-class OptionsContext(Utils.Context):
+class OptionsContext(Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
 

@@ -16,17 +16,17 @@ except: import pickle as cPickle
 import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Configure
 from Logs import debug, error, info
 from Constants import *
-from Utils import command_context
+from Base import command_context, WafError, Context
 
 SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
-class BuildError(Utils.WafError):
+class BuildError(WafError):
 	def __init__(self, b=None, t=[]):
 		self.bld = b
 		self.tasks = t
 		self.ret = 1
-		Utils.WafError.__init__(self, self.format_error())
+		WafError.__init__(self, self.format_error())
 
 	def format_error(self):
 		lst = ['Build failed']
@@ -64,7 +64,7 @@ def group_method(fun):
 	return f
 
 @command_context('build')
-class BuildContext(Utils.Context):
+class BuildContext(Context):
 	"holds the dependency tree"
 	def __init__(self, start_dir=None):
 		super(BuildContext, self).__init__(start_dir)
@@ -140,7 +140,7 @@ class BuildContext(Utils.Context):
 
 	def __copy__(self):
 		"nodes are not supposed to be copied"
-		raise Utils.WafError('build contexts are not supposed to be cloned')
+		raise WafError('build contexts are not supposed to be cloned')
 
 	def load(self):
 		"load the cache from the disk"
@@ -150,7 +150,7 @@ class BuildContext(Utils.Context):
 			pass
 		else:
 			if env['version'] < HEXVERSION:
-				raise Utils.WafError('Version mismatch! reconfigure the project')
+				raise WafError('Version mismatch! reconfigure the project')
 			for t in env['tools']:
 				self.setup(**t)
 
@@ -317,12 +317,12 @@ class BuildContext(Utils.Context):
 			lst = Utils.listdir(self.cachedir)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
-				raise Utils.WafError('The project was not configured: run "waf configure" first!')
+				raise WafError('The project was not configured: run "waf configure" first!')
 			else:
 				raise
 
 		if not lst:
-			raise Utils.WafError('The cache directory is empty: reconfigure the project')
+			raise WafError('The cache directory is empty: reconfigure the project')
 
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
@@ -370,7 +370,7 @@ class BuildContext(Utils.Context):
 		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
 		if srcdir == blddir:
-			raise Utils.WafError("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
+			raise WafError("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
 
 		self.bdir = blddir
 
@@ -440,7 +440,7 @@ class BuildContext(Utils.Context):
 				try:
 					cache[x.id] = Utils.h_file(x.abspath())
 				except IOError:
-					raise Utils.WafError('The file %s is not readable or has become a dir' % x.abspath())
+					raise WafError('The file %s is not readable or has become a dir' % x.abspath())
 			else:
 				try: del cache[x.id]
 				except KeyError: pass
@@ -591,7 +591,7 @@ class BuildContext(Utils.Context):
 					if obj:
 						target_objects[target_name].append(obj)
 				if not target_name in target_objects and all:
-					raise Utils.WafError("target '%s' does not exist" % target_name)
+					raise WafError("target '%s' does not exist" % target_name)
 
 			to_compile = []
 			for x in target_objects.values():
@@ -688,7 +688,7 @@ class BuildContext(Utils.Context):
 					os.stat(src)
 				except (OSError, IOError):
 					error('File %r does not exist' % src)
-				raise Utils.WafError('Could not install the file %r' % tgt)
+				raise WafError('Could not install the file %r' % tgt)
 			return True
 
 		elif self.is_install < 0:
@@ -759,7 +759,7 @@ class BuildContext(Utils.Context):
 				else:
 					nd = cwd.find_resource(filename)
 				if not nd:
-					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
+					raise WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
 
 				if relative_trick:
 					destfile = os.path.join(destpath, filename)
@@ -785,7 +785,7 @@ class BuildContext(Utils.Context):
 			env = self.env
 
 		if not path:
-			raise Utils.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
+			raise WafError("where do you want to install %r? (%r?)" % (srcfile, path))
 
 		if not cwd:
 			cwd = self.path
@@ -803,7 +803,7 @@ class BuildContext(Utils.Context):
 			if not os.path.isabs(srcfile):
 				node = cwd.find_resource(srcfile)
 				if not node:
-					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
+					raise WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
 				src = node.abspath(env)
 
 		return self.do_install(src, destpath, chmod)
@@ -816,7 +816,7 @@ class BuildContext(Utils.Context):
 			return
 
 		if not path:
-			raise Utils.WafError("where do you want to install %r? (%r?)" % (src, path))
+			raise WafError("where do you want to install %r? (%r?)" % (src, path))
 
 		tgt = self.get_install_path(path, env)
 
@@ -900,14 +900,14 @@ class BuildContext(Utils.Context):
 				bld = Utils.create_context('build', self.curdir)
 				bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 				bld.load_envs()
-			except Utils.WafError:
+			except WafError:
 				reconf(proj)
 				return
 
 		try:
 			proj = ConfigSet.ConfigSet(Options.lockfile)
 		except IOError:
-			raise Utils.WafError('Auto-config: project does not configure (bug)')
+			raise WafError('Auto-config: project does not configure (bug)')
 
 		h = 0
 		try:
@@ -930,7 +930,7 @@ class BuildContext(Utils.Context):
 		try:
 			temp_env = ConfigSet.ConfigSet(Options.lockfile)
 		except IOError:
-			raise Utils.WafError("Project not configured (run 'waf configure' first)")
+			raise WafError("Project not configured (run 'waf configure' first)")
 
 		self.load_dirs(temp_env[SRCDIR], temp_env[BLDDIR])
 		self.load_envs()

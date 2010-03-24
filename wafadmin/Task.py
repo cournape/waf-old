@@ -48,6 +48,7 @@ from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, warn, error
 from Constants import *
+from Base import WafError
 
 algotype = NORMAL
 #algotype = JOBCONTROL
@@ -205,7 +206,7 @@ class TaskGroup(object):
 			tasks = self.tasks_with_inner_constraints()
 			maxj = MAXJOBS
 		else:
-			raise Utils.WafError("unknown algorithm type %s" % (algotype))
+			raise WafError("unknown algorithm type %s" % (algotype))
 
 		if not tasks: return ()
 		return (maxj, tasks)
@@ -296,7 +297,7 @@ class TaskGroup(object):
 				self.cstr_groups.__delitem__(y)
 
 		if not toreturn and remainder:
-			raise Utils.WafError("circular order constraint detected %r" % remainder)
+			raise WafError("circular order constraint detected %r" % remainder)
 
 		return toreturn
 
@@ -653,7 +654,7 @@ class Task(TaskBase):
 			except OSError:
 				self.has_run = MISSING
 				self.err_msg = '-> missing file: %r' % node.abspath(env)
-				raise Utils.WafError
+				raise WafError
 
 			# important, store the signature for the next run
 			bld.node_sigs[node.id] = sig

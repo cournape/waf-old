@@ -25,7 +25,8 @@ except ImportError: import pickle as cPickle
 import ConfigSet, Utils, Options
 from Logs import warn
 from Constants import *
-from Utils import command_context
+from Base import command_context, WafError, WscriptError, Context
+import Base
 
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
@@ -33,7 +34,7 @@ conf_template = '''# project %(app)s configured on %(now)s by
 #
 '''
 
-class ConfigurationError(Utils.WscriptError):
+class ConfigurationError(WscriptError):
 	pass
 
 autoconfig = False
@@ -82,7 +83,7 @@ def find_program_impl(env, filename, path_list=[], var=None, environ=None):
 	return ''
 
 @command_context('configure')
-class ConfigurationContext(Utils.Context):
+class ConfigurationContext(Context):
 	tests = {}
 	error_handlers = []
 	def __init__(self, start_dir=None, blddir='', srcdir=''):
@@ -128,9 +129,9 @@ class ConfigurationContext(Utils.Context):
 		except (OSError, IOError):
 			self.fatal('could not open %r for writing' % path)
 
-		app = getattr(Utils.g_module, 'APPNAME', '')
+		app = getattr(Base.g_module, 'APPNAME', '')
 		if app:
-			ver = getattr(Utils.g_module, 'VERSION', '')
+			ver = getattr(Base.g_module, 'VERSION', '')
 			if ver:
 				app = "%s (%s)" % (app, ver)
 
@@ -217,10 +218,10 @@ class ConfigurationContext(Utils.Context):
 	def check_message_1(self, sr):
 		self.line_just = max(self.line_just, len(sr))
 		self.log.write(sr + '\n\n')
-		Utils.pprint('NORMAL', "%s :" % sr.ljust(self.line_just), sep='')
+		Logs.pprint('NORMAL', "%s :" % sr.ljust(self.line_just), sep='')
 
 	def check_message_2(self, sr, color='GREEN'):
-		Utils.pprint(color, sr)
+		Logs.pprint(color, sr)
 
 	def check_message(self, th, msg, state, option=''):
 		sr = 'Checking for %s %s' % (th, msg)
@@ -309,7 +310,7 @@ class ConfigurationContext(Utils.Context):
 
 	def prepare(self):
 		src = getattr(Options.options, SRCDIR, None)
-		if not src: src = getattr(Utils.g_module, SRCDIR, None)
+		if not src: src = getattr(Base.g_module, SRCDIR, None)
 		if not src:
 			src = '.'
 			incomplete_src = 1
@@ -317,9 +318,9 @@ class ConfigurationContext(Utils.Context):
 
 		bld = getattr(Options.options, BLDDIR, None)
 		if not bld:
-			bld = getattr(Utils.g_module, BLDDIR, None)
+			bld = getattr(Base.g_module, BLDDIR, None)
 			if bld == '.':
-				raise Utils.WafError('Setting blddir="." may cause distclean problems')
+				raise WafError('Setting blddir="." may cause distclean problems')
 		if not bld:
 			bld = 'build'
 			incomplete_bld = 1
@@ -384,9 +385,9 @@ class ConfigurationContext(Utils.Context):
 		env['hash'] = self.hash
 		env['files'] = self.files
 		env['environ'] = dict(self.environ)
-		env['cwd'] = os.path.split(Utils.g_module.root_path)[0]
+		env['cwd'] = os.path.split(Base.g_module.root_path)[0]
 
-		if Utils.g_module.root_path != self.srcdir:
+		if Base.g_module.root_path != self.srcdir:
 			# in case the source dir is somewhere else
 			env.store(os.path.join(self.srcdir, Options.lockfile))
 

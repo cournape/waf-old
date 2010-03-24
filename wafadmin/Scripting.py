@@ -8,6 +8,8 @@ import os, sys, shutil, traceback, datetime, inspect, errno, subprocess
 import Utils, Configure, Build, Logs, Options, ConfigSet, Task
 from Logs import error, warn, info
 from Constants import *
+from Base import WafError, set_main_module
+import Base
 
 g_gz = 'bz2'
 
@@ -43,12 +45,12 @@ def waf_entry_point(tools_directory, current_directory, version, wafdir):
 		traceback.print_exc(file=sys.stdout)
 		print(e)
 
-	except Utils.WafError as e:
+	except WafError as e:
 		traceback.print_exc(file=sys.stdout)
 		error(str(e))
 		sys.exit(1)
 	except KeyboardInterrupt:
-		Utils.pprint('RED', 'Interrupted')
+		Logs.pprint('RED', 'Interrupted')
 		sys.exit(68)
 
 def find_wscript_file(current_dir):
@@ -120,7 +122,7 @@ def find_wscript_file(current_dir):
 	try:
 		os.chdir(candidate)
 	except OSError:
-		raise Utils.WafError("the folder %r is unreadable" % candidate)
+		raise WafError("the folder %r is unreadable" % candidate)
 	Utils.start_dir = candidate
 	return os.path.join(candidate, WSCRIPT_FILE)
 
@@ -129,29 +131,29 @@ def prepare_top_wscript(wscript_path):
 	for execution. This includes adding standard functions that might be undefined."""
 
 	# define the main module containing the functions init, shutdown, ..
-	Utils.set_main_module(wscript_path)
+	set_main_module(wscript_path)
 
 	if build_dir_override:
-		d = getattr(Utils.g_module, BLDDIR, None)
+		d = getattr(Base.g_module, BLDDIR, None)
 		if d: # test if user has set the build directory in the wscript.
 			warn(' Overriding build directory %s with %s' % (d, build_dir_override))
-		Utils.g_module.BLDDIR = build_dir_override
+		Base.g_module.BLDDIR = build_dir_override
 
 	# add default installation, uninstallation, etc. functions to the wscript
 	# TODO remove this!
 	def set_def(obj):
 		name = obj.__name__
-		if not name in Utils.g_module.__dict__:
-			setattr(Utils.g_module, name, obj)
+		if not name in Base.g_module.__dict__:
+			setattr(Base.g_module, name, obj)
 	for k in [dist, distclean, distcheck]:
 		set_def(k)
 	# add dummy init and shutdown functions if they're not defined
-	if not 'init' in Utils.g_module.__dict__:
-		Utils.g_module.init = Utils.nada
-	if not 'shutdown' in Utils.g_module.__dict__:
-		Utils.g_module.shutdown = Utils.nada
-	if not 'set_options' in Utils.g_module.__dict__:
-		Utils.g_module.set_options = Utils.nada
+	if not 'init' in Base.g_module.__dict__:
+		Base.g_module.init = Utils.nada
+	if not 'shutdown' in Base.g_module.__dict__:
+		Base.g_module.shutdown = Utils.nada
+	if not 'set_options' in Base.g_module.__dict__:
+		Base.g_module.set_options = Utils.nada
 
 def parse_options():
 	opt = Options.OptionsContext().execute()
@@ -181,7 +183,7 @@ def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
 	global current_command
 	current_command = cmd_name
-	Utils.create_context(cmd_name).execute()
+	Base.create_context(cmd_name).execute()
 
 def run_commands():
 	run_command('init')
@@ -267,8 +269,8 @@ def dist(ctx):
 	'''makes a tarball for redistributing the sources'''
 	import tarfile
 
-	appname = getattr(Utils.g_module, APPNAME, 'noname')
-	version = getattr(Utils.g_module, VERSION, '1.0')
+	appname = getattr(Base.g_module, APPNAME, 'noname')
+	version = getattr(Base.g_module, VERSION, '1.0')
 
 	tmp_folder = appname + '-' + version
 	arch_name = tmp_folder+'.tar.'+g_gz
@@ -286,10 +288,10 @@ def dist(ctx):
 		pass
 
 	# copy the files into the temporary folder
-	copytree('.', tmp_folder, getattr(Utils.g_module, BLDDIR, None))
+	copytree('.', tmp_folder, getattr(Base.g_module, BLDDIR, None))
 
 	# undocumented hook for additional cleanup
-	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
+	dist_hook = getattr(Base.g_module, 'dist_hook', None)
 	if dist_hook:
 		back = os.getcwd()
 		os.chdir(tmp_folder)
@@ -318,8 +320,8 @@ def distcheck(ctx):
 	'''checks if the sources compile (tarball from 'dist')'''
 	import tempfile, tarfile
 
-	appname = getattr(Utils.g_module, APPNAME, 'noname')
-	version = getattr(Utils.g_module, VERSION, '1.0')
+	appname = getattr(Base.g_module, APPNAME, 'noname')
+	version = getattr(Base.g_module, VERSION, '1.0')
 
 	waf = os.path.abspath(sys.argv[0])
 	tarball = dist(appname, version)
@@ -332,10 +334,10 @@ def distcheck(ctx):
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	ret = subprocess.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
 	if ret:
-		raise Utils.WafError('distcheck failed with code %i' % ret)
+		raise WafError('distcheck failed with code %i' % ret)
 
 	if os.path.exists(instdir):
-		raise Utils.WafError('distcheck succeeded, but files were left in %s' % instdir)
+		raise WafError('distcheck succeeded, but files were left in %s' % instdir)
 
 	shutil.rmtree(path)
 

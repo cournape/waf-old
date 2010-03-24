@@ -5,6 +5,7 @@
 import ansiterm
 import os, re, logging, traceback, sys
 from Constants import *
+import Base
 
 zones = ''
 verbose = 0
@@ -30,10 +31,38 @@ if got_tty:
 	except AttributeError:
 		got_tty = False
 
-import Utils
-
 if not got_tty or 'NOCOLOR' in os.environ:
 	colors_lst['USE'] = False
+
+def get_term_cols():
+	"""
+	Get console width in characters.
+	@rtype: number
+	@return: Number of characters per line
+	"""
+	return 80
+
+# If console packages are available, replace the dummy function with a real
+# implementation
+try:
+	import struct, fcntl, termios
+except ImportError:
+	pass
+else:
+	if got_tty:
+		def get_term_cols_real():
+			dummy_lines, cols = struct.unpack("HHHH", \
+			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
+			struct.pack("HHHH", 0, 0, 0, 0)))[:2]
+			return cols
+		# we actually try the function once to see if it is suitable
+		try:
+			get_term_cols_real()
+		except IOError:
+			pass
+		else:
+			get_term_cols = get_term_cols_real
+
 
 # test
 #if sys.platform == 'win32':
@@ -102,7 +131,7 @@ def debug(msg):
 def error(msg):
 	logging.error(msg)
 	if verbose > 1:
-		if isinstance(msg, Utils.WafError):
+		if isinstance(msg, Base.WafError):
 			st = msg.stack
 		else:
 			st = traceback.extract_stack()
@@ -130,4 +159,8 @@ def init_log():
 
 # may be initialized more than once
 init_log()
+
+def pprint(col, str, label='', sep=os.linesep):
+	"print messages in color"
+	sys.stderr.write("%s%s%s %s%s" % (colors(col), str, colors.NORMAL, label, sep))
 
