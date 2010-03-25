@@ -16,8 +16,15 @@ options = {}
 """A dictionary of options received from parsing"""
 commands = []
 """List of commands to execute"""
+
 launch_dir = ''
-"""Directory from which Waf was executed"""
+"""Where Waf was executed"""
+run_dir = ''
+"""The wscript file to use as the entry point"""
+project_dir = ''
+"""project directory (top), if the project was configured"""
+build_dir = ''
+"""build directory (out), if the project was configured"""
 
 lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
