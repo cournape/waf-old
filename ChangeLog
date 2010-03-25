@@ -4,6 +4,6 @@ NEW IN WAF 1.6.0
 * Python 3 syntax by default
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
-* bld.new_task_gen is marked as deprecated
-* the syntax bld.new_task_gen(classname, foo=bar) disappears
+* bld.new_task_gen is replaced by bld()
+* only the build-related commands require a configured project
 

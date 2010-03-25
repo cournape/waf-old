@@ -307,11 +307,9 @@ class BuildContext(Context):
 				try: os.rmdir(x)
 				except OSError: pass
 
-	def new_task_gen(self, *k, **kw):
+	def __call__(self, *k, **kw):
 		kw['bld'] = self
 		return TaskGen.task_gen(*k, **kw)
-
-	__call__ = new_task_gen
 
 	def load_envs(self):
 		try:
