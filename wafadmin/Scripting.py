@@ -8,7 +8,7 @@ import os, sys, shutil, traceback, datetime, inspect, errno, subprocess
 import Utils, Configure, Build, Logs, Options, ConfigSet, Task
 from Logs import error, warn, info
 from Constants import *
-from Base import WafError, set_main_module
+from Base import WafError
 import Base
 
 g_gz = 'bz2'
@@ -29,7 +29,7 @@ def waf_entry_point(current_directory, version, wafdir):
 	Options.launch_dir = current_directory
 
 	# try to find a lock file (if the project was configured)
-	# at the same time, look at the first wscript file seen
+	# at the same time, store the first wscript file seen
 	cur = current_directory
 	while cur:
 		if len(cur) <= 3:
@@ -41,8 +41,6 @@ def waf_entry_point(current_directory, version, wafdir):
 			try:
 				env.load(os.path.join(cur, Options.lockfile))
 			except Exception as e:
-				print(e)
-				raise
 				continue
 
 			Options.run_dir = env.run_dir
@@ -78,20 +76,6 @@ def waf_entry_point(current_directory, version, wafdir):
 		error("Waf: The wscript in %r is unreadable" % Options.run_dir)
 		sys.exit(1)
 
-	def set_def(obj):
-		name = obj.__name__
-		if not name in Base.g_module.__dict__:
-			setattr(Base.g_module, name, obj)
-	for k in [dist, distclean, distcheck]:
-		set_def(k)
-	# add dummy init and shutdown functions if they're not defined
-	if not 'init' in Base.g_module.__dict__:
-		Base.g_module.init = Utils.nada
-	if not 'shutdown' in Base.g_module.__dict__:
-		Base.g_module.shutdown = Utils.nada
-	if not 'set_options' in Base.g_module.__dict__:
-		Base.g_module.set_options = Utils.nada
-
 	try:
 		parse_options()
 		run_commands()
@@ -105,6 +89,28 @@ def waf_entry_point(current_directory, version, wafdir):
 	except KeyboardInterrupt:
 		Logs.pprint('RED', 'Interrupted')
 		sys.exit(68)
+
+def set_main_module(file_path):
+	"Load custom options, if defined"
+	Base.g_module = Base.load_module(file_path, 'wscript_main')
+	Base.g_module.root_path = file_path
+
+	# note: to register the module globally, use the following:
+	# sys.modules['wscript_main'] = g_module
+
+	def set_def(obj):
+		name = obj.__name__
+		if not name in Base.g_module.__dict__:
+			setattr(Base.g_module, name, obj)
+	for k in [dist, distclean, distcheck]:
+		set_def(k)
+	# add dummy init and shutdown functions if they're not defined
+	if not 'init' in Base.g_module.__dict__:
+		Base.g_module.init = Utils.nada
+	if not 'shutdown' in Base.g_module.__dict__:
+		Base.g_module.shutdown = Utils.nada
+	if not 'set_options' in Base.g_module.__dict__:
+		Base.g_module.set_options = Utils.nada
 
 def parse_options():
 	opt = Options.OptionsContext().execute()

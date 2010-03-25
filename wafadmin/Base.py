@@ -259,15 +259,6 @@ def load_module(file_path, name=WSCRIPT_FILE):
 
 	return module
 
-def set_main_module(file_path):
-	"Load custom options, if defined"
-	global g_module
-	g_module = load_module(file_path, 'wscript_main')
-	g_module.root_path = file_path
-
-	# note: to register the module globally, use the following:
-	# sys.modules['wscript_main'] = g_module
-
 def load_tool(tool, tooldir=None):
 	"""
 	Import the Python module that contains the specified tool from
