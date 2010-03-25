@@ -371,8 +371,8 @@ class ConfigurationContext(Context):
 
 		self.store()
 
-		Options.project_dir = self.srcdir
-		Options.build_dir = self.blddir
+		Options.top_dir = self.srcdir
+		Options.out_dir = self.blddir
 		Options.options.compile_targets = self.targets
 
 		# this will write a configure lock so that subsequent builds will
@@ -384,8 +384,8 @@ class ConfigurationContext(Context):
 
 		env.launch_dir = Options.launch_dir
 		env.run_dir = Options.run_dir
-		env.project_dir = Options.project_dir
-		env.build_dir = Options.build_dir
+		env.top_dir = Options.top_dir
+		env.out_dir = Options.out_dir
 
 		# conf.hash & conf.files hold wscript files paths and hash
 		# (used only by Configure.autoconfig)
@@ -393,8 +393,9 @@ class ConfigurationContext(Context):
 		env['files'] = self.files
 		env['environ'] = dict(self.environ)
 
-		env.store(Options.project_dir + os.sep + Options.lockfile)
 		env.store(Options.run_dir + os.sep + Options.lockfile)
+		env.store(Options.top_dir + os.sep + Options.lockfile)
+		env.store(Options.out_dir + os.sep + Options.lockfile)
 
 def conf(f):
 	"decorator: attach new configuration functions"

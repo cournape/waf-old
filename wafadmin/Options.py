@@ -21,9 +21,9 @@ launch_dir = ''
 """Where Waf was executed"""
 run_dir = ''
 """The wscript file to use as the entry point"""
-project_dir = ''
+top_dir = ''
 """project directory (top), if the project was configured"""
-build_dir = ''
+out_dir = ''
 """build directory (out), if the project was configured"""
 
 lockfile = os.environ.get('WAFLOCK', '.lock-waf')

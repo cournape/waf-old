@@ -44,8 +44,8 @@ def waf_entry_point(current_directory, version, wafdir):
 				continue
 
 			Options.run_dir = env.run_dir
-			Options.project_dir = env.project_dir
-			Options.build_dir = env.build_dir
+			Options.top_dir = env.top_dir
+			Options.out_dir = env.out_dir
 
 			break
 
