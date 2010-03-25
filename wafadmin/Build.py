@@ -69,12 +69,12 @@ class BuildContext(Context):
 	def __init__(self, start=None, top=None):
 		super(BuildContext, self).__init__(start)
 
-		if not project_dir:
-			project_dir = Options.project_dir
-		if not project_dir:
+		if not top_dir:
+			top_dir = Options.top_dir
+		if not top_dir:
 			raise Base.WafError('Project not configured')
 
-		self.project_dir = Options.project_dir
+		self.top_dir = Options.top_dir
 
 		# output directory - may be set until the nodes are considered
 		self.outdir = Options.build_dir
@@ -97,30 +97,23 @@ class BuildContext(Context):
 		# task generator unique id generator
 		self.idx = {}
 
-		############ stuff below has not been reviewed
-
-
 		# map names to environments, the 'default' must be defined
 		self.all_envs = {}
 
 		# ======================================= #
 		# code for reading the scripts
 
-		# project build directory - do not reset() from load_dirs()
-		self.bdir = ''
-
 		# the current directory from which the code is run
 		# the folder changes everytime a wscript is read
 		self.path = None
 
-		# Manual dependencies.
-		self.deps_man = Utils.DefaultDict(list)
+		# nodes
+		self.root = None
+		self.srcnode = None
+		self.bldnode = None
 
 		# ======================================= #
 		# cache variables
-
-		# local cache for absolute paths - cache_node_abspath[node]
-		self.cache_node_abspath = {}
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
@@ -128,9 +121,6 @@ class BuildContext(Context):
 
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
-
-		# ======================================= #
-		# tasks and objects
 
 		for v in 'cache_node_abspath task_sigs node_deps raw_deps node_sigs'.split():
 			setattr(self, v, {})
@@ -142,11 +132,17 @@ class BuildContext(Context):
 		self.cache_sig_vars = {}
 		self.log = None
 
-		self.root = None
-		self.srcnode = None
-		self.bldnode = None
-
 		self.is_install = None
+
+		############ stuff below has not been reviewed
+
+		# Manual dependencies.
+		self.deps_man = Utils.DefaultDict(list)
+
+	def __call__(self, *k, **kw):
+		"""Creates a task generator"""
+		kw['bld'] = self
+		return TaskGen.task_gen(*k, **kw)
 
 	def __copy__(self):
 		"nodes are not supposed to be copied"
@@ -171,7 +167,7 @@ class BuildContext(Context):
 			Node.Nodu = self.node_class
 
 			try:
-				f = open(os.path.join(self.bdir, DBFILE), 'rb')
+				f = open(os.path.join(self.out_dir, DBFILE), 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
 				pass
@@ -200,7 +196,7 @@ class BuildContext(Context):
 
 		# some people are very nervous with ctrl+c so we have to make a temporary file
 		Node.Nodu = self.node_class
-		db = os.path.join(self.bdir, DBFILE)
+		db = os.path.join(self.out_dir, DBFILE)
 		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
@@ -316,10 +312,6 @@ class BuildContext(Context):
 				try: os.rmdir(x)
 				except OSError: pass
 
-	def __call__(self, *k, **kw):
-		kw['bld'] = self
-		return TaskGen.task_gen(*k, **kw)
-
 	def load_envs(self):
 		try:
 			lst = Utils.listdir(self.cachedir)
@@ -378,8 +370,6 @@ class BuildContext(Context):
 		if srcdir == blddir:
 			raise WafError("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
 
-		self.bdir = blddir
-
 		# try to load the cache file, if it does not exist, nothing happens
 		self.load()
 
@@ -420,9 +410,6 @@ class BuildContext(Context):
 		if self.cache_scanned_folders.get(src_dir_node.id, None): return
 		self.cache_scanned_folders[src_dir_node.id] = True
 
-		# TODO remove in waf 1.6
-		if hasattr(self, 'repository'): self.repository(src_dir_node)
-
 		if not src_dir_node.name and sys.platform == 'win32':
 			# the root has no name, contains drive letters, and cannot be listed
 			return
@@ -435,7 +422,7 @@ class BuildContext(Context):
 		except OSError:
 			lst = set([])
 
-		# TODO move this at the bottom
+		# TODO move this to the bottom
 		self.cache_dir_contents[src_dir_node.id] = lst
 
 		# hash the existing source files, remove the others
@@ -468,7 +455,7 @@ class BuildContext(Context):
 
 		# list the files in the build directory
 		try:
-			sub_path = os.path.join(self.bldnode.abspath(), 'default' , *lst)
+			sub_path = os.path.join(self.out_dir, *lst)
 			self.listdir_bld(src_dir_node, sub_path)
 			i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
