@@ -26,7 +26,7 @@ project_dir = ''
 build_dir = ''
 """build directory (out), if the project was configured"""
 
-lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
+lockfile = os.environ.get('WAFLOCK', '.lock-waf')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
 platform = Utils.unversioned_sys_platform()

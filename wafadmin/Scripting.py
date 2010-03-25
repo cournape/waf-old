@@ -28,118 +28,56 @@ def waf_entry_point(current_directory, version, wafdir):
 
 	Options.launch_dir = current_directory
 
-	if '--version' in sys.argv:
-		# some command-line options may be parsed immediately
-		opt_obj = Options.OptionsContext()
-		opt_obj.curdir = current_directory
-		opt_obj.parse_args()
-		sys.exit(0)
+	# try to find a lock file (if the project was configured)
+	# at the same time, look at the first wscript file seen
+	cur = current_directory
+	while cur:
+		if len(cur) <= 3:
+			break # root or c:
 
-	try:
-		wscript_path = find_wscript_file(current_directory)
-		prepare_top_wscript(wscript_path)
-		parse_options()
-		run_commands()
-	except Exception as e:
-		traceback.print_exc(file=sys.stdout)
-		print(e)
-
-	except WafError as e:
-		traceback.print_exc(file=sys.stdout)
-		error(str(e))
-		sys.exit(1)
-	except KeyboardInterrupt:
-		Logs.pprint('RED', 'Interrupted')
-		sys.exit(68)
-
-def find_wscript_file(current_dir):
-	"""Search the directory from which Waf was run, and other dirs, for
-	the top-level wscript file."""
-
-	msg1 = 'Waf: Please run waf from a directory containing a file named "%s" or run distclean' % WSCRIPT_FILE
-
-	# in theory projects can be configured in an autotool-like manner:
-	# mkdir build && cd build && ../waf configure && ../waf
-	candidate = None
-
-	lst = os.listdir(current_dir)
-
-	search_for_candidate = True
-	if WSCRIPT_FILE in lst:
-		candidate = current_dir
-
-	elif 'configure' in sys.argv and not WSCRIPT_BUILD_FILE in lst:
-		# autotool-like configuration
-		calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
-		if WSCRIPT_FILE in os.listdir(calldir):
-			candidate = calldir
-			search_for_candidate = False
-		else:
-			error('arg[0] directory does not contain a wscript file')
-			sys.exit(1)
-		global build_dir_override
-		build_dir_override = current_dir
-
-	# climb up to find a script if it is not found
-	while search_for_candidate:
-		if len(current_dir) <= 3:
-			break # stop at / or c:
-		dirlst = os.listdir(current_dir)
-		if WSCRIPT_FILE in dirlst:
-			candidate = current_dir
-		if 'configure' in sys.argv and candidate:
-			break
-		if Options.lockfile in dirlst:
+		lst = os.listdir(cur)
+		if Options.lockfile in lst:
 			env = ConfigSet.ConfigSet()
 			try:
-				env.load(os.path.join(cwd, Options.lockfile))
-			except:
-				#error('could not load %r' % Options.lockfile)
-				pass
-			try:
-				os.stat(env['cwd'])
-			except:
-				candidate = current_dir
-			else:
-				candidate = env['cwd']
-			Options.topdir = candidate
+				env.load(os.path.join(cur, Options.lockfile))
+			except Exception as e:
+				print(e)
+				raise
+				continue
+
+			Options.run_dir = env.run_dir
+			Options.project_dir = env.project_dir
+			Options.build_dir = env.build_dir
+
 			break
-		current_dir = os.path.dirname(current_dir) # climb up
 
-	if not candidate:
-		# check if the user only wanted to display the help
-		if '-h' in sys.argv or '--help' in sys.argv:
-			warn('No wscript file found: the help message may be incomplete')
+		if not Options.run_dir:
+			if WSCRIPT_FILE in lst:
+				Options.run_dir = cur
+
+		cur = os.path.dirname(cur)
+
+	if not Options.run_dir:
+		if '--version' in sys.argv:
 			opt_obj = Options.OptionsContext()
-			opt_obj.curdir = current_dir
+			opt_obj.curdir = current_directory
 			opt_obj.parse_args()
-		else:
-			error(msg1)
-		sys.exit(0)
+			sys.exit(0)
+		error('Waf: Run from a directory containing a file named "%s"' % WSCRIPT_FILE)
+		sys.exit(1)
 
-	# We have found wscript, but there is no guarantee that it is valid
 	try:
-		os.chdir(candidate)
+		os.chdir(Options.run_dir)
 	except OSError:
-		raise WafError("the folder %r is unreadable" % candidate)
-	Utils.start_dir = candidate
-	return os.path.join(candidate, WSCRIPT_FILE)
+		error("Waf: The folder %r is unreadable" % Options.run_dir)
+		sys.exit(1)
 
-def prepare_top_wscript(wscript_path):
-	"""Load the Python module contained in the wscript file and prepare it
-	for execution. This includes adding standard functions that might be undefined."""
+	try:
+		set_main_module(Options.run_dir + os.sep + WSCRIPT_FILE)
+	except:
+		error("Waf: The wscript in %r is unreadable" % Options.run_dir)
+		sys.exit(1)
 
-	# define the main module containing the functions init, shutdown, ..
-	set_main_module(wscript_path)
-
-	if build_dir_override:
-		d = getattr(Base.g_module, BLDDIR, None)
-		if d: # test if user has set the build directory in the wscript.
-			warn(' Overriding build directory %s with %s' % (d, build_dir_override))
-		Base.g_module.BLDDIR = build_dir_override
-
-	# add default installation, uninstallation, etc. functions to the wscript
-	# TODO remove this!
 	def set_def(obj):
 		name = obj.__name__
 		if not name in Base.g_module.__dict__:
@@ -153,6 +91,20 @@ def prepare_top_wscript(wscript_path):
 		Base.g_module.shutdown = Utils.nada
 	if not 'set_options' in Base.g_module.__dict__:
 		Base.g_module.set_options = Utils.nada
+
+	try:
+		parse_options()
+		run_commands()
+	except Exception as e:
+		traceback.print_exc(file=sys.stdout)
+		print(e)
+	except WafError as e:
+		traceback.print_exc(file=sys.stdout)
+		error(str(e))
+		sys.exit(1)
+	except KeyboardInterrupt:
+		Logs.pprint('RED', 'Interrupted')
+		sys.exit(68)
 
 def parse_options():
 	opt = Options.OptionsContext().execute()
@@ -302,7 +254,7 @@ def dist(ctx):
 
 	from hashlib import sha1
 	try:
-		digest = " (sha=%r)" % sha1(Utils.readf(arch_name)).hexdigest()
+		digest = " (sha=%r)" % sha1(Base.readf(arch_name)).hexdigest()
 	except:
 		digest = ''
 

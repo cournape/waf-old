@@ -11,7 +11,7 @@ This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
 import os, copy, re
-import Logs, Options, Utils
+import Logs, Options, Utils, Base
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
@@ -142,7 +142,7 @@ class ConfigSet(object):
 	def load(self, filename):
 		"Retrieve the variables from a file"
 		tbl = self.table
-		code = Utils.readf(filename)
+		code = Base.readf(filename)
 		for m in re_imp.finditer(code):
 			g = m.group
 			tbl[g(2)] = eval(g(3))

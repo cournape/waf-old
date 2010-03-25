@@ -371,29 +371,30 @@ class ConfigurationContext(Context):
 
 		self.store()
 
+		Options.project_dir = self.srcdir
+		Options.build_dir = self.blddir
+		Options.options.compile_targets = self.targets
+
 		# this will write a configure lock so that subsequent builds will
 		# consider the current path as the root directory (see prepare_impl).
 		# to remove: use 'waf distclean'
 		env = ConfigSet.ConfigSet()
-		env[BLDDIR] = self.blddir
-		env[SRCDIR] = self.srcdir
 		env['argv'] = sys.argv
 		env['options'] = Options.options.__dict__
+
+		env.launch_dir = Options.launch_dir
+		env.run_dir = Options.run_dir
+		env.project_dir = Options.project_dir
+		env.build_dir = Options.build_dir
 
 		# conf.hash & conf.files hold wscript files paths and hash
 		# (used only by Configure.autoconfig)
 		env['hash'] = self.hash
 		env['files'] = self.files
 		env['environ'] = dict(self.environ)
-		env['cwd'] = os.path.split(Base.g_module.root_path)[0]
 
-		if Base.g_module.root_path != self.srcdir:
-			# in case the source dir is somewhere else
-			env.store(os.path.join(self.srcdir, Options.lockfile))
-
-		env.store(Options.lockfile)
-		Options.topdir = self.srcdir
-		Options.options.compile_targets = self.targets
+		env.store(Options.project_dir + os.sep + Options.lockfile)
+		env.store(Options.run_dir + os.sep + Options.lockfile)
 
 def conf(f):
 	"decorator: attach new configuration functions"
