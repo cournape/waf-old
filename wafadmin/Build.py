@@ -144,9 +144,24 @@ class BuildContext(Context):
 		kw['bld'] = self
 		return TaskGen.task_gen(*k, **kw)
 
+	def run_user_code(self):
+		self.is_install = 0
+		self.execute_build()
+
+	def execute_build(self):
+		"""shared by install and uninstall"""
+		self.add_subdirs(self.curdir)
+		self.pre_build()
+		try:
+			self.compile()
+		finally:
+			if Options.options.progress_bar: print('')
+			info("Waf: Leaving directory `%s'" % self.out_dir)
+		self.post_build()
+
 	def __copy__(self):
-		"nodes are not supposed to be copied"
-		raise WafError('build contexts are not supposed to be cloned')
+		"""no build context copies"""
+		raise WafError('build contexts are not supposed to be copied')
 
 	def load(self):
 		"load the cache from the disk"
@@ -512,7 +527,7 @@ class BuildContext(Context):
 
 			# if the project file is located under the source directory, build all targets by default
 			# else 'waf configure build' does nothing
-			proj_node = self.root.find_dir(os.path.split(Utils.g_module.root_path)[0])
+			proj_node = self.root.find_dir(self.curdir)
 			if proj_node.id != self.srcnode.id:
 				ln = self.srcnode
 
@@ -746,11 +761,13 @@ class BuildContext(Context):
 		if self.log:
 			self.log.write('%s\n' % cmd)
 			kw['log'] = self.log
+
+		# ensure that a command is always frun from somewhere
 		try:
 			if not kw.get('cwd', None):
 				kw['cwd'] = self.cwd
 		except AttributeError:
-			self.cwd = kw['cwd'] = self.bldnode.abspath()
+			self.cwd = kw['cwd'] = self.out_dir
 		return Utils.exec_command(cmd, **kw)
 
 	def printout(self, s):
@@ -829,21 +846,7 @@ class BuildContext(Context):
 
 		self.load_dirs(temp_env[SRCDIR], temp_env[BLDDIR])
 		self.load_envs()
-		info("Waf: Entering directory `%s'" % self.bldnode.abspath())
-
-	def run_user_code(self):
-		self.is_install = 0
-		self.execute_build()
-
-	def execute_build(self):
-		self.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
-		self.pre_build()
-		try:
-			self.compile()
-		finally:
-			if Options.options.progress_bar: print('')
-			info("Waf: Leaving directory `%s'" % self.bldnode.abspath())
-		self.post_build()
+		info("Waf: Entering directory `%s'" % self.out_dir)
 
 	###### user-defined behaviour
 
@@ -899,7 +902,7 @@ class UninstallContext(BuildContext):
 class CleanContext(BuildContext):
 	def run_user_code(self):
 		self.is_install = 0 # False
-		self.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
+		self.add_subdirs(self.curdir)
 		try:
 			self.clean()
 		finally:
