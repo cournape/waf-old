@@ -9,12 +9,6 @@ Base classes (mostly abstract)
 import traceback, os, imp, sys
 from Constants import *
 
-start_dir = ''
-"""
-#TODO ?
-Directory containing the top-level wscript from which all commands should be run
-"""
-
 g_module = None
 """
 wscript file representing the entry point of the project
@@ -108,8 +102,8 @@ class Context(object):
 	"""
 	def __init__(self, start=None):
 		if not start:
-			global start_dir
-			start = start_dir
+			import Options
+			start = Options.run_dir
 		self.curdir = start
 
 	def pre_recurse(self, obj, f, d):

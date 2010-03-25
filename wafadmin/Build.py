@@ -66,11 +66,18 @@ def group_method(fun):
 @command_context('build')
 class BuildContext(Context):
 	"holds the dependency tree"
-	def __init__(self, start_dir=None):
-		super(BuildContext, self).__init__(start_dir)
+	def __init__(self, start=None, top=None):
+		super(BuildContext, self).__init__(start)
 
-		# output directory
-		self.outdir = None
+		if not project_dir:
+			project_dir = Options.project_dir
+		if not project_dir:
+			raise Base.WafError('Project not configured')
+
+		self.project_dir = Options.project_dir
+
+		# output directory - may be set until the nodes are considered
+		self.outdir = Options.build_dir
 
 		# the manager will hold the tasks
 		self.task_manager = Task.TaskManager()
@@ -87,9 +94,11 @@ class BuildContext(Context):
 		self.node_class.__name__ = "Nod3"
 		self.node_class.bld = self
 
+		# task generator unique id generator
+		self.idx = {}
+
 		############ stuff below has not been reviewed
 
-		self.idx = {}
 
 		# map names to environments, the 'default' must be defined
 		self.all_envs = {}
