@@ -656,18 +656,15 @@ class Node(object):
 		bld = self.__class__.bld
 
 		# do not rescan over and over again
-		# TODO use a single variable in waf 1.6
-		if bld.cache_scanned_folders.get(self.id, None): return
-		bld.cache_scanned_folders[self.id] = True
+		if bld.cache_scanned_folders.get(self.id, None):
+			return
 
 		# first, take the case of the source directory
-		parent_path = self.abspath()
 		try:
-			lst = set(Utils.listdir(parent_path))
+			lst = set(Utils.listdir(self.abspath()))
 		except OSError:
 			lst = set([])
 
-		# TODO move this to the bottom
 		bld.cache_dir_contents[self.id] = lst
 
 		# hash the existing source files, remove the others

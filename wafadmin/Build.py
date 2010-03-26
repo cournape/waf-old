@@ -110,16 +110,14 @@ class BuildContext(Context):
 		# ======================================= #
 		# cache variables
 
-		# list of folders that are already scanned
-		# so that we do not need to stat them one more time
-		self.cache_scanned_folders = {}
-
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
 
 		for v in 'cache_node_abspath task_sigs node_deps raw_deps node_sigs'.split():
 			setattr(self, v, {})
 
+		# list of folders that are already scanned
+		# so that we do not need to stat them one more time
 		self.cache_dir_contents = {}
 
 		self.all_task_gen = []
@@ -261,32 +259,25 @@ class BuildContext(Context):
 
 		debug('build: executor starting')
 
-		back = os.getcwd()
-		os.chdir(self.bldnode.abspath())
-
 		try:
-			try:
-				dw(on=False)
-				self.generator.start()
-			except KeyboardInterrupt:
-				dw()
-				if self.generator.consumers:
-					self.save()
-				raise
-			except Exception:
-				dw()
-				# do not store anything, for something bad happened
-				raise
-			else:
-				dw()
-				if self.generator.consumers:
-					self.save()
+			dw(on=False)
+			self.generator.start()
+		except KeyboardInterrupt:
+			dw()
+			if self.generator.consumers:
+				self.save()
+			raise
+		except Exception:
+			dw()
+			# do not store anything, for something bad happened
+			raise
+		else:
+			dw()
+			if self.generator.consumers:
+				self.save()
 
-			if self.generator.error:
-				raise BuildError(self, self.task_manager.tasks_done)
-
-		finally:
-			os.chdir(back)
+		if self.generator.error:
+			raise BuildError(self, self.task_manager.tasks_done)
 
 	def install(self):
 		"this function is called for both install and uninstall"
