@@ -145,7 +145,10 @@ class BuildContext(Context):
 
 	def execute_build(self):
 		"""shared by install and uninstall"""
-		self.add_subdirs(self.curdir)
+
+		# TODO for the autoconfig, catch a specific NotConfiguredError? (ita)
+
+		self.recurse(self.curdir)
 		self.pre_build()
 		try:
 			self.compile()
@@ -770,10 +773,6 @@ class BuildContext(Context):
 		f.write(s)
 		f.flush()
 
-	def add_subdirs(self, dirs):
-		debug('deprecation: use recurse instead ofadd_subdirs')
-		self.recurse(dirs, 'build')
-
 	def pre_recurse(self, name_or_mod, path, nexdir):
 		if not hasattr(self, 'oldpath'):
 			self.oldpath = []
@@ -900,7 +899,7 @@ class UninstallContext(BuildContext):
 class CleanContext(BuildContext):
 	def run_user_code(self):
 		self.is_install = 0 # False
-		self.add_subdirs(self.curdir)
+		self.recurse(self.curdir)
 		try:
 			self.clean()
 		finally:
