@@ -13,10 +13,6 @@ import Base
 
 g_gz = 'bz2'
 
-current_command = ''
-"""Name of the currently executing command"""
-
-
 build_dir_override = None
 
 def waf_entry_point(current_directory, version, wafdir):
@@ -134,9 +130,9 @@ def parse_options():
 
 def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
-	global current_command
-	current_command = cmd_name
-	Base.create_context(cmd_name).execute()
+	ctx = Base.create_context(cmd_name)
+	ctx.current_command = cmd_name
+	ctx.execute()
 
 def run_commands():
 	run_command('init')

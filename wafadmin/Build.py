@@ -69,15 +69,10 @@ class BuildContext(Context):
 	def __init__(self, start=None, top=None):
 		super(BuildContext, self).__init__(start)
 
-		if not top_dir:
-			top_dir = Options.top_dir
-		if not top_dir:
-			raise Base.WafError('Project not configured')
-
 		self.top_dir = Options.top_dir
 
 		# output directory - may be set until the nodes are considered
-		self.outdir = Options.build_dir
+		self.out_dir = Options.build_dir
 
 		# the manager will hold the tasks
 		self.task_manager = Task.TaskManager()
@@ -790,6 +785,8 @@ class BuildContext(Context):
 		self.path = self.oldpath.pop()
 
 	def autoconfigure(self):
+		# FIXME ita
+
 		if not Configure.autoconfig:
 			return
 		config_context = Utils.context_dict['configure']
@@ -838,6 +835,7 @@ class BuildContext(Context):
 				reconf(proj)
 
 	def prepare(self):
+		# FIXME ita hmmm?
 		self.autoconfigure()
 		try:
 			temp_env = ConfigSet.ConfigSet(Options.lockfile)
