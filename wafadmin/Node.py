@@ -162,7 +162,7 @@ class Node(object):
 		else:
 			parent = self.find_dir(lst[:-1])
 			if not parent: return None
-		self.__class__.bld.rescan(parent)
+		parent.rescan()
 
 		name = lst[-1]
 		node = parent.childs.get(name, None)
@@ -197,7 +197,7 @@ class Node(object):
 		else:
 			parent = self.find_dir(lst[:-1])
 			if not parent: return None
-		self.__class__.bld.rescan(parent)
+		parent.rescan()
 
 		name = lst[-1]
 		node = parent.childs.get(name, None)
@@ -217,7 +217,7 @@ class Node(object):
 
 		current = self
 		for name in lst:
-			self.__class__.bld.rescan(current)
+			current.rescan()
 			prev = current
 
 			if not current.parent and name == current.name:
@@ -296,10 +296,10 @@ class Node(object):
 				pass
 			if not parent:
 				parent = self.ensure_dir_node_from_path(lst[:-1])
-				self.__class__.bld.rescan(parent)
+				parent.rescan()
 			else:
 				try:
-					self.__class__.bld.rescan(parent)
+					parent.rescan()
 				except OSError:
 					pass
 		else:
@@ -479,7 +479,7 @@ class Node(object):
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
 		bld_ctx = self.__class__.bld
-		bld_ctx.rescan(self)
+		self.rescan()
 		for name in bld_ctx.cache_dir_contents[self.id]:
 			if accept_name(self, name):
 				node = self.find_resource(name)
@@ -601,7 +601,7 @@ class Node(object):
 			return [nacc, nrej]
 
 		def ant_iter(nodi, maxdepth=25, pats=[]):
-			nodi.__class__.bld.rescan(nodi)
+			nodi.rescan()
 			for name in nodi.__class__.bld.cache_dir_contents[nodi.id]:
 				npats = accept(name, pats)
 				if npats and npats[0]:
@@ -663,7 +663,6 @@ class Node(object):
 		if not src_dir_node.name and sys.platform == 'win32':
 			# the root has no name, contains drive letters, and cannot be listed
 			return
-
 
 		# first, take the case of the source directory
 		parent_path = src_dir_node.abspath()
