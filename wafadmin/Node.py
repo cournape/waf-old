@@ -366,11 +366,11 @@ class Node(object):
 
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
-		tree = self.__class__.bld
-		ln = tree.launch_node()
+		bld = self.__class__.bld
+		ln = bld.launch_node()
 
 		if self.id & 3 == FILE: return self.relpath_gen(ln)
-		else: return os.path.join(tree.bldnode.relpath_gen(ln), self.relpath_gen(tree.srcnode))
+		else: return bld.out_dir + os.sep + self.relpath_gen(bld.srcnode)
 
 	def is_child_of(self, node):
 		"does this node belong to the subtree node"
@@ -656,7 +656,7 @@ class Node(object):
 		bld = self.__class__.bld
 
 		# do not rescan over and over again
-		if bld.cache_scanned_folders.get(self.id, None):
+		if self.id in bld.cache_dir_contents:
 			return
 
 		# first, take the case of the source directory
@@ -664,8 +664,6 @@ class Node(object):
 			lst = set(Utils.listdir(self.abspath()))
 		except OSError:
 			lst = set([])
-
-		bld.cache_dir_contents[self.id] = lst
 
 		# hash the existing source files, remove the others
 		cache = bld.node_sigs
@@ -685,7 +683,7 @@ class Node(object):
 		if not bld.srcnode:
 			# do not look at the build directory yet
 			return
-		bld.cache_scanned_folders[self.id] = True
+		bld.cache_dir_contents[self.id] = lst
 
 		# first obtain the differences between srcnode and self
 		h1 = bld.srcnode.height()

@@ -18,7 +18,7 @@ from Logs import debug, error, info
 from Constants import *
 from Base import command_context, WafError, Context, load_tool
 
-SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
+SAVED_ATTRS = 'root srcnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
 class BuildError(WafError):
@@ -105,7 +105,6 @@ class BuildContext(Context):
 		# nodes
 		self.root = None
 		self.srcnode = None
-		self.bldnode = None
 
 		# ======================================= #
 		# cache variables
@@ -159,7 +158,7 @@ class BuildContext(Context):
 
 			if sys.platform == 'win32':
 				# This is important
-				self.cache_scanned_folders[self.root.id] = True
+				self.cache_dir_contents[self.root.id] = []
 
 			if not self.srcnode:
 				self.srcnode = self.root.find_dir(self.top_dir)
@@ -336,10 +335,7 @@ class BuildContext(Context):
 					hash = SIG_NIL
 				self.node_sigs[newnode.id] = hash
 
-		# TODO: hmmm, these nodes are removed from the tree when calling rescan()
-		self.bldnode = self.root.find_dir(self.bldnode.abspath())
-		self.path = self.srcnode = self.root.find_dir(self.srcnode.abspath())
-		self.cwd = self.bldnode.abspath()
+		self.path = self.srcnode
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"setup tools for build process"
@@ -467,24 +463,11 @@ class BuildContext(Context):
 
 		else:
 			debug('task_gen: posting objects (normal)')
-			ln = self.launch_node()
-			# if the build is started from the build directory, do as if it was started from the top-level
-			# for the pretty-printing (Node.py), the two lines below cannot be moved to Build::launch_node
-			if ln.is_child_of(self.bldnode) or not ln.is_child_of(self.srcnode):
-				ln = self.srcnode
-
-			# if the project file is located under the source directory, build all targets by default
-			# else 'waf configure build' does nothing
-			proj_node = self.root.find_dir(self.curdir)
-			if proj_node.id != self.srcnode.id:
-				ln = self.srcnode
-
 			for i in range(len(self.task_manager.groups)):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
 				for tg in g.tasks_gen:
-					if not tg.path.is_child_of(ln):
-						continue
+					# TODO limit the task generators to the one below the folder of ... (ita)
 					tg.post()
 
 	def env_of_name(self, name):
