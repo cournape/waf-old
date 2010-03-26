@@ -1,13 +1,14 @@
 NEW IN WAF 1.5.15
 -----------------
+* Fix for ccache + suncc
 * Minor vala improvements
+* Minor qt4 improvements
+* gccdeps.py improvements
 * MSVC detection improvements
 * Fixed the 'args' parameter in conf.check(...)
 * Fixed a regression for the python.py tool on Python 3.x
 * Scanner methods are executed properly whenever the source change
-* gccdeps.py improvements
-* stop faster when an error occurs
-* fix for ccache + suncc
+* Stop faster when an error occurs
 
 NEW IN WAF 1.5.14
 -----------------
