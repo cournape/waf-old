@@ -159,6 +159,10 @@ class BuildContext(Context):
 			Node.Nodu = self.node_class
 			self.root = Node.Nodu('', None, Node.DIR)
 
+			if sys.platform == 'win32':
+				# This is important
+				self.cache_scanned_folders[self.root.id] = True
+
 			if not self.srcnode:
 				self.srcnode = self.root.find_dir(self.top_dir)
 

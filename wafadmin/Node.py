@@ -657,26 +657,22 @@ class Node(object):
 
 		# do not rescan over and over again
 		# TODO use a single variable in waf 1.6
-		if bld.cache_scanned_folders.get(src_dir_node.id, None): return
-		bld.cache_scanned_folders[src_dir_node.id] = True
-
-		if not src_dir_node.name and sys.platform == 'win32':
-			# the root has no name, contains drive letters, and cannot be listed
-			return
+		if bld.cache_scanned_folders.get(self.id, None): return
+		bld.cache_scanned_folders[self.id] = True
 
 		# first, take the case of the source directory
-		parent_path = src_dir_node.abspath()
+		parent_path = self.abspath()
 		try:
 			lst = set(Utils.listdir(parent_path))
 		except OSError:
 			lst = set([])
 
 		# TODO move this to the bottom
-		bld.cache_dir_contents[src_dir_node.id] = lst
+		bld.cache_dir_contents[self.id] = lst
 
 		# hash the existing source files, remove the others
 		cache = bld.node_sigs
-		for x in src_dir_node.childs.values():
+		for x in self.childs.values():
 			if x.id & 3 != Node.FILE: continue
 			if x.name in lst:
 				try:
@@ -687,15 +683,19 @@ class Node(object):
 				try: del cache[x.id]
 				except KeyError: pass
 
-				del src_dir_node.childs[x.name]
+				del self.childs[x.name]
 
+		if not bld.srcnode:
+			# do not look at the build directory yet
+			return
+		bld.cache_scanned_folders[self.id] = True
 
-		# first obtain the differences between srcnode and src_dir_node
+		# first obtain the differences between srcnode and self
 		h1 = bld.srcnode.height()
-		h2 = src_dir_node.height()
+		h2 = self.height()
 
 		lst = []
-		child = src_dir_node
+		child = self
 		while h2 > h1:
 			lst.append(child.name)
 			child = child.parent
@@ -705,7 +705,7 @@ class Node(object):
 		# list the files in the build directory
 		try:
 			sub_path = os.path.join(bld.out_dir, *lst)
-			bld.listdir_bld(src_dir_node, sub_path)
+			bld.listdir_bld(self, sub_path)
 			i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
 			lst = set(Utils.listdir(path))
@@ -723,13 +723,13 @@ class Node(object):
 
 		except OSError:
 
-			for node in src_dir_node.childs.values():
+			for node in self.childs.values():
 				if node.id & 3 != Node.BUILD:
 					continue
 				bld.node_sigs.__delitem__(node.id)
 
 				# the policy is to avoid removing nodes representing directories
-				src_dir_node.childs.__delitem__(node.name)
+				self.childs.__delitem__(node.name)
 
 			sub_path = os.path.join(bld.outdir , *lst)
 			try:
