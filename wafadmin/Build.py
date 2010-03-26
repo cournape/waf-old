@@ -146,6 +146,23 @@ class BuildContext(Context):
 	def execute_build(self):
 		"""shared by install and uninstall"""
 
+		self.cachedir = os.path.join(self.out_dir, CACHE_DIR)
+		try: os.makedirs(self.cachedir)
+		except OSError: pass
+
+		if self.top_dir == self.out_dir:
+			raise WafError("build dir must be different from srcdir: %s" % self.top_dir)
+
+		self.load()
+
+		if not self.root:
+			Node.Nodu = self.node_class
+			self.root = Node.Nodu('', None, Node.DIR)
+
+			if not self.srcnode:
+				self.srcnode = self.root.find_dir(self.top_dir)
+
+		self.path = self.srcnode
 		# TODO for the autoconfig, catch a specific NotConfiguredError? (ita)
 
 		self.recurse(self.curdir)
@@ -224,36 +241,6 @@ class BuildContext(Context):
 		gc.enable()
 
 	# ======================================= #
-
-	def clean(self):
-		debug('build: clean called')
-
-		# does not clean files created during the configuration
-		precious = set([])
-		for env in self.all_envs.values():
-			for x in env[CFG_FILES]:
-				node = self.srcnode.find_resource(x)
-				if node:
-					precious.add(node.id)
-
-		def clean_rec(node):
-			for x in list(node.childs.keys()):
-				nd = node.childs[x]
-
-				tp = nd.id & 3
-				if tp == Node.DIR:
-					clean_rec(nd)
-				elif tp == Node.BUILD:
-					if nd.id in precious: continue
-					for env in self.all_envs.values():
-						try: os.remove(nd.abspath(env))
-						except OSError: pass
-					node.childs.__delitem__(x)
-
-		clean_rec(self.srcnode)
-
-		for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
-			setattr(self, v, {})
 
 	def compile(self):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
@@ -370,38 +357,6 @@ class BuildContext(Context):
 
 	# ======================================= #
 	# node and folder handling
-
-	# this should be the main entry point
-	def load_dirs(self, srcdir, blddir, load_cache=1):
-		"this functions should be the start of everything"
-
-		assert(os.path.isabs(srcdir))
-		assert(os.path.isabs(blddir))
-
-		self.cachedir = os.path.join(blddir, CACHE_DIR)
-
-		if srcdir == blddir:
-			raise WafError("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
-
-		# try to load the cache file, if it does not exist, nothing happens
-		self.load()
-
-		if not self.root:
-			Node.Nodu = self.node_class
-			self.root = Node.Nodu('', None, Node.DIR)
-
-		if not self.srcnode:
-			self.srcnode = self.root.ensure_dir_node_from_path(srcdir)
-		debug('build: srcnode is %s and srcdir %s' % (self.srcnode.name, srcdir))
-
-		self.path = self.srcnode
-
-		# create this build dir if necessary
-		try: os.makedirs(blddir)
-		except OSError: pass
-
-		if not self.bldnode:
-			self.bldnode = self.root.ensure_dir_node_from_path(blddir)
 
 	# ======================================= #
 
@@ -773,6 +728,7 @@ class BuildContext(Context):
 		f.write(s)
 		f.flush()
 
+
 	def pre_recurse(self, name_or_mod, path, nexdir):
 		if not hasattr(self, 'oldpath'):
 			self.oldpath = []
@@ -904,4 +860,34 @@ class CleanContext(BuildContext):
 			self.clean()
 		finally:
 			self.save()
+
+	def clean(self):
+		debug('build: clean called')
+
+		# does not clean files created during the configuration
+		precious = set([])
+		for env in self.all_envs.values():
+			for x in env[CFG_FILES]:
+				node = self.srcnode.find_resource(x)
+				if node:
+					precious.add(node.id)
+
+		def clean_rec(node):
+			for x in list(node.childs.keys()):
+				nd = node.childs[x]
+
+				tp = nd.id & 3
+				if tp == Node.DIR:
+					clean_rec(nd)
+				elif tp == Node.BUILD:
+					if nd.id in precious: continue
+					for env in self.all_envs.values():
+						try: os.remove(nd.abspath(env))
+						except OSError: pass
+					node.childs.__delitem__(x)
+
+		clean_rec(self.srcnode)
+
+		for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
+			setattr(self, v, {})
 
