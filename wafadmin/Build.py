@@ -72,7 +72,7 @@ class BuildContext(Context):
 		self.top_dir = Options.top_dir
 
 		# output directory - may be set until the nodes are considered
-		self.out_dir = Options.build_dir
+		self.out_dir = Options.out_dir
 
 		# the manager will hold the tasks
 		self.task_manager = Task.TaskManager()
@@ -136,12 +136,46 @@ class BuildContext(Context):
 		kw['bld'] = self
 		return TaskGen.task_gen(*k, **kw)
 
-	def run_user_code(self):
-		self.is_install = 0
-		self.execute_build()
+	#def prepareold(self):
+	#	# FIXME ita hmmm?
+	#	self.autoconfigure()
+	#	try:
+	#		temp_env = ConfigSet.ConfigSet(Options.lockfile)
+	#	except IOError:
+	#		raise WafError("Project not configured (run 'waf configure' first)")
+	#	self.load_dirs(temp_env[SRCDIR], temp_env[BLDDIR])
+	#	self.load_envs()
+	#	info("Waf: Entering directory `%s'" % self.out_dir)
 
-	def execute_build(self):
-		"""shared by install and uninstall"""
+	def load_envs(self):
+		try:
+			lst = Utils.listdir(self.cachedir)
+		except OSError as e:
+			if e.errno == errno.ENOENT:
+				raise WafError('The project was not configured: run "waf configure" first!')
+			else:
+				raise
+
+		if not lst:
+			raise WafError('The cache directory is empty: reconfigure the project')
+
+		for file in lst:
+			if file.endswith(CACHE_SUFFIX):
+				env = ConfigSet.ConfigSet(os.path.join(self.cachedir, file))
+				name = file[:-len(CACHE_SUFFIX)]
+				self.all_envs[name] = env
+
+				for f in env[CFG_FILES]:
+					newnode = self.path.find_or_declare(f)
+					try:
+						hash = Utils.h_file(newnode.abspath(env))
+					except (IOError, AttributeError):
+						error("cannot find %r" % f)
+						hash = SIG_NIL
+					self.node_sigs[newnode.id] = hash
+
+	def prepare(self):
+		self.is_install = 0
 
 		self.cachedir = os.path.join(self.out_dir, CACHE_DIR)
 		try: os.makedirs(self.cachedir)
@@ -152,6 +186,7 @@ class BuildContext(Context):
 
 		self.load()
 
+		print("and the root is", self.root)
 		if not self.root:
 			Node.Nodu = self.node_class
 			self.root = Node.Nodu('', None, Node.DIR)
@@ -163,12 +198,23 @@ class BuildContext(Context):
 			if not self.srcnode:
 				self.srcnode = self.root.find_dir(self.top_dir)
 
+		print("now the root is", self.root)
+		print ("and sself.srcnode is ", self.srcnode)
+
 		bldnode = self.root.find_dir(self.out_dir)
 		self.up_path = self.srcnode.relpath_gen(bldnode)
 		self.down_path = bldnode.relpath_gen(self.srcnode)
 
 		self.path = self.srcnode
-		# TODO for the autoconfig, catch a specific NotConfiguredError? (ita)
+
+		if not self.env:
+			self.load_envs()
+
+	def run_user_code(self):
+		self.execute_build()
+
+	def execute_build(self):
+		"""shared by install and uninstall"""
 
 		self.recurse(self.curdir)
 		self.pre_build()
@@ -309,37 +355,6 @@ class BuildContext(Context):
 			for x in nlst:
 				try: os.rmdir(x)
 				except OSError: pass
-
-	def load_envs(self):
-		try:
-			lst = Utils.listdir(self.cachedir)
-		except OSError as e:
-			if e.errno == errno.ENOENT:
-				raise WafError('The project was not configured: run "waf configure" first!')
-			else:
-				raise
-
-		if not lst:
-			raise WafError('The cache directory is empty: reconfigure the project')
-
-		for file in lst:
-			if file.endswith(CACHE_SUFFIX):
-				env = ConfigSet.ConfigSet(os.path.join(self.cachedir, file))
-				name = file[:-len(CACHE_SUFFIX)]
-
-				self.all_envs[name] = env
-
-		for env in self.all_envs.values():
-			for f in env[CFG_FILES]:
-				newnode = self.path.find_or_declare(f)
-				try:
-					hash = Utils.h_file(newnode.abspath(env))
-				except (IOError, AttributeError):
-					error("cannot find "+f)
-					hash = SIG_NIL
-				self.node_sigs[newnode.id] = hash
-
-		self.path = self.srcnode
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"setup tools for build process"
@@ -771,18 +786,6 @@ class BuildContext(Context):
 				warn('Reconfiguring the project: the configuration has changed')
 				reconf(proj)
 
-	def prepare(self):
-		# FIXME ita hmmm?
-		self.autoconfigure()
-		try:
-			temp_env = ConfigSet.ConfigSet(Options.lockfile)
-		except IOError:
-			raise WafError("Project not configured (run 'waf configure' first)")
-
-		self.load_dirs(temp_env[SRCDIR], temp_env[BLDDIR])
-		self.load_envs()
-		info("Waf: Entering directory `%s'" % self.out_dir)
-
 	###### user-defined behaviour
 
 	def pre_build(self):
@@ -836,7 +839,6 @@ class UninstallContext(BuildContext):
 @command_context('clean', 'build')
 class CleanContext(BuildContext):
 	def run_user_code(self):
-		self.is_install = 0 # False
 		self.recurse(self.curdir)
 		try:
 			self.clean()

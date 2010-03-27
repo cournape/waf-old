@@ -14,7 +14,18 @@ from Constants import *
 is_win32 = sys.platform == 'win32'
 indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
-from hashlib import md5
+# never fail on module import, we may apply the fixes from another module
+try:
+	from hashlib import md5
+except:
+	pass
+
+try:
+	from collections import defaultdict as DefaultDict
+except:
+	pass
+
+
 
 def h_file(filename):
 	f = open(filename, 'rb')
