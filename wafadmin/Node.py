@@ -668,15 +668,19 @@ class Node(object):
 		# hash the existing source files, remove the others
 		cache = bld.node_sigs
 		for x in self.childs.values():
-			if x.id & 3 != Node.FILE: continue
+			if x.id & 3 != Node.FILE:
+				continue
+
 			if x.name in lst:
 				try:
 					cache[x.id] = Utils.h_file(x.abspath())
 				except IOError:
 					raise WafError('The file %s is not readable or has become a dir' % x.abspath())
 			else:
-				try: del cache[x.id]
-				except KeyError: pass
+				try:
+					del cache[x.id]
+				except KeyError:
+					pass
 
 				del self.childs[x.name]
 
@@ -695,43 +699,47 @@ class Node(object):
 			lst.append(child.name)
 			child = child.parent
 			h2 -= 1
+
+		if child.id != bld.srcnode.id:
+			# not a folder that we can duplicate in the build dir
+			return
+
+		lst.append(bld.out_dir)
 		lst.reverse()
+		path = os.sep.join(lst)
 
-		# list the files in the build directory
 		try:
-			sub_path = os.path.join(bld.out_dir, *lst)
-			bld.listdir_bld(self, sub_path)
-			i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
-
 			lst = set(Utils.listdir(path))
-			node_names = set([x.name for x in i_existing_nodes])
-			remove_names = node_names - lst
+		except OSError:
+			for node in self.childs.values():
+				# do not remove the nodes representing directories
+				if node.id & 3 != Node.BUILD:
+					continue
 
-			# remove the stamps of the build nodes that no longer exist on the filesystem
-			ids_to_remove = [x.id for x in i_existing_nodes if x.name in remove_names]
-			cache = bld.node_sigs
-			for nid in ids_to_remove:
 				try:
-					cache.__delitem__(nid)
+					del bld.node_sigs[node.id]
 				except KeyError:
 					pass
+				del self.childs[node.name]
 
-		except OSError:
-
+			try:
+				# recreate the folder in the build directory
+				os.makedirs(path)
+			except OSError:
+				pass
+		else:
+			# the folder exist, look at the nodes
 			for node in self.childs.values():
 				if node.id & 3 != Node.BUILD:
 					continue
-				bld.node_sigs.__delitem__(node.id)
+				if not (node.name in lst):
 
-				# the policy is to avoid removing nodes representing directories
-				self.childs.__delitem__(node.name)
+					try:
+						del bld.node_sigs[node.id]
+					except KeyError:
+						pass
 
-			sub_path = os.path.join(bld.outdir , *lst)
-			try:
-				os.makedirs(sub_path)
-			except OSError:
-				pass
-
+					del self.childs[node.name]
 
 class Nodu(Node):
 	pass

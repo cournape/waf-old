@@ -163,6 +163,10 @@ class BuildContext(Context):
 			if not self.srcnode:
 				self.srcnode = self.root.find_dir(self.top_dir)
 
+		bldnode = self.root.find_dir(self.out_dir)
+		self.up_path = self.srcnode.relpath_gen(bldnode)
+		self.down_path = bldnode.relpath_gen(self.srcnode)
+
 		self.path = self.srcnode
 		# TODO for the autoconfig, catch a specific NotConfiguredError? (ita)
 
