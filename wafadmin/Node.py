@@ -232,7 +232,7 @@ class Node(object):
 				current = prev.childs.get(name, None)
 				if current is None:
 					dir_cont = self.__class__.bld.cache_dir_contents
-					if prev.id in dir_cont and name in dir_cont[prev.id]:
+					if name in dir_cont.get(prev.id, []):
 						if not prev.name:
 							if os.sep == '/':
 								# cygwin //machine/share
@@ -250,66 +250,17 @@ class Node(object):
 						# drive letter or \\ path for windows
 						current = self.__class__(name, prev, DIR)
 					else:
-						return None
+						try:
+							os.stat(prev.abspath() + os.sep + name)
+						except:
+							return None
+						else:
+							current = self.__class__(name, prev, DIR)
+							return current
 				else:
 					if current.id & 3 != DIR:
 						return None
 		return current
-
-	# FIXME: remove in waf 1.6 ?
-	def ensure_dir_node_from_path(self, lst):
-		"used very rarely, force the construction of a branch of node instance for representing folders"
-
-		if isinstance(lst, str):
-			lst = Utils.split_path(lst)
-
-		current = self
-		for name in lst:
-			if not name:
-				continue
-			elif name == '.':
-				continue
-			elif name == '..':
-				current = current.parent or current
-			else:
-				prev = current
-				current = prev.childs.get(name, None)
-				if current is None:
-					current = self.__class__(name, prev, DIR)
-		return current
-
-	# FIXME: remove in waf 1.6
-	def exclusive_build_node(self, path):
-		"""
-		create a hierarchy in the build dir (no source folders) for ill-behaving compilers
-		the node is not hashed, so you must do it manually
-
-		after declaring such a node, find_dir and find_resource should work as expected
-		"""
-		lst = Utils.split_path(path)
-		name = lst[-1]
-		if len(lst) > 1:
-			parent = None
-			try:
-				parent = self.find_dir(lst[:-1])
-			except OSError:
-				pass
-			if not parent:
-				parent = self.ensure_dir_node_from_path(lst[:-1])
-				parent.rescan()
-			else:
-				try:
-					parent.rescan()
-				except OSError:
-					pass
-		else:
-			parent = self
-
-		node = parent.childs.get(name, None)
-		if not node:
-			node = self.__class__(name, parent, BUILD)
-
-		return node
 
 	def path_to_parent(self, parent):
 		"path relative to a direct ancestor, as string"
@@ -668,7 +619,7 @@ class Node(object):
 		# hash the existing source files, remove the others
 		cache = bld.node_sigs
 		for x in self.childs.values():
-			if x.id & 3 != Node.FILE:
+			if x.id & 3 != FILE:
 				continue
 
 			if x.name in lst:
