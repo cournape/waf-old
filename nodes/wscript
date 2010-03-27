@@ -1,0 +1,28 @@
+#! /usr/bin/env python3
+
+top = '.'
+out = 'bin'
+
+def options(opt):
+	print(opt)
+
+def configure(conf):
+	pass
+
+def build(bld):
+	print('...')
+	print("root", bld.root.abspath(), bld.root)
+	print("srcnode", bld.srcnode.abspath(), bld.srcnode)
+	print("env", bld.env)
+
+	bld(rule='echo ho', always=True)
+
+def init(self):
+	print('init')
+
+def shutdown(self):
+	print('shutdown')
+
+
+def bar(ctx):
+	print("command ok")
