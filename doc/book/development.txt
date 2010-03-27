@@ -53,6 +53,7 @@ The following zones are used in Waf:
 |envhash | hashes of the environment objects - helps seeing what changes
 |build   | build context operations such as filesystem access
 |preproc | preprocessor execution
+|group   | groups and task generators
 |=================
 
 WARNING: Debugging information can be displayed only after the command-line has been parsed. For example, no debugging information will be displayed when a waf tool is being by 'tool_options'
