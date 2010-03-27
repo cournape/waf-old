@@ -256,7 +256,6 @@ class Node(object):
 							return None
 						else:
 							current = self.__class__(name, prev, DIR)
-							return current
 				else:
 					if current.id & 3 != DIR:
 						return None
