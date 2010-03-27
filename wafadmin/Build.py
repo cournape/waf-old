@@ -186,7 +186,6 @@ class BuildContext(Context):
 
 		self.load()
 
-		print("and the root is", self.root)
 		if not self.root:
 			Node.Nodu = self.node_class
 			self.root = Node.Nodu('', None, Node.DIR)
@@ -198,16 +197,12 @@ class BuildContext(Context):
 			if not self.srcnode:
 				self.srcnode = self.root.find_dir(self.top_dir)
 
-		print("now the root is", self.root)
-		print ("and sself.srcnode is ", self.srcnode)
-
 		bldnode = self.root.find_dir(self.out_dir)
 		self.up_path = self.srcnode.relpath_gen(bldnode)
 		self.down_path = bldnode.relpath_gen(self.srcnode)
-
 		self.path = self.srcnode
 
-		if not self.env:
+		if not self.all_envs:
 			self.load_envs()
 
 	def run_user_code(self):
