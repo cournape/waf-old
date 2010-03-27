@@ -197,7 +197,7 @@ def distclean(ctx=None):
 				continue
 
 			try:
-				shutil.rmtree(proj[BLDDIR])
+				shutil.rmtree(proj['out_dir'])
 			except IOError:
 				pass
 			except OSError as e:
