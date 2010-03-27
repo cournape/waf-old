@@ -349,14 +349,14 @@ class Node(object):
 		absolute path
 		cache into the build context, cache_node_abspath
 		"""
-		## absolute path - hot zone, so do not touch
+		# absolute path: this is usually a bottleneck
 
 		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
 		if ret: return ret
 
 		id = self.id
 		if id & 3 == BUILD:
-			val = os.sep.join((self.__class__.bld.bldpath, self.path_to_parent(self.__class__.bld.srcnode)))
+			val = os.sep.join((self.__class__.bld.out_dir, self.path_to_parent(self.__class__.bld.srcnode)))
 		else:
 			if not self.parent:
 				val = os.sep == '/' and os.sep or ''

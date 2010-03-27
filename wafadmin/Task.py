@@ -572,10 +572,10 @@ class Task(TaskBase):
 		for node in self.outputs:
 			# check if the node exists ..
 			try:
-				os.stat(node.abspath(env))
+				os.stat(node.abspath())
 			except OSError:
 				self.has_run = MISSING
-				self.err_msg = '-> missing file: %r' % node.abspath(env)
+				self.err_msg = '-> missing file: %r' % node.abspath()
 				raise WafError
 
 			# important, store the signature for the next run
@@ -587,7 +587,7 @@ class Task(TaskBase):
 			if Options.cache_global:
 				ssig = sig.encode('hex')
 				dest = os.path.join(Options.cache_global, '%s_%d_%s' % (ssig, cnt, node.name))
-				try: shutil.copy2(node.abspath(env), dest)
+				try: shutil.copy2(node.abspath(), dest)
 				except IOError: warn('Could not write the file to the cache')
 				cnt += 1
 
@@ -792,7 +792,7 @@ def compile_fun_shell(name, line):
 			else: app('" ".join([a.srcpath(env) for a in task.inputs])')
 		elif var == 'TGT':
 			if meth: app('task.outputs%s' % meth)
-			else: app('" ".join([a.bldpath(env) for a in task.outputs])')
+			else: app('" ".join([a.bldpath() for a in task.outputs])')
 		else:
 			if not var in dvars: dvars.append(var)
 			app("p('%s')" % var)
@@ -829,7 +829,7 @@ def compile_fun_noshell(name, line):
 			else: app("lst.extend([a.srcpath(env) for a in task.inputs])")
 		elif var == 'TGT':
 			if meth: app('lst.append(task.outputs%s)' % meth)
-			else: app("lst.extend([a.bldpath(env) for a in task.outputs])")
+			else: app("lst.extend([a.bldpath() for a in task.outputs])")
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
