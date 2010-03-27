@@ -136,6 +136,10 @@ class BuildContext(Context):
 		kw['bld'] = self
 		return TaskGen.task_gen(*k, **kw)
 
+	def __copy__(self):
+		"""no build context copies"""
+		raise WafError('build contexts are not supposed to be copied')
+
 	#def prepareold(self):
 	#	# FIXME ita hmmm?
 	#	self.autoconfigure()
@@ -187,8 +191,8 @@ class BuildContext(Context):
 		self.load()
 
 		if not self.root:
-			Node.Nodu = self.node_class
-			self.root = Node.Nodu('', None, Node.DIR)
+			Node.Nod3 = self.node_class
+			self.root = Node.Nod3('', None, Node.DIR)
 
 			if sys.platform == 'win32':
 				# This is important
@@ -220,10 +224,6 @@ class BuildContext(Context):
 			info("Waf: Leaving directory `%s'" % self.out_dir)
 		self.post_build()
 
-	def __copy__(self):
-		"""no build context copies"""
-		raise WafError('build contexts are not supposed to be copied')
-
 	def load(self):
 		"load the cache from the disk"
 		try:
@@ -240,7 +240,7 @@ class BuildContext(Context):
 			gc.disable()
 			f = data = None
 
-			Node.Nodu = self.node_class
+			Node.Nod3 = self.node_class
 
 			try:
 				f = open(os.path.join(self.out_dir, DBFILE), 'rb')
@@ -271,7 +271,7 @@ class BuildContext(Context):
 		self.root.__class__.bld = None
 
 		# some people are very nervous with ctrl+c so we have to make a temporary file
-		Node.Nodu = self.node_class
+		Node.Nod3 = self.node_class
 		db = os.path.join(self.out_dir, DBFILE)
 		file = open(db + '.tmp', 'wb')
 		data = {}

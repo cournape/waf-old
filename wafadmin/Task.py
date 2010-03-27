@@ -170,9 +170,7 @@ class TaskGroup(object):
 
 	def get_next_set(self):
 		"next list of tasks to execute using max job settings, returns (maxjobs, task_list)"
-		(maxj, tasks) = self.tasks_in_parallel()
-		if not tasks: return ()
-		return (maxj, tasks)
+		return self.tasks_in_parallel()
 
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
@@ -260,7 +258,7 @@ class TaskGroup(object):
 				self.cstr_groups.__delitem__(y)
 
 		if not toreturn and remainder:
-			raise WafError("circular order constraint detected %r" % remainder)
+			raise WafError("Circular order constraint detected %r" % remainder)
 
 		return toreturn
 

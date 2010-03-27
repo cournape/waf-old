@@ -15,7 +15,7 @@ unused class members increase the .wafpickle file size sensibly with lots of obj
 
 4. Node should not be instantiated directly.
 Each instance of Build.BuildContext has a Node subclass.
-(aka: 'Nodu', see BuildContext initializer)
+(aka: 'Nod3', see BuildContext initializer)
 The BuildContext is referenced here as self.__class__.bld
 Its Node class is referenced here as self.__class__
 
@@ -692,6 +692,6 @@ class Node(object):
 
 					del self.childs[node.name]
 
-class Nodu(Node):
+class Nod3(Node):
 	pass
 
