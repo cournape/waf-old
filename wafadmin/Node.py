@@ -664,7 +664,7 @@ class Node(object):
 		except OSError:
 			for node in self.childs.values():
 				# do not remove the nodes representing directories
-				if node.id & 3 != Node.BUILD:
+				if node.id & 3 != BUILD:
 					continue
 
 				try:
@@ -680,8 +680,9 @@ class Node(object):
 				pass
 		else:
 			# the folder exist, look at the nodes
-			for node in self.childs.values():
-				if node.id & 3 != Node.BUILD:
+			vals = list(self.childs.values())
+			for node in vals:
+				if node.id & 3 != BUILD:
 					continue
 				if not (node.name in lst):
 
