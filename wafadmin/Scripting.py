@@ -256,7 +256,7 @@ def dist(ctx):
 
 	from hashlib import sha1
 	try:
-		digest = " (sha=%r)" % sha1(Base.readf(arch_name)).hexdigest()
+		digest = " (sha=%r)" % sha1(Utils.readf(arch_name)).hexdigest()
 	except:
 		digest = ''
 

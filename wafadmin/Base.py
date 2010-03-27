@@ -15,24 +15,6 @@ g_module = None
 wscript file representing the entry point of the project
 """
 
-
-def readf(fname, m='r'):
-	"""
-	Read an entire file into a string.
-	@type  fname: string
-	@param fname: Path to file
-	@type  m: string
-	@param m: Open mode
-	@rtype: string
-	@return: Content of the file
-	"""
-	f = open(fname, m)
-	try:
-		txt = f.read()
-	finally:
-		f.close()
-	return txt
-
 class WafError(Exception):
 	def __init__(self, *args):
 		self.args = args
@@ -149,7 +131,7 @@ class Context(object):
 			# use it in preference
 			if os.path.exists(partial_wscript_file):
 				exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
-				function_code = readf(partial_wscript_file, m='rU')
+				function_code = Utils.readf(partial_wscript_file, m='rU')
 
 				self.pre_recurse(function_code, partial_wscript_file, d)
 				old_dir = self.curdir
@@ -233,7 +215,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	module = imp.new_module(name)
 
 	try:
-		code = readf(file_path, m='rU')
+		code = Utils.readf(file_path, m='rU')
 	except (IOError, OSError):
 		raise WscriptError('Could not read the file %r' % file_path)
 

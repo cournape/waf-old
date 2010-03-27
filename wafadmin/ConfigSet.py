@@ -142,7 +142,7 @@ class ConfigSet(object):
 	def load(self, filename):
 		"Retrieve the variables from a file"
 		tbl = self.table
-		code = Base.readf(filename)
+		code = Utils.readf(filename)
 		for m in re_imp.finditer(code):
 			g = m.group
 			tbl[g(2)] = eval(g(3))

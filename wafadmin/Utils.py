@@ -26,6 +26,22 @@ except:
 	pass
 
 
+def readf(fname, m='r'):
+	"""
+	Read an entire file into a string.
+	@type  fname: string
+	@param fname: Path to file
+	@type  m: string
+	@param m: Open mode
+	@rtype: string
+	@return: Content of the file
+	"""
+	f = open(fname, m)
+	try:
+		txt = f.read()
+	finally:
+		f.close()
+	return txt
 
 def h_file(filename):
 	f = open(filename, 'rb')

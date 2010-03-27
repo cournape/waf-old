@@ -5,7 +5,6 @@
 import ansiterm
 import os, re, logging, traceback, sys
 from Constants import *
-import Base
 
 zones = ''
 verbose = 0
@@ -131,9 +130,10 @@ def debug(msg):
 def error(msg):
 	logging.error(msg)
 	if verbose > 1:
-		if isinstance(msg, Base.WafError):
+		try:
+			# Base.WafError <- has a stack attribute
 			st = msg.stack
-		else:
+		except AttributeError:
 			st = traceback.extract_stack()
 		if st:
 			st = st[:-1]
