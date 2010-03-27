@@ -15,7 +15,8 @@ def build(bld):
 	print("srcnode", bld.srcnode.abspath(), bld.srcnode)
 	print("env", bld.env)
 
-	bld(rule='echo ho', always=True)
+	bld(rule='echo hi', always=True)
+	bld(rule='touch ${TGT}', target='foo.txt', always=True)
 
 def init(self):
 	print('init')
