@@ -447,7 +447,7 @@ class BuildContext(Context):
 		# force the initialization of the mapping name->object in flush
 		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
-		self.name_to_obj('', self.env)
+		self.name_to_obj('')
 
 		debug('build: delayed operation TaskGen.flush() called')
 
@@ -460,7 +460,7 @@ class BuildContext(Context):
 				# trim target_name (handle cases when the user added spaces to targets)
 				target_name = target_name.strip()
 				for env in self.all_envs.values():
-					obj = self.name_to_obj(target_name, env)
+					obj = self.name_to_obj(target_name)
 					if obj:
 						target_objects[target_name].append(obj)
 				if not target_name in target_objects and all:

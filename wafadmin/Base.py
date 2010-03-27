@@ -8,6 +8,7 @@ Base classes (mostly abstract)
 
 import traceback, os, imp, sys
 from Constants import *
+import Utils
 
 g_module = None
 """
@@ -137,7 +138,7 @@ class Context(object):
 		function_name = name or self.user_function_name()
 
 		# convert to absolute paths
-		dirs = to_list(dirs)
+		dirs = Utils.to_list(dirs)
 		dirs = [x if os.path.isabs(x) else os.path.join(self.curdir, x) for x in dirs]
 
 		for d in dirs:
