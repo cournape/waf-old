@@ -23,3 +23,9 @@ Eliminate source dir nodes when they do not exist anymore
 
 When build nodes do not exist, do not delete them but remove the signatures
 
+Using the testcase
+------------------
+
+Execute
+../waf distclean configure build
+
