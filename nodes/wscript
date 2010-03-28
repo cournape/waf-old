@@ -35,3 +35,24 @@ def shutdown(self):
 
 def bar(ctx):
 	print("command ok")
+
+
+#-----------------------------------------------
+# variant example below
+# call "../waf debug"
+#
+
+import os
+import Build, Constants, Options
+from Base import command_context
+
+@command_context('debug', 'build')
+class debug_context(Build.BuildContext):
+	def __init__(self, start=None):
+		self.cache_dir = Options.out_dir + os.sep + Constants.CACHE_DIR
+		self.out_dir = Options.out_dir + os.sep + 'test'
+		Build.BuildContext.__init__(self, start=start)
+
+def debug(bld):
+	build(bld)
+
