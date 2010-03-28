@@ -66,13 +66,18 @@ def group_method(fun):
 @command_context('build')
 class BuildContext(Context):
 	"holds the dependency tree"
-	def __init__(self, start=None, top=None):
+	def __init__(self, start=None):
 		super(BuildContext, self).__init__(start)
 
-		self.top_dir = Options.top_dir
+		if not getattr(self, 'top_dir', None):
+			self.top_dir = Options.top_dir
 
 		# output directory - may be set until the nodes are considered
-		self.out_dir = Options.out_dir
+		if not getattr(self, 'out_dir', None):
+			self.out_dir = Options.out_dir
+
+		if not getattr(self, 'cache_dir', None):
+			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
 
 		# the manager will hold the tasks
 		self.task_manager = Task.TaskManager()
@@ -153,7 +158,7 @@ class BuildContext(Context):
 
 	def load_envs(self):
 		try:
-			lst = Utils.listdir(self.cachedir)
+			lst = Utils.listdir(self.cache_dir)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
 				raise WafError('The project was not configured: run "waf configure" first!')
@@ -165,7 +170,7 @@ class BuildContext(Context):
 
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
-				env = ConfigSet.ConfigSet(os.path.join(self.cachedir, file))
+				env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, file))
 				name = file[:-len(CACHE_SUFFIX)]
 				self.all_envs[name] = env
 
@@ -180,10 +185,6 @@ class BuildContext(Context):
 
 	def prepare(self):
 		self.is_install = 0
-
-		self.cachedir = os.path.join(self.out_dir, CACHE_DIR)
-		try: os.makedirs(self.cachedir)
-		except OSError: pass
 
 		if self.top_dir == self.out_dir:
 			raise WafError("build dir must be different from srcdir: %s" % self.top_dir)
@@ -227,7 +228,7 @@ class BuildContext(Context):
 	def load(self):
 		"load the cache from the disk"
 		try:
-			env = ConfigSet.ConfigSet(os.path.join(self.cachedir, 'build.config.py'))
+			env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, 'build.config.py'))
 		except (IOError, OSError):
 			pass
 		else:
