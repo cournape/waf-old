@@ -617,7 +617,7 @@ class BuildContext(Utils.Context):
 		try: return self.cache_sig_vars[idx]
 		except KeyError: pass
 
-		lst = [str(env[a]) for a in vars_lst]
+		lst = [str(env[a] or a) for a in vars_lst]
 		ret = Utils.h_list(lst)
 		debug('envhash: %r %r', ret, lst)
 
