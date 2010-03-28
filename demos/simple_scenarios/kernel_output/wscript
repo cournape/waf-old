@@ -23,13 +23,13 @@ def build(bld):
 
 	def display(self):
 		if Options.options.progress_bar != 0:
-			return Task.display(self)
+			return Task.Task.display(self)
 		return "[CC] %s\n" % self.outputs[0].bldpath(self.env)
 	Task.TaskBase.classes['cc'].display = display
 
 	def display(self):
 		if Options.options.progress_bar == 2:
-			return Task.display(self)
+			return Task.Task.display(self)
 		return "[LD] %s\n" % self.outputs[0].bldpath(self.env)
 	Task.TaskBase.classes['cc_link'].display = display
 
