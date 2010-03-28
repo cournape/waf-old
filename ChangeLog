@@ -9,6 +9,7 @@ NEW IN WAF 1.5.15
 * Fixed a regression for the python.py tool on Python 3.x
 * Scanner methods are executed properly whenever the source change
 * Stop faster when an error occurs
+* New debugging zones "waf --zones=group"
 
 NEW IN WAF 1.5.14
 -----------------

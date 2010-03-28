@@ -66,7 +66,7 @@ Installing Waf on a system is unnecessary and discouraged:
 . Installation: installation is cumbersome, and requires administrative privileges
 . Waf versions: users rarely install the appropriate software version (too old, too new, bugs)
 . Bugs: projects may depend on unspecified behaviour in particular Waf versions
-. Size: the 'waf' file is small enough to be redistributed (about 80kB)
+. Size: the 'waf' file is small enough to be redistributed (about 90kB)
 
 Installation require a Python interpreter in the versions 2.4 to 2.6. It may require administrator or root privileges, depending on the target folder (prefix).
 
