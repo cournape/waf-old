@@ -489,6 +489,7 @@ def exec_rule(self):
 
 	# get the function and the variables
 	func = self.rule
+
 	vars2 = []
 	if isinstance(func, str):
 		# use the shell by default for user-defined commands
@@ -504,11 +505,11 @@ def exec_rule(self):
 	# now create one instance
 	tsk = self.create_task(name)
 
-	dep_vars = getattr(self, 'dep_vars', ['rule'])
+	dep_vars = getattr(self, 'dep_vars', ['ruledeps'])
 	if dep_vars:
 		tsk.dep_vars = dep_vars
 	if isinstance(self.rule, str):
-		tsk.env.rule = self.rule
+		tsk.env.ruledeps = self.rule
 	else:
 		# only works if the function is in a global module such as a waf tool
 		tsk.env.ruledeps = Utils.h_fun(self.rule)
