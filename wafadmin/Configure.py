@@ -276,7 +276,7 @@ class ConfigurationContext(Utils.Context):
 				ret = find_program_impl(self.env, x, path_list, var, environ=self.environ)
 				if ret: break
 
-		self.check_message_1('Check for program %s' % ' or '.join(filename))
+		self.check_message_1('Checking for program %s' % ' or '.join(filename))
 		self.log.write('  find program=%r paths=%r var=%r\n  -> %r\n' % (filename, path_list, var, ret))
 		if ret:
 			Utils.pprint('GREEN', str(ret))
