@@ -53,6 +53,7 @@ class debug_context(Build.BuildContext):
 		self.out_dir = Options.out_dir + os.sep + 'test'
 		Build.BuildContext.__init__(self, start=start)
 
-def debug(bld):
-	build(bld)
+# looks evil
+#def debug(bld):
+#	build(bld)
 
