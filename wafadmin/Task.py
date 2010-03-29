@@ -871,7 +871,14 @@ class Task(TaskBase):
 			sig = self.compute_sig_implicit_deps()
 		except KeyError:
 			try:
-				nodes = bld.node_deps.get(self.unique_id(), [])
+				nodes = []
+				for k in bld.node_deps.get(self.unique_id(), []):
+					if k.id & 3 == 2: # Node.FILE:
+						if not k.id in bld.node_sigs[0]:
+							nodes.append(k)
+					else:
+						if not k.id in bld.node_sigs[self.env.variant()]:
+							nodes.append(k)
 			except:
 				nodes = '?'
 			raise Utils.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
