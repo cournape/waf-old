@@ -1,6 +1,7 @@
 NEW IN WAF 1.5.16
 -----------------
-* Better deleted files handling when on_results/update_outputs is used
+* Handle deleted files and folders gracefully
+* Better interaction between on_results/update_outputs and deleted files
 * Waf now runs on Irix
 
 NEW IN WAF 1.5.15
