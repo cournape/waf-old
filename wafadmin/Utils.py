@@ -325,7 +325,7 @@ else:
 		# we actually try the function once to see if it is suitable
 		try:
 			myfun()
-		except IOError:
+		except:
 			pass
 		else:
 			get_term_cols = myfun
