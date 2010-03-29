@@ -523,9 +523,9 @@ class BuildContext(Utils.Context):
 				if node.id & 3 != Node.BUILD:
 					continue
 
-				for dct in self.node_sigs:
+				for dct in self.node_sigs.values():
 					if node.id in dct:
-						dict.__delitem__(node.id)
+						dct.__delitem__(node.id)
 
 				# the policy is to avoid removing nodes representing directories
 				src_dir_node.childs.__delitem__(node.name)
