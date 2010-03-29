@@ -1068,6 +1068,9 @@ def update_outputs(cls):
 			new_sig  = self.signature()
 			prev_sig = bld.task_sigs[self.unique_id()][0]
 			if prev_sig == new_sig:
+				for x in self.outputs:
+					if not x.id in bld.node_sigs[self.env.variant()]:
+						return RUN_ME
 				return SKIP_ME
 		except KeyError:
 			pass
