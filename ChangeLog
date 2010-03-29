@@ -1,3 +1,8 @@
+NEW IN WAF 1.5.16
+-----------------
+* Better deleted files handling when on_results/update_outputs is used
+* Waf now runs on Irix
+
 NEW IN WAF 1.5.15
 -----------------
 * Fix for ccache + suncc
