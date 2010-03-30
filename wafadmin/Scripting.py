@@ -72,8 +72,9 @@ def waf_entry_point(current_directory, version, wafdir):
 		error("Waf: The wscript in %r is unreadable" % Options.run_dir)
 		sys.exit(1)
 
+	parse_options()
+
 	try:
-		parse_options()
 		run_commands()
 	except Exception as e:
 		traceback.print_exc(file=sys.stdout)
@@ -105,8 +106,8 @@ def set_main_module(file_path):
 		Base.g_module.init = Utils.nada
 	if not 'shutdown' in Base.g_module.__dict__:
 		Base.g_module.shutdown = Utils.nada
-	if not 'set_options' in Base.g_module.__dict__:
-		Base.g_module.set_options = Utils.nada
+	if not 'options' in Base.g_module.__dict__:
+		Base.g_module.options = Utils.nada
 
 def parse_options():
 	opt = Options.OptionsContext().execute()

@@ -6,7 +6,7 @@
 "Custom command-line options"
 
 import os, sys, imp, types, tempfile, optparse
-import Logs, Utils
+import Logs, Utils, Base
 from Base import command_context, Context
 from Constants import *
 
@@ -133,7 +133,7 @@ class OptionsContext(Context):
 
 		for tool in tools:
 			tool = tool.replace('++', 'xx')
-			module = Utils.load_tool(tool, path)
+			module = Base.load_tool(tool, path)
 			try:
 				fun = module.set_options
 			except AttributeError:
@@ -148,6 +148,7 @@ class OptionsContext(Context):
 		(options, leftover_args) = self.parser.parse_args(args=_args)
 		commands = leftover_args
 
+		print(options)
 		if options.destdir:
 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
 

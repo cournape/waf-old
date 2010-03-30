@@ -5,5 +5,7 @@ NEW IN WAF 1.6.0
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
 * bld.new_task_gen is replaced by bld()
+* Utils.load_tool -> Base.load_tool
+* set_options becomes options
 * only the build-related commands require a configured project
 

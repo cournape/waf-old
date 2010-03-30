@@ -57,7 +57,7 @@ def check(ctx):
 	Utils.g_module = mod
 
 # this function is called before any other for parsing the command-line
-def set_options(opt):
+def options(opt):
 
 	# generate waf
 	opt.add_option('--make-waf', action='store_true', default=False,
