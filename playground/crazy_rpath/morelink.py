@@ -1,3 +1,6 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2010 (ita)
 
 import TaskGen
 from TaskGen import feature, after, before
@@ -8,6 +11,7 @@ import Task
 
 cc = Task.TaskBase.classes['cc_link']
 class inst_cc(cc):
+	"""identical to the link task except that it only runs at install time"""
 	def runnable_status(self):
 		if not self.generator.bld.is_install:
 			return SKIP_ME
@@ -18,6 +22,7 @@ old = TaskGen.task_gen.apply_link
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_core')
 def apply_link(self):
+	"""replace the method apply_link"""
 	link = getattr(self, 'link', None)
 
 	if link and link != 'cc_link':
@@ -44,6 +49,7 @@ def apply_link(self):
 @after('apply_link')
 @before('apply_obj_vars')
 def evil_rpath(self):
+	"""disable normal rpath processing"""
 	rp = self.rpath_task
 
 	# rpath flag mess
