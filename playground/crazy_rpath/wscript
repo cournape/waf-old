@@ -15,4 +15,5 @@ def configure(conf):
 
 def build(bld):
 	bld(features='cc cshlib', source='foo.c', target='foo', rpath='/usr/lib')
+	bld(features='cc cshlib', source='foo.c', target='bar', rpath='/usr/lib', vnum='1.2.3')
 

@@ -5,8 +5,7 @@
 import TaskGen
 from TaskGen import feature, after, before
 from ccroot import get_target_name
-
-from Constants import SKIP_ME
+import Constants
 import Task
 
 cc = Task.TaskBase.classes['cc_link']
@@ -14,13 +13,14 @@ class inst_cc(cc):
 	"""identical to the link task except that it only runs at install time"""
 	def runnable_status(self):
 		if not self.generator.bld.is_install:
-			return SKIP_ME
+			return Constants.SKIP_ME
 		return Task.Task.runnable_status(self)
 
 old = TaskGen.task_gen.apply_link
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_core')
+@before('default_link_install')
 def apply_link(self):
 	"""replace the method apply_link"""
 	link = getattr(self, 'link', None)
@@ -39,11 +39,17 @@ def apply_link(self):
 	rp = self.create_task('cc_link')
 	rp.inputs = tsk.inputs
 	rp.set_outputs(self.path.find_or_declare(rpath))
-	rp.set_run_after(tsk)
+	tsk.set_run_after(rp) # to link we need the .so files present
 	rp.env = tsk.env.copy()
-	self.rpath_task = rp
 
-	self.link_task = tsk
+	# wrong names, we know
+	self.rpath_task = tsk
+	self.link_task = rp
+
+	if not getattr(self, 'vnum', None):
+		if self.install_path:
+			self.bld.install_as(self.install_path + '/' + rpath, tsk.outputs[0], env=self.env, chmod=0755)
+		self.meths.remove('default_link_install')
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_link')
