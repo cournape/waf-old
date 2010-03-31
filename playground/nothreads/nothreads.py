@@ -2,25 +2,10 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2008 (ita)
 
-import sys, random, time, threading, traceback, os
-try: from Queue import Queue
-except ImportError: from queue import Queue
+import sys, random, time, traceback, os
 import Build, Utils, Logs, Options
 from Logs import debug, error
 from Constants import *
-
-GAP = 15
-
-run_old = threading.Thread.run
-def run(*args, **kwargs):
-	try:
-		run_old(*args, **kwargs)
-	except (KeyboardInterrupt, SystemExit):
-		raise
-	except:
-		sys.excepthook(*sys.exc_info())
-threading.Thread.run = run
-
 
 class TaskConsumer(object):
 	consumers = 1
