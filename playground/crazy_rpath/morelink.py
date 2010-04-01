@@ -36,8 +36,6 @@ def no_rpath(self):
 	tsk.env = self.link_task.env
 	self.link_task.env = self.link_task.env.copy()
 
-	env = self.link_task.env
-
 	self.meths.remove('default_link_install')
 	if not getattr(self, 'vnum', None):
 		self.bld.install_as(self.install_path + '/' + self.link_task.outputs[0].name, tsk.outputs[0], env=self.env, chmod=self.chmod)
