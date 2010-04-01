@@ -23,7 +23,7 @@ old = TaskGen.task_gen.apply_link
 @after('apply_link')
 @before('default_link_install', 'apply_vnum')
 def no_rpath(self):
-
+	"""This would almost justify a new feature"""
 	if self.link_task.__class__.__name__ != 'cc_link':
 		return
 
@@ -79,7 +79,7 @@ def no_rpath(self):
 @after('apply_lib_vars', 'apply_link', 'no_rpath')
 @before('apply_obj_vars')
 def evil_rpath(self):
-
+	"""looks like we should split this processing in waf 1.6 somehow"""
 	env = self.env
 	rpath_st = env['RPATH_ST']
 	app = self.link_task.env.append_unique
