@@ -33,8 +33,7 @@ def no_rpath(self):
 	tsk.set_outputs(self.path.find_or_declare(name))
 
 	tsk.set_run_after(self.link_task)
-	tsk.env = self.link_task.env
-	self.link_task.env = self.link_task.env.copy()
+	self.link_task.env = tsk.env.copy()
 
 	self.meths.remove('default_link_install')
 	if not getattr(self, 'vnum', None):
@@ -85,6 +84,7 @@ def evil_rpath(self):
 	app = self.link_task.env.append_unique
 	for i in self.env['RPATH']:
 		if i and rpath_st:
-			app('LINKFLAGS', rpath_st % i)
+			# we cannot modify LINKFLAGS since it is shared :-/
+			app('LINK_CC', rpath_st % i)
 	self.env['RPATH'] = []
 
