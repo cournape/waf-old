@@ -27,7 +27,7 @@ def no_rpath(self):
 	if self.link_task.__class__.__name__ != 'cc_link':
 		return
 
-	name = get_target_name(self).replace('.so', '___.so')
+	name = '__' + get_target_name(self) # not always a .so
 	tsk = self.create_task('inst_cc')
 	tsk.inputs = self.link_task.inputs
 	tsk.set_outputs(self.path.find_or_declare(name))
@@ -39,11 +39,11 @@ def no_rpath(self):
 	env = self.link_task.env
 
 	self.meths.remove('default_link_install')
-	self.meths.remove('apply_vnum')
 	if not getattr(self, 'vnum', None):
 		self.bld.install_as(self.install_path + '/' + self.link_task.outputs[0].name, tsk.outputs[0], env=self.env, chmod=self.chmod)
 		return
 
+	self.meths.remove('apply_vnum')
 
 	# following is from apply_vnum
 	link = self.link_task
