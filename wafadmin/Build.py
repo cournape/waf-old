@@ -10,7 +10,7 @@ The class Build holds all the info related to a build:
 * various cached objects (task signatures, file scan results, ..)
 """
 
-import os, sys, errno, re, glob, gc, datetime, shutil
+import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
 import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Configure
@@ -41,8 +41,6 @@ def group_method(fun):
 	this is useful for installing build files:
 	* calling install_files/install_as will fail if called too early
 	* people do not want to define install method in their task classes
-
-	TODO: try it
 	"""
 	def f(*k, **kw):
 		if not k[0].is_install:
@@ -591,11 +589,7 @@ class BuildContext(Context):
 		if not cwd:
 			cwd = self.path
 
-		if isinstance(files, str) and '*' in files:
-			gl = cwd.abspath() + os.sep + files
-			lst = glob.glob(gl)
-		else:
-			lst = Utils.to_list(files)
+		lst = Utils.to_list(files)
 
 		if not getattr(lst, '__iter__', False):
 			lst = [lst]

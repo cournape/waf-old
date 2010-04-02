@@ -574,7 +574,7 @@ class Task(TaskBase):
 			try:
 				os.stat(node.abspath())
 			except OSError:
-				self.has_run = MISSING
+				self.hasrun = MISSING
 				self.err_msg = '-> missing file: %r' % node.abspath()
 				raise WafError
 
