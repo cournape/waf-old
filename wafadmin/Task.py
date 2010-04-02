@@ -644,9 +644,7 @@ class Task(TaskBase):
 
 		# the inputs
 		for x in self.inputs + getattr(self, 'dep_nodes', []):
-			if not x.parent.id in bld.cache_scanned_folders:
-				bld.rescan(x.parent)
-
+			x.parent.rescan()
 			m.update(bld.node_sigs[x.id])
 
 		# manual dependencies, they can slow down the builds
@@ -660,7 +658,7 @@ class Task(TaskBase):
 
 				for v in d:
 					if isinstance(v, Node.Node):
-						bld.rescan(v.parent)
+						v.parent.rescan()
 						try:
 							v = bld.node_sigs[v.id]
 						except KeyError: # make it fatal?
@@ -743,10 +741,8 @@ class Task(TaskBase):
 		env = self.env
 
 		for k in bld.node_deps.get(self.unique_id(), []):
-			# unlikely but necessary if it happens
-			if not k.parent.id in bld.cache_scanned_folders:
-				# if the parent folder is removed, an OSError may be thrown
-				bld.rescan(k.parent)
+			# can do an optimization here
+			k.parent.rescan()
 
 			# if the parent folder is removed, a KeyError will be thrown
 			if k.id & 3 == 2: # Node.FILE:
