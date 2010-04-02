@@ -4,14 +4,12 @@ Waf 1.6
 The points listed with a '+' indicate potential sub-projects (contributions will be welcome)
 
 General
-- remove the variants
 - os.environ control during task execution
-- multiprocess for distributed compilation (vs threads)
++ multiprocess for distributed compilation (vs threads)
 - debug builds (step-by-step execution + scheduler changes)
 - cc_root.py rewrite to reduce the amount of methods (header processing, flags processing, os fixes)
-- unification uselib <+> uselib_local
+- unification uselib / uselib_local / objects
 - new global variable uselib_vars and generalization of uselib for all kinds of task generators
-- remove the pseudo-globs in the installation functions
 - cache the configuration test results for multiple calls
 1 no shell for execution
 + Maven-like updates/upgrades
