@@ -656,7 +656,7 @@ class Task(TaskBase):
 			try:
 				os.stat(node.abspath(env))
 			except OSError:
-				self.has_run = MISSING
+				self.hasrun = MISSING
 				self.err_msg = '-> missing file: %r' % node.abspath(env)
 				raise Utils.WafError
 
