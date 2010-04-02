@@ -42,7 +42,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 
 """
 
-import os, shutil, sys, re, random, datetime, tempfile
+import os, shutil, sys, re, random, datetime, tempfile, shlex
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, warn, error
@@ -987,9 +987,8 @@ def compile_fun_noshell(name, line):
 			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
 
-	if extr:
-		if params[-1]:
-			app("lst.extend(%r)" % params[-1].split())
+	if params[-1]:
+		app("lst.extend(%r)" % shlex.split(params[-1]))
 
 	fun = COMPILE_TEMPLATE_NOSHELL % "\n\t".join(buf)
 	debug('action: %s', fun)
