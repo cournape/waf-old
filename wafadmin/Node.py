@@ -21,10 +21,6 @@ Its Node class is referenced here as self.__class__
 
 The public and advertised apis are the following:
 ${TGT}                 -> dir/to/file.ext
-${TGT[0].base()}       -> dir/to/file
-${TGT[0].dir(env)}     -> dir/to
-${TGT[0].file()}       -> file.ext
-${TGT[0].file_base()}   -> file
 ${TGT[0].suffix()}     -> .ext
 ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 
@@ -124,6 +120,110 @@ class Node(object):
 	def __copy__(self):
 		"nodes are not supposed to be copied"
 		raise WafError('nodes are not supposed to be copied')
+
+	def rescan(self):
+		"""
+		look the contents of a (folder)node and update its list of childs
+
+		The intent is to perform the following steps
+		* remove the nodes for the files that have disappeared
+		* remove the signatures for the build files that have disappeared
+		* cache the results of os.listdir
+		* create the build folder equivalent (mkdir)
+		src/bar -> build/default/src/bar, build/release/src/bar
+
+		when a folder in the source directory is removed, we do not check recursively
+		to remove the unused nodes. To do that, call 'waf clean' and build again.
+		"""
+
+		bld = self.__class__.bld
+
+		# do not rescan over and over again
+		if self.id in bld.cache_dir_contents:
+			return
+
+		# first, take the case of the source directory
+		try:
+			lst = set(Utils.listdir(self.abspath()))
+		except OSError:
+			lst = set([])
+
+		# hash the existing source files, remove the others
+		cache = bld.node_sigs
+		for x in self.childs.values():
+			if x.id & 3 != FILE:
+				continue
+
+			if x.name in lst:
+				try:
+					cache[x.id] = Utils.h_file(x.abspath())
+				except IOError:
+					raise WafError('The file %s is not readable or has become a dir' % x.abspath())
+			else:
+				try:
+					del cache[x.id]
+				except KeyError:
+					pass
+
+				del self.childs[x.name]
+
+		if not bld.srcnode:
+			# do not look at the build directory yet
+			return
+		bld.cache_dir_contents[self.id] = lst
+
+		# first obtain the differences between srcnode and self
+		h1 = bld.srcnode.height()
+		h2 = self.height()
+
+		lst = []
+		child = self
+		while h2 > h1:
+			lst.append(child.name)
+			child = child.parent
+			h2 -= 1
+
+		if child.id != bld.srcnode.id:
+			# not a folder that we can duplicate in the build dir
+			return
+
+		lst.append(bld.out_dir)
+		lst.reverse()
+		path = os.sep.join(lst)
+
+		try:
+			lst = set(Utils.listdir(path))
+		except OSError:
+			for node in self.childs.values():
+				# do not remove the nodes representing directories
+				if node.id & 3 != BUILD:
+					continue
+
+				try:
+					del bld.node_sigs[node.id]
+				except KeyError:
+					pass
+				del self.childs[node.name]
+
+			try:
+				# recreate the folder in the build directory
+				os.makedirs(path)
+			except OSError:
+				pass
+		else:
+			# the folder exist, look at the nodes
+			vals = list(self.childs.values())
+			for node in vals:
+				if node.id & 3 != BUILD:
+					continue
+				if not (node.name in lst):
+
+					try:
+						del bld.node_sigs[node.id]
+					except KeyError:
+						pass
+
+					del self.childs[node.name]
 
 	def find_dir(self, lst):
 		"search a folder in the filesystem"
@@ -234,6 +334,35 @@ class Node(object):
 		node = self.__class__(name, parent, BUILD)
 		return node
 
+	def abspath(self):
+		"""
+		absolute path
+		cache into the build context, cache_node_abspath
+		"""
+		# absolute path: this is usually a bottleneck
+
+		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
+		if ret: return ret
+
+		id = self.id
+		if id & 3 == BUILD:
+			val = os.sep.join((self.__class__.bld.out_dir, self.path_to_parent(self.__class__.bld.srcnode)))
+		else:
+			if not self.parent:
+				val = os.sep == '/' and os.sep or ''
+			elif not self.parent.name: # root
+				val = (os.sep == '/' and os.sep or '') + self.name
+			else:
+				val = self.parent.abspath() + os.sep + self.name
+
+		self.__class__.bld.cache_node_abspath[id] = val
+		return val
+
+	def suffix(self):
+		"scons-like - hot zone so do not touch"
+		k = max(0, self.name.rfind('.'))
+		return self.name[k:]
+
 	def path_to_parent(self, parent):
 		"path relative to a direct ancestor, as string"
 		lst = []
@@ -295,15 +424,6 @@ class Node(object):
 		if self.id & 3 == FILE: return self.relpath_gen(ln)
 		else: return bld.out_dir + os.sep + self.relpath_gen(bld.srcnode)
 
-	def is_child_of(self, node):
-		"does this node belong to the subtree node"
-		p = self
-		diff = self.height() - node.height()
-		while diff > 0:
-			diff -= 1
-			p = p.parent
-		return p.id == node.id
-
 	def height(self):
 		"amount of parents"
 		# README a cache can be added here if necessary
@@ -316,30 +436,6 @@ class Node(object):
 
 	# helpers for building things
 
-	def abspath(self):
-		"""
-		absolute path
-		cache into the build context, cache_node_abspath
-		"""
-		# absolute path: this is usually a bottleneck
-
-		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
-		if ret: return ret
-
-		id = self.id
-		if id & 3 == BUILD:
-			val = os.sep.join((self.__class__.bld.out_dir, self.path_to_parent(self.__class__.bld.srcnode)))
-		else:
-			if not self.parent:
-				val = os.sep == '/' and os.sep or ''
-			elif not self.parent.name: # root
-				val = (os.sep == '/' and os.sep or '') + self.name
-			else:
-				val = self.parent.abspath() + os.sep + self.name
-
-		self.__class__.bld.cache_node_abspath[id] = val
-		return val
-
 	def change_ext(self, ext):
 		"node of the same path, but with a different extension - hot zone so do not touch"
 		name = self.name
@@ -350,19 +446,6 @@ class Node(object):
 			name = name + ext
 
 		return self.parent.find_or_declare([name])
-
-	def src_dir(self):
-		"src path without the file name"
-		return self.parent.srcpath()
-
-	def bld_dir(self):
-		"build path without the file name"
-		return self.parent.bldpath()
-
-	def bld_base(self):
-		"build path without the extension: src/dir/foo(.cpp)"
-		s = os.path.splitext(self.name)[0]
-		return self.bld_dir() + os.sep + s
 
 	def bldpath(self):
 		"path seen from the build dir default/src/foo.cpp"
@@ -381,23 +464,6 @@ class Node(object):
 	def read(self):
 		"get the contents of a file, it is not used anywhere for the moment"
 		return Utils.readf(self.abspath())
-
-	def dir(self):
-		"scons-like"
-		return self.parent.abspath()
-
-	def file(self):
-		"scons-like"
-		return self.name
-
-	def file_base(self):
-		"scons-like"
-		return os.path.splitext(self.name)[0]
-
-	def suffix(self):
-		"scons-like - hot zone so do not touch"
-		k = max(0, self.name.rfind('.'))
-		return self.name[k:]
 
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
@@ -561,109 +627,26 @@ class Node(object):
 		return ret
 
 
-	def rescan(self):
-		"""
-		look the contents of a (folder)node and update its list of childs
+	# the following methods are used by the ocaml tools
 
-		The intent is to perform the following steps
-		* remove the nodes for the files that have disappeared
-		* remove the signatures for the build files that have disappeared
-		* cache the results of os.listdir
-		* create the build folder equivalent (mkdir)
-		src/bar -> build/default/src/bar, build/release/src/bar
+	def bld_dir(self):
+		"build path without the file name"
+		return self.parent.bldpath()
 
-		when a folder in the source directory is removed, we do not check recursively
-		to remove the unused nodes. To do that, call 'waf clean' and build again.
-		"""
+	def bld_base(self):
+		"build path without the extension: src/dir/foo(.cpp)"
+		s = os.path.splitext(self.name)[0]
+		return self.bld_dir() + os.sep + s
 
-		bld = self.__class__.bld
-
-		# do not rescan over and over again
-		if self.id in bld.cache_dir_contents:
-			return
-
-		# first, take the case of the source directory
-		try:
-			lst = set(Utils.listdir(self.abspath()))
-		except OSError:
-			lst = set([])
-
-		# hash the existing source files, remove the others
-		cache = bld.node_sigs
-		for x in self.childs.values():
-			if x.id & 3 != FILE:
-				continue
-
-			if x.name in lst:
-				try:
-					cache[x.id] = Utils.h_file(x.abspath())
-				except IOError:
-					raise WafError('The file %s is not readable or has become a dir' % x.abspath())
-			else:
-				try:
-					del cache[x.id]
-				except KeyError:
-					pass
-
-				del self.childs[x.name]
-
-		if not bld.srcnode:
-			# do not look at the build directory yet
-			return
-		bld.cache_dir_contents[self.id] = lst
-
-		# first obtain the differences between srcnode and self
-		h1 = bld.srcnode.height()
-		h2 = self.height()
-
-		lst = []
-		child = self
-		while h2 > h1:
-			lst.append(child.name)
-			child = child.parent
-			h2 -= 1
-
-		if child.id != bld.srcnode.id:
-			# not a folder that we can duplicate in the build dir
-			return
-
-		lst.append(bld.out_dir)
-		lst.reverse()
-		path = os.sep.join(lst)
-
-		try:
-			lst = set(Utils.listdir(path))
-		except OSError:
-			for node in self.childs.values():
-				# do not remove the nodes representing directories
-				if node.id & 3 != BUILD:
-					continue
-
-				try:
-					del bld.node_sigs[node.id]
-				except KeyError:
-					pass
-				del self.childs[node.name]
-
-			try:
-				# recreate the folder in the build directory
-				os.makedirs(path)
-			except OSError:
-				pass
-		else:
-			# the folder exist, look at the nodes
-			vals = list(self.childs.values())
-			for node in vals:
-				if node.id & 3 != BUILD:
-					continue
-				if not (node.name in lst):
-
-					try:
-						del bld.node_sigs[node.id]
-					except KeyError:
-						pass
-
-					del self.childs[node.name]
+	# unused anywhere
+	def is_child_of(self, node):
+		"does this node belong to the subtree node"
+		p = self
+		diff = self.height() - node.height()
+		while diff > 0:
+			diff -= 1
+			p = p.parent
+		return p.id == node.id
 
 class Nod3(Node):
 	pass

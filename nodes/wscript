@@ -22,6 +22,8 @@ def build(bld):
 
 	x = bld.path.find_or_declare('xyz.txt')
 	print("build file", x.abspath(), x)
+	print("    bld dir ", x.bld_dir())
+	print("    suffix  ", x.suffix())
 
 	bld(rule='echo hi', always=True)
 	bld(rule='touch ${TGT}', target='foo.txt', always=True)
