@@ -22,6 +22,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
 		sys.exit(1)
 
+	Options.waf_dir = wafdir
 	Options.launch_dir = current_directory
 
 	# try to find a lock file (if the project was configured)

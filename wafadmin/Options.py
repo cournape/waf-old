@@ -25,6 +25,8 @@ top_dir = ''
 """project directory (top), if the project was configured"""
 out_dir = ''
 """build directory (out), if the project was configured"""
+waf_dir = ''
+"""directory for the waf modules"""
 
 lockfile = os.environ.get('WAFLOCK', '.lock-waf')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
