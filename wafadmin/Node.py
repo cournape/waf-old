@@ -465,79 +465,6 @@ class Node(object):
 		"get the contents of a file, it is not used anywhere for the moment"
 		return Utils.readf(self.abspath())
 
-	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
-		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
-		bld_ctx = self.__class__.bld
-		self.rescan()
-		for name in bld_ctx.cache_dir_contents[self.id]:
-			if accept_name(self, name):
-				node = self.find_resource(name)
-				if node:
-					if src and node.id & 3 == FILE:
-						yield node
-				else:
-					node = self.find_dir(name)
-					if node and node.id != bld_ctx.bldnode.id:
-						if dir:
-							yield node
-						if not is_prune(self, name):
-							if maxdepth:
-								for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth - 1):
-									yield k
-			else:
-				if not is_prune(self, name):
-					node = self.find_resource(name)
-					if not node:
-						# not a file, it is a dir
-						node = self.find_dir(name)
-						if node and node.id != bld_ctx.bldnode.id:
-							if maxdepth:
-								for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth - 1):
-									yield k
-
-		if bld:
-			for node in self.childs.values():
-				if node.id == bld_ctx.bldnode.id:
-					continue
-				if node.id & 3 == BUILD:
-					if accept_name(self, node.name):
-						yield node
-		raise StopIteration
-
-	def find_iter(self, in_pat=['*'], ex_pat=exclude_pats, prune_pat=prune_pats, src=True, bld=True, dir=False, maxdepth=25, flat=False):
-		"find nodes recursively, this returns everything but folders by default"
-
-		if not (src or bld or dir):
-			raise StopIteration
-
-		if self.id & 3 != DIR:
-			raise StopIteration
-
-		in_pat = Utils.to_list(in_pat)
-		ex_pat = Utils.to_list(ex_pat)
-		prune_pat = Utils.to_list(prune_pat)
-
-		def accept_name(node, name):
-			for pat in ex_pat:
-				if fnmatch.fnmatchcase(name, pat):
-					return False
-			for pat in in_pat:
-				if fnmatch.fnmatchcase(name, pat):
-					return True
-			return False
-
-		def is_prune(node, name):
-			for pat in prune_pat:
-				if fnmatch.fnmatchcase(name, pat):
-					return True
-			return False
-
-		ret = self.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth)
-		if flat:
-			return " ".join([x.relpath_gen(self) for x in ret])
-
-		return ret
-
 	def ant_glob(self, *k, **kw):
 
 		src=kw.get('src', 1)
@@ -603,7 +530,7 @@ class Node(object):
 							yield node
 					else:
 						node = nodi.find_dir(name)
-						if node and node.id != nodi.__class__.bld.bldnode.id:
+						if node:
 							if accepted and dir:
 								yield node
 							if maxdepth:
@@ -611,8 +538,6 @@ class Node(object):
 									yield k
 			if bld:
 				for node in nodi.childs.values():
-					if node.id == nodi.__class__.bld.bldnode.id:
-						continue
 					if node.id & 3 == BUILD:
 						npats = accept(node.name, pats)
 						if npats and npats[0] and [] in npats[0]:

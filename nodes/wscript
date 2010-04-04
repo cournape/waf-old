@@ -24,6 +24,8 @@ def build(bld):
 	print("build file", x.abspath(), x)
 	print("    bld dir ", x.bld_dir())
 	print("    suffix  ", x.suffix())
+	print("ant_glob ->", bld.path.ant_glob('*'))
+
 
 	bld(rule='echo hi', always=True)
 	bld(rule='touch ${TGT}', target='foo.txt', always=True)
