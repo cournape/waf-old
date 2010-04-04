@@ -508,7 +508,10 @@ def dist(appname='', version=''):
 		pass
 
 	# copy the files into the temporary folder
-	copytree('.', tmp_folder, getattr(Utils.g_module, BLDDIR, None))
+	blddir = getattr(Utils.g_module, BLDDIR, None)
+	if not blddir:
+		blddir = getattr(Utils.g_module, 'out', None)
+	copytree('.', tmp_folder, blddir)
 
 	# undocumented hook for additional cleanup
 	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
