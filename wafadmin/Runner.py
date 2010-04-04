@@ -4,16 +4,17 @@
 
 "Execute the tasks"
 
-import sys, random, time, threading, traceback
+import os, shutil, sys, re, random, time, threading, traceback, datetime
 from queue import Queue
-import Build, Utils, Logs, Options
-from Logs import debug, error
+import Build, Utils, Node, Logs, Options
+from Logs import debug, warn, error
 from Base import WafError
 from Constants import *
+from collections import defaultdict
+from Utils import md5
+
 
 GAP = 15
-
-
 
 run_old = threading.Thread.run
 def run(*args, **kwargs):
@@ -218,4 +219,218 @@ class Parallel(object):
 
 		#print loop
 		assert (self.count == 0 or self.stop)
+
+class TaskManager(object):
+	"""The manager is attached to the build object, it holds a list of TaskGroup"""
+	def __init__(self):
+		self.groups = []
+		self.tasks_done = []
+		self.current_group = 0
+		self.groups_names = {}
+
+	def get_next_set(self):
+		"""return the next set of tasks to execute
+		the first parameter is the maximum amount of parallelization that may occur"""
+		ret = None
+		while not ret and self.current_group < len(self.groups):
+			ret = self.groups[self.current_group].get_next_set()
+			if ret: return ret
+			else:
+				self.groups[self.current_group].process_install()
+				self.current_group += 1
+		return (None, None)
+
+	def add_group(self, name=None, set=True):
+		#if self.groups and not self.groups[0].tasks:
+		#	error('add_group: an empty group is already present')
+		g = TaskGroup()
+
+		if name and name in self.groups_names:
+			error('add_group: name %s already present' % name)
+		self.groups_names[name] = g
+		self.groups.append(g)
+		if set:
+			self.current_group = len(self.groups) - 1
+
+	def set_group(self, idx):
+		if isinstance(idx, str):
+			g = self.groups_names[idx]
+			for x in range(len(self.groups)):
+				if id(g) == id(self.groups[x]):
+					self.current_group = x
+		else:
+			self.current_group = idx
+
+	def add_task_gen(self, tgen):
+		if not self.groups: self.add_group()
+		self.groups[self.current_group].tasks_gen.append(tgen)
+
+	def add_task(self, task):
+		if not self.groups: self.add_group()
+		self.groups[self.current_group].tasks.append(task)
+
+	def total(self):
+		total = 0
+		if not self.groups: return 0
+		for group in self.groups:
+			total += len(group.tasks)
+		return total
+
+	def add_finished(self, tsk):
+		self.tasks_done.append(tsk)
+		bld = tsk.generator.bld
+		if bld.is_install:
+			f = None
+			if 'install' in tsk.__dict__:
+				f = tsk.__dict__['install']
+				# install=0 to prevent installation
+				if f: f(tsk)
+			else:
+				tsk.install()
+
+class TaskGroup(object):
+	"the compilation of one group does not begin until the previous group has finished (in the manager)"
+	def __init__(self):
+		self.tasks = [] # this list will be consumed
+		self.tasks_gen = []
+
+		self.cstr_groups = defaultdict(list) # tasks having equivalent constraints
+		self.cstr_order = defaultdict(set) # partial order between the cstr groups
+		self.temp_tasks = [] # tasks put on hold
+		self.ready = 0
+		self.post_funs = []
+
+	def reset(self):
+		"clears the state of the object (put back the tasks into self.tasks)"
+		for x in self.cstr_groups:
+			self.tasks += self.cstr_groups[x]
+		self.tasks = self.temp_tasks + self.tasks
+		self.temp_tasks = []
+		self.cstr_groups = defaultdict(list)
+		self.cstr_order = defaultdict(set)
+		self.ready = 0
+
+	def process_install(self):
+		for (f, k, kw) in self.post_funs:
+			f(*k, **kw)
+
+	def prepare(self):
+		"prepare the scheduling"
+		self.ready = 1
+		self.set_constraints()
+		self.make_cstr_groups()
+		self.extract_constraints()
+
+	def set_constraints(self):
+		"will set the run_after constraints on all tasks, it may cause a slowdown"
+		tasks = self.tasks
+		ins = {}
+		outs = {}
+		for x in tasks:
+			for a in getattr(x, 'inputs', []):
+				try: ins[a.id].append(x)
+				except KeyError: ins[a.id] = [x]
+			for a in getattr(x, 'outputs', []):
+				try: outs[a.id].append(x)
+				except KeyError: outs[a.id] = [x]
+
+		links = set(ins.keys()).intersection(outs.keys())
+		for k in links:
+			for a in ins[k]:
+				for b in outs[k]:
+					a.set_run_after(b)
+
+	def get_next_set(self):
+		"next list of tasks to execute using max job settings, returns (maxjobs, task_list)"
+		return self.tasks_in_parallel()
+
+	def make_cstr_groups(self):
+		"unite the tasks that have similar constraints"
+		self.cstr_groups = defaultdict(list)
+		for x in self.tasks:
+			h = x.hash_constraints()
+			self.cstr_groups[h].append(x)
+
+	def set_order(self, a, b):
+		self.cstr_order[a].add(b)
+
+	def compare_exts(self, t1, t2):
+		"extension production"
+		x = "ext_in"
+		y = "ext_out"
+		in_ = t1.attr(x, ())
+		out_ = t2.attr(y, ())
+		for k in in_:
+			if k in out_:
+				return -1
+		in_ = t2.attr(x, ())
+		out_ = t1.attr(y, ())
+		for k in in_:
+			if k in out_:
+				return 1
+		return 0
+
+	def compare_partial(self, t1, t2):
+		"partial relations after/before"
+		m = "after"
+		n = "before"
+		name = t2.__class__.__name__
+		if name in Utils.to_list(t1.attr(m, ())): return -1
+		elif name in Utils.to_list(t1.attr(n, ())): return 1
+		name = t1.__class__.__name__
+		if name in Utils.to_list(t2.attr(m, ())): return 1
+		elif name in Utils.to_list(t2.attr(n, ())): return -1
+		return 0
+
+	def extract_constraints(self):
+		"extract the parallelization constraints from the tasks with different constraints"
+		keys = list(self.cstr_groups.keys())
+		max = len(keys)
+		# hopefully the length of this list is short
+		for i in range(max):
+			t1 = self.cstr_groups[keys[i]][0]
+			for j in range(i + 1, max):
+				t2 = self.cstr_groups[keys[j]][0]
+
+				# add the constraints based on the comparisons
+				val = (self.compare_exts(t1, t2)
+					or self.compare_partial(t1, t2)
+					)
+				if val > 0:
+					self.set_order(keys[i], keys[j])
+				elif val < 0:
+					self.set_order(keys[j], keys[i])
+
+	def tasks_in_parallel(self):
+		"(NORMAL) next list of tasks that may be executed in parallel"
+
+		if not self.ready: self.prepare()
+
+		keys = self.cstr_groups.keys()
+
+		unconnected = []
+		remainder = []
+
+		for u in keys:
+			for k in self.cstr_order.values():
+				if u in k:
+					remainder.append(u)
+					break
+			else:
+				unconnected.append(u)
+
+		toreturn = []
+		for y in unconnected:
+			toreturn.extend(self.cstr_groups[y])
+
+		# remove stuff only after
+		for y in unconnected:
+				try: self.cstr_order.__delitem__(y)
+				except KeyError: pass
+				self.cstr_groups.__delitem__(y)
+
+		if not toreturn and remainder:
+			raise WafError("Circular order constraint detected %r" % remainder)
+
+		return toreturn
 

@@ -78,7 +78,7 @@ class BuildContext(Context):
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
 
 		# the manager will hold the tasks
-		self.task_manager = Task.TaskManager()
+		self.task_manager = Runner.TaskManager()
 
 		# instead of hashing the nodes, we assign them a unique id when they are created
 		self.id_nodes = 0
