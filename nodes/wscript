@@ -47,14 +47,15 @@ def build(bld):
 
 
 
-
 	bld(rule='echo hi', always=True)
 	bld(rule='touch ${TGT}', target='foo.txt', always=True)
 
 
 
 	bld(rule='touch ${TGT}', target='aaa')
-	bld(rule='touch ${TGT}', target='bbb', source='aaa')
+	t = bld(rule='touch ${TGT}', target='bbb', source='aaa')
+	t.create_task('foo')
+
 
 def init(self):
 	print('init')
@@ -62,10 +63,18 @@ def init(self):
 def shutdown(self):
 	print('shutdown')
 
-
 def bar(ctx):
 	print("command ok")
 
+import Task
+
+# TODO update_outputs is a decorator too .. now
+@Task.always_run
+class foo_task(Task.Task):
+	def run(self):
+		print("running foo")
+
+print("classes", Task.TaskBase.classes)
 
 #-----------------------------------------------
 # variant example below
