@@ -187,7 +187,7 @@ def copytree(src, dst, build_dir):
 		else:
 			shutil.copy2(srcname, dstname)
 
-def distclean(ctx=None):
+def distclean(ctx):
 	'''removes the build directory'''
 	lst = os.listdir('.')
 	for f in lst:
