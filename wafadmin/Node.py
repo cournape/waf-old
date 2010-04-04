@@ -550,9 +550,6 @@ class Node(object):
 
 		return ret
 
-
-	# the following methods are used by the ocaml tools
-
 	def bld_dir(self):
 		"build path without the file name"
 		return self.parent.bldpath()
@@ -561,16 +558,6 @@ class Node(object):
 		"build path without the extension: src/dir/foo(.cpp)"
 		s = os.path.splitext(self.name)[0]
 		return self.bld_dir() + os.sep + s
-
-	# unused anywhere
-	def is_child_of(self, node):
-		"does this node belong to the subtree node"
-		p = self
-		diff = self.height() - node.height()
-		while diff > 0:
-			diff -= 1
-			p = p.parent
-		return p.id == node.id
 
 class Nod3(Node):
 	pass
