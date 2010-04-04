@@ -3,37 +3,7 @@
 # Thomas Nagy, 2005-2008 (ita)
 
 """
-Running tasks in parallel is a simple problem, but in practice it is more complicated:
-* dependencies discovered during the build (dynamic task creation)
-* dependencies discovered after files are compiled
-* the amount of tasks and dependencies (graph size) can be huge
-
-This is why the dependency management is split on three different levels:
-1. groups of tasks that run all after another group of tasks
-2. groups of tasks that can be run in parallel
-3. tasks that can run in parallel, but with possible unknown ad-hoc dependencies
-
-The point #1 represents a strict sequential order between groups of tasks, for example a compiler is produced
-and used to compile the rest, whereas #2 and #3 represent partial order constraints where #2 applies to the kind of task
-and #3 applies to the task instances.
-
-#1 is held by the task manager: ordered list of TaskGroups (see bld.add_group)
-#2 is held by the task groups and the task types: precedence after/before (topological sort),
-   and the constraints extracted from file extensions
-#3 is held by the tasks individually (attribute run_after),
-   and the scheduler (Runner.py) use Task::runnable_status to reorder the tasks
-
---
-
-There are two concepts with the tasks (individual units of change):
-* dependency (if 1 is recompiled, recompile 2)
-* order (run 2 after 1)
-
-example 1: if t1 depends on t2 and t2 depends on t3 it is not necessary to make t1 depend on t3 (dependency is transitive)
-example 2: if t1 depends on a node produced by t2, it is not immediately obvious that t1 must run after t2 (order is not obvious)
-
-The role of the Task Manager is to give the tasks in order (groups of task that may be run in parallel one after the other)
-
+Task manager -> Task groups -> Tasks
 """
 
 import os, shutil, sys, re, random, datetime
@@ -889,6 +859,7 @@ def always_run(cls):
 		old(self)
 		return RUN_ME
 	cls.runnable_status = always
+	return cls
 
 def update_outputs(cls):
 	"""When a command is always run, it is possible that the output only change
@@ -905,6 +876,7 @@ def update_outputs(cls):
 		bld = self.outputs[0].__class__.bld
 		bld.node_sigs[self.outputs[0].id] = Utils.h_file(self.outputs[0].abspath())
 	cls.post_run = post_run
+	return cls
 
 def extract_outputs(tasks):
 	ins = {}
