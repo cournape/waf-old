@@ -148,7 +148,6 @@ class OptionsContext(Context):
 		(options, leftover_args) = self.parser.parse_args(args=_args)
 		commands = leftover_args
 
-		print(options)
 		if options.destdir:
 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
 

@@ -202,7 +202,6 @@ class BuildContext(Context):
 
 		bldnode = self.root.find_dir(self.out_dir)
 		self.up_path = self.srcnode.relpath_gen(bldnode)
-		self.down_path = bldnode.relpath_gen(self.srcnode)
 		self.path = self.srcnode
 
 		if not self.all_envs:
