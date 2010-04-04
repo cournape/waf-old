@@ -125,32 +125,57 @@ class Node(object):
 		"nodes are not supposed to be copied"
 		raise WafError('nodes are not supposed to be copied')
 
-	def get_type(self):
-		return self.id & 3
+	def find_dir(self, lst):
+		"search a folder in the filesystem"
 
-	def set_type(self, t):
-		self.id = self.id + t - self.id & 3
+		if isinstance(lst, str):
+			lst = Utils.split_path(lst)
 
-	def dirs(self):
-		return [x for x in self.childs.values() if x.id & 3 == DIR]
+		current = self
+		for name in lst:
+			current.rescan()
+			prev = current
 
-	def files(self):
-		return [x for x in self.childs.values() if x.id & 3 == FILE]
-
-	def get_dir(self, name, default=None):
-		node = self.childs.get(name, None)
-		if not node or node.id & 3 != DIR: return default
-		return  node
-
-	def get_file(self, name, default=None):
-		node = self.childs.get(name, None)
-		if not node or node.id & 3 != FILE: return default
-		return node
-
-	def get_build(self, name, default=None):
-		node = self.childs.get(name, None)
-		if not node or node.id & 3 != BUILD: return default
-		return node
+			if not current.parent and name == current.name:
+				continue
+			elif not name:
+				continue
+			elif name == '.':
+				continue
+			elif name == '..':
+				current = current.parent or current
+			else:
+				current = prev.childs.get(name, None)
+				if current is None:
+					dir_cont = self.__class__.bld.cache_dir_contents
+					if name in dir_cont.get(prev.id, []):
+						if not prev.name:
+							if os.sep == '/':
+								# cygwin //machine/share
+								dirname = os.sep + name
+							else:
+								# windows c:
+								dirname = name
+						else:
+							# regular path
+							dirname = prev.abspath() + os.sep + name
+						if not os.path.isdir(dirname):
+							return None
+						current = self.__class__(name, prev, DIR)
+					elif (not prev.name and len(name) == 2 and name[1] == ':') or name.startswith('\\\\'):
+						# drive letter or \\ path for windows
+						current = self.__class__(name, prev, DIR)
+					else:
+						try:
+							os.stat(prev.abspath() + os.sep + name)
+						except:
+							return None
+						else:
+							current = self.__class__(name, prev, DIR)
+				else:
+					if current.id & 3 != DIR:
+						return None
+		return current
 
 	def find_resource(self, lst):
 		"Find an existing input file: either a build node declared previously or a source node"
@@ -208,58 +233,6 @@ class Node(object):
 			return node
 		node = self.__class__(name, parent, BUILD)
 		return node
-
-	def find_dir(self, lst):
-		"search a folder in the filesystem"
-
-		if isinstance(lst, str):
-			lst = Utils.split_path(lst)
-
-		current = self
-		for name in lst:
-			current.rescan()
-			prev = current
-
-			if not current.parent and name == current.name:
-				continue
-			elif not name:
-				continue
-			elif name == '.':
-				continue
-			elif name == '..':
-				current = current.parent or current
-			else:
-				current = prev.childs.get(name, None)
-				if current is None:
-					dir_cont = self.__class__.bld.cache_dir_contents
-					if name in dir_cont.get(prev.id, []):
-						if not prev.name:
-							if os.sep == '/':
-								# cygwin //machine/share
-								dirname = os.sep + name
-							else:
-								# windows c:
-								dirname = name
-						else:
-							# regular path
-							dirname = prev.abspath() + os.sep + name
-						if not os.path.isdir(dirname):
-							return None
-						current = self.__class__(name, prev, DIR)
-					elif (not prev.name and len(name) == 2 and name[1] == ':') or name.startswith('\\\\'):
-						# drive letter or \\ path for windows
-						current = self.__class__(name, prev, DIR)
-					else:
-						try:
-							os.stat(prev.abspath() + os.sep + name)
-						except:
-							return None
-						else:
-							current = self.__class__(name, prev, DIR)
-				else:
-					if current.id & 3 != DIR:
-						return None
-		return current
 
 	def path_to_parent(self, parent):
 		"path relative to a direct ancestor, as string"

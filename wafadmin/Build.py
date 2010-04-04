@@ -713,7 +713,7 @@ class BuildContext(Context):
 	def printout(self, s):
 		f = self.log or sys.stderr
 		f.write(s)
-		f.flush()
+		#f.flush()
 
 
 	def pre_recurse(self, name_or_mod, path, nexdir):

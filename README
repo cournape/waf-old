@@ -1,9 +1,6 @@
 WHAT YOU WILL FIND HERE
 -----------------------
 
-
-ps auxwww|grep python|awk '{print $2}'|xargs kill -9
-
 The development version of Waf.
 
 It requires python 3

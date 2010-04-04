@@ -26,6 +26,11 @@ def build(bld):
 	bld(rule='echo hi', always=True)
 	bld(rule='touch ${TGT}', target='foo.txt', always=True)
 
+
+
+	bld(rule='touch ${TGT}', target='aaa')
+	bld(rule='touch ${TGT}', target='bbb', source='aaa')
+
 def init(self):
 	print('init')
 
