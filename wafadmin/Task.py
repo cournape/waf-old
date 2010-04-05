@@ -753,7 +753,8 @@ class Task(TaskBase):
 
 		for node in self.outputs:
 			self.generator.bld.node_sigs[variant][node.id] = sig
-			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
+			if Options.options.progress_bar < 1:
+				self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
 
 		self.cached = True
 		return 1
