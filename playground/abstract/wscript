@@ -7,7 +7,7 @@ def configure(conf):
 	pass
 
 def build(bld):
-	bld.package(name='blah.tar')
+	bld.package(name='blah.tar', version='1.0.1')
 	bld.package(name='aha.tar', deps=['blah.tar'])
 
 import Build
@@ -35,7 +35,9 @@ def make_package_tasks(self):
 	tsk.set_inputs(ins)
 	tsk.set_outputs(self.path.find_or_declare(self.name))
 
+	tsk.env.VERSION = getattr(self, 'version', '')
+
 import Task
-cls = Task.simple_task_type('pack', 'date > ${TGT}') # for testing purposes
+cls = Task.simple_task_type('pack', 'date > ${TGT}', vars=['VERSION']) # for testing purposes
 Task.update_outputs(cls)
 
