@@ -36,7 +36,7 @@ def build(bld):
 	def exec_command(self, *k, **kw):
 		ret = old(self, *k, **kw)
 		self.command_executed = k[0]
-		self.path = kw['cwd']
+		self.path = kw['cwd'] or self.generator.bld.bldnode.abspath()
 		return ret
 	Task.TaskBase.exec_command = exec_command
 
@@ -61,7 +61,7 @@ def build(bld):
 			print e
 		else:
 			bld.commands.append(' '.join(lst))
-			bld.commands.append('\t cd %s && %s' % (self.path or self.generator.bld.bldnode.abspath(), self.command_executed))
+			bld.commands.append('\tcd %s && %s' % (self.path, self.command_executed))
 
 		return ret
 
