@@ -6,13 +6,7 @@ The development version of Waf.
 It requires python 3
 
 Most of the work is on the data structure at the moment
-The current code will not build anything
-
-
-- the build context instance will initialize itself with the srcdir and output directory specified in the lockfile
-- there are no variants anymore
-- think about a consistency check to disable nodes if the parent is not a child of srcnode
-
+The current code is in experimental state
 
 ---------------------------
 Thomas Nagy, 2010 (ita)
