@@ -8,8 +8,8 @@ NEW IN WAF 1.6.0
 * Utils.load_tool -> Base.load_tool
 * set_options becomes options
 * only the build-related commands require a configured project
-* new variant system
-* remove the pseudo glob in installation methods
+* new variant system + build context commands
+* removed the pseudo glob in installation methods
 * eliminate find_sources_in_dirs
 * bld.new_task_gen(...) disappears, use bld(...)
 
