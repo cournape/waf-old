@@ -110,8 +110,6 @@ class Parallel(object):
 
 		self.processed = 1 # progress indicator
 
-		self.consumers = None # the consumer threads, created lazily
-
 		self.stop = False # error condition to stop the build
 		self.error = False # error flag
 
