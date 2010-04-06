@@ -27,7 +27,8 @@ def build(bld):
 		target   = 'foo',
 	)
 
-	#-------------------------------
+	#---------------------------------------------------------------------------------
+	# dump a Makefile corresponding to the code executed while performing a full build
 
 	import Task
 	bld.commands = []
