@@ -1,0 +1,77 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+"""
+execute "waf clean build", and look at the Makefile generated
+"""
+
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+
+def build(bld):
+
+	bld(
+		features = 'cc cprogram',
+		source   = 'main.c',
+		target   = 'foo',
+	)
+
+	#-------------------------------
+
+	import Task
+	bld.commands = []
+
+	old = Task.TaskBase.exec_command
+	def exec_command(self, *k, **kw):
+		ret = old(self, *k, **kw)
+		self.command_executed = k[0]
+		self.path = kw['cwd']
+		return ret
+	Task.TaskBase.exec_command = exec_command
+
+	def call_run(self):
+
+		lst = []
+
+		for x in self.outputs:
+			lst.append(x.abspath(self.env))
+
+		lst.append(':')
+
+		for x in self.inputs:
+			lst.append(x.abspath(self.env))
+
+		ret = self.run()
+
+		try:
+			if isinstance(self.command_executed, list):
+				self.command_executed = ' '.join(self.command_executed)
+		except Exception, e:
+			print e
+		else:
+			bld.commands.append(' '.join(lst))
+			bld.commands.append('\t cd %s && %s' % (self.path or self.generator.bld.bldnode.abspath(), self.command_executed))
+
+		return ret
+
+	Task.TaskBase.call_run = call_run
+
+	def output_makefile(self):
+		try:
+			f = open('Makefile', 'w')
+			f.write("\n".join(self.commands))
+		finally:
+			f.close()
+	bld.add_post_fun(output_makefile)
+
