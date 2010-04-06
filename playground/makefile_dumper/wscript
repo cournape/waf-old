@@ -31,6 +31,7 @@ def build(bld):
 
 	import Task
 	bld.commands = []
+	bld.targets = []
 
 	old = Task.TaskBase.exec_command
 	def exec_command(self, *k, **kw):
@@ -46,6 +47,8 @@ def build(bld):
 
 		for x in self.outputs:
 			lst.append(x.abspath(self.env))
+
+		bld.targets.extend(lst)
 
 		lst.append(':')
 
@@ -69,6 +72,7 @@ def build(bld):
 
 	def output_makefile(self):
 		try:
+			self.commands.insert(0, "all: %s" % " ".join(self.targets))
 			f = open('Makefile', 'w')
 			f.write("\n".join(self.commands))
 		finally:
