@@ -526,7 +526,7 @@ class BuildContext(Context):
 					if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
 						return False
 
-			srclbl = src.replace(self.srcnode.abspath(None)+os.sep, '')
+			srclbl = src.replace(self.srcnode.abspath()+os.sep, '')
 			info("* installing %s as %s" % (srclbl, tgt))
 
 			# following is for shared libs and stale inodes (-_-)
@@ -616,7 +616,7 @@ class BuildContext(Context):
 				else:
 					destfile = os.path.join(destpath, nd.name)
 
-				filename = nd.abspath(env)
+				filename = nd.abspath()
 
 			if self.do_install(filename, destfile, chmod):
 				installed_files.append(destfile)
@@ -646,14 +646,14 @@ class BuildContext(Context):
 
 		# the source path
 		if isinstance(srcfile, Node.Node):
-			src = srcfile.abspath(env)
+			src = srcfile.abspath()
 		else:
 			src = srcfile
 			if not os.path.isabs(srcfile):
 				node = cwd.find_resource(srcfile)
 				if not node:
 					raise WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
-				src = node.abspath(env)
+				src = node.abspath()
 
 		return self.do_install(src, destpath, chmod)
 
@@ -855,7 +855,7 @@ class CleanContext(BuildContext):
 				elif tp == Node.BUILD:
 					if nd.id in precious: continue
 					for env in self.all_envs.values():
-						try: os.remove(nd.abspath(env))
+						try: os.remove(nd.abspath())
 						except OSError: pass
 					node.childs.__delitem__(x)
 

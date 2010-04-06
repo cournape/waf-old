@@ -673,11 +673,9 @@ def can_retrieve_cache(self):
 		return None
 
 	for node in self.outputs:
-		variant = node.variant(env)
-
 		orig = os.path.join(dname, node.name)
 		try:
-			shutil.copy2(orig, node.abspath(env))
+			shutil.copy2(orig, node.abspath())
 			# mark the cache file as used recently (modified)
 			os.utime(orig, None)
 		except (OSError, IOError):
@@ -694,7 +692,7 @@ def can_retrieve_cache(self):
 		return None
 
 	for node in self.outputs:
-		self.generator.bld.node_sigs[variant][node.id] = sig
+		self.generator.bld.node_sigs[node.id] = sig
 		if Options.options.progress_bar < 1:
 			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
 
@@ -718,9 +716,8 @@ def put_files_cache(self):
 
 	try:
 		for node in self.outputs:
-			variant = node.variant(env)
 			dest = os.path.join(tmpdir, node.name)
-			shutil.copy2(node.abspath(env), dest)
+			shutil.copy2(node.abspath(), dest)
 	except (OSError, IOError):
 		try:
 			shutil.rmtree(tmpdir)

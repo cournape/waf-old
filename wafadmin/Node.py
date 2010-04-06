@@ -22,7 +22,7 @@ Its Node class is referenced here as self.__class__
 The public and advertised apis are the following:
 ${TGT}                 -> dir/to/file.ext
 ${TGT[0].suffix()}     -> .ext
-${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
+${TGT[0].abspath()} -> /path/to/dir/to/file.ext
 
 """
 
