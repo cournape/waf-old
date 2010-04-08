@@ -100,7 +100,7 @@ def set_main_module(file_path):
 		name = obj.__name__
 		if not name in Base.g_module.__dict__:
 			setattr(Base.g_module, name, obj)
-	for k in [dist, distclean, distcheck]:
+	for k in [update, dist, distclean, distcheck]:
 		set_def(k)
 	# add dummy init and shutdown functions if they're not defined
 	if not 'init' in Base.g_module.__dict__:
@@ -291,4 +291,32 @@ def distcheck(ctx):
 		raise WafError('distcheck succeeded, but files were left in %s' % instdir)
 
 	shutil.rmtree(path)
+
+def update(ctx):
+	try:
+		from urllib import request
+	except:
+		from urllib import urlopen
+	else:
+		urlopen = request.urlopen
+
+
+	local_repo = Options.local_repo or Options.waf_dir
+	#tool = Options.option.tool
+	tool = 'wafadmin/Tools/tex.py'
+	for x in Utils.to_list(Options.remote_repo):
+		try:
+			print(x + '/' + tool)
+			web = urlopen(x + '/' + tool)
+		except:
+			raise
+		else:
+			try:
+				loc = open(local_repo + os.sep + tool, 'wb')
+				loc.write(web.read())
+				web.close()
+			finally:
+				loc.close()
+			Logs.warn('updated ' + tool)
+			break
 

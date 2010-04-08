@@ -28,6 +28,11 @@ out_dir = ''
 waf_dir = ''
 """directory for the waf modules"""
 
+local_repo = ''
+"""local repository for the plugins"""
+remote_repo = 'http://waf.googlecode.com/svn/trunk/'
+"""remote directory for the plugins"""
+
 lockfile = os.environ.get('WAFLOCK', '.lock-waf')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
