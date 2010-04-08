@@ -32,8 +32,8 @@ from Constants import *
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRCLST}'
 cc_fun = Task.compile_fun_noshell('batched_cc', cc_str)[0]
 
-cc_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRCLST}'
-cxx_fun = Task.compile_fun_noshell('batched_cxx', cc_str)[0]
+cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRCLST}'
+cxx_fun = Task.compile_fun_noshell('batched_cxx', cxx_str)[0]
 
 count = 70000
 class batch_task(Task.Task):
@@ -150,7 +150,7 @@ extension(cxx.EXT_CXX)(cxx_hook)
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_link')
 def link_after_masters(self):
-	for m in self.allmasters:
+	for m in getattr(self, 'allmasters', []):
 		self.link_task.set_run_after(m)
 
 for c in ['cc', 'cxx']:
