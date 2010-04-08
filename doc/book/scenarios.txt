@@ -139,7 +139,7 @@ Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', color='BLUE', before='cxx') <1>
 
 @extension('.idl')
 def process_idl(self, node):
-	cc_node = node.change_ext('.cc')
+	cc_node = node.change_ext('.cpp')
 	self.create_task('idl', [node], [cc_node]) <2>
 	self.allnodes.append(cc_node) <3>
 ---------------
