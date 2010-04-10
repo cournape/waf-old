@@ -24,25 +24,44 @@ Configure.autoconfig = 1
 
 print ("------> Executing code from the top-level wscript <-----")
 
+def sub_file(fname, lst):
+
+	f = open(fname, 'rU')
+	txt = f.read()
+	f.close()
+
+	for (key, val) in lst:
+		re_pat = re.compile(key, re.M)
+		txt = re_pat.sub(val, txt)
+
+	f = open(fname, 'w')
+	f.write(txt)
+	f.close()
+
 def init():
 	if Options.options.setver: # maintainer only (ita)
 		ver = Options.options.setver
 		hexver = '0x'+ver.replace('.','0')
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
-		os.popen("""perl -pi -e 's/^WAFVERSION=(.*)?$/WAFVERSION="%s"/' wafadmin/Constants.py""" % ver).close()
-		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
+		sub_file('wscript', (('^VERSION=(.*)', 'VERSION="%s"' % ver), ))
+		sub_file('waf-light', (('^VERSION=(.*)', 'VERSION="%s"' % ver), ))
+
+		pats = []
+		pats.append(('^WAFVERSION=(.*)', 'WAFVERSION="%s"' % ver))
+		pats.append(('^HEXVERSION(.*)', 'HEXVERSION=%s' % hexver))
 
 		try:
-			p = os.popen("svnversion")
-			rev =  p.read().strip()
-			p.close()
-			os.popen("""perl -pi -e 's/^WAFREVISION(.*)?$/WAFREVISION = "%s"/' wafadmin/Constants.py""" % rev).close()
+			import Utils
+			rev = Utils.cmd_output('svnversion').strip()
+			pats.append(('^WAFREVISION(.*)', 'WAFREVISION = "%s"' % rev))
 		except:
 			pass
+
+		sub_file('wafadmin/Constants.py', pats)
+		sys.exit(0)
 	elif Options.options.waf:
 		create_waf()
 	elif Options.commands['check']:
+		# i have never used this (ita)
 		sys.path.insert(0,'')
 		import test.Test
 		test.Test.run_tests()
