@@ -11,7 +11,7 @@ out = 'build'
 
 def configure(conf):
 	conf.check_tool('gcc')
-	conf.check_tool('gccdeps', tooldir='.')
+	conf.check_tool('gccdeps')
 
 def build(bld):
 	bld(features='cc cprogram', source='main.c foo.c', target='test', includes='.')
