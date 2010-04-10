@@ -191,7 +191,8 @@ class ConfigurationContext(Utils.Context):
 								if web.getcode() != 200:
 									continue
 							except Exception, e:
-								break
+								# on python3 urlopen throws an exception
+								continue
 							else:
 								try:
 									loc = open(_3rdparty + os.sep + tool + '.py', 'wb')
