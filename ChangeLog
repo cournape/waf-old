@@ -3,7 +3,7 @@ NEW IN WAF 1.5.16
 * Handle deleted files and folders gracefully
 * Better interaction between on_results/update_outputs and deleted files
 * Try to use bunzip2 for the python versions that have no bzip2 support
-* Distcheck now also installs and uninstalls the project
+* New option for including tools (./waf-light --make-waf --tools=boost,fluid)
 
 NEW IN WAF 1.5.15
 -----------------
