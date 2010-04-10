@@ -198,7 +198,7 @@ def create_waf():
 	tarFiles = []
 
 	files = []
-	for d in '. Tools 3rdparty'.split():
+	for d in '. Tools'.split():
 		dd = os.path.join('wafadmin', d)
 		for k in os.listdir(dd):
 			if k.endswith('.py'):
