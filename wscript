@@ -73,10 +73,12 @@ def set_options(opt):
 		help='sets the version number for waf releases (for the maintainer)', dest='setver')
 
 	opt.add_option('--strip', action='store_true', default=True,
-		help='shrinks waf (strip docstrings, saves 33kb)',
+		help='shrinks waf (strip docstrings, saves ~33kb)',
 		dest='strip_comments')
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
+	opt.add_option('--tools', action='store', help='3rd party tools to add',
+		dest='add3rdparty', default='boost,fluid,rvds')
 	opt.tool_options('python')
 
 def compute_revision():
@@ -209,9 +211,13 @@ def create_waf():
 	tarFiles=[]
 
 	files = []
+	add3rdparty = [x + '.py' for x in Options.options.add3rdparty.split(',')]
 	for d in '. Tools 3rdparty'.split():
 		dd = os.path.join('wafadmin', d)
 		for k in os.listdir(dd):
+			if d == '3rdparty':
+				if not k in add3rdparty:
+					continue
 			if k.endswith('.py'):
 				files.append(os.path.join(dd, k))
 	for x in files:
