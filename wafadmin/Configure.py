@@ -22,9 +22,16 @@ Note: the c/c++ related code is in the module config_c
 import os, shlex, sys, time
 try: import cPickle
 except ImportError: import pickle as cPickle
-import Environment, Utils, Options
+import Environment, Utils, Options, Logs
 from Logs import warn
 from Constants import *
+
+try:
+	from urllib import request
+except:
+	from urllib import urlopen
+else:
+	urlopen = request.urlopen
 
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
@@ -165,6 +172,36 @@ class ConfigurationContext(Utils.Context):
 			if mag in self.tool_cache:
 				continue
 			self.tool_cache.append(mag)
+
+			if not tooldir:
+				# check if the tool exists in the Tools or 3rdparty folders
+				_Tools = Options.tooldir[0]
+				_3rdparty = os.sep.join((_Tools, '..', '3rdparty'))
+				for d in (_Tools, _3rdparty):
+					lst = os.listdir(d)
+					if tool + '.py' in lst:
+						break
+				else:
+					# try to download the tool from the repository then
+					for x in Utils.to_list(Options.remote_repo):
+						for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
+							url = '/'.join((x, sub, tool + '.py'))
+							print "url", url
+							try:
+								web = urlopen(url)
+							except Exception, e:
+								print e
+								break
+							else:
+								try:
+									loc = open(_3rdparty + os.sep + tool + '.py', 'wb')
+									loc.write(web.read())
+									web.close()
+								finally:
+									loc.close()
+								Logs.warn('downloaded ' + url)
+						else:
+								break
 
 			module = Utils.load_tool(tool, tooldir)
 
