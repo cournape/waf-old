@@ -77,7 +77,7 @@ def set_options(opt):
 		dest='strip_comments')
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
-	opt.add_option('--tools', action='store', help='3rd party tools to add',
+	opt.add_option('--tools', action='store', help='3rd party tools to add [Default: "boost,fluid,rvds"]',
 		dest='add3rdparty', default='boost,fluid,rvds')
 	opt.tool_options('python')
 
