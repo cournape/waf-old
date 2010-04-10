@@ -12,7 +12,7 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('gcc vala')
-	conf.check_tool('valadoc', tooldir='.')
+	conf.check_tool('valadoc')
 
 def build(bld):
 	bld(
