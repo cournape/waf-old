@@ -57,8 +57,8 @@ def build(bld):
 
 
 	# ---------------------------------------
-	# can the dmd compiler actually compile faster
-	# if the task are present in order?
+	# to use in the development phase:
+	# raise the syntax errors on the most dependent files first
 
 	from Constants import RUN_ME
 	from Task import Task, TaskBase
