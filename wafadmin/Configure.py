@@ -168,7 +168,7 @@ class ConfigurationContext(Utils.Context):
 
 			module = Utils.load_tool(tool, tooldir)
 
-			if funs:
+			if funs is not None:
 				self.eval_rules(funs)
 			else:
 				func = getattr(module, 'detect', None)
