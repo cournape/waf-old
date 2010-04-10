@@ -294,8 +294,10 @@ def distcheck(ctx):
 
 def update(ctx):
 
-	lst = os.listdir(Options.waf_dir + 'wafadmin/3rdparty')
+	lst = os.listdir(Options.waf_dir + '/wafadmin/3rdparty')
 	for x in lst:
+		if not x.endswith('.py'):
+			continue
 		tool = x.replace('.py', '')
-		Configure.download_tool(tool)
+		Configure.download_tool(tool, force=True)
 

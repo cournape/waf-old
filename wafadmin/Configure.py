@@ -22,7 +22,7 @@ Note: the c/c++ related code is in the module config_c
 import os, shlex, sys, time
 try: import cPickle
 except ImportError: import pickle as cPickle
-import ConfigSet, Utils, Options
+import ConfigSet, Utils, Options, Logs
 from Logs import warn
 from Constants import *
 from Base import command_context, WafError, WscriptError, Context
@@ -49,11 +49,16 @@ autoconfig = False
 "reconfigure the project automatically"
 
 
-def download_tool(name):
+def download_tool(tool, force=False):
 	# check if the tool exists in the Tools or 3rdparty folders
-	_Tools =    Options.waf_dir + os.sep + 'Tools'
-	_3rdparty = Options.waf_dir + os.sep + '3rdparty'
+	_Tools =    os.sep.join((Options.waf_dir, 'wafadmin', 'Tools'))
+	_3rdparty = os.sep.join((Options.waf_dir, 'wafadmin', '3rdparty'))
+
 	for d in (_Tools, _3rdparty):
+
+		if force:
+			continue
+
 		lst = os.listdir(d)
 		if tool + '.py' in lst:
 			break
@@ -66,8 +71,8 @@ def download_tool(name):
 					web = urlopen(url)
 					if web.getcode() != 200:
 						continue
-				except Exception, e:
-					break
+				except Exception as e:
+					continue
 				else:
 					try:
 						loc = open(_3rdparty + os.sep + tool + '.py', 'wb')

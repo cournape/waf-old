@@ -30,7 +30,7 @@ waf_dir = ''
 
 local_repo = ''
 """local repository for the plugins"""
-remote_repo = 'http://waf.googlecode.com/svn/trunk/'
+remote_repo = 'http://waf.googlecode.com/svn/'
 """remote directory for the plugins"""
 
 lockfile = os.environ.get('WAFLOCK', '.lock-waf')
