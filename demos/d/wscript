@@ -55,3 +55,34 @@ def build(bld):
 	obj.uselib       = 'PTHREAD'
 	obj.importpaths  = '.'
 
+
+	# ---------------------------------------
+	# can the dmd compiler actually compile faster
+	# if the task are present in order?
+
+	from Constants import RUN_ME
+	from Task import Task, TaskBase
+
+	def runnable_status(self):
+		ret = Task.runnable_status(self)
+
+		# do this processing once
+		if ret != RUN_ME or getattr(self, 'deps_done', None):
+			return ret
+
+		# get the sibling d tasks
+		for t in self.generator.tasks:
+			if id(t) == id(self) or t.name != 'd':
+				continue
+
+			task_input_id = id(t.inputs[0])
+			for node in self.generator.bld.node_deps[self.unique_id()]:
+				if task_input_id == id(node):
+					# if the input match, execute after the other
+					self.set_run_after(t)
+
+		self.deps_done = True
+		return self.runnable_status()
+
+	TaskBase.classes['d'].runnable_status = runnable_status
+
