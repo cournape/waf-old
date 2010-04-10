@@ -293,30 +293,9 @@ def distcheck(ctx):
 	shutil.rmtree(path)
 
 def update(ctx):
-	try:
-		from urllib import request
-	except:
-		from urllib import urlopen
-	else:
-		urlopen = request.urlopen
 
-
-	local_repo = Options.local_repo or Options.waf_dir
-	#tool = Options.option.tool
-	tool = 'wafadmin/3rdparty/fluid.py'
-	for x in Utils.to_list(Options.remote_repo):
-		try:
-			print(x + '/' + tool)
-			web = urlopen(x + '/' + tool)
-		except:
-			raise
-		else:
-			try:
-				loc = open(local_repo + os.sep + tool, 'wb')
-				loc.write(web.read())
-				web.close()
-			finally:
-				loc.close()
-			Logs.warn('updated ' + tool)
-			break
+	lst = os.listdir(Options.waf_dir + 'wafadmin/3rdparty')
+	for x in lst:
+		tool = x.replace('.py', '')
+		Configure.download_tool(tool)
 

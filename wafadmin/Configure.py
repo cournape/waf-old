@@ -28,6 +28,14 @@ from Constants import *
 from Base import command_context, WafError, WscriptError, Context
 import Base
 
+try:
+	from urllib import request
+except:
+	from urllib import urlopen
+else:
+	urlopen = request.urlopen
+
+
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
 # using %(args)s
@@ -39,6 +47,38 @@ class ConfigurationError(WscriptError):
 
 autoconfig = False
 "reconfigure the project automatically"
+
+
+def download_tool(name):
+	# check if the tool exists in the Tools or 3rdparty folders
+	_Tools =    Options.waf_dir + os.sep + 'Tools'
+	_3rdparty = Options.waf_dir + os.sep + '3rdparty'
+	for d in (_Tools, _3rdparty):
+		lst = os.listdir(d)
+		if tool + '.py' in lst:
+			break
+	else:
+		# try to download the tool from the repository then
+		for x in Utils.to_list(Options.remote_repo):
+			for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
+				url = '/'.join((x, sub, tool + '.py'))
+				try:
+					web = urlopen(url)
+					if web.getcode() != 200:
+						continue
+				except Exception, e:
+					break
+				else:
+					try:
+						loc = open(_3rdparty + os.sep + tool + '.py', 'wb')
+						loc.write(web.read())
+						web.close()
+					finally:
+						loc.close()
+					Logs.warn('downloaded %s from %s' % (tool, url))
+			else:
+					break
+
 
 def find_file(filename, path_list):
 	"""find a file in a list of paths
@@ -168,6 +208,9 @@ class ConfigurationContext(Context):
 			if mag in self.tool_cache:
 				continue
 			self.tool_cache.append(mag)
+
+			if not tooldir:
+				download_tool(tool)
 
 			module = Utils.load_tool(tool, tooldir)
 
