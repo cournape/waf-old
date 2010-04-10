@@ -8,7 +8,7 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.check_tool('go', tooldir='.')
+	ctx.check_tool('go')
 
 def build(ctx):
 	ctx(
