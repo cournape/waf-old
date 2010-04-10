@@ -100,6 +100,8 @@ def options(opt):
 		dest='strip_comments')
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
+	opt.add_option('--tools', action='store', help='Comma-separated 3rd party tools to add, eg: "boost,fluid" [Default: ""]',
+		dest='add3rdparty', default='')
 	opt.tool_options('python')
 
 def compute_revision():
@@ -198,9 +200,13 @@ def create_waf():
 	tarFiles = []
 
 	files = []
-	for d in '. Tools'.split():
+	add3rdparty = [x + '.py' for x in Options.options.add3rdparty.split(',')]
+	for d in '. Tools 3rdparty'.split():
 		dd = os.path.join('wafadmin', d)
 		for k in os.listdir(dd):
+			if d == '3rdparty':
+				if not k in add3rdparty:
+					continue
 			if k.endswith('.py'):
 				files.append(os.path.join(dd, k))
 	for x in files:

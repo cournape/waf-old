@@ -153,7 +153,7 @@ class ConfigurationContext(Context):
 	def fatal(self, msg):
 		raise ConfigurationError(msg)
 
-	def check_tool(self, input, tooldir=None, funs=None):
+	def check_tool(self, input, tooldir=None, funs=None, download=True):
 		"load a waf tool"
 
 		tools = Utils.to_list(input)
