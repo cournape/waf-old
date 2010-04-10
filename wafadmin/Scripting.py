@@ -303,7 +303,7 @@ def update(ctx):
 
 	local_repo = Options.local_repo or Options.waf_dir
 	#tool = Options.option.tool
-	tool = 'wafadmin/Tools/tex.py'
+	tool = 'wafadmin/3rdparty/fluid.py'
 	for x in Utils.to_list(Options.remote_repo):
 		try:
 			print(x + '/' + tool)
