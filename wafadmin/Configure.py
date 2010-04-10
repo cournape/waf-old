@@ -186,11 +186,11 @@ class ConfigurationContext(Utils.Context):
 					for x in Utils.to_list(Options.remote_repo):
 						for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
 							url = '/'.join((x, sub, tool + '.py'))
-							print "url", url
 							try:
 								web = urlopen(url)
+								if web.getcode() != 200:
+									continue
 							except Exception, e:
-								print e
 								break
 							else:
 								try:
@@ -199,7 +199,7 @@ class ConfigurationContext(Utils.Context):
 									web.close()
 								finally:
 									loc.close()
-								Logs.warn('downloaded ' + url)
+								Logs.warn('downloaded %s from %s' % (tool, url))
 						else:
 								break
 
