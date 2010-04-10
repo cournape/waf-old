@@ -514,7 +514,11 @@ def run_c_code(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	o = bld(features=[kw['compile_mode'], kw['type']], source=test_f_name, target='testprog')
+	if not 'features' in kw:
+		# conf.check(features='cc cprogram pyext', ...)
+		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram cc"
+
+	o = bld(features=kw['features'], source=test_f_name, target='testprog')
 
 	for k, v in kw.iteritems():
 		setattr(o, k, v)
