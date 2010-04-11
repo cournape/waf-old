@@ -992,6 +992,7 @@ class BuildContext(Utils.Context):
 	def use_the_magic(self):
 		Task.algotype = Task.MAXPARALLEL
 		Task.file_deps = Task.extract_deps
+		self.magic = True
 
 	install_as = group_method(install_as)
 	install_files = group_method(install_files)
