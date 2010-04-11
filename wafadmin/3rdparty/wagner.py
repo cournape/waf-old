@@ -2,9 +2,18 @@
 # encoding: utf-8
 # ita 2010
 
-import Logs
+import Logs, Utils
 
 def say(txt):
-	Logs.warn("wagner says: %s" % txt)
+	Logs.warn("^o^: %s" % txt)
 
-say('you make the errors, we detect them ^o^')
+Utils.pprint('PINK', r""" _________________________________________
+/ hello I am wagner and I will review the \
+\ code as the build is being executed     /
+ -----------------------------------------
+        \
+          ^o^
+""")
+
+
+say('you make the errors, we detect them')
