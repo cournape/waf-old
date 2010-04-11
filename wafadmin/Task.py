@@ -395,6 +395,9 @@ class TaskBase(object):
 
 	def exec_command(self, *k, **kw):
 		"use this for executing commands from tasks"
+		# TODO in waf 1.6, eliminate bld.exec_command, and move the cwd processing to here
+		if self.env['env']:
+			kw['env'] = self.env['env']
 		return self.generator.bld.exec_command(*k, **kw)
 
 	def runnable_status(self):
