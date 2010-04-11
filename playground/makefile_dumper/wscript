@@ -18,6 +18,14 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('compiler_cc')
 
+	# to extract the parameters:
+	old = conf.__class__.run_c_code
+	def run_c_code(*k, **kw):
+		print("calling run_c_code with", kw)
+		old(*k, **kw)
+	conf.__class__.run_c_code = run_c_code
+
+	conf.check_cc(fragment='int main() {return 0; }')
 
 def build(bld):
 
