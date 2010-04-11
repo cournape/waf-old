@@ -5,6 +5,7 @@ NEW IN WAF 1.5.16
 * Try to use bunzip2 for the python versions that have no bzip2 support
 * Automatic tool download from the 3rdparty repository
 * New option for including 3rdparty tools (./waf-light --make-waf --tools=boost,fluid)
+* New tool for detecting user errors (wagner)
 
 NEW IN WAF 1.5.15
 -----------------
