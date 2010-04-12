@@ -540,12 +540,11 @@ def run_c_code(self, *k, **kw):
 		self.log.write('command returned %r' % ret)
 		self.fatal(str(ret))
 
+	# if we need to run the program, try to get its result
 	# keep the name of the program to execute
 	if kw['execute']:
 		lastprog = o.link_task.outputs[0].abspath(env)
 
-	# if we need to run the program, try to get its result
-	if kw['execute']:
 		args = Utils.to_list(kw.get('exec_args', []))
 		proc = Utils.pproc.Popen([lastprog] + args, stdout=Utils.pproc.PIPE, stderr=Utils.pproc.PIPE)
 		(out, err) = proc.communicate()
