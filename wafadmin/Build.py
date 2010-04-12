@@ -809,6 +809,30 @@ class BuildContext(Utils.Context):
 			destpath = os.path.join(destdir, self.red.sub('', destpath))
 		return destpath
 
+	def install_dir(self, path, env=None):
+		"""
+		create empty folders for the installation (very rarely used)
+		"""
+		if env:
+			assert isinstance(env, Environment.Environment), "invalid parameter"
+		else:
+			env = self.env
+
+		if not path:
+			return []
+
+		if not cwd:
+			cwd = self.path
+
+		destpath = self.get_install_path(path, env)
+
+		if self.is_install > 0:
+			info('* creating %s' % destpath)
+			Utils.check_dir(destpath)
+		elif self.is_install < 0:
+			info('* removing %s' % destpath)
+			self.uninstall.append(destpath + '/xxx') # yes, ugly
+
 	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False, cwd=None):
 		"""To install files only after they have been built, put the calls in a method named
 		post_build on the top-level wscript
