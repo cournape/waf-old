@@ -6,6 +6,8 @@ NEW IN WAF 1.5.16
 * Automatic tool download from the 3rdparty repository
 * New option for including 3rdparty tools (./waf-light --make-waf --tools=boost,fluid)
 * New tool for detecting user errors (wagner)
+* A predefined os environment may be passed through xyz.env.env = {}
+* New method for creating empty folders: bld.install_dir('{PREFIX}/lib')
 
 NEW IN WAF 1.5.15
 -----------------
