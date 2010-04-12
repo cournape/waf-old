@@ -821,9 +821,6 @@ class BuildContext(Utils.Context):
 		if not path:
 			return []
 
-		if not cwd:
-			cwd = self.path
-
 		destpath = self.get_install_path(path, env)
 
 		if self.is_install > 0:
