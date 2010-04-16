@@ -9,6 +9,10 @@ NEW IN WAF 1.5.16
 * A predefined os environment may be passed through xyz.env.env = {}
 * New method for creating empty folders: bld.install_dir('{PREFIX}/lib')
 * Better interaction between swig and qt4, bison and flex
+* New example for abi checks         playground/abi_checks
+* New example for rpath handling     playground/crazy_rpath
+* New example for dumping makefiles  playground/makefile_dumper
+* New example for thread-less builds playgroud/nothreads
 
 NEW IN WAF 1.5.15
 -----------------
