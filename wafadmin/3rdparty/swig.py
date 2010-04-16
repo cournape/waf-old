@@ -20,7 +20,7 @@ rev 5859 is much more simple
 SWIG_EXTS = ['.swig', '.i']
 
 swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
-cls = Task.simple_task_type('swig', swig_str, color='BLUE', ext_out='.o .c .cxx', shell=False)
+cls = Task.simple_task_type('swig', swig_str, color='BLUE', ext_in='.i .h', ext_out='.o .c .cxx', shell=False)
 
 def runnable_status(self):
 	for t in self.run_after:
