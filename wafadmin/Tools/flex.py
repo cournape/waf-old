@@ -21,6 +21,5 @@ TaskGen.declare_chain(
 
 def detect(conf):
 	conf.find_program('flex', var='FLEX', mandatory=True)
-	v = conf.env
-	v['FLEXFLAGS'] = ''
+	conf.env['FLEXFLAGS'] = ''
 
