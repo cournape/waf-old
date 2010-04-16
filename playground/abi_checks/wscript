@@ -26,7 +26,7 @@ def filter_symbols(txt):
 		lst.add(m.group(1))
 	lst = list(lst)
 	lst.sort()
-	return '\n'.join(lst) + '\n'
+	return lst
 
 def get_syms(task, outp):
 	ret = Utils.cmd_output(['objdump', '-t', task.inputs[0].name], cwd=task.inputs[0].parent.abspath(task.env))
@@ -34,7 +34,7 @@ def get_syms(task, outp):
 	f = None
 	try:
 		f = open(outp, 'w')
-		f.write(ret)
+		f.write('\n'.join(ret) + '\n')
 	finally:
 		if f:
 			f.close()
@@ -46,18 +46,11 @@ def dump_fun(self):
 
 def diff_fun(self):
 	outp = self.outputs[0].abspath(self.env)
-	ret = get_syms(self, outp)
-
-	ref = self.inputs[1].read(self.env)
-	if ref != ret:
-		try:
-			(ret, _) = Utils.pproc.Popen(['diff', '-urN', self.inputs[1].abspath(self.env), outp], stdout=Utils.pproc.PIPE).communicate()
-			Logs.error('# found differences:\n' + ret)
-		except:
-			pass
-			#raise
-
-		raise Utils.WafError('found different symbols %s %s' % (self.inputs[0].abspath(self.env), outp))
+	ret = set(get_syms(self, outp))
+	ref = set(self.inputs[1].read(self.env).split())
+	diff = list(ref-ret)
+	if diff:
+		raise Utils.WafError('found missing symbols in %s: %r' % (self.outputs[0].name, diff))
 
 cls = Task.task_type_from_func('put_sym', dump_fun, vars=[], ext_in='.bin')
 cls.quiet = True
