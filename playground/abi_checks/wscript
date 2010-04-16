@@ -1,0 +1,79 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+def build(bld):
+	bld(features='cc cshlib', vnum='1.2.3', source='a.c', target='mylib')
+
+
+# warn against changed symbols
+
+import os
+import Task, Utils
+from TaskGen import feature, after
+
+def get_syms(task, outp):
+	ret = Utils.cmd_output(['objdump', '-t', self.inputs[0].name], cwd=self.inputs[0].parent.abspath(self.env))
+	f = None
+	try:
+		f = open(outp, 'w')
+		f.write(ret)
+	finally:
+		if f:
+			f.close()
+
+	return ret
+
+def dump_fun(self):
+	ret = get_syms(self, self.env.SYM_FILE)
+
+def diff_fun(self):
+	outp = self.outputs[0].abspath(self.env)
+	ret = get_syms(self, outp)
+
+	ref = self.inputs[1].read(self.env)
+	if ref != ret:
+		try:
+			(ret, _) = Utils.pproc.Popen(['diff', '-urN', self.inputs[1].abspath(self.env), outp], stdout=Utils.pproc.PIPE).communicate()
+			Logs.error('# found differences:\n' + ret)
+		except:
+			pass
+
+		raise Utils.WafError('found different symbols %s %s' % (self.inputs[0].abspath(self.env), outp))
+
+cls = Task.task_type_from_func('put_sym', dump_fun, vars=[], ext_in='.bin')
+cls.quiet = True
+Task.always_run(cls)
+
+cls = Task.task_type_from_func('check_sym', diff_fun, vars=[], ext_in='.bin')
+#Task.always_run(cls) # <- not always
+
+@feature('cshlib')
+@after('apply_vnum')
+def check_symbols(self):
+	if not self.vnum:
+		return
+
+	d = self.bld.srcnode.abspath() + os.sep + 'cache_symbols'
+	try:
+		lst = os.listdir(d)
+	except:
+		os.makedirs(d)
+
+	symfile = d + os.sep + self.link_task.outputs[0].name + '.' + self.vnum + '.sym'
+
+	binary = self.link_task.outputs[0]
+	cache_sym = self.bld.root.find_resource(symfile)
+	if cache_sym:
+		self.create_task('check_sym', [binary, cache_sym], binary.parent.find_or_declare(binary.name + '.sym'))
+	else:
+		tsk = self.create_task('put_sym', binary)
+		tsk.env.SYM_FILE = symfile
+
