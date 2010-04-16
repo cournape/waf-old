@@ -19,8 +19,12 @@ import os
 import Task, Utils
 from TaskGen import feature, after
 
+def filter_symbols(txt):
+	return txt
+
 def get_syms(task, outp):
-	ret = Utils.cmd_output(['objdump', '-t', self.inputs[0].name], cwd=self.inputs[0].parent.abspath(self.env))
+	ret = Utils.cmd_output(['objdump', '-t', task.inputs[0].name], cwd=task.inputs[0].parent.abspath(task.env))
+	ret = filter_symbols(ret)
 	f = None
 	try:
 		f = open(outp, 'w')

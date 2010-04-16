@@ -1,6 +1,6 @@
 
 typedef struct foo {
-	int k = 2323;
+	int k;
 } foo;
 
 int fun(int num) {
