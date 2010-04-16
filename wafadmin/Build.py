@@ -434,6 +434,11 @@ class BuildContext(Utils.Context):
 			self.srcnode = self.root.ensure_dir_node_from_path(srcdir)
 		debug('build: srcnode is %s and srcdir %s', self.srcnode.name, srcdir)
 
+		try:
+			os.path.abspath(self.srcnode.abspath())
+		except:
+			raise Utils.WafError('The source directory has changed, execute "waf distclean"')
+
 		self.path = self.srcnode
 
 		# create this build dir if necessary
