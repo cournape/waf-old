@@ -8,7 +8,7 @@ NEW IN WAF 1.5.16
 * New tool for detecting user errors (wagner)
 * A predefined os environment may be passed through xyz.env.env = {}
 * New method for creating empty folders: bld.install_dir('{PREFIX}/lib')
-* Better interaction between qt4 and swig
+* Better interaction between swig and qt4, bison and flex
 
 NEW IN WAF 1.5.15
 -----------------
