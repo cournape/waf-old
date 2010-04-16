@@ -9,7 +9,7 @@ import Task
 from TaskGen import extension
 
 bison = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
-cls = Task.simple_task_type('bison', bison, 'GREEN', ext_in='.yc .y .yy', ext_out='.c .cxx .h .l', before='cc cxx', shell=False)
+cls = Task.simple_task_type('bison', bison, 'GREEN', ext_in='.yc .y .yy', ext_out='.c .cxx .h .l', shell=False)
 
 @extension(['.y', '.yc', '.yy'])
 def big_bison(self, node):
