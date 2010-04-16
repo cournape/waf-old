@@ -672,7 +672,7 @@ def write_config_header(self, configfile='', env='', guard='', top=False):
 	dest.write(self.get_config_header())
 
 	# config files are not removed on "waf clean"
-	env.append_value(CFG_FILES, os.path.join(diff, configfile))
+	env.append_unique(CFG_FILES, os.path.join(diff, configfile))
 
 	dest.write('\n#endif /* %s */\n' % waf_guard)
 	dest.close()
