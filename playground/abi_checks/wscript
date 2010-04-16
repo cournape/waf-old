@@ -16,7 +16,7 @@ def build(bld):
 # warn against changed symbols
 
 import os, re
-import Task, Utils
+import Task, Utils, Logs
 from TaskGen import feature, after
 
 re_syms = re.compile("((\\.|\\w)+)\n", re.M)
@@ -26,7 +26,7 @@ def filter_symbols(txt):
 		lst.add(m.group(1))
 	lst = list(lst)
 	lst.sort()
-	return '\n'.join(lst)
+	return '\n'.join(lst) + '\n'
 
 def get_syms(task, outp):
 	ret = Utils.cmd_output(['objdump', '-t', task.inputs[0].name], cwd=task.inputs[0].parent.abspath(task.env))
@@ -55,6 +55,7 @@ def diff_fun(self):
 			Logs.error('# found differences:\n' + ret)
 		except:
 			pass
+			#raise
 
 		raise Utils.WafError('found different symbols %s %s' % (self.inputs[0].abspath(self.env), outp))
 
