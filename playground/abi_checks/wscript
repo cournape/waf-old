@@ -48,9 +48,16 @@ def diff_fun(self):
 	outp = self.outputs[0].abspath(self.env)
 	ret = set(get_syms(self, outp))
 	ref = set(self.inputs[1].read(self.env).split())
-	diff = list(ref ^ ret)
+	diff = ref ^ ret
 	if diff:
-		raise Utils.WafError('found missing symbols in %s: %r' % (self.outputs[0].name, diff))
+		old = []
+		new = []
+		for x in diff:
+			if x in ref:
+				old.append(x)
+			else:
+				new.append(x)
+		raise Utils.WafError('symbols in %s have changed: old/added %r <-> %r' % (self.outputs[0].name, old, new))
 
 cls = Task.task_type_from_func('put_sym', dump_fun, vars=[], ext_in='.bin')
 cls.quiet = True
