@@ -15,12 +15,18 @@ def build(bld):
 
 # warn against changed symbols
 
-import os
+import os, re
 import Task, Utils
 from TaskGen import feature, after
 
+re_syms = re.compile("((\\.|\\w)+)\n", re.M)
 def filter_symbols(txt):
-	return txt
+	lst = set([])
+	for m in re_syms.finditer(txt):
+		lst.add(m.group(1))
+	lst = list(lst)
+	lst.sort()
+	return '\n'.join(lst)
 
 def get_syms(task, outp):
 	ret = Utils.cmd_output(['objdump', '-t', task.inputs[0].name], cwd=task.inputs[0].parent.abspath(task.env))
