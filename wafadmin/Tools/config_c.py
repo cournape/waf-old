@@ -119,7 +119,7 @@ def validate_cfg(self, kw):
 	if not 'msg' in kw:
 		kw['msg'] = 'Checking for %s' % (kw['package'] or kw['path'])
 	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
+		kw['okmsg'] = 'yes'
 	if not 'errmsg' in kw:
 		kw['errmsg'] = 'not found'
 
@@ -148,7 +148,7 @@ def cmd_and_log(self, cmd, kw):
 			if kw.get('mandatory', False):
 				kw['errmsg'] = out.strip()
 			else:
-				kw['errmsg'] = 'fail'
+				kw['errmsg'] = 'no'
 		self.fatal('fail')
 	return out
 
@@ -160,7 +160,7 @@ def exec_cfg(self, kw):
 		cmd = '%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version'])
 		self.cmd_and_log(cmd, kw)
 		if not 'okmsg' in kw:
-			kw['okmsg'] = 'ok'
+			kw['okmsg'] = 'yes'
 		return
 
 	# checking for the version of a module
@@ -169,7 +169,7 @@ def exec_cfg(self, kw):
 		if y in kw:
 			self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']), kw)
 			if not 'okmsg' in kw:
-				kw['okmsg'] = 'ok'
+				kw['okmsg'] = 'yes'
 			self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
 			break
 
@@ -189,7 +189,7 @@ def exec_cfg(self, kw):
 			var = '%s_%s' % (uselib, v)
 			env[var] = val
 		if not 'okmsg' in kw:
-			kw['okmsg'] = 'ok'
+			kw['okmsg'] = 'yes'
 		return
 
 	lst = [kw['path']]
@@ -203,7 +203,7 @@ def exec_cfg(self, kw):
 	cmd = ' '.join(lst)
 	ret = self.cmd_and_log(cmd, kw)
 	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
+		kw['okmsg'] = 'yes'
 
 	self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
 	parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
@@ -368,14 +368,14 @@ def validate_c(self, kw):
 		if not 'msg' in kw:
 			kw['msg'] = 'Checking for custom code'
 		if not 'errmsg' in kw:
-			kw['errmsg'] = 'fail'
+			kw['errmsg'] = 'no'
 
 	for (flagsname,flagstype) in [('cxxflags','compiler'), ('cflags','compiler'), ('linkflags','linker')]:
 		if flagsname in kw:
 			if not 'msg' in kw:
 				kw['msg'] = 'Checking for %s flags %s' % (flagstype, kw[flagsname])
 			if not 'errmsg' in kw:
-				kw['errmsg'] = 'fail'
+				kw['errmsg'] = 'no'
 
 	if not 'execute' in kw:
 		kw['execute'] = False
@@ -384,7 +384,7 @@ def validate_c(self, kw):
 		kw['errmsg'] = 'not found'
 
 	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
+		kw['okmsg'] = 'yes'
 
 	if not 'code' in kw:
 		kw['code'] = SNIP3
