@@ -78,9 +78,6 @@ exclude_regs = '''
 
 class Node(object):
 	def __init__(self, name, parent, node_type = UNDEFINED):
-		"""
-		save memory by setting the type in the id: type = id & 3
-		"""
 		self.name = name
 		self.parent = parent
 

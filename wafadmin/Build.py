@@ -18,7 +18,7 @@ from Logs import debug, error, info
 from Constants import *
 from Base import command_context, WafError, Context, load_tool
 
-SAVED_ATTRS = 'root srcnode node_deps raw_deps task_sigs id_nodes'.split()
+SAVED_ATTRS = 'root node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
 class BuildError(WafError):
@@ -197,11 +197,9 @@ class BuildContext(Context):
 				# This is important
 				self.cache_dir_contents[self.root.id] = []
 
-			if not self.srcnode:
-				self.srcnode = self.root.find_dir(self.top_dir)
-
-		bldnode = self.root.find_dir(self.out_dir)
-		self.up_path = self.srcnode.relpath_gen(bldnode)
+		self.srcnode = self.root.find_dir(self.top_dir)
+		self.bldnode = self.root.find_dir(self.out_dir)
+		self.up_path = self.srcnode.relpath_gen(self.bldnode)
 		self.path = self.srcnode
 
 		if not self.all_envs:
@@ -837,29 +835,13 @@ class CleanContext(BuildContext):
 	def clean(self):
 		debug('build: clean called')
 
-		# does not clean files created during the configuration
-		precious = set([])
-		for env in self.all_envs.values():
-			for x in env[CFG_FILES]:
-				node = self.srcnode.find_resource(x)
-				if node:
-					precious.add(node.id)
+		# TODO clean could remove the files except the ones listed in env[CFG_FILES]
 
-		def clean_rec(node):
-			for x in list(node.childs.keys()):
-				nd = node.childs[x]
-
-				tp = nd.id & 3
-				if tp == Node.DIR:
-					clean_rec(nd)
-				elif tp == Node.BUILD:
-					if nd.id in precious: continue
-					for env in self.all_envs.values():
-						try: os.remove(nd.abspath())
-						except OSError: pass
-					node.childs.__delitem__(x)
-
-		clean_rec(self.srcnode)
+		# forget about all the nodes
+		try:
+			del node.parent.childs[node.name]
+		except AttributeError:
+			pass
 
 		for v in 'node_deps task_sigs raw_deps cache_node_abspath'.split():
 			setattr(self, v, {})
