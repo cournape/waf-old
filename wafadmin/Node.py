@@ -24,6 +24,9 @@ ${TGT}                 -> dir/to/file.ext
 ${TGT[0].suffix()}     -> .ext
 ${TGT[0].abspath()} -> /path/to/dir/to/file.ext
 
+
+
+1 file/dir == one node (the only thing guaranteed by the file system)
 """
 
 import os, sys, fnmatch, re
@@ -34,7 +37,7 @@ DIR = 1
 FILE = 2
 BUILD = 3
 
-type_to_string = {UNDEFINED: "unk", DIR: "dir", FILE: "src", BUILD: "bld"}
+type_to_string = {UNDEFINED: 'unk', DIR: 'dir', FILE: 'src', BUILD: 'bld'}
 
 # These fnmatch expressions are used by default to prune the directory tree
 # while doing the recursive traversal in the find_iter method of the Node class.
@@ -74,25 +77,24 @@ exclude_regs = '''
 **/.DS_Store'''
 
 class Node(object):
-	__slots__ = ("name", "parent", "id", "childs")
+	__slots__ = ('name', 'parent', 'id', 'childs')
 	def __init__(self, name, parent, node_type = UNDEFINED):
+		"""
+		save memory by setting the type in the id: type = id & 3
+		"""
 		self.name = name
 		self.parent = parent
 
-		# assumption: one build object at a time
 		self.__class__.bld.id_nodes += 4
 		self.id = self.__class__.bld.id_nodes + node_type
 
-		if node_type == DIR: self.childs = {}
+		if node_type == DIR:
+			self.childs = {}
 
-		# We do not want to add another type attribute (memory)
-		# use the id to find out: type = id & 3
-		# for setting: new type = type + x - type & 3
-
-		if parent and name in parent.childs:
-			raise WafError('node %s exists in the parent files %r already' % (name, parent))
-
-		if parent: parent.childs[name] = self
+		if parent:
+			if name in parent.childs:
+				raise WafError('node %s exists in the parent files %r already' % (name, parent))
+			parent.childs[name] = self
 
 	def __setstate__(self, data):
 		if len(data) == 4:
