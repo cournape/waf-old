@@ -26,18 +26,20 @@ Utils.g_module.title
 
 mp = {
 'cxx': '#4da74d',
+'copy_script': '#ff0000'
 'static_link': '#a751ff'
 }
 
 info = {
 '#4da74d': 'Compilation task',
+'#ff0000': 'Other',
 '#a751ff': 'Link task'
 }
 
 def map_to_color(name):
 	if name in mp:
 		return mp[name]
-	return "#a751ff"
+	return "#ff0000"
 
 
 taskinfo = Queue.Queue()

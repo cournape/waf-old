@@ -477,7 +477,7 @@ The outputs are written in the build directory into the file 'config.log':
 [source,shishell]
 ---------------
 # project cpp_test (0.0.1) configured on Fri Feb 26 20:51:39 2010 by
-# waf 1.5.15 (abi 7, python 20602f0 on linux2)
+# waf 1.5.16 (abi 7, python 20602f0 on linux2)
 # using /home/waf/bin/waf configure
 #
 Checking for pkg-config version >= 0.0.0

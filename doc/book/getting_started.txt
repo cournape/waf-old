@@ -11,8 +11,8 @@ The Waf binary does not require any installation whatsoever. It may be executed 
 
 [source,shishell]
 ---------------
-$ wget http://waf.googlecode.com/files/waf-1.5.15
-$ mv waf-1.5.15 waf && chmod 755 waf
+$ wget http://waf.googlecode.com/files/waf-1.5.16
+$ mv waf-1.5.16 waf && chmod 755 waf
 ---------------
 
 ==== Generating the Waf binary from the source code
@@ -21,9 +21,9 @@ The Waf binary creation requires a Python interpreter in version 2.4 to 2.6. The
 
 [source,shishell]
 ---------------
-$ wget http://waf.googlecode.com/files/waf-1.5.15.tar.bz2
-$ tar xjvf waf-1.5.15.tar.bz2
-$ cd waf-1.5.15
+$ wget http://waf.googlecode.com/files/waf-1.5.16.tar.bz2
+$ tar xjvf waf-1.5.16.tar.bz2
+$ cd waf-1.5.16
 $ ./waf-light --make-waf
 ---------------
 
@@ -48,7 +48,7 @@ The 'waf' file has its own library compressed in a binary stream in the same fil
 [source,shishell]
 ---------------
 $ ls -ld .waf*
-.waf-1.5.15-2c924e3f453eb715218b9cc852291170
+.waf-1.5.16-2c924e3f453eb715218b9cc852291170
 ---------------
 
 By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the http://www.jython.org[Jython] interpreter in the version 2.5 may be redistributed along with a copy of the Waf executable.
