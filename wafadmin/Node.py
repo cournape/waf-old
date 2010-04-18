@@ -77,7 +77,6 @@ exclude_regs = '''
 **/.DS_Store'''
 
 class Node(object):
-	__slots__ = ('name', 'parent', 'id', 'childs')
 	def __init__(self, name, parent, node_type = UNDEFINED):
 		"""
 		save memory by setting the type in the id: type = id & 3
@@ -95,18 +94,6 @@ class Node(object):
 			if name in parent.childs:
 				raise WafError('node %s exists in the parent files %r already' % (name, parent))
 			parent.childs[name] = self
-
-	def __setstate__(self, data):
-		if len(data) == 4:
-			(self.parent, self.name, self.id, self.childs) = data
-		else:
-			(self.parent, self.name, self.id) = data
-
-	def __getstate__(self):
-		if getattr(self, 'childs', None) is None:
-			return (self.parent, self.name, self.id)
-		else:
-			return (self.parent, self.name, self.id, self.childs)
 
 	def __str__(self):
 		if not self.parent: return ''
