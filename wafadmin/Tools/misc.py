@@ -401,8 +401,7 @@ use command_is_external=True''') % (self.command,)
 
 def post_run(self):
 	for x in self.outputs:
-		h = Utils.h_file(x.abspath(self.env))
-		self.generator.bld.node_sigs[self.env.variant()][x.id] = h
+		x.sig = Utils.h_file(x.abspath(self.env))
 
 def runnable_status(self):
 	return Constants.RUN_ME

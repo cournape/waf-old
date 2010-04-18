@@ -18,7 +18,7 @@ from Logs import debug, error, info
 from Constants import *
 from Base import command_context, WafError, Context, load_tool
 
-SAVED_ATTRS = 'root srcnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
+SAVED_ATTRS = 'root srcnode node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
 class BuildError(WafError):
@@ -115,7 +115,7 @@ class BuildContext(Context):
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
 
-		for v in 'cache_node_abspath task_sigs node_deps raw_deps node_sigs'.split():
+		for v in 'cache_node_abspath task_sigs node_deps raw_deps'.split():
 			setattr(self, v, {})
 
 		# list of folders that are already scanned
@@ -179,7 +179,7 @@ class BuildContext(Context):
 					except (IOError, AttributeError):
 						error("cannot find %r" % f)
 						hash = SIG_NIL
-					self.node_sigs[newnode.id] = hash
+					newnode.sig = hash
 
 	def prepare(self):
 		self.is_install = 0
@@ -861,6 +861,6 @@ class CleanContext(BuildContext):
 
 		clean_rec(self.srcnode)
 
-		for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
+		for v in 'node_deps task_sigs raw_deps cache_node_abspath'.split():
 			setattr(self, v, {})
 

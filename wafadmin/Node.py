@@ -138,22 +138,16 @@ class Node(object):
 			lst = set([])
 
 		# hash the existing source files, remove the others
-		cache = bld.node_sigs
 		for x in self.childs.values():
 			if x.id & 3 != FILE:
 				continue
 
 			if x.name in lst:
 				try:
-					cache[x.id] = Utils.h_file(x.abspath())
+					x.sig = Utils.h_file(x.abspath())
 				except IOError:
 					raise WafError('The file %s is not readable or has become a dir' % x.abspath())
 			else:
-				try:
-					del cache[x.id]
-				except KeyError:
-					pass
-
 				del self.childs[x.name]
 
 		if not bld.srcnode:
@@ -188,12 +182,7 @@ class Node(object):
 				if node.id & 3 != BUILD:
 					continue
 
-				try:
-					del bld.node_sigs[node.id]
-				except KeyError:
-					pass
 				del self.childs[node.name]
-
 			try:
 				# recreate the folder in the build directory
 				os.makedirs(path)
@@ -206,12 +195,6 @@ class Node(object):
 				if node.id & 3 != BUILD:
 					continue
 				if not (node.name in lst):
-
-					try:
-						del bld.node_sigs[node.id]
-					except KeyError:
-						pass
-
 					del self.childs[node.name]
 
 	def find_dir(self, lst):
@@ -298,7 +281,7 @@ class Node(object):
 			return None
 
 		child = self.__class__(name, parent, FILE)
-		tree.node_sigs[child.id] = st
+		child.sig = st
 		return child
 
 	def find_or_declare(self, lst):

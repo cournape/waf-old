@@ -318,9 +318,9 @@ class Task(TaskBase):
 		# compare the signatures of the outputs
 		for node in self.outputs:
 			try:
-				if bld.node_sigs[node.id] != new_sig:
+				if node.sig != new_sig:
 					return RUN_ME
-			except KeyError:
+			except AttributeError:
 				debug("task: task %r must run as the output nodes do not exist" % self)
 				return RUN_ME
 
@@ -348,7 +348,7 @@ class Task(TaskBase):
 				raise WafError
 
 			# important, store the signature for the next run
-			bld.node_sigs[node.id] = sig
+			node.sig = sig
 
 		bld.task_sigs[self.unique_id()] = self.cache_sig
 
@@ -373,7 +373,7 @@ class Task(TaskBase):
 		# the inputs
 		for x in self.inputs + getattr(self, 'dep_nodes', []):
 			x.parent.rescan()
-			m.update(bld.node_sigs[x.id])
+			m.update(x.sig)
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
@@ -388,16 +388,15 @@ class Task(TaskBase):
 					if isinstance(v, Node.Node):
 						v.parent.rescan()
 						try:
-							v = bld.node_sigs[v.id]
-						except KeyError: # make it fatal?
+							v = v.sig
+						except AttributeError: # make it fatal?
 							v = ''
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
 					m.update(v)
 
 		for x in self.deps_nodes:
-			v = bld.node_sigs[x.id]
-			m.update(v)
+			m.update(x.sig)
 
 		return m.digest()
 
@@ -440,7 +439,7 @@ class Task(TaskBase):
 				# for issue #379
 				if prev_sigs[2] == self.compute_sig_implicit_deps():
 					return prev_sigs[2]
-			except (KeyError, OSError):
+			except (AttributeError, OSError):
 				pass
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
@@ -465,18 +464,12 @@ class Task(TaskBase):
 		upd = m.update
 
 		bld = self.generator.bld
-		tstamp = bld.node_sigs
 		env = self.env
 
 		for k in bld.node_deps.get(self.unique_id(), []):
 			# can do an optimization here
 			k.parent.rescan()
-
-			# if the parent folder is removed, a KeyError will be thrown
-			if k.id & 3 == 2: # Node.FILE:
-				upd(tstamp[k.id])
-			else:
-				upd(tstamp[k.id])
+			upd(k.sig) # should thow an AttributeError
 
 		return m.digest()
 
@@ -638,7 +631,7 @@ def update_outputs(cls):
 	def post_run(self):
 		old_post_run(self)
 		bld = self.outputs[0].__class__.bld
-		bld.node_sigs[self.outputs[0].id] = Utils.h_file(self.outputs[0].abspath())
+		self.outputs[0].sig = Utils.h_file(self.outputs[0].abspath())
 	cls.post_run = post_run
 	return cls
 
@@ -692,7 +685,7 @@ def can_retrieve_cache(self):
 		return None
 
 	for node in self.outputs:
-		self.generator.bld.node_sigs[node.id] = sig
+		node.sig = sig
 		if Options.options.progress_bar < 1:
 			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
 
