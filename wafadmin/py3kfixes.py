@@ -113,6 +113,11 @@ def r10(code):
 	code = code.replace("key=kw['success']", "key=kw['success']\n\t\t\t\ttry:\n\t\t\t\t\tkey=key.decode('utf-8')\n\t\t\t\texcept:\n\t\t\t\t\tpass")
 	return code
 
+@subst('Task.py')
+def r11(code):
+	code = code.replace("os.path.join(Options.cache_global,ssig)", "os.path.join(Options.cache_global,ssig.encode('utf-8'))")
+	return code
+
 def fixdir(dir):
 	global all_modifs
 	for k in all_modifs:
