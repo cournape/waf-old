@@ -22,11 +22,12 @@ BAND = 22
 # green #4da74d
 # lila  #a751ff
 
-Utils.g_module.title
+Utils.g_module.title = "parallel build representation"
 
 mp = {
-'cxx': '#4da74d',
+'cc': '#4da74d',
 'copy_script': '#ff0000',
+'cc_link' : '#a751ff',
 'static_link': '#a751ff'
 }
 
@@ -163,8 +164,8 @@ def process_colors(q):
 			m = BAND * x[2]
 			if m > gwidth: gwidth = m
 
-	ratio = 640. /gwidth
-	gwidth = 640
+	ratio = 1240. /gwidth
+	gwidth = 1240
 
 	gheight = BAND * (THREAD_AMOUNT + len(info.keys()) + 1.5)
 
