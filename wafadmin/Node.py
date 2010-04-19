@@ -107,6 +107,112 @@ class Node(object):
 		"nodes are not supposed to be copied"
 		raise WafError('nodes are not supposed to be copied')
 
+	def abspath(self):
+		"""
+		absolute path
+		cache into the build context, cache_node_abspath
+		"""
+		# absolute path: this is usually a bottleneck
+
+		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
+		if ret: return ret
+
+		id = self.id
+		if id & 3 == BUILD:
+			val = os.sep.join((self.__class__.bld.out_dir, self.path_to_parent(self.__class__.bld.srcnode)))
+		else:
+			if not self.parent:
+				val = os.sep == '/' and os.sep or ''
+			elif not self.parent.name: # root
+				val = (os.sep == '/' and os.sep or '') + self.name
+			else:
+				val = self.parent.abspath() + os.sep + self.name
+
+		self.__class__.bld.cache_node_abspath[id] = val
+		return val
+
+	def suffix(self):
+		"scons-like - hot zone so do not touch"
+		k = max(0, self.name.rfind('.'))
+		return self.name[k:]
+
+	def read(self):
+		"get the contents of a file, it is not used anywhere for the moment"
+		return Utils.readf(self.abspath())
+
+	def path_to_parent(self, parent):
+		"path relative to a direct ancestor, as string"
+		lst = []
+		p = self
+		h1 = parent.height()
+		h2 = p.height()
+		while h2 > h1:
+			h2 -= 1
+			lst.append(p.name)
+			p = p.parent
+		if lst:
+			lst.reverse()
+			ret = os.path.join(*lst)
+		else:
+			ret = ''
+		return ret
+
+	def find_ancestor(self, node):
+		"find a common ancestor for two nodes - for the shortest path in hierarchy"
+		dist = self.height() - node.height()
+		if dist < 0: return node.find_ancestor(self)
+		# now the real code
+		cand = self
+		while dist > 0:
+			cand = cand.parent
+			dist -= 1
+		if cand == node: return cand
+		cursor = node
+		while cand.parent:
+			cand = cand.parent
+			cursor = cursor.parent
+			if cand == cursor: return cand
+
+	def relpath_gen(self, from_node):
+		"string representing a relative path between self to another node"
+
+		if self == from_node: return '.'
+		if from_node.parent == self: return '..'
+
+		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
+		ancestor = self.find_ancestor(from_node)
+		lst = []
+		cand = self
+		while not cand.id == ancestor.id:
+			lst.append(cand.name)
+			cand = cand.parent
+		cand = from_node
+		while not cand.id == ancestor.id:
+			lst.append('..')
+			cand = cand.parent
+		lst.reverse()
+		return os.sep.join(lst)
+
+	def nice_path(self, env=None):
+		"printed in the console, open files easily from the launch directory"
+		bld = self.__class__.bld
+		ln = bld.launch_node()
+
+		if self.id & 3 == FILE: return self.relpath_gen(ln)
+		else: return bld.out_dir + os.sep + self.relpath_gen(bld.srcnode)
+
+	def height(self):
+		"amount of parents"
+		# README a cache can be added here if necessary
+		d = self
+		val = -1
+		while d:
+			d = d.parent
+			val += 1
+		return val
+
+	# below the complex stuff
+
 	def rescan(self):
 		"""
 		look the contents of a (folder)node and update its list of childs
@@ -303,106 +409,6 @@ class Node(object):
 		node = self.__class__(name, parent, BUILD)
 		return node
 
-	def abspath(self):
-		"""
-		absolute path
-		cache into the build context, cache_node_abspath
-		"""
-		# absolute path: this is usually a bottleneck
-
-		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
-		if ret: return ret
-
-		id = self.id
-		if id & 3 == BUILD:
-			val = os.sep.join((self.__class__.bld.out_dir, self.path_to_parent(self.__class__.bld.srcnode)))
-		else:
-			if not self.parent:
-				val = os.sep == '/' and os.sep or ''
-			elif not self.parent.name: # root
-				val = (os.sep == '/' and os.sep or '') + self.name
-			else:
-				val = self.parent.abspath() + os.sep + self.name
-
-		self.__class__.bld.cache_node_abspath[id] = val
-		return val
-
-	def suffix(self):
-		"scons-like - hot zone so do not touch"
-		k = max(0, self.name.rfind('.'))
-		return self.name[k:]
-
-	def path_to_parent(self, parent):
-		"path relative to a direct ancestor, as string"
-		lst = []
-		p = self
-		h1 = parent.height()
-		h2 = p.height()
-		while h2 > h1:
-			h2 -= 1
-			lst.append(p.name)
-			p = p.parent
-		if lst:
-			lst.reverse()
-			ret = os.path.join(*lst)
-		else:
-			ret = ''
-		return ret
-
-	def find_ancestor(self, node):
-		"find a common ancestor for two nodes - for the shortest path in hierarchy"
-		dist = self.height() - node.height()
-		if dist < 0: return node.find_ancestor(self)
-		# now the real code
-		cand = self
-		while dist > 0:
-			cand = cand.parent
-			dist -= 1
-		if cand == node: return cand
-		cursor = node
-		while cand.parent:
-			cand = cand.parent
-			cursor = cursor.parent
-			if cand == cursor: return cand
-
-	def relpath_gen(self, from_node):
-		"string representing a relative path between self to another node"
-
-		if self == from_node: return '.'
-		if from_node.parent == self: return '..'
-
-		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
-		ancestor = self.find_ancestor(from_node)
-		lst = []
-		cand = self
-		while not cand.id == ancestor.id:
-			lst.append(cand.name)
-			cand = cand.parent
-		cand = from_node
-		while not cand.id == ancestor.id:
-			lst.append('..')
-			cand = cand.parent
-		lst.reverse()
-		return os.sep.join(lst)
-
-	def nice_path(self, env=None):
-		"printed in the console, open files easily from the launch directory"
-		bld = self.__class__.bld
-		ln = bld.launch_node()
-
-		if self.id & 3 == FILE: return self.relpath_gen(ln)
-		else: return bld.out_dir + os.sep + self.relpath_gen(bld.srcnode)
-
-	def height(self):
-		"amount of parents"
-		# README a cache can be added here if necessary
-		d = self
-		val = -1
-		while d:
-			d = d.parent
-			val += 1
-		return val
-
 	# helpers for building things
 
 	def change_ext(self, ext):
@@ -428,10 +434,6 @@ class Node(object):
 		if self.id & 3 == BUILD:
 			return self.bldpath()
 		return self.__class__.bld.up_path + os.sep + self.relpath_gen(self.__class__.bld.srcnode)
-
-	def read(self):
-		"get the contents of a file, it is not used anywhere for the moment"
-		return Utils.readf(self.abspath())
 
 	def ant_glob(self, *k, **kw):
 
