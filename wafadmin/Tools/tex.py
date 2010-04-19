@@ -61,32 +61,29 @@ def tex_build(task, command='LATEX'):
 	if command == 'PDFLATEX':
 		fun = pdflatex_fun
 
-
 	node = task.inputs[0]
 	reldir  = node.bld_dir(env)
-	srcfile = node.srcpath(env)
 
 	lst = []
 	for c in Utils.split_path(reldir):
 		if c: lst.append('..')
-	sr = os.path.join(*(lst + [srcfile]))
+	srcfile = os.path.join(*(lst + [node.srcpath(env)]))
 	sr2 = os.path.join(*(lst + [node.parent.srcpath(env)]))
 
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
 
-	hash     = ''
-	old_hash = ''
-
 	nm = aux_node.name
 	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
 
+	# important, set the cwd for everybody
+	task.cwd = task.inputs[0].parent.abspath(task.env)
+
+
 	warn('first pass on %s' % command)
 
-	task.cwd = task.inputs[0].parent.abspath(task.env)
 	task.env.env = {'TEXINPUTS': sr2 + ':'}
-	task.env.SRCFILE = sr
-
+	task.env.SRCFILE = srcfile
 	ret = fun(task)
 	if ret:
 		return ret
@@ -99,16 +96,15 @@ def tex_build(task, command='LATEX'):
 	else:
 		fo = g_bibtex_re.findall(ct)
 
-		# yes, there is a .aux file to process
+		# there is a .aux file to process
 		if fo:
+			warn('calling bibtex')
+
 			task.env.env = {'BIBINPUTS': sr2 + ':'}
 			task.env.SRCFILE = docuname
-			#bibtex_compile_cmd = 'cd %s && BIBINPUTS=%s:$BIBINPUTS %s %s' % (reldir, sr2, env['BIBTEX'], docuname)
-			print task.env.env, task.cwd, os.getcwd()
-			warn('calling bibtex')
 			ret = bibtex_fun(task)
 			if ret:
-				error('error when calling bibtex %s' % bibtex_compile_cmd)
+				error('error when calling bibtex %s' % docuname)
 				return ret
 
 	# look on the filesystem if there is a .idx file to process
@@ -118,9 +114,8 @@ def tex_build(task, command='LATEX'):
 	except OSError:
 		error('error file.idx scan')
 	else:
-		#makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warn('calling makeindex')
-		#ret = bld.exec_command(makeindex_compile_cmd)
+
 		task.env.SRCFILE = idx_node.name
 		task.env.env = {}
 		ret = makeindex_fun(task)
@@ -128,13 +123,15 @@ def tex_build(task, command='LATEX'):
 			error('error when calling makeindex %s' % idx_path)
 			return ret
 
+
+	hash = ''
 	i = 0
 	while i < 10:
 		# prevent against infinite loops - one never knows
 		i += 1
 
 		# watch the contents of file.aux
-		old_hash = hash
+		prev_hash = hash
 		try:
 			hash = Utils.h_file(aux_node.abspath(env))
 		except KeyError:
@@ -145,16 +142,15 @@ def tex_build(task, command='LATEX'):
 		#print "hash is, ", hash, " ", old_hash
 
 		# stop if file.aux does not change anymore
-		if hash and hash == old_hash:
+		if hash and hash == prev_hash:
 			break
 
 		# run the command
 		warn('calling %s' % command)
 
 		task.env.env = {'TEXINPUTS': sr2 + ':'}
-		task.env.SRCFILE = sr
+		task.env.SRCFILE = srcfile
 		ret = fun(task)
-
 		if ret:
 			error('error when calling %s %s' % (command, latex_compile_cmd))
 			return ret
