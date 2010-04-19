@@ -26,7 +26,7 @@ Utils.g_module.title
 
 mp = {
 'cxx': '#4da74d',
-'copy_script': '#ff0000'
+'copy_script': '#ff0000',
 'static_link': '#a751ff'
 }
 
