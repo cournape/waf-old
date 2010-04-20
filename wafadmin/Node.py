@@ -137,25 +137,42 @@ class Node(object):
 			node = foo/stuff/
 			-> ../bar/xyz.txt
 		"""
-		if id(self) == id(node):
-			return '.'
-		if id(self) == id(node.parent):
-			return '..'
+		# common root in rev 7673
 
-		ancestor = self.common_root(node)
+		c1 = self
+		c2 = node
+
+		c1h = c1.height()
+		c2h = c2.height()
+
 		lst = []
-		cand = self
-		while id(cand) != id(ancestor):
-			lst.append(cand.name)
-			cand = cand.parent
-		cand = node
-		while id(cand) != id(ancestor):
+		n = 0
+
+		while c1h > c2h:
+			lst.append(c1.name)
+			c1 = c1.parent
+			c1h -= 1
+
+		while c2h > c1h:
+			n += 1
+			c2 = c2.parent
+			c2h -= 1
+
+		while 1:
+			if id(c1) == id(c2):
+				break
+
+			lst.append(c1)
+			n += 1
+
+			c1 = c1.parent
+			c2 = c2.parent
+
+		for i in xrange(n):
 			lst.append('..')
-			cand = cand.parent
 		lst.reverse()
 		return os.sep.join(lst)
 
-#path_to
 #find_dirs
 #make_dirs
 #read_dir
@@ -203,28 +220,6 @@ class Node(object):
 		else:
 			ret = ''
 		return ret
-
-	def common_root(self, node):
-		"find the closest common ancestor for two nodes"
-		c1 = self
-		c2 = node
-
-		c1h = c1.height()
-		c2h = c2.height()
-
-		while c1h > c2h:
-			c1 = c1.parent
-			c1h -= 1
-
-		while c2h > c1h:
-			c2 = c2.parent
-			c2h -= 1
-
-		while 1:
-			if id(c1) == id(c2):
-				return c1
-			c1 = c1.parent
-			c2 = c2.parent
 
 	def height(self):
 		"amount of parents"
