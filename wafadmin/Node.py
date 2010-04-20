@@ -127,28 +127,30 @@ class Node(object):
 	def delete(self):
 		pass
 
-	def path_to(self, node):
-		"from self going to xyz"
-		if self == node: return '.'
-		if node.parent == self: return '..'
 
-		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
+	def path_from(self, node):
+		"""path of this node seen from the other
+			self = foo/bar/xyz.txt
+			node = foo/stuff/
+			-> ../bar/xyz.txt
+		"""
+		if id(self) == id(node):
+			return '.'
+		if id(self) == id(node.parent):
+			return '..'
+
 		ancestor = self.common_root(node)
 		lst = []
 		cand = self
-		while cand.id != ancestor.id:
+		while id(cand) != id(ancestor):
 			lst.append(cand.name)
 			cand = cand.parent
 		cand = node
-		while cand.id != ancestor.id:
+		while id(cand) != id(ancestor):
 			lst.append('..')
 			cand = cand.parent
 		lst.reverse()
 		return os.sep.join(lst)
-
-	def relpath_gen(self, node):
-		"string representing a relative path between self to another node"
-		return self.path_to(node)
 
 #path_to
 #find_dirs
@@ -234,8 +236,8 @@ class Node(object):
 		bld = self.__class__.bld
 		ln = bld.launch_node()
 
-		if self.id & 3 == FILE: return self.relpath_gen(ln)
-		else: return bld.out_dir + os.sep + self.relpath_gen(bld.srcnode)
+		if self.id & 3 == FILE: return self.path_from(ln)
+		else: return bld.out_dir + os.sep + self.path_from(bld.srcnode)
 
 	def rescan(self):
 		"""
@@ -450,14 +452,14 @@ class Node(object):
 		"path seen from the build dir default/src/foo.cpp"
 
 		if self.id &  3 != FILE:
-			return self.relpath_gen(self.__class__.bld.srcnode)
-		return self.__class__.bld.up_path + os.sep + self.relpath_gen(self.__class__.bld.srcnode)
+			return self.path_from(self.__class__.bld.srcnode)
+		return self.__class__.bld.up_path + os.sep + self.path_from(self.__class__.bld.srcnode)
 
 	def srcpath(self):
 		"path in the srcdir from the build dir ../src/foo.cpp"
 		if self.id & 3 == BUILD:
 			return self.bldpath()
-		return self.__class__.bld.up_path + os.sep + self.relpath_gen(self.__class__.bld.srcnode)
+		return self.__class__.bld.up_path + os.sep + self.path_from(self.__class__.bld.srcnode)
 
 	def ant_glob(self, *k, **kw):
 
@@ -541,7 +543,7 @@ class Node(object):
 		ret = [x for x in ant_iter(self, pats=[to_pat(incl), to_pat(excl)])]
 
 		if kw.get('flat', True):
-			return " ".join([x.relpath_gen(self) for x in ret])
+			return " ".join([x.path_from(self) for x in ret])
 
 		return ret
 
