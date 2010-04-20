@@ -107,6 +107,54 @@ class Node(object):
 		"nodes are not supposed to be copied"
 		raise WafError('nodes are not supposed to be copied')
 
+	def read(self):
+		"get the contents of a file, it is not used anywhere for the moment"
+		return Utils.readf(self.abspath())
+
+	def write(self, data):
+		"write some text to the file"
+		f = None
+		try:
+			f = open(self.abspath(), 'w')
+			f.write(data)
+		finally:
+			f.close()
+
+	def chmod(self, val):
+		"change the file permissions"
+		os.chmod(self.abspath(), val)
+
+	def delete(self):
+		pass
+
+	def path_to(self, node):
+		"from self going to xyz"
+		if self == node: return '.'
+		if node.parent == self: return '..'
+
+		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
+		ancestor = self.common_root(node)
+		lst = []
+		cand = self
+		while cand.id != ancestor.id:
+			lst.append(cand.name)
+			cand = cand.parent
+		cand = node
+		while cand.id != ancestor.id:
+			lst.append('..')
+			cand = cand.parent
+		lst.reverse()
+		return os.sep.join(lst)
+
+	def relpath_gen(self, node):
+		"string representing a relative path between self to another node"
+		return self.path_to(node)
+
+#path_to
+#find_dirs
+#make_dirs
+#read_dir
+
 	def abspath(self):
 		"""
 		absolute path
@@ -136,10 +184,6 @@ class Node(object):
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
-	def read(self):
-		"get the contents of a file, it is not used anywhere for the moment"
-		return Utils.readf(self.abspath())
-
 	def path_to_parent(self, parent):
 		"path relative to a direct ancestor, as string"
 		lst = []
@@ -157,10 +201,10 @@ class Node(object):
 			ret = ''
 		return ret
 
-	def find_ancestor(self, node):
+	def common_root(self, node):
 		"find a common ancestor for two nodes - for the shortest path in hierarchy"
 		dist = self.height() - node.height()
-		if dist < 0: return node.find_ancestor(self)
+		if dist < 0: return node.common_root(self)
 		# now the real code
 		cand = self
 		while dist > 0:
@@ -173,34 +217,6 @@ class Node(object):
 			cursor = cursor.parent
 			if cand == cursor: return cand
 
-	def relpath_gen(self, from_node):
-		"string representing a relative path between self to another node"
-
-		if self == from_node: return '.'
-		if from_node.parent == self: return '..'
-
-		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
-		ancestor = self.find_ancestor(from_node)
-		lst = []
-		cand = self
-		while not cand.id == ancestor.id:
-			lst.append(cand.name)
-			cand = cand.parent
-		cand = from_node
-		while not cand.id == ancestor.id:
-			lst.append('..')
-			cand = cand.parent
-		lst.reverse()
-		return os.sep.join(lst)
-
-	def nice_path(self, env=None):
-		"printed in the console, open files easily from the launch directory"
-		bld = self.__class__.bld
-		ln = bld.launch_node()
-
-		if self.id & 3 == FILE: return self.relpath_gen(ln)
-		else: return bld.out_dir + os.sep + self.relpath_gen(bld.srcnode)
-
 	def height(self):
 		"amount of parents"
 		# README a cache can be added here if necessary
@@ -212,6 +228,14 @@ class Node(object):
 		return val
 
 	# below the complex stuff
+
+	def nice_path(self, env=None):
+		"printed in the console, open files easily from the launch directory"
+		bld = self.__class__.bld
+		ln = bld.launch_node()
+
+		if self.id & 3 == FILE: return self.relpath_gen(ln)
+		else: return bld.out_dir + os.sep + self.relpath_gen(bld.srcnode)
 
 	def rescan(self):
 		"""
