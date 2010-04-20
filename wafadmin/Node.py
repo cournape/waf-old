@@ -146,7 +146,7 @@ class Node(object):
 		c2h = c2.height()
 
 		lst = []
-		n = 0
+		up = 0
 
 		while c1h > c2h:
 			lst.append(c1.name)
@@ -154,21 +154,18 @@ class Node(object):
 			c1h -= 1
 
 		while c2h > c1h:
-			n += 1
+			up += 1
 			c2 = c2.parent
 			c2h -= 1
 
-		while 1:
-			if id(c1) == id(c2):
-				break
-
-			lst.append(c1)
-			n += 1
+		while id(c1) != id(c2):
+			lst.append(c1.name)
+			up += 1
 
 			c1 = c1.parent
 			c2 = c2.parent
 
-		for i in xrange(n):
+		for i in xrange(up):
 			lst.append('..')
 		lst.reverse()
 		return os.sep.join(lst)
