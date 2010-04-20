@@ -103,6 +103,9 @@ class Node(object):
 		"expensive, make certain it is not used"
 		raise WafError('nodes, you are doing it wrong')
 
+	def __eq__(self, node):
+		return id(self) == id(node)
+
 	def __copy__(self):
 		"nodes are not supposed to be copied"
 		raise WafError('nodes are not supposed to be copied')
@@ -165,18 +168,16 @@ class Node(object):
 		# absolute path: this is usually a bottleneck
 
 		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
-		if ret: return ret
+		if ret:
+			return ret
 
-		id = self.id
-		if id & 3 == BUILD:
-			val = os.sep.join((self.__class__.bld.out_dir, self.path_to_parent(self.__class__.bld.srcnode)))
+		if not self.parent:
+			val = os.sep == '/' and os.sep or ''
+		elif not self.parent.name:
+			# drive letter for win32
+			val = (os.sep == '/' and os.sep or '') + self.name
 		else:
-			if not self.parent:
-				val = os.sep == '/' and os.sep or ''
-			elif not self.parent.name: # root
-				val = (os.sep == '/' and os.sep or '') + self.name
-			else:
-				val = self.parent.abspath() + os.sep + self.name
+			val = self.parent.abspath() + os.sep + self.name
 
 		self.__class__.bld.cache_node_abspath[id] = val
 		return val
@@ -204,24 +205,29 @@ class Node(object):
 		return ret
 
 	def common_root(self, node):
-		"find a common ancestor for two nodes - for the shortest path in hierarchy"
-		dist = self.height() - node.height()
-		if dist < 0: return node.common_root(self)
-		# now the real code
-		cand = self
-		while dist > 0:
-			cand = cand.parent
-			dist -= 1
-		if cand == node: return cand
-		cursor = node
-		while cand.parent:
-			cand = cand.parent
-			cursor = cursor.parent
-			if cand == cursor: return cand
+		"find the closest common ancestor for two nodes"
+		c1 = self
+		c2 = node
+
+		c1h = c1.height()
+		c2h = c2.height()
+
+		while c1h > c2h:
+			c1 = c1.parent
+			c1h -= 1
+
+		while c2h > c1h:
+			c2 = c2.parent
+			c2h -= 1
+
+		while 1:
+			if id(c1) == id(c2):
+				return c1
+			c1 = c1.parent
+			c2 = c2.parent
 
 	def height(self):
 		"amount of parents"
-		# README a cache can be added here if necessary
 		d = self
 		val = -1
 		while d:
