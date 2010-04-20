@@ -85,12 +85,12 @@ class Node(object):
 		self.id = self.__class__.bld.id_nodes + node_type
 
 		if node_type == DIR:
-			self.childs = {}
+			self.children = {}
 
 		if parent:
-			if name in parent.childs:
+			if name in parent.children:
 				raise WafError('node %s exists in the parent files %r already' % (name, parent))
-			parent.childs[name] = self
+			parent.children[name] = self
 
 	def __str__(self):
 		if not self.parent: return ''
@@ -125,8 +125,8 @@ class Node(object):
 		os.chmod(self.abspath(), val)
 
 	def delete(self):
-		pass
-
+		"delete the file physically, do not destroy the nodes"
+		shutil.rmtree(self.abspath())
 
 	def path_from(self, node):
 		"""path of this node seen from the other
@@ -241,7 +241,7 @@ class Node(object):
 
 	def rescan(self):
 		"""
-		look the contents of a (folder)node and update its list of childs
+		look the contents of a (folder)node and update its list of children
 
 		The intent is to perform the following steps
 		* remove the nodes for the files that have disappeared
@@ -267,7 +267,7 @@ class Node(object):
 			lst = set([])
 
 		# hash the existing source files, remove the others
-		for x in self.childs.values():
+		for x in self.children.values():
 			if x.id & 3 != FILE:
 				continue
 
@@ -277,7 +277,7 @@ class Node(object):
 				except IOError:
 					raise WafError('The file %s is not readable or has become a dir' % x.abspath())
 			else:
-				del self.childs[x.name]
+				del self.children[x.name]
 
 		if not bld.srcnode:
 			# do not look at the build directory yet
@@ -306,12 +306,12 @@ class Node(object):
 		try:
 			lst = set(Utils.listdir(path))
 		except OSError:
-			for node in self.childs.values():
+			for node in self.children.values():
 				# do not remove the nodes representing directories
 				if node.id & 3 != BUILD:
 					continue
 
-				del self.childs[node.name]
+				del self.children[node.name]
 			try:
 				# recreate the folder in the build directory
 				os.makedirs(path)
@@ -319,12 +319,12 @@ class Node(object):
 				pass
 		else:
 			# the folder exist, look at the nodes
-			vals = list(self.childs.values())
+			vals = list(self.children.values())
 			for node in vals:
 				if node.id & 3 != BUILD:
 					continue
 				if not (node.name in lst):
-					del self.childs[node.name]
+					del self.children[node.name]
 
 	def find_dir(self, lst):
 		"search a folder in the filesystem"
@@ -346,7 +346,7 @@ class Node(object):
 			elif name == '..':
 				current = current.parent or current
 			else:
-				current = prev.childs.get(name, None)
+				current = prev.children.get(name, None)
 				if current is None:
 					dir_cont = self.__class__.bld.cache_dir_contents
 					if name in dir_cont.get(prev.id, []):
@@ -391,7 +391,7 @@ class Node(object):
 		parent.rescan()
 
 		name = lst[-1]
-		node = parent.childs.get(name, None)
+		node = parent.children.get(name, None)
 		if node:
 			tp = node.id & 3
 			if tp == FILE or tp == BUILD:
@@ -426,7 +426,7 @@ class Node(object):
 		parent.rescan()
 
 		name = lst[-1]
-		node = parent.childs.get(name, None)
+		node = parent.children.get(name, None)
 		if node:
 			tp = node.id & 3
 			if tp != BUILD:
@@ -533,7 +533,7 @@ class Node(object):
 								for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
 									yield k
 			if bld:
-				for node in nodi.childs.values():
+				for node in nodi.children.values():
 					if node.id & 3 == BUILD:
 						npats = accept(node.name, pats)
 						if npats and npats[0] and [] in npats[0]:

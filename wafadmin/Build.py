@@ -839,7 +839,7 @@ class CleanContext(BuildContext):
 
 		# forget about all the nodes
 		try:
-			del node.parent.childs[node.name]
+			del node.parent.children[node.name]
 		except AttributeError:
 			pass
 
