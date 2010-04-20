@@ -82,7 +82,7 @@ def tex_build(task, command='LATEX'):
 
 	warn('first pass on %s' % command)
 
-	task.env.env = {'TEXINPUTS': sr2 + ':'}
+	task.env.env = {'TEXINPUTS': sr2 + os.pathsep}
 	task.env.SRCFILE = srcfile
 	ret = fun(task)
 	if ret:
@@ -100,7 +100,7 @@ def tex_build(task, command='LATEX'):
 		if fo:
 			warn('calling bibtex')
 
-			task.env.env = {'BIBINPUTS': sr2 + ':'}
+			task.env.env = {'BIBINPUTS': sr2 + os.pathsep}
 			task.env.SRCFILE = docuname
 			ret = bibtex_fun(task)
 			if ret:
@@ -148,7 +148,7 @@ def tex_build(task, command='LATEX'):
 		# run the command
 		warn('calling %s' % command)
 
-		task.env.env = {'TEXINPUTS': sr2 + ':'}
+		task.env.env = {'TEXINPUTS': sr2 + os.pathsep}
 		task.env.SRCFILE = srcfile
 		ret = fun(task)
 		if ret:
@@ -218,10 +218,10 @@ def apply_tex(self):
 		if self.type == 'latex':
 			if 'ps' in outs:
 				tsk = self.create_task('dvips', task.outputs, node.change_ext('.ps'))
-				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + ':' + self.path.abspath() + ':' + self.path.abspath(self.env)}
+				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + os.pathsep + self.path.abspath() + os.pathsep + self.path.abspath(self.env)}
 			if 'pdf' in outs:
 				tsk = self.create_task('dvipdf', task.outputs, node.change_ext('.pdf'))
-				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + ':' + self.path.abspath() + ':' + self.path.abspath(self.env)}
+				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + os.pathsep + self.path.abspath() + os.pathsep + self.path.abspath(self.env)}
 		elif self.type == 'pdflatex':
 			if 'ps' in outs:
 				self.create_task('pdf2ps', task.outputs, node.change_ext('.ps'))
