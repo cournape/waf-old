@@ -269,13 +269,14 @@ def load_module(file_path, name=WSCRIPT_FILE):
 
 	module.waf_hash_val = code
 
-	sys.path.insert(0, os.path.dirname(file_path))
+	dt = os.path.dirname(file_path)
+	sys.path.insert(0, dt)
 	try:
 		exec(compile(code, file_path, 'exec'), module.__dict__)
 	except Exception:
 		exc_type, exc_value, tb = sys.exc_info()
 		raise WscriptError("".join(traceback.format_exception(exc_type, exc_value, tb)), file_path)
-	sys.path.pop(0)
+	sys.path.remove(dt)
 
 	g_loaded_modules[file_path] = module
 
@@ -534,7 +535,7 @@ def detect_platform():
 
 	return s
 
-def load_tool(tool, tooldir=None):
+def load_tool(tool, tooldir=[]):
 	'''
 	load_tool: import a Python module, optionally using several directories.
 	@param tool [string]: name of tool to import.
@@ -554,8 +555,8 @@ def load_tool(tool, tooldir=None):
 			Logs.error('Could not load the tool %r in %r:\n%s' % (tool, sys.path, e))
 			raise
 	finally:
-		if tooldir:
-			sys.path = sys.path[len(tooldir):]
+		for dt in tooldir:
+			sys.path.remove(dt)
 
 def readf(fname, m='r'):
 	"get the contents of a file, it is not used anywhere for the moment"
