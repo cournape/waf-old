@@ -535,7 +535,7 @@ def detect_platform():
 
 	return s
 
-def load_tool(tool, tooldir=[]):
+def load_tool(tool, tooldir=None):
 	'''
 	load_tool: import a Python module, optionally using several directories.
 	@param tool [string]: name of tool to import.
@@ -548,6 +548,8 @@ def load_tool(tool, tooldir=[]):
 	if tooldir:
 		assert isinstance(tooldir, list)
 		sys.path = tooldir + sys.path
+	else:
+		tooldir = []
 	try:
 		try:
 			return __import__(tool)
