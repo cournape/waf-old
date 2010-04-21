@@ -37,8 +37,6 @@ DIR = 1
 FILE = 2
 BUILD = 3
 
-type_to_string = {UNDEFINED: 'unk', DIR: 'dir', FILE: 'src', BUILD: 'bld'}
-
 # These fnmatch expressions are used by default to prune the directory tree
 # while doing the recursive traversal in the find_iter method of the Node class.
 prune_pats = '.git .bzr .hg .svn _MTN _darcs CVS SCCS'.split()
@@ -87,11 +85,10 @@ class Node(object):
 			parent.children[name] = self
 
 	def __str__(self):
-		if not self.parent: return ''
-		return "%s://%s" % (type_to_string[self.id & 3], self.abspath())
+		return self.abspath()
 
 	def __repr__(self):
-		return self.__str__()
+		return self.abspath()
 
 	def __hash__(self):
 		"expensive, make certain it is not used"
@@ -177,7 +174,7 @@ class Node(object):
 		# absolute path: this is usually a bottleneck
 
 		try:
-			ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
+			ret = self.__class__.bld.cache_node_abspath.get(id(self), None)
 		except AttributeError:
 			self.__class__.bld.cache_node_abspath = {}
 
@@ -192,7 +189,7 @@ class Node(object):
 		else:
 			val = self.parent.abspath() + os.sep + self.name
 
-		self.__class__.bld.cache_node_abspath[id] = val
+		self.__class__.bld.cache_node_abspath[id(self)] = val
 		return val
 
 	def suffix(self):
@@ -230,14 +227,9 @@ class Node(object):
 		return cur
 
 	# below the complex stuff
-
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
-		bld = self.__class__.bld
-		ln = bld.launch_node()
-
-		if self.id & 3 == FILE: return self.path_from(ln)
-		else: return bld.out_dir + os.sep + self.path_from(bld.srcnode)
+		return self.path_from(self.__class__.bld.launch_node())
 
 	def rescan(self):
 		"""
@@ -257,7 +249,7 @@ class Node(object):
 		bld = self.__class__.bld
 
 		# do not rescan over and over again
-		if self.id in bld.cache_dir_contents:
+		if id(self) in bld.cache_dir_contents:
 			return
 
 		# first, take the case of the source directory
@@ -282,7 +274,7 @@ class Node(object):
 		if not bld.srcnode:
 			# do not look at the build directory yet
 			return
-		bld.cache_dir_contents[self.id] = lst
+		bld.cache_dir_contents[id(self)] = lst
 
 		# first obtain the differences between srcnode and self
 		h1 = bld.srcnode.height()
@@ -295,7 +287,7 @@ class Node(object):
 			child = child.parent
 			h2 -= 1
 
-		if child.id != bld.srcnode.id:
+		if id(child) != id(bld.srcnode):
 			# not a folder that we can duplicate in the build dir
 			return
 
@@ -450,16 +442,11 @@ class Node(object):
 
 	def bldpath(self):
 		"path seen from the build dir default/src/foo.cpp"
-
-		if self.id &  3 != FILE:
-			return self.path_from(self.__class__.bld.srcnode)
-		return self.__class__.bld.up_path + os.sep + self.path_from(self.__class__.bld.srcnode)
+		return self.path_from(self.__class__.bld.bldnode)
 
 	def srcpath(self):
 		"path in the srcdir from the build dir ../src/foo.cpp"
-		if self.id & 3 == BUILD:
-			return self.bldpath()
-		return self.__class__.bld.up_path + os.sep + self.path_from(self.__class__.bld.srcnode)
+		return self.path_from(self.__class__.bld.srcnode)
 
 	def ant_glob(self, *k, **kw):
 

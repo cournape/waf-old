@@ -326,11 +326,11 @@ class TaskGroup(object):
 		outs = {}
 		for x in tasks:
 			for a in getattr(x, 'inputs', []):
-				try: ins[a.id].append(x)
-				except KeyError: ins[a.id] = [x]
+				try: ins[id(a)].append(x)
+				except KeyError: ins[id(a)] = [x]
 			for a in getattr(x, 'outputs', []):
-				try: outs[a.id].append(x)
-				except KeyError: outs[a.id] = [x]
+				try: outs[id(a)].append(x)
+				except KeyError: outs[id(a)] = [x]
 
 		links = set(ins.keys()).intersection(outs.keys())
 		for k in links:

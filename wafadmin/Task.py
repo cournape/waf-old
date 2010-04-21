@@ -235,8 +235,8 @@ class Task(TaskBase):
 			up(self.__class__.__name__.encode())
 			p = None
 			for x in self.inputs + self.outputs:
-				if p != x.parent.id:
-					p = x.parent.id
+				if p != id(x.parent):
+					p = id(x.parent)
 					up(x.parent.abspath().encode())
 				up(x.name.encode())
 			self.uid = m.digest()
@@ -380,7 +380,7 @@ class Task(TaskBase):
 			additional_deps = bld.deps_man
 			for x in self.inputs + self.outputs:
 				try:
-					d = additional_deps[x.id]
+					d = additional_deps[id(x)]
 				except KeyError:
 					continue
 

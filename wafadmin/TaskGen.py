@@ -110,7 +110,7 @@ class task_gen(object):
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 
 		# provide a unique id
-		self.idx = self.bld.idx[self.path.id] = self.bld.idx.get(self.path.id, 0) + 1
+		self.idx = self.bld.idx[id(self.path)] = self.bld.idx.get(id(self.path), 0) + 1
 
 		for key, val in kwargs.items():
 			setattr(self, key, val)

@@ -18,7 +18,7 @@ from Logs import debug, error, info
 from Constants import *
 from Base import command_context, WafError, Context, load_tool
 
-SAVED_ATTRS = 'root node_deps raw_deps task_sigs id_nodes'.split()
+SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 "Build class members to save"
 
 class BuildError(WafError):
@@ -79,9 +79,6 @@ class BuildContext(Context):
 
 		# the manager will hold the tasks
 		self.task_manager = Runner.TaskManager()
-
-		# instead of hashing the nodes, we assign them a unique id when they are created
-		self.id_nodes = 0
 
 		# bind the build context to the nodes in use
 		# this means better encapsulation and no build context singleton
@@ -375,7 +372,7 @@ class BuildContext(Context):
 			node = self.root.find_resource(path)
 		else:
 			node = self.path.find_resource(path)
-		self.deps_man[node.id].append(value)
+		self.deps_man[id(node)].append(value)
 
 	def launch_node(self):
 		"""return the launch directory as a node"""
