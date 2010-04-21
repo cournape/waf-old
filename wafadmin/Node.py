@@ -130,6 +130,11 @@ class Node(object):
 	def delete(self):
 		"delete the file physically, do not destroy the nodes"
 		shutil.rmtree(self.abspath())
+		try:
+			if self.children:
+				self.children = {}
+		except:
+			pass
 
 	def path_from(self, node):
 		"""path of this node seen from the other
@@ -170,10 +175,6 @@ class Node(object):
 		lst.reverse()
 		return os.sep.join(lst)
 
-#find_dirs
-#make_dirs
-#read_dir
-
 	def abspath(self):
 		"""
 		absolute path
@@ -201,23 +202,6 @@ class Node(object):
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
-	def path_to_parent(self, parent):
-		"path relative to a direct ancestor, as string"
-		lst = []
-		p = self
-		h1 = parent.height()
-		h2 = p.height()
-		while h2 > h1:
-			h2 -= 1
-			lst.append(p.name)
-			p = p.parent
-		if lst:
-			lst.reverse()
-			ret = os.path.join(*lst)
-		else:
-			ret = ''
-		return ret
-
 	def height(self):
 		"amount of parents"
 		d = self
@@ -226,6 +210,10 @@ class Node(object):
 			d = d.parent
 			val += 1
 		return val
+
+#find_dirs
+#make_dirs
+#read_dir
 
 	# below the complex stuff
 

@@ -279,7 +279,7 @@ def process_qm2rcc(task):
 	for k in task.inputs:
 		f.write(' <file>')
 		#f.write(k.name)
-		f.write(k.path_to_parent(task.path))
+		f.write(k.path_from(task.path))
 		f.write('</file>\n')
 	f.write('</qresource>\n</RCC>')
 	f.close()
