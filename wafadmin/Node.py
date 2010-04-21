@@ -77,15 +77,9 @@ exclude_regs = '''
 **/.DS_Store'''
 
 class Node(object):
-	def __init__(self, name, parent, node_type = UNDEFINED):
+	def __init__(self, name, parent):
 		self.name = name
 		self.parent = parent
-
-		self.__class__.bld.id_nodes += 4
-		self.id = self.__class__.bld.id_nodes + node_type
-
-		if node_type == DIR:
-			self.children = {}
 
 		if parent:
 			if name in parent.children:
@@ -211,9 +205,25 @@ class Node(object):
 			val += 1
 		return val
 
-#find_dirs
-#make_dirs
-#read_dir
+	def compute_sig(self):
+		self.sig = Utils.h_file(self.abspath())
+
+	def read_dir(self):
+		return Utils.listdir(self.abspath())
+
+	def make_dirs(self, lst):
+		pass
+
+	def make_nodes(self, lst):
+		cur = self
+		for x in lst:
+			if getattr(cur, 'children', {}):
+				if x in cur.children:
+					return cur.children[x]
+			else:
+				cur.children = {}
+			cur = self.__class__(x, cur)
+		return cur
 
 	# below the complex stuff
 
