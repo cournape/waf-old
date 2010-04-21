@@ -17,7 +17,7 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('gcc')
 	#conf.check_tool('gccdeps', tooldir='.')
-	conf.check_tool('batched_cc', tooldir='.')
+	conf.check_tool('batched_cc')
 
 def build(bld):
 	bld(features='cc cprogram', source='main.c foo.c bar.c', target='test', includes='. src')
