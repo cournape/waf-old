@@ -115,7 +115,7 @@ class BuildContext(Context):
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
 
-		for v in 'cache_node_abspath task_sigs node_deps raw_deps'.split():
+		for v in 'task_sigs node_deps raw_deps'.split():
 			setattr(self, v, {})
 
 		# list of folders that are already scanned
@@ -843,6 +843,6 @@ class CleanContext(BuildContext):
 		except AttributeError:
 			pass
 
-		for v in 'node_deps task_sigs raw_deps cache_node_abspath'.split():
+		for v in 'node_deps task_sigs raw_deps'.split():
 			setattr(self, v, {})
 

@@ -176,7 +176,11 @@ class Node(object):
 		"""
 		# absolute path: this is usually a bottleneck
 
-		ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
+		try:
+			ret = self.__class__.bld.cache_node_abspath.get(self.id, None)
+		except AttributeError:
+			self.__class__.bld.cache_node_abspath = {}
+
 		if ret:
 			return ret
 
