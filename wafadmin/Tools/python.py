@@ -143,7 +143,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	return return_values
 
 @conf
-def check_python_headers(conf):
+def check_python_headers(conf, mandatory=True):
 	"""Check for headers and libraries necessary to extend or embed python.
 
 	On success the environment variables xxx_PYEXT and xxx_PYEMBED are added for uselib
@@ -287,7 +287,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 	# See if it compiles
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
 		   uselib='PYEMBED', fragment=FRAG_2,
-		   errmsg='Could not find the python development headers', mandatory=1)
+		   errmsg='Could not find the python development headers', mandatory=mandatory)
 
 @conf
 def check_python_version(conf, minver=None):
