@@ -150,8 +150,9 @@ extension(cxx.EXT_CXX)(cxx_hook)
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_link')
 def link_after_masters(self):
-	for m in getattr(self, 'allmasters', []):
-		self.link_task.set_run_after(m)
+	if getattr(self, 'allmasters', None):
+		for m in self.allmasters:
+			self.link_task.set_run_after(m)
 
 for c in ['cc', 'cxx']:
 	t = Task.TaskBase.classes[c]
@@ -163,11 +164,20 @@ for c in ['cc', 'cxx']:
 		pass
 
 	def can_retrieve_cache(self):
-		pass
+		if self.old_can_retrieve_cache():
+			for m in self.generator.allmasters:
+				try:
+					m.slaves.remove(self)
+				except ValueError:
+					pass	#this task wasn't included in that master
+			return 1
+		else:
+			return None
 
 	setattr(t, 'oldrun', t.__dict__['run'])
 	setattr(t, 'run', run)
 	setattr(t, 'old_post_run', t.post_run)
 	setattr(t, 'post_run', post_run)
+	setattr(t, 'old_can_retrieve_cache', t.can_retrieve_cache)
 	setattr(t, 'can_retrieve_cache', can_retrieve_cache)
 
