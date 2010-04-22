@@ -101,15 +101,15 @@ class Node(object):
 		"nodes are not supposed to be copied"
 		raise WafError('nodes are not supposed to be copied')
 
-	def read(self):
+	def read(self, flags='r'):
 		"get the contents of a file, it is not used anywhere for the moment"
-		return Utils.readf(self.abspath())
+		return Utils.readf(self.abspath(), flags)
 
-	def write(self, data):
+	def write(self, data, flags='w'):
 		"write some text to the file"
 		f = None
 		try:
-			f = open(self.abspath(), 'w')
+			f = open(self.abspath(), flags)
 			f.write(data)
 		finally:
 			f.close()
@@ -161,10 +161,10 @@ class Node(object):
 			c1 = c1.parent
 			c2 = c2.parent
 
-		for i in xrange(up):
+		for i in range(up):
 			lst.append('..')
 		lst.reverse()
-		return os.sep.join(lst)
+		return os.sep.join(lst) or '.'
 
 	def abspath(self):
 		"""
@@ -177,6 +177,7 @@ class Node(object):
 			ret = self.__class__.bld.cache_node_abspath.get(id(self), None)
 		except AttributeError:
 			self.__class__.bld.cache_node_abspath = {}
+			ret = None
 
 		if ret:
 			return ret
@@ -212,15 +213,29 @@ class Node(object):
 	def read_dir(self):
 		return Utils.listdir(self.abspath())
 
-	def make_dirs(self, lst):
+	def mkdir(self):
 		pass
 
-	def make_nodes(self, lst):
+	def find_node(self, lst):
+		"read the file system, make the nodes as needed"
+		cur = self
+		for x in lst:
+			mkdir(cur)
+			if getattr(cur, 'children', {}):
+				if x in cur.children:
+					return cur.children[x]
+			else:
+				cur.children = {}
+		return cur
+
+	def make_node(self, lst):
+		"make a branch of nodes"
 		cur = self
 		for x in lst:
 			if getattr(cur, 'children', {}):
 				if x in cur.children:
-					return cur.children[x]
+					cur = cur.children[x]
+					break
 			else:
 				cur.children = {}
 			cur = self.__class__(x, cur)

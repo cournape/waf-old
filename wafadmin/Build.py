@@ -72,7 +72,7 @@ class BuildContext(Context):
 
 		# output directory - may be set until the nodes are considered
 		if not getattr(self, 'out_dir', None):
-			self.out_dir = Options.out_dir
+			self.out_dir = Options.out_dir + '/build'
 
 		if not getattr(self, 'cache_dir', None):
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
@@ -188,12 +188,14 @@ class BuildContext(Context):
 
 		if not self.root:
 			Node.Nod3 = self.node_class
-			self.root = Node.Nod3('', None, Node.DIR)
+			self.root = Node.Nod3('', None)
 
 			if sys.platform == 'win32':
 				# This is important
 				self.cache_dir_contents[self.root.id] = []
 
+		# FIXME
+		return
 		self.srcnode = self.root.find_dir(self.top_dir)
 		self.bldnode = self.root.find_dir(self.out_dir)
 		self.up_path = self.srcnode.path_from(self.bldnode)
