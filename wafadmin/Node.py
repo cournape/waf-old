@@ -5,28 +5,19 @@
 """
 Node: filesystem structure, contains lists of nodes
 
-IMPORTANT:
 1. Each file/folder is represented by exactly one node.
 
-2. Most would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
+2. Some potential class properties are stored in Build: nodes to depend on..
 unused class members increase the .wafpickle file size sensibly with lots of objects.
 
-3. The build is launched from the top of the build dir (for example, in _build_/).
+3. The build is lunched from the top of the build dir (for example, in build/).
 
-4. Node should not be instantiated directly.
-Each instance of Build.BuildContext has a Node subclass.
+4. Node objects should not be created directly - use make_node or find_node
+
+Each instance of Build.BuildContext has a unique Node subclass.
 (aka: 'Nod3', see BuildContext initializer)
 The BuildContext is referenced here as self.__class__.bld
 Its Node class is referenced here as self.__class__
-
-The public and advertised apis are the following:
-${TGT}                 -> dir/to/file.ext
-${TGT[0].suffix()}     -> .ext
-${TGT[0].abspath()} -> /path/to/dir/to/file.ext
-
-
-
-1 file/dir == one node (the only thing guaranteed by the file system)
 """
 
 import os, sys, shutil, re
