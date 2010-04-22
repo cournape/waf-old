@@ -9,6 +9,14 @@ def tt(msg, result, expected):
 		color = 'GREEN'
 	Logs.pprint(color, msg.ljust(20) + " %r" % result)
 
+def exists(path):
+	try:
+		os.stat(path)
+	except:
+		return 'no'
+	else:
+		return 'yes'
+
 def configure(ctx):
 	pass
 
@@ -38,14 +46,6 @@ def test(ctx):
 	tt('d1 from d2', d1.path_from(d2), '../../a/b')
 	tt('d2 from d1', d2.path_from(d1), '../../c/d')
 
-
-	def exists(path):
-		try:
-			os.stat(path)
-		except:
-			return 'no'
-		else:
-			return 'yes'
 
 	d1.parent.delete()
 
