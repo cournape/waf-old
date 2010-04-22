@@ -53,8 +53,17 @@ def test(ctx):
 	tt('d1 exists', exists(d1.abspath()), 'no')
 
 	d1.parent.mkdir()
+	d1.parent.mkdir()
 
 	tt('d1.parent exists', exists(d1.parent.abspath()), 'yes')
 	tt('d1 exists', exists(d1.abspath()), 'no')
 
+
+	d1.mkdir()
+	kp = d1.make_node(['ah-ha'])
+	ini = "this is a test"
+	kp.write(ini)
+	fin = kp.read()
+
+	tt('read and write text', fin, ini)
 

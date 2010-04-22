@@ -112,7 +112,8 @@ class Node(object):
 			f = open(self.abspath(), flags)
 			f.write(data)
 		finally:
-			f.close()
+			if f:
+				f.close()
 
 	def chmod(self, val):
 		"change file/dir permissions"
