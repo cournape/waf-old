@@ -126,6 +126,12 @@ class Node(object):
 			pass
 
 		try:
+			# TODO: if tons of folders are removed and added again, id(self) might be found in cache
+			self.__class__.bld.existing_dirs.remove(id(self))
+		except:
+			pass
+
+		try:
 			delattr(self, 'children')
 		except:
 			pass
@@ -155,7 +161,7 @@ class Node(object):
 			if id(self) in self.__class__.bld.existing_dirs:
 				return
 		except:
-			self.__class__.bld.existing_dirs = {}
+			self.__class__.bld.existing_dirs = set([])
 
 		try:
 			self.parent.mkdir()
@@ -171,7 +177,7 @@ class Node(object):
 			if not os.path.isdir(self.abspath()):
 				raise WafError('%s is not a directory' % self)
 
-		self.__class__.bld.existing_dirs[id(self)] = True
+		self.__class__.bld.existing_dirs.add(id(self))
 
 	def find_node(self, lst):
 		"read the file system, make the nodes as needed"
