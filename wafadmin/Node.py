@@ -93,11 +93,11 @@ class Node(object):
 		raise WafError('nodes are not supposed to be copied')
 
 	def read(self, flags='r'):
-		"get the contents of a file"
+		"get the contents, assuming the node is a file"
 		return Utils.readf(self.abspath(), flags)
 
 	def write(self, data, flags='w'):
-		"write some text to the file"
+		"write some text to the physical file, assuming the node is a file"
 		f = None
 		try:
 			f = open(self.abspath(), flags)
@@ -143,12 +143,15 @@ class Node(object):
 		return val
 
 	def compute_sig(self):
+		"compute the signature if it is a file"
 		self.sig = Utils.h_file(self.abspath())
 
-	def read_dir(self):
+	def listdir(self):
+		"list the directory contents"
 		return Utils.listdir(self.abspath())
 
 	def mkdir(self):
+		"write a directory for the node"
 		try:
 			if id(self) in self.__class__.bld.existing_dirs:
 				return
@@ -168,6 +171,11 @@ class Node(object):
 
 			if not os.path.isdir(self.abspath()):
 				raise WafError('%s is not a directory' % self)
+
+			try:
+				self.children
+			except:
+				self.children = {}
 
 		self.__class__.bld.existing_dirs.add(id(self))
 
