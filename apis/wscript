@@ -7,7 +7,7 @@ def tt(msg, result, expected):
 	color = 'RED'
 	if result == expected:
 		color = 'GREEN'
-	Logs.pprint(color, msg.ljust(20) + " " + result)
+	Logs.pprint(color, msg.ljust(20) + " %r" % result)
 
 def configure(ctx):
 	pass
@@ -16,21 +16,29 @@ def test(ctx):
 	bld = Build.BuildContext()
 	bld.prepare()
 
-	dir = bld.root.make_node(os.getcwd().split('/'))
-	p = dir.parent
+	absdir = os.getcwd().split('/')[1:]
+	dd = bld.root.make_node(absdir)
+	pp = dd.parent
 
-	tt('dir printed', str(dir), os.getcwd())
-	tt('parent', str(p), os.path.split(os.getcwd())[0])
-	tt('path_from', dir.path_from(p), os.path.split(os.getcwd())[1])
-	tt('path_from (reverse)', p.path_from(dir), '..')
-	tt('same path', p.path_from(p), '.')
+
+	tt('dir printed', str(dd), os.getcwd())
+	tt('parent', str(pp), os.path.split(os.getcwd())[0])
+	tt('path_from', dd.path_from(pp), os.path.split(os.getcwd())[1])
+	tt('path_from (reverse)', pp.path_from(dd), '..')
+	tt('same path', pp.path_from(pp), '.')
 	tt('same_root', bld.root.path_from(bld.root), '.')
 
-	d1 = dir.make_node(['a', 'b'])
-	d2 = dir.make_node(['c', 'd'])
+	d1 = dd.make_node(['a', 'b'])
+	d2 = dd.make_node(['c', 'd'])
 
 	tt('d1 from d2', d1.path_from(d2), '../../a/b')
 	tt('d2 from d1', d2.path_from(d1), '../../c/d')
 
+	tt('root height', bld.root.height(), 0)
+
+
+	a = dd.parent.parent.parent
+	tt('self height', dd.height(), len(absdir))
+	tt('compare height', d1.height() - pp.height(), 3)
 
 
