@@ -63,6 +63,7 @@ def test(ctx):
 	kp = d1.make_node(['ah-ha'])
 	ini = "this is a test"
 	kp.write(ini)
+	kp.chmod(493)
 	fin = kp.read()
 
 	tt('read and write text', fin, ini)
