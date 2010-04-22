@@ -102,7 +102,7 @@ class Node(object):
 		raise WafError('nodes are not supposed to be copied')
 
 	def read(self, flags='r'):
-		"get the contents of a file, it is not used anywhere for the moment"
+		"get the contents of a file"
 		return Utils.readf(self.abspath(), flags)
 
 	def write(self, data, flags='w'):
@@ -115,7 +115,7 @@ class Node(object):
 			f.close()
 
 	def chmod(self, val):
-		"change the file permissions"
+		"change file/dir permissions"
 		os.chmod(self.abspath(), val)
 
 	def delete(self):
@@ -126,6 +126,55 @@ class Node(object):
 				self.children = {}
 		except:
 			pass
+
+	def suffix(self):
+		"scons-like - hot zone so do not touch"
+		k = max(0, self.name.rfind('.'))
+		return self.name[k:]
+
+	def height(self):
+		"amount of parents"
+		d = self
+		val = -1
+		while d:
+			d = d.parent
+			val += 1
+		return val
+
+	def compute_sig(self):
+		self.sig = Utils.h_file(self.abspath())
+
+	def read_dir(self):
+		return Utils.listdir(self.abspath())
+
+	def mkdir(self):
+		pass
+
+	def find_node(self, lst):
+		"read the file system, make the nodes as needed"
+		cur = self
+		for x in lst:
+			mkdir(cur)
+			if getattr(cur, 'children', {}):
+				if x in cur.children:
+					return cur.children[x]
+			else:
+				cur.children = {}
+		return cur
+
+	def make_node(self, lst):
+		"make a branch of nodes"
+		cur = self
+		for x in lst:
+			if getattr(cur, 'children', {}):
+				if x in cur.children:
+					cur = cur.children[x]
+					break
+			else:
+				cur.children = {}
+			cur = self.__class__(x, cur)
+		return cur
+
 
 	def path_from(self, node):
 		"""path of this node seen from the other
@@ -192,54 +241,6 @@ class Node(object):
 
 		self.__class__.bld.cache_node_abspath[id(self)] = val
 		return val
-
-	def suffix(self):
-		"scons-like - hot zone so do not touch"
-		k = max(0, self.name.rfind('.'))
-		return self.name[k:]
-
-	def height(self):
-		"amount of parents"
-		d = self
-		val = -1
-		while d:
-			d = d.parent
-			val += 1
-		return val
-
-	def compute_sig(self):
-		self.sig = Utils.h_file(self.abspath())
-
-	def read_dir(self):
-		return Utils.listdir(self.abspath())
-
-	def mkdir(self):
-		pass
-
-	def find_node(self, lst):
-		"read the file system, make the nodes as needed"
-		cur = self
-		for x in lst:
-			mkdir(cur)
-			if getattr(cur, 'children', {}):
-				if x in cur.children:
-					return cur.children[x]
-			else:
-				cur.children = {}
-		return cur
-
-	def make_node(self, lst):
-		"make a branch of nodes"
-		cur = self
-		for x in lst:
-			if getattr(cur, 'children', {}):
-				if x in cur.children:
-					cur = cur.children[x]
-					break
-			else:
-				cur.children = {}
-			cur = self.__class__(x, cur)
-		return cur
 
 	# below the complex stuff
 	def nice_path(self, env=None):
