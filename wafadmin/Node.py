@@ -29,7 +29,7 @@ ${TGT[0].abspath()} -> /path/to/dir/to/file.ext
 1 file/dir == one node (the only thing guaranteed by the file system)
 """
 
-import os, sys, fnmatch, re
+import os, sys, shutil, re
 import Utils
 
 UNDEFINED = 0
@@ -120,10 +120,13 @@ class Node(object):
 
 	def delete(self):
 		"delete the file physically, do not destroy the nodes"
-		shutil.rmtree(self.abspath())
 		try:
-			if self.children:
-				self.children = {}
+			shutil.rmtree(self.abspath())
+		except:
+			pass
+
+		try:
+			delattr(self, 'children')
 		except:
 			pass
 
@@ -148,7 +151,27 @@ class Node(object):
 		return Utils.listdir(self.abspath())
 
 	def mkdir(self):
-		pass
+		try:
+			if id(self) in self.__class__.bld.existing_dirs:
+				return
+		except:
+			self.__class__.bld.existing_dirs = {}
+
+		try:
+			self.parent.mkdir()
+		except:
+			pass
+
+		if self.name:
+			try:
+				os.mkdir(self.abspath())
+			except OSError as e:
+				pass
+
+			if not os.path.isdir(self.abspath()):
+				raise WafError('%s is not a directory' % self)
+
+		self.__class__.bld.existing_dirs[id(self)] = True
 
 	def find_node(self, lst):
 		"read the file system, make the nodes as needed"
