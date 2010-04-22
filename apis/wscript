@@ -28,17 +28,33 @@ def test(ctx):
 	tt('same path', pp.path_from(pp), '.')
 	tt('same_root', bld.root.path_from(bld.root), '.')
 
+	tt('root height', bld.root.height(), 0)
+	tt('self height', dd.height(), len(absdir))
+
 	d1 = dd.make_node(['a', 'b'])
 	d2 = dd.make_node(['c', 'd'])
+	tt('compare height', d1.height() - pp.height(), 3)
 
 	tt('d1 from d2', d1.path_from(d2), '../../a/b')
 	tt('d2 from d1', d2.path_from(d1), '../../c/d')
 
-	tt('root height', bld.root.height(), 0)
 
+	def exists(path):
+		try:
+			os.stat(path)
+		except:
+			return 'no'
+		else:
+			return 'yes'
 
-	a = dd.parent.parent.parent
-	tt('self height', dd.height(), len(absdir))
-	tt('compare height', d1.height() - pp.height(), 3)
+	d1.parent.delete()
+
+	tt('d1.parent exists', exists(d1.parent.abspath()), 'no')
+	tt('d1 exists', exists(d1.abspath()), 'no')
+
+	d1.parent.mkdir()
+
+	tt('d1.parent exists', exists(d1.parent.abspath()), 'yes')
+	tt('d1 exists', exists(d1.abspath()), 'no')
 
 
