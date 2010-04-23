@@ -183,13 +183,28 @@ class Node(object):
 		"read the file system, make the nodes as needed"
 		cur = self
 		for x in lst:
-			mkdir(cur)
-			if getattr(cur, 'children', {}):
+			try:
 				if x in cur.children:
-					return cur.children[x]
-			else:
+					cur = cur.children[x]
+					continue
+			except:
 				cur.children = {}
-		return cur
+			cur = self.__class__(x, cur)
+
+		# optimistic, first create the nodes if necessary, then fix if we were wrong
+		# one stat and no listdir
+		try:
+			os.stat(cur.abspath())
+		except:
+			del self.children[x[0]]
+			return None
+		ret = cur
+
+		while not id(cur.parent) in self.__class__.bld.existing_dirs:
+			self.__class__.bld.existing_dirs.add(id(cur.parent))
+			cur = cur.parent
+
+		return ret
 
 	def make_node(self, lst):
 		"make a branch of nodes"
