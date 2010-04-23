@@ -1,6 +1,6 @@
 #! /usr/bin/env python3.1
 
-import os
+import os, shutil
 import Node, Build, Utils, Logs
 
 def tt(msg, result, expected):
@@ -67,4 +67,16 @@ def test(ctx):
 	fin = kp.read()
 
 	tt('read and write text', fin, ini)
+
+	rama = ['1234', '5', '6', '7']
+	try:
+		shutil.rmtree('1234')
+	except:
+		pass
+	try:
+		os.makedirs('/'.join(rama))
+	except:
+		raise
+	rr = dd.find_node(rama)
+	tt('find a node', str(rr), '/'.join([os.getcwd()]+rama))
 
