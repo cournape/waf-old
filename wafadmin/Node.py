@@ -264,8 +264,6 @@ class Node(object):
 		absolute path
 		cache into the build context, cache_node_abspath
 		"""
-		# absolute path: this is usually a bottleneck
-
 		try:
 			ret = self.__class__.bld.cache_node_abspath.get(id(self), None)
 		except AttributeError:
@@ -275,6 +273,7 @@ class Node(object):
 		if ret:
 			return ret
 
+		# think twice before touching this (performance + complexity + correctness)
 		if not self.parent:
 			val = os.sep == '/' and os.sep or ''
 		elif not self.parent.name:
@@ -291,204 +290,34 @@ class Node(object):
 		"printed in the console, open files easily from the launch directory"
 		return self.path_from(self.__class__.bld.launch_node())
 
-	def rescan(self):
-		"""
-		look the contents of a (folder)node and update its list of children
-
-		The intent is to perform the following steps
-		* remove the nodes for the files that have disappeared
-		* remove the signatures for the build files that have disappeared
-		* cache the results of os.listdir
-		* create the build folder equivalent (mkdir)
-		src/bar -> build/default/src/bar, build/release/src/bar
-
-		when a folder in the source directory is removed, we do not check recursively
-		to remove the unused nodes. To do that, call 'waf clean' and build again.
-		"""
-
-		bld = self.__class__.bld
-
-		# do not rescan over and over again
-		if id(self) in bld.cache_dir_contents:
-			return
-
-		# first, take the case of the source directory
-		try:
-			lst = set(Utils.listdir(self.abspath()))
-		except OSError:
-			lst = set([])
-
-		# hash the existing source files, remove the others
-		for x in self.children.values():
-			if x.id & 3 != FILE:
-				continue
-
-			if x.name in lst:
-				try:
-					x.sig = Utils.h_file(x.abspath())
-				except IOError:
-					raise WafError('The file %s is not readable or has become a dir' % x.abspath())
-			else:
-				del self.children[x.name]
-
-		if not bld.srcnode:
-			# do not look at the build directory yet
-			return
-		bld.cache_dir_contents[id(self)] = lst
-
-		# first obtain the differences between srcnode and self
-		h1 = bld.srcnode.height()
-		h2 = self.height()
-
-		lst = []
-		child = self
-		while h2 > h1:
-			lst.append(child.name)
-			child = child.parent
-			h2 -= 1
-
-		if id(child) != id(bld.srcnode):
-			# not a folder that we can duplicate in the build dir
-			return
-
-		lst.append(bld.out_dir)
-		lst.reverse()
-		path = os.sep.join(lst)
-
-		try:
-			lst = set(Utils.listdir(path))
-		except OSError:
-			for node in self.children.values():
-				# do not remove the nodes representing directories
-				if node.id & 3 != BUILD:
-					continue
-
-				del self.children[node.name]
-			try:
-				# recreate the folder in the build directory
-				os.makedirs(path)
-			except OSError:
-				pass
-		else:
-			# the folder exist, look at the nodes
-			vals = list(self.children.values())
-			for node in vals:
-				if node.id & 3 != BUILD:
-					continue
-				if not (node.name in lst):
-					del self.children[node.name]
-
-	def find_dir(self, lst):
-		"search a folder in the filesystem"
-
-		if isinstance(lst, str):
-			lst = Utils.split_path(lst)
-
-		current = self
-		for name in lst:
-			current.rescan()
-			prev = current
-
-			if not current.parent and name == current.name:
-				continue
-			elif not name:
-				continue
-			elif name == '.':
-				continue
-			elif name == '..':
-				current = current.parent or current
-			else:
-				current = prev.children.get(name, None)
-				if current is None:
-					dir_cont = self.__class__.bld.cache_dir_contents
-					if name in dir_cont.get(prev.id, []):
-						if not prev.name:
-							if os.sep == '/':
-								# cygwin //machine/share
-								dirname = os.sep + name
-							else:
-								# windows c:
-								dirname = name
-						else:
-							# regular path
-							dirname = prev.abspath() + os.sep + name
-						if not os.path.isdir(dirname):
-							return None
-						current = self.__class__(name, prev, DIR)
-					elif (not prev.name and len(name) == 2 and name[1] == ':') or name.startswith('\\\\'):
-						# drive letter or \\ path for windows
-						current = self.__class__(name, prev, DIR)
-					else:
-						try:
-							os.stat(prev.abspath() + os.sep + name)
-						except:
-							return None
-						else:
-							current = self.__class__(name, prev, DIR)
-				else:
-					if current.id & 3 != DIR:
-						return None
-		return current
 
 	def find_resource(self, lst):
-		"Find an existing input file: either a build node declared previously or a source node"
-		if isinstance(lst, str):
-			lst = Utils.split_path(lst)
+		"""
+		if 'self' is in the source directory, try to find the matching source file
+		if no file is found, look in the build directory if possible
+		return a node if the node exists
 
-		if len(lst) == 1:
-			parent = self
-		else:
-			parent = self.find_dir(lst[:-1])
-			if not parent: return None
-		parent.rescan()
+		if 'self' is in the build directory, try to find the a matching node
+		"""
+		return None
 
-		name = lst[-1]
-		node = parent.children.get(name, None)
-		if node:
-			tp = node.id & 3
-			if tp == FILE or tp == BUILD:
-				return node
-			else:
-				return None
-
-		tree = self.__class__.bld
-		if not name in tree.cache_dir_contents[parent.id]:
-			return None
-
-		path = parent.abspath() + os.sep + name
-		try:
-			st = Utils.h_file(path)
-		except IOError:
-			return None
-
-		child = self.__class__(name, parent, FILE)
-		child.sig = st
-		return child
+	def find_dir(self, lst):
+		"""
+		search a folder in the filesystem
+		create the corresponding mappings source <-> build directories
+		"""
+		return None
 
 	def find_or_declare(self, lst):
-		"Used for declaring a build node representing a file being built"
-		if isinstance(lst, str):
-			lst = Utils.split_path(lst)
-
-		if len(lst) == 1:
-			parent = self
-		else:
-			parent = self.find_dir(lst[:-1])
-			if not parent: return None
-		parent.rescan()
-
-		name = lst[-1]
-		node = parent.children.get(name, None)
-		if node:
-			tp = node.id & 3
-			if tp != BUILD:
-				raise WafError("find_or_declare returns a build node, not a source nor a directory %r" % lst)
-			return node
-		node = self.__class__(name, parent, BUILD)
-		return node
+		"""
+		if 'self' is in build directory, try to return an existing node
+		if no node is found, go to the source directory
+		try to find an existing node in the source directory
+		if no node is found, create it in the build directory
+		"""
+		return None
 
 	# helpers for building things
-
 	def change_ext(self, ext):
 		"node of the same path, but with a different extension - hot zone so do not touch"
 		name = self.name
@@ -501,12 +330,16 @@ class Node(object):
 		return self.parent.find_or_declare([name])
 
 	def bldpath(self):
-		"path seen from the build dir default/src/foo.cpp"
+		"path seen from the build directory default/src/foo.cpp"
 		return self.path_from(self.__class__.bld.bldnode)
 
 	def srcpath(self):
-		"path in the srcdir from the build dir ../src/foo.cpp"
+		"path seen from the source directory ../src/foo.cpp"
 		return self.path_from(self.__class__.bld.srcnode)
+
+	def relpath(self):
+		"if a build node, bldpath, else srcpath"
+		return
 
 	def ant_glob(self, *k, **kw):
 
