@@ -278,6 +278,7 @@ The variables used for c/c++ are the following:
 |CPPPATH  |includes | include paths
 |CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
+|CCDEFINES,CXXDEFINES|defines| list of defines in the form ['key=value', 'key', ...]
 |FRAMEWORK|framework| list of frameworks to use, requires the waf tool 'osx'
 |FRAMEWORKPATH|frameworkpath| list of framework paths to use, requires the waf tool 'osx'
 |=================

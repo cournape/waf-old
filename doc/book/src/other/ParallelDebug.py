@@ -164,8 +164,8 @@ def process_colors(q):
 			m = BAND * x[2]
 			if m > gwidth: gwidth = m
 
-	ratio = 1240. /gwidth
-	gwidth = 1240
+	ratio = 10240. /gwidth
+	gwidth = 10240
 
 	gheight = BAND * (THREAD_AMOUNT + len(info.keys()) + 1.5)
 
