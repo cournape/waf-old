@@ -187,7 +187,8 @@ class BuildContext(Context):
 			self.make_root()
 		self.cache_existing_dirs = set([])
 		self.path = self.srcnode = self.root.find_dir(src)
-		self.bldnode = self.root.find_dir(bld)
+		self.bldnode = self.root.make_node(bld)
+		self.bldnode.mkdir()
 
 		self.bld2src = {id(self.bldnode): self.srcnode}
 		self.src2bld = {id(self.srcnode): self.bldnode}
