@@ -194,15 +194,15 @@ class Node(object):
 					continue
 			except:
 				cur.children = {}
-			cur = self.__class__(x, cur)
 
-		# optimistic, first create the nodes if necessary, then fix if we were wrong
-		# one stat and no listdir
-		try:
-			os.stat(cur.abspath())
-		except:
-			del self.children[lst[0]]
-			return None
+			# optimistic: create the node first then look if it was correct to do so
+			cur = self.__class__(x, cur)
+			try:
+				os.stat(cur.abspath())
+			except:
+				del cur.parent.children[x]
+				return None
+
 		ret = cur
 
 		try:
@@ -415,6 +415,7 @@ class Node(object):
 		if node:
 			return node
 		node = self.get_bld().make_node(lst)
+		node.parent.mkdir()
 		return node
 
 	# helpers for building things
