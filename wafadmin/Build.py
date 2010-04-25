@@ -104,7 +104,6 @@ class BuildContext(Context):
 
 		# nodes
 		self.root = None
-		self.srcnode = None
 
 		# ======================================= #
 		# cache variables
@@ -181,6 +180,17 @@ class BuildContext(Context):
 	def make_root(self):
 		Node.Nod3 = self.node_class
 		self.root = Node.Nod3('', None)
+		self.cache_existing_dirs = set([])
+
+	def init_dirs(self, src, bld):
+		if not self.root:
+			self.make_root()
+		self.cache_existing_dirs = set([])
+		self.path = self.srcnode = self.root.find_dir(src)
+		self.bldnode = self.root.find_dir(bld)
+
+		self.bld2src = {id(self.bldnode): self.srcnode}
+		self.src2bld = {id(self.srcnode): self.bldnode}
 
 	def prepare(self):
 		self.is_install = 0
@@ -190,13 +200,7 @@ class BuildContext(Context):
 
 		self.load()
 
-		if not self.root:
-			self.make_root()
-
-		self.srcnode = self.root.find_dir(self.top_dir)
-		self.bldnode = self.root.find_dir(self.out_dir)
-		self.up_path = self.srcnode.path_from(self.bldnode)
-		self.path = self.srcnode
+		self.init_dirs(self.top_dir, self.out_dir)
 
 		if not self.all_envs:
 			self.load_envs()

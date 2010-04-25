@@ -119,7 +119,7 @@ class Node(object):
 
 		try:
 			# TODO: if tons of folders are removed and added again, id(self) might be found in cache
-			self.__class__.bld.existing_dirs.remove(id(self))
+			self.__class__.bld.cache_existing_dirs.remove(id(self))
 		except:
 			pass
 
@@ -156,11 +156,8 @@ class Node(object):
 
 	def mkdir(self):
 		"write a directory for the node"
-		try:
-			if id(self) in self.__class__.bld.existing_dirs:
-				return
-		except:
-			self.__class__.bld.existing_dirs = set([])
+		if id(self) in self.__class__.bld.cache_existing_dirs:
+			return
 
 		try:
 			self.parent.mkdir()
@@ -181,7 +178,7 @@ class Node(object):
 			except:
 				self.children = {}
 
-		self.__class__.bld.existing_dirs.add(id(self))
+		self.__class__.bld.cache_existing_dirs.add(id(self))
 
 	def find_node(self, lst):
 		"read the file system, make the nodes as needed"
@@ -204,8 +201,8 @@ class Node(object):
 			return None
 		ret = cur
 
-		while not id(cur.parent) in self.__class__.bld.existing_dirs:
-			self.__class__.bld.existing_dirs.add(id(cur.parent))
+		while not id(cur.parent) in self.__class__.bld.cache_existing_dirs:
+			self.__class__.bld.cache_existing_dirs.add(id(cur.parent))
 			cur = cur.parent
 
 		return ret
@@ -223,7 +220,15 @@ class Node(object):
 			cur = self.__class__(x, cur)
 		return cur
 
-	# TODO search the tree / search the file system / create the object tree
+	def search(self, lst):
+		"dumb search for existing nodes"
+		cur = self
+		try:
+			for x in lst:
+				cur = cur.children[x]
+			return cur
+		except:
+			pass
 
 	def path_from(self, node):
 		"""path of this node seen from the other
@@ -342,15 +347,6 @@ class Node(object):
 				return True
 			cur = cur.parent
 		return False
-
-	def search(self, lst):
-		cur = self
-		try:
-			for x in lst:
-				cur = cur.children[x]
-			return cur
-		except:
-			pass
 
 	def find_resource(self, lst):
 		"""
