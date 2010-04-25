@@ -515,31 +515,32 @@ class Node(object):
 			return [nacc, nrej]
 
 		def ant_iter(nodi, maxdepth=25, pats=[]):
-			nodi.rescan()
-			for name in nodi.bld.cache_dir_contents[nodi.id]:
+
+			dircont = nodi.listdir()
+
+			try:
+				lst = set(nodi.children.keys())
+				for x in lst - set(dircont):
+					del nodi.children[x]
+			except:
+				nodi.children = {}
+
+			for name in dircont:
+
 				npats = accept(name, pats)
 				if npats and npats[0]:
 					accepted = [] in npats[0]
 					#print accepted, nodi, name
 
-					node = nodi.find_resource(name)
-					if node and accepted:
-						if src and node.id & 3 == FILE:
-							yield node
-					else:
-						node = nodi.find_dir(name)
-						if node:
-							if accepted and dir:
-								yield node
-							if maxdepth:
-								for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
-									yield k
-			if bld:
-				for node in nodi.children.values():
-					if node.id & 3 == BUILD:
-						npats = accept(node.name, pats)
-						if npats and npats[0] and [] in npats[0]:
-							yield node
+					node = nodi.make_node([name])
+					if accepted:
+						yield node
+
+					if id(node) in self.bld.cache_existing_dirs or os.path.isdir(node.abspath()):
+						self.bld.cache_existing_dirs.add(id(node))
+						if maxdepth:
+							for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
+								yield k
 			raise StopIteration
 
 		ret = [x for x in ant_iter(self, pats=[to_pat(incl), to_pat(excl)])]

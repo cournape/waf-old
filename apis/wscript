@@ -119,13 +119,12 @@ def test(ctx):
 	tt('find_or_declare src/abc', bld.srcnode.find_or_declare(['abc']), stupid_build)
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), stupid_build)
 
-	return
-
 	bld = Build.BuildContext()
 	bld.make_root()
 	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
 
-	tt("ant_glob ->", bld.path.ant_glob('*'))
-	print("ant_glob src ->", bld.path.ant_glob('src/*.txt'))
-
+	create('src/a.txt')
+	create('src/b.txt')
+	tt("ant_glob ->", len(bld.srcnode.ant_glob('*.txt', flat=False)), 2)
+	print("ant_glob src ->", bld.srcnode.ant_glob('*.txt'))
 
