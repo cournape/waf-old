@@ -114,7 +114,7 @@ def swig_c(self):
 		if '-c++' in flags:
 			fun = self.generator.cxx_hook
 		else:
-			fun = self.generator.cc_hook
+			fun = self.generator.c_hook
 	except AttributeError:
 		raise Utils.WafError('No c%s compiler was found to process swig files' % ('-c++' in flags and '++' or ''))
 
