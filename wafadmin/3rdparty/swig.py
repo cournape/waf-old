@@ -110,11 +110,15 @@ def swig_c(self):
 		ext += 'xx'
 	out_node = self.inputs[0].parent.find_or_declare(self.module + ext)
 
-	if '-c++' in flags:
-		task = self.generator.cxx_hook(out_node)
-	else:
-		task = self.generator.cc_hook(out_node)
+	try:
+		if '-c++' in flags:
+			fun = self.generator.cxx_hook
+		else:
+			fun = self.generator.cc_hook
+	except AttributeError:
+		raise Utils.WafError('No c%s compiler was found to process swig files' % ('-c++' in flags and '++' or ''))
 
+	task = fun(out_node)
 	task.set_run_after(self)
 
 	ge = self.generator.bld.generator
