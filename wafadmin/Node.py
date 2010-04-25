@@ -385,20 +385,14 @@ class Node(object):
 		try to find an existing node in the source directory
 		if no node is found, create it in the build directory
 		"""
-		if self.is_bld():
-			node = self.search(lst)
-			if node:
-				return node
-			self = self.get_src()
+		if not (self.is_src() or self.is_bld()):
+			return self.find_node(lst)
 
-		node = self.find_node(lst)
+		node = self.get_bld().search(lst)
 		if node:
 			return node
-		if self.is_src():
-			self = self.get_bld()
-			node = self.make_node(lst)
-			return node
-		return None
+		self = self.get_src()
+		return self.find_node(lst)
 
 	# helpers for building things
 	def change_ext(self, ext):

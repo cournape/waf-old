@@ -107,5 +107,14 @@ def test(ctx):
 	nf = bld.srcnode.make_node(['abc'])
 	nf.write("aha")
 	nf.compute_sig()
-	tt('find src/abc', bld.srcnode.find_resource(['abc']), nf)
+	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), nf)
+	tt('find_or_declare src/abc', bld.srcnode.find_or_declare(['abc']), nf)
+	tt('src.get_bld()', bld.srcnode.get_bld(), bld.bldnode)
+	tt('bld.get_src()', bld.bldnode.get_src(), bld.srcnode)
+
+	stupid_build = bld.bldnode.make_node(['abc'])
+	tt('find_or_declare src/abc', bld.srcnode.find_or_declare(['abc']), stupid_build)
+	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), stupid_build)
+
+
 
