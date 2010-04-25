@@ -98,11 +98,11 @@ def test(ctx):
 	tt('find ["xyz"]', dd.find_node(['xyz']), None)
 
 	tt('bld.srcnode is src', bld.srcnode.is_src(), True)
-	tt('bld.bldnode is bld', bld.bldnode.is_bld(), True)
+	tt('bld.srcnode is bld', bld.srcnode.is_bld(), False)
 	tt('bld.bldnode is src', bld.bldnode.is_src(), False)
+	tt('bld.bldnode is bld', bld.bldnode.is_bld(), True)
 	tt('bld.root is bld', bld.root.is_bld(), False)
 	tt('bld.root is src', bld.root.is_src(), False)
-
 
 	nf = bld.srcnode.make_node(['abc'])
 	nf.write("aha")
@@ -115,6 +115,4 @@ def test(ctx):
 	stupid_build = bld.bldnode.make_node(['abc'])
 	tt('find_or_declare src/abc', bld.srcnode.find_or_declare(['abc']), stupid_build)
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), stupid_build)
-
-
 
