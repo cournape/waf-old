@@ -372,7 +372,6 @@ class Task(TaskBase):
 
 		# the inputs
 		for x in self.inputs + getattr(self, 'dep_nodes', []):
-			x.parent.rescan()
 			m.update(x.sig)
 
 		# manual dependencies, they can slow down the builds
@@ -386,7 +385,6 @@ class Task(TaskBase):
 
 				for v in d:
 					if isinstance(v, Node.Node):
-						v.parent.rescan()
 						try:
 							v = v.sig
 						except AttributeError: # make it fatal?
@@ -468,7 +466,6 @@ class Task(TaskBase):
 
 		for k in bld.node_deps.get(self.unique_id(), []):
 			# can do an optimization here
-			k.parent.rescan()
 			upd(k.sig) # should thow an AttributeError
 
 		return m.digest()

@@ -377,21 +377,9 @@ class Node(object):
 			node = self.get_bld().search(lst)
 			if node:
 				return node
-		return self.find_node(lst)
-
-	def find_dir(self, lst):
-		"""
-		search a folder in the filesystem
-		create the corresponding mappings source <-> build directories
-		"""
-		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x]
-
 		node = self.find_node(lst)
-		try:
-			os.path.isdir(node.abspath())
-		except OSError:
-			return None
+		if node:
+			node.compute_sig()
 		return node
 
 	def find_or_declare(self, lst):
@@ -413,9 +401,25 @@ class Node(object):
 		self = self.get_src()
 		node = self.find_node(lst)
 		if node:
+			node.compute_sig()
 			return node
 		node = self.get_bld().make_node(lst)
 		node.parent.mkdir()
+		return node
+
+	def find_dir(self, lst):
+		"""
+		search a folder in the filesystem
+		create the corresponding mappings source <-> build directories
+		"""
+		if isinstance(lst, str):
+			lst = [x for x in lst.split('/') if x]
+
+		node = self.find_node(lst)
+		try:
+			os.path.isdir(node.abspath())
+		except OSError:
+			return None
 		return node
 
 	# helpers for building things

@@ -839,10 +839,7 @@ class CleanContext(BuildContext):
 		# TODO clean could remove the files except the ones listed in env[CFG_FILES]
 
 		# forget about all the nodes
-		try:
-			del node.parent.children[node.name]
-		except AttributeError:
-			pass
+		self.root.children = {}
 
 		for v in 'node_deps task_sigs raw_deps'.split():
 			setattr(self, v, {})
