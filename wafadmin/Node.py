@@ -150,6 +150,10 @@ class Node(object):
 		"list the directory contents"
 		return Utils.listdir(self.abspath())
 
+	# TODO is this useful?
+	#def isdir(self):
+	#	return os.path.isdir(self.abspath())
+
 	def mkdir(self):
 		"write a directory for the node"
 		try:
@@ -219,6 +223,7 @@ class Node(object):
 			cur = self.__class__(x, cur)
 		return cur
 
+	# TODO search the tree / search the file system / create the object tree
 
 	def path_from(self, node):
 		"""path of this node seen from the other
@@ -285,11 +290,67 @@ class Node(object):
 		self.__class__.bld.cache_node_abspath[id(self)] = val
 		return val
 
-	# below the complex stuff
-	def nice_path(self, env=None):
-		"printed in the console, open files easily from the launch directory"
-		return self.path_from(self.__class__.bld.launch_node())
+	# the following methods require the source/build folders (bld.srcnode/bld.bldnode)
 
+	def is_src(self):
+		cur = self
+		x = id(self.__class__.bld.srcnode)
+		y = id(self.__class__.bld.bldnode)
+		while cur.parent:
+			if id(cur) == y:
+				return False
+			if id(cur) == x:
+				return True
+			cur = cur.parent
+		return False
+
+	def src(self):
+		cur = self
+		x = id(self.__class__.bld.srcnode)
+		y = id(self.__class__.bld.bldnode)
+		lst = []
+		while cur.parent:
+			if id(cur) == y:
+				lst.reverse()
+				return self.__class__.bld.srcnode.make_node(lst)
+			if id(cur) == x:
+				return self
+			lst.append(cur.name)
+			cur = cur.parent
+		return self
+
+	def bld(self):
+		cur = self
+		x = id(self.__class__.bld.srcnode)
+		y = id(self.__class__.bld.bldnode)
+		lst = []
+		while cur.parent:
+			if id(cur) == y:
+				return self
+			if id(cur) == x:
+				lst.reverse()
+				return self.__class__.bld.bldnode.make_node(lst)
+			lst.append(cur.name)
+			cur = cur.parent
+		return self
+
+	def is_bld(self):
+		cur = self
+		y = id(self.__class__.bld.bldnode)
+		while cur.parent:
+			if id(cur) == y:
+				return True
+			cur = cur.parent
+		return False
+
+	def search(self, lst):
+		cur = self
+		try:
+			for x in lst:
+				cur = cur.children[x]
+			return cur
+		except:
+			pass
 
 	def find_resource(self, lst):
 		"""
@@ -299,14 +360,25 @@ class Node(object):
 
 		if 'self' is in the build directory, try to find the a matching node
 		"""
-		return None
+		if self.is_src():
+			node = self.find_node(lst)
+			if node:
+				return node
+			return self.bld().search(lst)
+		elif node.is_bld():
+			return self.search(lst)
 
 	def find_dir(self, lst):
 		"""
 		search a folder in the filesystem
 		create the corresponding mappings source <-> build directories
 		"""
-		return None
+		node = self.find_node(lst)
+		try:
+			os.path.is_dir(node.abspath())
+		except:
+			return None
+		return node
 
 	def find_or_declare(self, lst):
 		"""
@@ -315,6 +387,19 @@ class Node(object):
 		try to find an existing node in the source directory
 		if no node is found, create it in the build directory
 		"""
+		if self.is_bld():
+			node = self.search(lst)
+			if node:
+				return node
+			self = self.src()
+
+		node = self.find_node(lst)
+		if node:
+			return node
+		if self.is_src():
+			self = self.bld()
+			node = self.make_node(lst)
+			return node
 		return None
 
 	# helpers for building things
@@ -329,6 +414,10 @@ class Node(object):
 
 		return self.parent.find_or_declare([name])
 
+	def nice_path(self, env=None):
+		"printed in the console, open files easily from the launch directory"
+		return self.path_from(self.__class__.bld.launch_node())
+
 	def bldpath(self):
 		"path seen from the build directory default/src/foo.cpp"
 		return self.path_from(self.__class__.bld.bldnode)
@@ -339,7 +428,25 @@ class Node(object):
 
 	def relpath(self):
 		"if a build node, bldpath, else srcpath"
-		return
+		cur = self
+		x = id(self.__class__.bld.bldnode)
+		while cur.parent:
+			if id(cur) == x:
+				return self.bldpath()
+			cur = cur.parent
+		return self.srcpath()
+
+	def bld_dir(self):
+		"build path without the file name"
+		return self.parent.bldpath()
+
+	def bld_base(self):
+		"build path without the extension: src/dir/foo(.cpp)"
+		s = os.path.splitext(self.name)[0]
+		return self.bld_dir() + os.sep + s
+
+
+	# complicated stuff below
 
 	def ant_glob(self, *k, **kw):
 
@@ -426,15 +533,6 @@ class Node(object):
 			return " ".join([x.path_from(self) for x in ret])
 
 		return ret
-
-	def bld_dir(self):
-		"build path without the file name"
-		return self.parent.bldpath()
-
-	def bld_base(self):
-		"build path without the extension: src/dir/foo(.cpp)"
-		s = os.path.splitext(self.name)[0]
-		return self.bld_dir() + os.sep + s
 
 class Nod3(Node):
 	pass
