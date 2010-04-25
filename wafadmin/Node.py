@@ -201,9 +201,12 @@ class Node(object):
 			return None
 		ret = cur
 
-		while not id(cur.parent) in self.__class__.bld.cache_existing_dirs:
-			self.__class__.bld.cache_existing_dirs.add(id(cur.parent))
-			cur = cur.parent
+		try:
+			while not id(cur.parent) in self.__class__.bld.cache_existing_dirs:
+				self.__class__.bld.cache_existing_dirs.add(id(cur.parent))
+				cur = cur.parent
+		except AttributeError:
+			pass
 
 		return ret
 
@@ -350,19 +353,18 @@ class Node(object):
 
 	def find_resource(self, lst):
 		"""
-		if 'self' is in the source directory, try to find the matching source file
-		if no file is found, look in the build directory if possible
-		return a node if the node exists
-
-		if 'self' is in the build directory, try to find the a matching node
+		try to find a declared build node or a source file
 		"""
-		if self.is_src():
-			node = self.find_node(lst)
+		if self.is_bld():
+			node = self.search(lst)
 			if node:
 				return node
-			return self.bld().search(lst)
-		elif node.is_bld():
-			return self.search(lst)
+			self = self.src() # !!!
+		elif self.is_src():
+			node = self.bld().search(lst)
+			if node:
+				return node
+		return self.find_node(lst)
 
 	def find_dir(self, lst):
 		"""
@@ -371,8 +373,8 @@ class Node(object):
 		"""
 		node = self.find_node(lst)
 		try:
-			os.path.is_dir(node.abspath())
-		except:
+			os.path.isdir(node.abspath())
+		except OSError:
 			return None
 		return node
 
