@@ -72,7 +72,7 @@ class BuildContext(Context):
 
 		# output directory - may be set until the nodes are considered
 		if not getattr(self, 'out_dir', None):
-			self.out_dir = Options.out_dir + '/build'
+			self.out_dir = Options.out_dir
 
 		if not getattr(self, 'cache_dir', None):
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
