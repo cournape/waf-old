@@ -411,7 +411,11 @@ class Node(object):
 		if node:
 			return node
 		self = self.get_src()
-		return self.find_node(lst)
+		node = self.find_node(lst)
+		if node:
+			return node
+		node = self.get_bld().make_node(lst)
+		return node
 
 	# helpers for building things
 	def change_ext(self, ext):
