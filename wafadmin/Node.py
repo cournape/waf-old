@@ -224,7 +224,7 @@ class Node(object):
 			if getattr(cur, 'children', {}):
 				if x in cur.children:
 					cur = cur.children[x]
-					break
+					continue
 			else:
 				cur.children = {}
 			cur = self.__class__(x, cur)
