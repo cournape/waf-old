@@ -178,6 +178,10 @@ class BuildContext(Context):
 						hash = SIG_NIL
 					newnode.sig = hash
 
+	def make_root(self):
+		Node.Nod3 = self.node_class
+		self.root = Node.Nod3('', None)
+
 	def prepare(self):
 		self.is_install = 0
 
@@ -187,15 +191,8 @@ class BuildContext(Context):
 		self.load()
 
 		if not self.root:
-			Node.Nod3 = self.node_class
-			self.root = Node.Nod3('', None)
+			self.make_root()
 
-			if sys.platform == 'win32':
-				# This is important
-				self.cache_dir_contents[self.root.id] = []
-
-		# FIXME
-		return
 		self.srcnode = self.root.find_dir(self.top_dir)
 		self.bldnode = self.root.find_dir(self.out_dir)
 		self.up_path = self.srcnode.path_from(self.bldnode)
