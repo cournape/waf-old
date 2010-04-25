@@ -70,6 +70,12 @@ class Node(object):
 		self.name = name
 		self.parent = parent
 
+		if id(self) in self.bld.cache_existing_dirs:
+			del self.bld.cache_existing_dirs[id(self)]
+
+		if id(self) in self.bld.cache_node_abspath:
+			del self.bld.cache_node_abspath[id(self)]
+
 		if parent:
 			if name in parent.children:
 				raise WafError('node %s exists in the parent files %r already' % (name, parent))
@@ -114,12 +120,6 @@ class Node(object):
 		"delete the file physically, do not destroy the nodes"
 		try:
 			shutil.rmtree(self.abspath())
-		except:
-			pass
-
-		try:
-			# TODO: if tons of folders are removed and added again, id(self) might be found in cache
-			self.bld.cache_existing_dirs.remove(id(self))
 		except:
 			pass
 
@@ -287,12 +287,7 @@ class Node(object):
 		absolute path
 		cache into the build context, cache_node_abspath
 		"""
-		try:
-			ret = self.bld.cache_node_abspath.get(id(self), None)
-		except AttributeError:
-			self.bld.cache_node_abspath = {}
-			ret = None
-
+		ret = self.bld.cache_node_abspath.get(id(self), None)
 		if ret:
 			return ret
 
