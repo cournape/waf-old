@@ -17,6 +17,23 @@ def exists(path):
 	else:
 		return 'yes'
 
+def remove(path):
+	try:
+		try:
+			os.listdir(path)
+		except:
+			os.unlink(path)
+		else:
+			shutil.rmtree(path)
+	except:
+		pass
+
+def create(path):
+	try:
+		os.makedirs(path)
+	except:
+		os.listdir(path)
+
 def configure(ctx):
 	pass
 
@@ -69,32 +86,19 @@ def test(ctx):
 	tt('read and write text', fin, ini)
 
 	rama = ['1234', '5', '6', '7']
-	try:
-		shutil.rmtree('1234')
-	except:
-		pass
-	try:
-		os.makedirs('/'.join(rama))
-	except:
-		raise
+	remove('1234')
+	create('/'.join(rama))
 	rr = dd.find_node(rama)
 	tt('find a node', str(rr), '/'.join([os.getcwd()]+rama))
 
-	try:
-		shutil.rmtree('src')
-	except:
-		pass
-
-	try:
-		os.makedirs('src/build')
-	except:
-		pass
+	remove('src/build')
+	create('src/build')
 
 	ss = dd.find_node(['src'])
 	bb = dd.find_node(['src', 'build'])
-
 	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
 
+	#remove(dd.abspath() + '/' +"xyz")
 	tt('find ["xyz"]', dd.find_node(['xyz']), None)
 
 	tt('bld.srcnode is src', bld.srcnode.is_src(), True)
@@ -103,8 +107,7 @@ def test(ctx):
 	tt('bld.bldnode is bld', bld.bldnode.is_bld(), True)
 	tt('bld.root is bld', bld.root.is_bld(), False)
 	tt('bld.root is src', bld.root.is_src(), False)
-
-	nf = bld.srcnode.make_node(['abc'])
+	nf = bld.srcnode.make_node('abc')
 	nf.write("aha")
 	nf.compute_sig()
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), nf)
@@ -115,4 +118,14 @@ def test(ctx):
 	stupid_build = bld.bldnode.make_node(['abc'])
 	tt('find_or_declare src/abc', bld.srcnode.find_or_declare(['abc']), stupid_build)
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), stupid_build)
+
+	return
+
+	bld = Build.BuildContext()
+	bld.make_root()
+	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
+
+	tt("ant_glob ->", bld.path.ant_glob('*'))
+	print("ant_glob src ->", bld.path.ant_glob('src/*.txt'))
+
 
