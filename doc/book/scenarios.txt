@@ -37,7 +37,7 @@ def build(bld):
 
 <1> Build the compiler first, it will result in a binary named 'comp'
 <2> Give this task generator a name to access it by reference easily
-<3> Add a new build group to make certaint the compiler is complete before processing the next tasks
+<3> Add a new build group to make certain the compiler is complete before processing the next tasks
 <4> Provide a file 'a.src' to be transformed by 'comp' into 'a.cpp'
 
 The code to support this scenario may be added in the wscript file or into a waf tool:
