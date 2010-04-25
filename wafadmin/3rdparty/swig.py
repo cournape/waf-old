@@ -5,7 +5,7 @@
 
 import re
 import Task, Utils, Logs
-from TaskGen import extension, taskgen, feature, after
+from TaskGen import extension, feature, after
 from Configure import conf
 import preproc
 
@@ -19,7 +19,7 @@ rev 5859 is much more simple
 
 SWIG_EXTS = ['.swig', '.i']
 
-swig_str = '${SWIG} ${SWIGFLAGS} ${_CXXINCFLAGS} ${_CCINCFLAGS} ${SRC}'
+swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
 cls = Task.simple_task_type('swig', swig_str, color='BLUE', ext_in='.i .h', ext_out='.o .c .cxx', shell=False)
 
 def runnable_status(self):
@@ -143,12 +143,10 @@ def swig_ocaml(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.ml'))
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.mli'))
 
-@taskgen
 @feature('swig')
 @after('apply_incpaths')
 def add_swig_paths(self):
 	"""the attribute 'after' is not used here, the method is added directly at the end"""
-
 	self.swig_dir_nodes = self.env['INC_PATHS']
 	include_flags = self.env['_CXXINCFLAGS'] or self.env['_CCINCFLAGS']
 	self.env.append_unique('SWIGFLAGS', [f.replace("/I", "-I") for f in include_flags])
@@ -164,7 +162,7 @@ def i_file(self, node):
 	tsk.module = getattr(self, 'swig_module', None)
 
 	flags = self.to_list(getattr(self, 'swig_flags', []))
-	tsk.env['SWIGFLAGS'] = flags
+	self.env.append_value('SWIGFLAGS', flags)
 
 	if not '-outdir' in flags:
 		flags.append('-outdir')
