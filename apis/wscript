@@ -104,3 +104,8 @@ def test(ctx):
 	tt('bld.root is src', bld.root.is_src(), False)
 
 
+	nf = bld.srcnode.make_node(['abc'])
+	nf.write("aha")
+	nf.compute_sig()
+	tt('find src/abc', bld.srcnode.find_resource(['abc']), nf)
+

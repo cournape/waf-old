@@ -16,7 +16,7 @@ unused class members increase the .wafpickle file size sensibly with lots of obj
 
 Each instance of Build.BuildContext has a unique Node subclass.
 (aka: 'Nod3', see BuildContext initializer)
-The BuildContext is referenced here as self.__class__.bld
+The BuildContext is referenced here as self.bld
 Its Node class is referenced here as self.__class__
 """
 
@@ -119,7 +119,7 @@ class Node(object):
 
 		try:
 			# TODO: if tons of folders are removed and added again, id(self) might be found in cache
-			self.__class__.bld.cache_existing_dirs.remove(id(self))
+			self.bld.cache_existing_dirs.remove(id(self))
 		except:
 			pass
 
@@ -156,7 +156,7 @@ class Node(object):
 
 	def mkdir(self):
 		"write a directory for the node"
-		if id(self) in self.__class__.bld.cache_existing_dirs:
+		if id(self) in self.bld.cache_existing_dirs:
 			return
 
 		try:
@@ -178,7 +178,7 @@ class Node(object):
 			except:
 				self.children = {}
 
-		self.__class__.bld.cache_existing_dirs.add(id(self))
+		self.bld.cache_existing_dirs.add(id(self))
 
 	def find_node(self, lst):
 		"read the file system, make the nodes as needed"
@@ -202,8 +202,8 @@ class Node(object):
 		ret = cur
 
 		try:
-			while not id(cur.parent) in self.__class__.bld.cache_existing_dirs:
-				self.__class__.bld.cache_existing_dirs.add(id(cur.parent))
+			while not id(cur.parent) in self.bld.cache_existing_dirs:
+				self.bld.cache_existing_dirs.add(id(cur.parent))
 				cur = cur.parent
 		except AttributeError:
 			pass
@@ -278,9 +278,9 @@ class Node(object):
 		cache into the build context, cache_node_abspath
 		"""
 		try:
-			ret = self.__class__.bld.cache_node_abspath.get(id(self), None)
+			ret = self.bld.cache_node_abspath.get(id(self), None)
 		except AttributeError:
-			self.__class__.bld.cache_node_abspath = {}
+			self.bld.cache_node_abspath = {}
 			ret = None
 
 		if ret:
@@ -295,15 +295,15 @@ class Node(object):
 		else:
 			val = self.parent.abspath() + os.sep + self.name
 
-		self.__class__.bld.cache_node_abspath[id(self)] = val
+		self.bld.cache_node_abspath[id(self)] = val
 		return val
 
 	# the following methods require the source/build folders (bld.srcnode/bld.bldnode)
 
 	def is_src(self):
 		cur = self
-		x = id(self.__class__.bld.srcnode)
-		y = id(self.__class__.bld.bldnode)
+		x = id(self.bld.srcnode)
+		y = id(self.bld.bldnode)
 		while cur.parent:
 			if id(cur) == y:
 				return False
@@ -312,39 +312,39 @@ class Node(object):
 			cur = cur.parent
 		return False
 
-	def src(self):
+	def get_src(self):
 		cur = self
-		x = id(self.__class__.bld.srcnode)
-		y = id(self.__class__.bld.bldnode)
+		x = id(self.bld.srcnode)
+		y = id(self.bld.bldnode)
 		lst = []
 		while cur.parent:
 			if id(cur) == y:
 				lst.reverse()
-				return self.__class__.bld.srcnode.make_node(lst)
+				return self.bld.srcnode.make_node(lst)
 			if id(cur) == x:
 				return self
 			lst.append(cur.name)
 			cur = cur.parent
 		return self
 
-	def bld(self):
+	def get_bld(self):
 		cur = self
-		x = id(self.__class__.bld.srcnode)
-		y = id(self.__class__.bld.bldnode)
+		x = id(self.bld.srcnode)
+		y = id(self.bld.bldnode)
 		lst = []
 		while cur.parent:
 			if id(cur) == y:
 				return self
 			if id(cur) == x:
 				lst.reverse()
-				return self.__class__.bld.bldnode.make_node(lst)
+				return self.bld.bldnode.make_node(lst)
 			lst.append(cur.name)
 			cur = cur.parent
 		return self
 
 	def is_bld(self):
 		cur = self
-		y = id(self.__class__.bld.bldnode)
+		y = id(self.bld.bldnode)
 		while cur.parent:
 			if id(cur) == y:
 				return True
@@ -359,9 +359,9 @@ class Node(object):
 			node = self.search(lst)
 			if node:
 				return node
-			self = self.src() # !!!
+			self = self.get_src() # !!!
 		elif self.is_src():
-			node = self.bld().search(lst)
+			node = self.get_bld().search(lst)
 			if node:
 				return node
 		return self.find_node(lst)
@@ -389,13 +389,13 @@ class Node(object):
 			node = self.search(lst)
 			if node:
 				return node
-			self = self.src()
+			self = self.get_src()
 
 		node = self.find_node(lst)
 		if node:
 			return node
 		if self.is_src():
-			self = self.bld()
+			self = self.get_bld()
 			node = self.make_node(lst)
 			return node
 		return None
@@ -414,20 +414,20 @@ class Node(object):
 
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
-		return self.path_from(self.__class__.bld.launch_node())
+		return self.path_from(self.bld.launch_node())
 
 	def bldpath(self):
 		"path seen from the build directory default/src/foo.cpp"
-		return self.path_from(self.__class__.bld.bldnode)
+		return self.path_from(self.bld.bldnode)
 
 	def srcpath(self):
 		"path seen from the source directory ../src/foo.cpp"
-		return self.path_from(self.__class__.bld.srcnode)
+		return self.path_from(self.bld.srcnode)
 
 	def relpath(self):
 		"if a build node, bldpath, else srcpath"
 		cur = self
-		x = id(self.__class__.bld.bldnode)
+		x = id(self.bld.bldnode)
 		while cur.parent:
 			if id(cur) == x:
 				return self.bldpath()
@@ -499,7 +499,7 @@ class Node(object):
 
 		def ant_iter(nodi, maxdepth=25, pats=[]):
 			nodi.rescan()
-			for name in nodi.__class__.bld.cache_dir_contents[nodi.id]:
+			for name in nodi.bld.cache_dir_contents[nodi.id]:
 				npats = accept(name, pats)
 				if npats and npats[0]:
 					accepted = [] in npats[0]
