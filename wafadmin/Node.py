@@ -197,7 +197,7 @@ class Node(object):
 		try:
 			os.stat(cur.abspath())
 		except:
-			del self.children[x[0]]
+			del self.children[lst[0]]
 			return None
 		ret = cur
 

@@ -95,6 +95,8 @@ def test(ctx):
 
 	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
 
+	tt('find ["xyz"]', dd.find_node(['xyz']), None)
+
 	tt('bld.srcnode is src', bld.srcnode.is_src(), True)
 	tt('bld.bldnode is bld', bld.bldnode.is_bld(), True)
 	tt('bld.bldnode is src', bld.bldnode.is_src(), False)
