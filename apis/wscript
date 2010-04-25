@@ -22,7 +22,7 @@ def configure(ctx):
 
 def test(ctx):
 	bld = Build.BuildContext()
-	bld.prepare()
+	bld.make_root()
 
 	absdir = os.getcwd().split('/')[1:]
 	dd = bld.root.make_node(absdir)
@@ -79,4 +79,26 @@ def test(ctx):
 		raise
 	rr = dd.find_node(rama)
 	tt('find a node', str(rr), '/'.join([os.getcwd()]+rama))
+
+	try:
+		shutil.rmtree('src')
+	except:
+		pass
+
+	try:
+		os.makedirs('src/build')
+	except:
+		pass
+
+	ss = dd.find_node(['src'])
+	bb = dd.find_node(['src', 'build'])
+
+	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
+
+	tt('bld.srcnode is src', bld.srcnode.is_src(), True)
+	tt('bld.bldnode is bld', bld.bldnode.is_bld(), True)
+	tt('bld.bldnode is src', bld.bldnode.is_src(), False)
+	tt('bld.root is bld', bld.root.is_bld(), False)
+	tt('bld.root is src', bld.root.is_src(), False)
+
 
