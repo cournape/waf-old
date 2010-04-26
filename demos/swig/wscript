@@ -69,7 +69,7 @@ def build(bld):
 
 def inst_py(bld):
 	node = bld.path.find_or_declare('extend/python/test_swig_waf.py')
-	bld.install_as('${PREFIX}/lib', node.abspath(bld.env))
+	bld.install_as('${PREFIX}/lib', node.abspath(bld.env), postpone=False)
 
 def exec_test(bld):
 	import os, stat
