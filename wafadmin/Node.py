@@ -78,15 +78,16 @@ class Node(object):
 
 	def __setstate__(self, data):
 		self.name = data[0]
-		if data[1] is not None:
-			self.children = data[1]
+		self.parent = data[1]
 		if data[2] is not None:
-			self.sig = data[2]
-		for x in self.children.values():
-			x.parent = self
+			self.children = data[2]
+			#for x in self.children.values():
+			#	x.parent = self
+		if data[3] is not None:
+			self.sig = data[3]
 
 	def __getstate__(self):
-		return (self.name, getattr(self, 'children', None), getattr(self, 'sig', None))
+		return (self.name, self.parent, getattr(self, 'children', None), getattr(self, 'sig', None))
 
 	def __str__(self):
 		return self.abspath()
