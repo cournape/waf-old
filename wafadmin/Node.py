@@ -81,8 +81,6 @@ class Node(object):
 		self.parent = data[1]
 		if data[2] is not None:
 			self.children = data[2]
-			#for x in self.children.values():
-			#	x.parent = self
 		if data[3] is not None:
 			self.sig = data[3]
 
