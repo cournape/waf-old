@@ -24,8 +24,8 @@ def build(bld):
 	print("build file", x.abspath(), x)
 	print("    bld dir ", x.bld_dir())
 	print("    suffix  ", x.suffix())
-	print("ant_glob .   ->", bld.path.ant_glob('*'))
-	print("ant_glob src ->", bld.path.ant_glob('src/*.txt'))
+	#print("ant_glob .   ->", bld.path.ant_glob('*'))
+	#print("ant_glob src ->", bld.path.ant_glob('src/*.txt'))
 
 	print("")
 	asrc = bld.path.find_resource("wscript")
@@ -34,7 +34,10 @@ def build(bld):
 	print("  bldpath", asrc.bldpath())
 
 	print("")
-	abld = bld.path.find_resource("xyz.txt")
+	print("srcnode is bld", bld.srcnode.is_bld())
+	abld = bld.srcnode.find_resource('xyz.txt')
+	print("abld!!!", abld)
+
 	print("bld node")
 	print("  srcpath", abld.srcpath())
 	print("  bldpath", abld.bldpath())
