@@ -66,7 +66,7 @@ exclude_regs = '''
 **/.DS_Store'''
 
 class Node(object):
-	__slots__ = ('name', 'parent', 'children', 'cache_abspath', 'cache_isdir')
+	__slots__ = ('name', 'sig', 'children', 'parent', 'cache_abspath', 'cache_isdir')
 	def __init__(self, name, parent):
 		self.name = name
 		self.parent = parent
@@ -77,16 +77,16 @@ class Node(object):
 			parent.children[name] = self
 
 	def __setstate__(self, data):
-		if len(data) == 3:
-			(self.parent, self.name, self.children) = data
-		else:
-			(self.parent, self.name) = data
+		self.name = data[0]
+		if data[1] is not None:
+			self.children = data[1]
+		if data[2] is not None:
+			self.sig = data[2]
+		for x in self.children.values():
+			x.parent = self
 
 	def __getstate__(self):
-		if getattr(self, 'childs', None):
-			return (self.parent, self.name, self.children)
-		else:
-			return (self.parent, self.name)
+		return (self.name, getattr(self, 'children', None), getattr(self, 'sig', None))
 
 	def __str__(self):
 		return self.abspath()
