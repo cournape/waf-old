@@ -178,16 +178,12 @@ class BuildContext(Context):
 					newnode.sig = hash
 
 	def make_root(self):
-		self.cache_existing_dirs = set([])
-		self.cache_node_abspath = {}
 		Node.Nod3 = self.node_class
 		self.root = Node.Nod3('', None)
 
 	def init_dirs(self, src, bld):
 		if not self.root:
 			self.make_root()
-		self.cache_existing_dirs = set([])
-		self.cache_node_abspath = {}
 		self.path = self.srcnode = self.root.find_dir(src)
 		self.bldnode = self.root.make_node(bld)
 		self.bldnode.mkdir()

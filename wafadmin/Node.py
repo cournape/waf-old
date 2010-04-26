@@ -66,20 +66,27 @@ exclude_regs = '''
 **/.DS_Store'''
 
 class Node(object):
+	__slots__ = ('name', 'parent', 'children', 'cache_abspath', 'cache_isdir')
 	def __init__(self, name, parent):
 		self.name = name
 		self.parent = parent
-
-		if id(self) in self.bld.cache_existing_dirs:
-			del self.bld.cache_existing_dirs[id(self)]
-
-		if id(self) in self.bld.cache_node_abspath:
-			del self.bld.cache_node_abspath[id(self)]
 
 		if parent:
 			if name in parent.children:
 				raise WafError('node %s exists in the parent files %r already' % (name, parent))
 			parent.children[name] = self
+
+	def __setstate__(self, data):
+		if len(data) == 3:
+			(self.parent, self.name, self.children) = data
+		else:
+			(self.parent, self.name) = data
+
+	def __getstate__(self):
+		if getattr(self, 'childs', None):
+			return (self.parent, self.name, self.children)
+		else:
+			return (self.parent, self.name)
 
 	def __str__(self):
 		return self.abspath()
@@ -150,13 +157,9 @@ class Node(object):
 		"list the directory contents"
 		return Utils.listdir(self.abspath())
 
-	# TODO is this useful?
-	#def isdir(self):
-	#	return os.path.isdir(self.abspath())
-
 	def mkdir(self):
 		"write a directory for the node"
-		if id(self) in self.bld.cache_existing_dirs:
+		if getattr(self, 'cache_isdir', None):
 			return
 
 		try:
@@ -178,7 +181,7 @@ class Node(object):
 			except:
 				self.children = {}
 
-		self.bld.cache_existing_dirs.add(id(self))
+		self.cache_isdir = True
 
 	def find_node(self, lst):
 		"read the file system, make the nodes as needed"
@@ -206,9 +209,9 @@ class Node(object):
 		ret = cur
 
 		try:
-			while not id(cur.parent) in self.bld.cache_existing_dirs:
-				self.bld.cache_existing_dirs.add(id(cur.parent))
+			while not getattr(cur.parent, 'cache_isdir', None):
 				cur = cur.parent
+				cur.cache_isdir = True
 		except AttributeError:
 			pass
 
@@ -287,10 +290,10 @@ class Node(object):
 		absolute path
 		cache into the build context, cache_node_abspath
 		"""
-		ret = self.bld.cache_node_abspath.get(id(self), None)
-		if ret:
-			return ret
-
+		try:
+			return self.cache_abspath()
+		except:
+			pass
 		# think twice before touching this (performance + complexity + correctness)
 		if not self.parent:
 			val = os.sep == '/' and os.sep or ''
@@ -300,7 +303,7 @@ class Node(object):
 		else:
 			val = self.parent.abspath() + os.sep + self.name
 
-		self.bld.cache_node_abspath[id(self)] = val
+		self.cache_abspath = val
 		return val
 
 	# the following methods require the source/build folders (bld.srcnode/bld.bldnode)
@@ -536,8 +539,8 @@ class Node(object):
 					if accepted:
 						yield node
 
-					if id(node) in self.bld.cache_existing_dirs or os.path.isdir(node.abspath()):
-						self.bld.cache_existing_dirs.add(id(node))
+					if getattr(node, 'cache_isdir', None) or os.path.isdir(node.abspath()):
+						node.cache_isdir = True
 						if maxdepth:
 							for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
 								yield k
