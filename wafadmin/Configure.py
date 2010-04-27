@@ -84,49 +84,6 @@ def download_tool(tool, force=False):
 			else:
 					break
 
-
-def find_file(filename, path_list):
-	"""find a file in a list of paths
-	@param filename: name of the file to search for
-	@param path_list: list of directories to search
-	@return: the first occurrence filename or '' if filename could not be found
-"""
-	for directory in Utils.to_list(path_list):
-		if os.path.exists(os.path.join(directory, filename)):
-			return directory
-	return ''
-
-def find_program_impl(env, filename, path_list=[], var=None, environ=None):
-	"""find a program in folders path_lst, and sets env[var]
-	@param env: environment
-	@param filename: name of the program to search for
-	@param path_list: list of directories to search for filename
-	@param var: environment value to be checked for in env or os.environ
-	@return: either the value that is referenced with [var] in env or os.environ
-         or the first occurrence filename or '' if filename could not be found
-"""
-
-	if not environ:
-		environ = os.environ
-
-	try: path_list = path_list.split()
-	except AttributeError: pass
-
-	if var:
-		if env[var]: return env[var]
-		if var in environ: env[var] = environ[var]
-
-	if not path_list: path_list = environ.get('PATH', '').split(os.pathsep)
-
-	ext = (Options.platform == 'win32') and '.exe,.com,.bat,.cmd' or ''
-	for y in [filename+x for x in ext.split(',')]:
-		for directory in path_list:
-			x = os.path.join(directory, y)
-			if os.path.isfile(x):
-				if var: env[var] = x
-				return x
-	return ''
-
 @command_context('configure')
 class ConfigurationContext(Context):
 	tests = {}
@@ -224,11 +181,21 @@ class ConfigurationContext(Context):
 			else:
 				func = getattr(module, 'detect', None)
 				if func:
-					if type(func) is type(find_file): func(self)
+					if type(func) is type(Utils.readf): func(self)
 					else: self.eval_rules(func)
 
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
+	def find_file(self, filename, path_list):
+		"""find a file in a list of paths
+		@param filename: name of the file to search for
+		@param path_list: list of directories to search
+		@return: the first occurrence filename or '' if filename could not be found
+		"""
+		for directory in Utils.to_list(path_list):
+			if os.path.exists(os.path.join(directory, filename)):
+				return directory
+		return ''
 
 	# deprecated - use recurse()
 	def sub_config(self, k):
@@ -290,26 +257,51 @@ class ConfigurationContext(Context):
 		self.check_message_1(sr)
 		self.check_message_2(custom, color)
 
-	def find_program(self, filename, path_list=[], var=None, mandatory=False):
+	def find_program(self, filename, path_list=[], var=None, mandatory=False, environ=None, exts=''):
 		"wrapper that adds a configuration message"
 
-		ret = None
+		if not environ:
+			environ = os.environ
+
+		ret = ''
 		if var:
 			if self.env[var]:
 				ret = self.env[var]
-			elif var in os.environ:
-				ret = os.environ[var]
+			elif var in environ:
+				ret = environ[var]
 
-		if not isinstance(filename, list): filename = [filename]
 		if not ret:
-			for x in filename:
-				ret = find_program_impl(self.env, x, path_list, var, environ=self.environ)
-				if ret: break
+			if path_list:
+				path_list = Utils.to_list(path_list)
+			else:
+				path_list = environ.get('PATH', '').split(os.pathsep)
+
+			if not isinstance(filename, list):
+				filename = [filename]
+
+			if not exts:
+				if Options.platform == 'win32':
+					exts = '.exe,.com,.bat,.cmd'
+
+			for a in ext.split(','):
+				if ret:
+					break
+				for b in filename:
+					if ret:
+						break
+					for c in path_list:
+						if ret:
+							break
+						x = os.path.join(c, b + a)
+						if os.path.isfile(x):
+							ret = x
 
 		self.check_message('program', ','.join(filename), ret, ret)
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
+
 		if not ret and mandatory:
 			self.fatal('The program %r could not be found' % filename)
+
 		if var:
 			self.env[var] = ret
 		return ret
