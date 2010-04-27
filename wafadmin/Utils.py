@@ -473,7 +473,7 @@ def subst_vars(expr, params):
 def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
 	"infers the binary format from the unversioned_sys_platform name."
 
-	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos'):
+	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos', 'gnu'):
 		return 'elf'
 	elif unversioned_sys_platform == 'darwin':
 		return 'mac-o'
@@ -491,7 +491,7 @@ def unversioned_sys_platform():
 	So we remove the version from the name, except for special cases where the os has a stupid name like os2 or win32.
 	Some possible values of sys.platform are, amongst others:
 		aix3 aix4 atheos beos5 darwin freebsd2 freebsd3 freebsd4 freebsd5 freebsd6 freebsd7
-		generic irix5 irix6 linux2 mac netbsd1 next3 os2emx riscos sunos5 unixware7
+		generic gnu0 irix5 irix6 linux2 mac netbsd1 next3 os2emx riscos sunos5 unixware7
 	Investigating the python source tree may reveal more values.
 	"""
 	s = sys.platform
@@ -524,7 +524,7 @@ def detect_platform():
 	s = sys.platform
 
 	# known POSIX
-	for x in 'cygwin linux irix sunos hpux aix darwin'.split():
+	for x in 'cygwin linux irix sunos hpux aix darwin gnu'.split():
 		# sys.platform may be linux2
 		if s.find(x) >= 0:
 			return x
