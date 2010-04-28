@@ -234,7 +234,6 @@ class task_gen(object):
 
 	install_path = property(get_inst_path, set_inst_path)
 
-
 	def get_chmod(self):
 		return getattr(self, '_chmod', getattr(self, 'default_chmod', O644))
 
@@ -242,13 +241,6 @@ class task_gen(object):
 		self._chmod = val
 
 	chmod = property(get_chmod, set_chmod)
-
-def declare_extension(var, func):
-	try:
-		for x in Utils.to_list(var):
-			task_gen.mappings[x] = func
-	except:
-		raise WscriptError('declare_extension takes either a list or a string %r' % var)
 
 def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	ext_in=[], ext_out=[], before=[], after=[], decider=None, install=False, scan=None):
@@ -262,8 +254,8 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	else:
 		act = Task.task_type_from_func(name, rule, color=color)
 
-	act.ext_in = tuple(Utils.to_list(ext_in))
-	act.ext_out = tuple(Utils.to_list(ext_out))
+	act.ext_in = Utils.to_list(ext_in)
+	act.ext_out = Utils.to_list(ext_out)
 	act.before = Utils.to_list(before)
 	act.after = Utils.to_list(after)
 	act.scan = scan
@@ -271,28 +263,20 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	def x_file(self, node):
 		if decider:
 			ext = decider(self, node)
-		elif isinstance(ext_out, str):
-			ext = ext_out
+		elif isinstance(act.ext_out, str):
+			ext = act.ext_out
 
-		if isinstance(ext, str):
-			out_source = node.change_ext(ext)
-			if reentrant:
-				self.allnodes.append(out_source)
-		elif isinstance(ext, list):
-			out_source = [node.change_ext(x) for x in ext]
-			if reentrant:
-				for i in range(reentrant):
-					self.allnodes.append(out_source[i])
-		else:
-			# XXX: useless: it will fail on Utils.to_list above...
-			raise WafError("do not know how to process %s" % str(ext))
-
+		out_source = [node.change_ext(x) for x in ext]
+		if reentrant:
+			for i in range(reentrant):
+				self.allnodes.append(out_source[i])
 		tsk = self.create_task(name, node, out_source)
 
 		if node.__class__.bld.is_install:
 			tsk.install = install
 
-	declare_extension(act.ext_in, x_file)
+	for x in Utils.to_list(var):
+		task_gen.mappings[act.ext_in] = x_file
 
 def taskgen_method(func):
 	"""
