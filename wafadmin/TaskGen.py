@@ -15,7 +15,7 @@ The class task_gen contains lots of methods, and a configuration table:
 Additionally, task_gen provides the method "process_source"
 * file extensions are mapped to methods: def meth(self, name_or_node)
 * if a mapping is not found in self.mappings, it is searched in task_gen.mappings
-* when called, the functions may modify self.allnodes to re-add source to process
+* when called, the functions may modify self.source to append more source to process
 * the mappings can map an extension or a filename (see the code below)
 
 WARNING: subclasses must reimplement the clone method
@@ -61,9 +61,6 @@ class task_gen(object):
 
 		self.default_chmod = O644
 		self.default_install_path = None
-
-		# kind of private, beware of what you put in it, also, the contents are consumed
-		self.allnodes = []
 
 		self.bld = kwargs['bld']
 		self.env = self.bld.env.derive()
@@ -162,10 +159,11 @@ class task_gen(object):
 		debug('task_gen: posted %s' % self.name)
 		self.posted = True
 
-	def get_hook(self, ext):
+	def get_hook(self, node):
 		"""
 		get a function able to process an extension
 		"""
+		ext = node.suffix()
 		try:
 			return self.mappings[ext]
 		except KeyError:
@@ -248,7 +246,7 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 		out_source = [node.change_ext(x) for x in ext]
 		if reentrant:
 			for i in range(reentrant):
-				self.allnodes.append(out_source[i])
+				self.source.append(out_source[i])
 		tsk = self.create_task(name, node, out_source)
 
 		if node.__class__.bld.is_install:
@@ -323,19 +321,24 @@ def process_source(self):
 	a list of source (nodes or file names)
 	process the files by extension"""
 
+	if isinstance(self.source, str):
+		self.source = Utils.to_list(self.source)
+
+	lst = []
 	find = self.path.find_resource
-	for el in self.to_list(self.source):
+	for el in self.source:
 		if isinstance(el, str):
 			node = find(el)
 			if not node:
 				raise WafError("source not found: '%s' in '%s'" % (el, self.path))
 		else:
 			node = el
-		self.allnodes.append(node)
+		lst.append(node)
+	self.source = lst
 
-	for node in self.allnodes:
+	for node in self.source:
 		# self.mappings or task_gen.mappings map the file extension to a function
-		x = self.get_hook(node.suffix())
+		x = self.get_hook(node)
 		if not x:
 			raise WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, self.__class__.mappings.keys()))
 		x(self, node)
