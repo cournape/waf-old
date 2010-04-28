@@ -746,7 +746,7 @@ class InstallContext(BuildContext):
 		self.install()
 
 @command_context('uninstall', 'build')
-class UninstallContext(BuildContext):
+class UninstallContext(InstallContext):
 	def run_user_code(self):
 		self.is_install = UNINSTALL
 
