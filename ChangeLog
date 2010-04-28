@@ -4,7 +4,7 @@ NEW IN WAF 1.6.0
 * Python 3 syntax by default
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
-* bld.new_task_gen is replaced by bld()
+* new Node class
 * Utils.load_tool -> Base.load_tool
 * set_options becomes options
 * only the build-related commands require a configured project
@@ -13,4 +13,8 @@ NEW IN WAF 1.6.0
 * eliminate find_sources_in_dirs
 * bld.new_task_gen(...) disappears, use bld(...)
 * plugin updates
+* accept node objects everywhere
+* rename apply_core -> process_source
+* rename apply_rule -> process_rule
+* remove task_gen.allnodes: modify self.source directly
 
