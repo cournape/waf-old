@@ -21,12 +21,7 @@ def build(bld):
 
 	t.env.LIB_CUDA = ['cuda', 'cudart']
 	t.env.LIBPATH_CUDA = ['/usr/local/cuda/lib64']
-	return
-	t.env.CC = 'nvcc'
-	t.env.LINK_CC = 'nvcc'
-
-	import TaskGen
-	TaskGen.task_gen.mappings['.cu'] = TaskGen.task_gen.mappings['.c']
+	t.env.RPATH_CUDA = ['/usr/local/cuda/lib64']
 
 #t.env.CUDAFLAGS = '-deviceemu'
 #CUDAFLAGS=-deviceemu
