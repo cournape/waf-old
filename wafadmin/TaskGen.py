@@ -404,10 +404,17 @@ attributes. A prerequisite for execution is to have the attribute set before.
 Intelligent compilers binding aspect-oriented programming and parallelization, what a nice topic for studies.
 """
 def taskgen(func):
+	"""
+	register a method as a task generator method
+	"""
 	setattr(task_gen, func.__name__, func)
 	return func
 
 def feature(*k):
+	"""
+	declare a task generator method that will be executed when the
+	object attribute 'feature' contains the corresponding key(s)
+	"""
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
 		for name in k:
@@ -416,6 +423,10 @@ def feature(*k):
 	return deco
 
 def before(*k):
+	"""
+	declare a task generator method which will be executed
+	before the functions of given name(s)
+	"""
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
 		for fun_name in k:
@@ -425,6 +436,10 @@ def before(*k):
 	return deco
 
 def after(*k):
+	"""
+	declare a task generator method which will be executed
+	after the functions of given name(s)
+	"""
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
 		for fun_name in k:
@@ -434,6 +449,10 @@ def after(*k):
 	return deco
 
 def extension(var):
+	"""
+	declare a task generator method which will be invoked during
+	the processing of source files for the extension given
+	"""
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
 		try:
