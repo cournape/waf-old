@@ -52,6 +52,16 @@ def h_file(filename):
 	f.close()
 	return m.digest()
 
+try:
+	x = ''.encode('hex')
+except:
+	import binascii
+	def to_hex(s):
+		return binascii.hexlify(s)
+else:
+	def to_hex(s):
+		return s.encode('hex')
+
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
 		self.allkeys = []

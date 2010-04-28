@@ -357,7 +357,7 @@ class Task(TaskBase):
 
 		new_sigs = self.cache_sig
 		def v(x):
-			return x.encode('hex')
+			return Utils.to_hex(x)
 
 		debug("Task %r" % self)
 		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Configuration data variable']
@@ -653,7 +653,7 @@ def can_retrieve_cache(self):
 
 	env = self.env
 	sig = self.signature()
-	ssig = sig.encode('hex')
+	ssig = Utils.to_hex(sig)
 
 	# first try to access the cache folder for the task
 	dname = os.path.join(Options.cache_global, ssig)
