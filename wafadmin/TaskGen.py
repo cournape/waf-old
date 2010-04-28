@@ -28,19 +28,6 @@ from Logs import debug, error, warn
 from Constants import *
 from Base import WafError, WscriptError
 
-typos = {
-'sources':'source',
-'targets':'target',
-'include':'includes',
-'define':'defines',
-'importpath':'importpaths',
-'install_var':'install_path',
-'install_subdir':'install_path',
-'inst_var':'install_path',
-'inst_dir':'install_path',
-'feature':'features',
-}
-
 class task_gen(object):
 	"""
 	Most methods are of the form 'def meth(self):' without any parameters
@@ -118,16 +105,7 @@ class task_gen(object):
 		self.bld.all_task_gen.append(self)
 
 	def __str__(self):
-		return ("<task_gen '%s' of type %s defined in %s>"
-			% (self.name or self.target, self.__class__.__name__, str(self.path)))
-
-	def __setattr__(self, name, attr):
-		real = typos.get(name, name)
-		if real != name:
-			warn('typo %s -> %s' % (name, real))
-			if Logs.verbose > 0:
-				traceback.print_stack()
-		object.__setattr__(self, real, attr)
+		return ("<task_gen '%s' declared in %s>" % (self.name or self.target, self.path))
 
 	def to_list(self, value):
 		"helper: returns a list"
