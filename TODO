@@ -4,7 +4,8 @@ Waf 1.6
 The points listed with a '+' indicate potential sub-projects (contributions will be welcome)
 
 General
-- os.environ control during task execution
+- global module repository to avoid re-doing "import"
+- refactor the environment thing
 - debug builds (step-by-step execution + scheduler changes)
 - cc_root.py rewrite to reduce the amount of methods (header processing, flags processing, os fixes)
 - unification uselib / uselib_local / objects
@@ -15,8 +16,15 @@ General
 + CMake file interpreter
 + multiprocess for distributed compilation (vs threads?)
 
+build context generalization to tasks and task generators?
+Move the typo detector into a separate tool
+Post the task generators by groups or as a whole (delegate to the task manager)
+autoconfig for any kind of command
+support for // configurations
+better apis for the shell compilation in Task.py
+
+
 API/Syntax
-- bld.ant_glob -> bld.find
 - use foo.env.VAR instead of foo.env["VAR"]?
 - conf.env -> conf.cfg
 
