@@ -250,27 +250,18 @@ def declare_extension(var, func):
 	except:
 		raise WscriptError('declare_extension takes either a list or a string %r' % var)
 
-def declare_order(*k):
-	assert(len(k) > 1)
-	n = len(k) - 1
-	for i in range(n):
-		f1 = k[i]
-		f2 = k[i+1]
-		if not f1 in task_gen.prec[f2]:
-			task_gen.prec[f2].append(f1)
-
-def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE',
-	install=0, before=[], after=[], decider=None, rule=None, scan=None):
+def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
+	ext_in=[], ext_out=[], before=[], after=[], decider=None, install=False, scan=None):
 	"""
 	see Tools/flex.py for an example
 	while i do not like such wrappers, some people really do
 	"""
 
-	action = action or rule
-	if isinstance(action, str):
-		act = Task.simple_task_type(name, action, color=color)
+	if isinstance(rule, str):
+		act = Task.simple_task_type(name, rule, color=color)
 	else:
-		act = Task.task_type_from_func(name, action, color=color)
+		act = Task.task_type_from_func(name, rule, color=color)
+
 	act.ext_in = tuple(Utils.to_list(ext_in))
 	act.ext_out = tuple(Utils.to_list(ext_out))
 	act.before = Utils.to_list(before)
