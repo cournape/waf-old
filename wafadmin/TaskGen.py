@@ -30,36 +30,12 @@ from Base import WafError, WscriptError
 
 class task_gen(object):
 	"""
-	Most methods are of the form 'def meth(self):' without any parameters
-	there are many of them, and they do many different things:
-	* task creation
-	* task results installation
-	* environment modification
-	* attribute addition/removal
-
-	The inheritance approach is complicated
-	* mixing several languages at once
-	* subclassing is needed even for small changes
-	* inserting new methods is complicated
-
-	This new class uses a configuration table:
-	* adding new methods easily
-	* obtaining the order in which to call the methods
-	* postponing the method calls (post() -> apply)
-
-	Additionally, a 'traits' static attribute is provided:
-	* this list contains methods
-	* the methods can remove or add methods from self.meths
-	Example1: the attribute 'staticlib' is set on an instance
-	a method set in the list of traits is executed when the
-	instance is posted, it finds that flag and adds another method for execution
-	Example2: a method set in the list of traits finds the msvc
-	compiler (from self.env['MSVC']==1); more methods are added to self.meths
+	generate task objects which may be executed in parallel by the scheduler
 	"""
 
 	mappings = {}
 	prec = defaultdict(list)
-	traits = defaultdict(set)
+	features = defaultdict(set)
 	classes = {}
 
 	def __init__(self, *kw, **kwargs):
@@ -77,7 +53,7 @@ class task_gen(object):
 		# list of mappings extension -> function
 		self.mappings = {}
 
-		# list of features (see the documentation on traits)
+		# list of features (see the documentation)
 		self.features = list(kw)
 
 		# not always a good idea
@@ -119,7 +95,7 @@ class task_gen(object):
 		# add the methods listed in the features
 		self.features = Utils.to_list(self.features)
 		for x in self.features + ['*']:
-			st = task_gen.traits[x]
+			st = task_gen.features[x]
 			if not st:
 				warn('feature %r does not exist - bind at least one method to it' % x)
 			keys.update(st)
@@ -187,16 +163,19 @@ class task_gen(object):
 		self.posted = True
 
 	def get_hook(self, ext):
-		try: return self.mappings[ext]
+		"""
+		get a function able to process an extension
+		"""
+		try:
+			return self.mappings[ext]
 		except KeyError:
-			try: return task_gen.mappings[ext]
-			except KeyError: return None
+			try:
+				return task_gen.mappings[ext]
+			except KeyError:
+				return None
 
-	# TODO waf 1.6: always set the environment
-	# TODO waf 1.6: create_task(self, name, inputs, outputs)
-	def create_task(self, name, src=None, tgt=None, env=None):
-		env = env or self.env
-		task = Task.TaskBase.classes[name](env=env.derive(), generator=self)
+	def create_task(self, name, src=None, tgt=None):
+		task = Task.TaskBase.classes[name](env=self.env.derive(), generator=self)
 		if src:
 			task.set_inputs(src)
 		if tgt:
@@ -293,7 +272,7 @@ def feature(*k):
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
 		for name in k:
-			task_gen.traits[name].update([func.__name__])
+			task_gen.features[name].update([func.__name__])
 		return func
 	return deco
 
