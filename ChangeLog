@@ -2,6 +2,8 @@ NEW IN WAF 1.5.17
 -----------------
 * Fixed a typo in flex.py
 * Fixed the use of waf cache with Python 3.x builds
+* New example for Cython
+* New example for CUDA
 
 NEW IN WAF 1.5.16
 -----------------
