@@ -301,3 +301,56 @@ def update(ctx):
 		tool = x.replace('.py', '')
 		Configure.download_tool(tool, force=True)
 
+# TODO autoconfig not part of build nor part of the config .. just a command trick
+"""
+	def autoconfigure(self):
+		# FIXME ita
+
+		if not Configure.autoconfig:
+			return
+		config_context = Utils.context_dict['configure']
+
+		def reconf(proj):
+			back = (Options.options.__dict__, Logs.zones, Logs.verbose)
+			Options.options.__dict__ = proj['options']
+			conf = config_context(self.curdir)
+			conf.environ = proj['environ']
+			conf.execute()
+			(Options.options.__dict__, Logs.zones, Logs.verbose) = back
+
+		try:
+			proj = ConfigSet.ConfigSet(Options.lockfile)
+		except IOError:
+			conf = config_context(self.curdir)
+			conf.execute()
+		else:
+			try:
+				bld = Utils.create_context('build', self.curdir)
+				bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
+				bld.load_envs()
+			except WafError:
+				reconf(proj)
+				return
+
+		try:
+			proj = ConfigSet.ConfigSet(Options.lockfile)
+		except IOError:
+			raise WafError('Auto-config: project does not configure (bug)')
+
+		h = 0
+		try:
+			for file in proj['files']:
+				if file.endswith('configure'):
+					h = hash((h, Utils.readf(file)))
+				else:
+					mod = Utils.load_module(file)
+					h = hash((h, mod.waf_hash_val))
+		except (OSError, IOError):
+			warn('Reconfiguring the project: a file is unavailable')
+			reconf(proj)
+		else:
+			if (h != proj['hash']):
+				warn('Reconfiguring the project: the configuration has changed')
+				reconf(proj)
+"""
+

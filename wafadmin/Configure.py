@@ -45,10 +45,6 @@ conf_template = '''# project %(app)s configured on %(now)s by
 class ConfigurationError(WscriptError):
 	pass
 
-autoconfig = False
-"reconfigure the project automatically"
-
-
 def download_tool(tool, force=False):
 	# check if the tool exists in the Tools or 3rdparty folders
 	_Tools =    os.sep.join((Options.waf_dir, 'wafadmin', 'Tools'))
@@ -203,8 +199,6 @@ class ConfigurationContext(Context):
 		self.recurse(k)
 
 	def post_recurse(self, name_or_mod, path, nexdir):
-		if not autoconfig:
-			return
 		self.hash = hash((self.hash, getattr(name_or_mod, 'waf_hash_val', name_or_mod)))
 		self.files.append(path)
 
