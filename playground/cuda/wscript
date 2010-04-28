@@ -10,13 +10,18 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('compiler_cc')
-	#conf.check_tool('cuda', tooldir='.')
+	conf.check_tool('cuda', tooldir='.')
 
 def build(bld):
 	t = bld(
 		features = 'cc cprogram',
 		source   = 'test.cu main.c',
-		target   = 'app')
+		target   = 'app',
+		uselib = 'CUDA')
+
+	t.env.LIB_CUDA = ['cuda', 'cudart']
+	t.env.LIBPATH_CUDA = ['/usr/local/cuda/lib64']
+	return
 	t.env.CC = 'nvcc'
 	t.env.LINK_CC = 'nvcc'
 
