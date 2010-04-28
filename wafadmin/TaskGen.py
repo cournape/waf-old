@@ -303,24 +303,6 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 
 	declare_extension(act.ext_in, x_file)
 
-def bind_feature(name, methods):
-	lst = Utils.to_list(methods)
-	task_gen.traits[name].update(lst)
-
-"""
-All the following decorators are registration decorators, i.e add an attribute to current class
- (task_gen and its derivatives), with same name as func, which points to func itself.
-For example:
-   @taskgen
-   def sayHi(self):
-        print("hi")
-Now taskgen.sayHi() may be called
-
-If python were really smart, it could infer itself the order of methods by looking at the
-attributes. A prerequisite for execution is to have the attribute set before.
-Intelligent compilers binding aspect-oriented programming and parallelization, what a nice topic for studies.
-"""
-
 def taskgen_method(func):
 	"""
 	register a method as a task generator method
