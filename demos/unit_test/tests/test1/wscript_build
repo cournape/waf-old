@@ -4,7 +4,7 @@
 
 def fun(task):
 	#print task.generator.bld.name_to_obj('somelib').link_task.outputs[0].abspath(task.env)
-	task.ut_args.append('--help')
+	task.ut_exec.append('--help')
 
 bld(
 	features = 'cxx cprogram test',
