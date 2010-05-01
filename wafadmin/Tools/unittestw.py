@@ -260,7 +260,7 @@ def exec_test(self):
 
 
 	cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath(self.env)
-	proc = Utils.pproc.Popen(self.ut_args, cwd=cwd, env=fu, stderr=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE)
+	proc = Utils.pproc.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE)
 	(stdout, stderr) = proc.communicate()
 
 	tup = (filename, proc.returncode, stdout, stderr)
