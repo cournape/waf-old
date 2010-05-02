@@ -39,8 +39,7 @@ class task_gen(object):
 	classes = {}
 
 	def __init__(self, *kw, **kwargs):
-		self.prec = defaultdict(list)
-		"map precedence of function names to call"
+
 		# so we will have to play with directed acyclic graphs
 		# detect cycles, etc
 
@@ -50,11 +49,14 @@ class task_gen(object):
 		# list of methods to execute - does not touch it by hand unless you know
 		self.meths = []
 
+		# precedence table for sorting the methods
+		self.prec = defaultdict(list)
+
 		# list of mappings extension -> function
 		self.mappings = {}
 
 		# list of features (see the documentation)
-		self.features = list(kw)
+		self.features = []
 
 		# not always a good idea
 		self.tasks = []
@@ -155,9 +157,9 @@ class task_gen(object):
 		if getattr(self, 'posted', None):
 			#error("OBJECT ALREADY POSTED" + str( self))
 			return
+		self.posted = True
 		self.apply()
 		debug('task_gen: posted %s' % self.name)
-		self.posted = True
 
 	def get_hook(self, node):
 		"""
