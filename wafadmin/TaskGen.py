@@ -256,6 +256,7 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 
 	for x in Utils.to_list(var):
 		task_gen.mappings[act.ext_in] = x_file
+	return x_file
 
 def taskgen_method(func):
 	"""
