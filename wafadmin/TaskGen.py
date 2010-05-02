@@ -216,9 +216,10 @@ class task_gen(object):
 		if getattr(self, 'posted', None):
 			#error("OBJECT ALREADY POSTED" + str( self))
 			return
+
+		self.posted = True
 		self.apply()
 		debug('task_gen: posted %s', self.name)
-		self.posted = True
 
 	def get_hook(self, ext):
 		try: return self.mappings[ext]
