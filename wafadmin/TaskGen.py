@@ -386,6 +386,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=True, col
 			tsk.install = install
 
 	declare_extension(act.ext_in, x_file)
+	return x_file
 
 def bind_feature(name, methods):
 	lst = Utils.to_list(methods)
