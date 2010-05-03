@@ -12,48 +12,10 @@ def configure(conf):
 
 def build(bld):
 
-	print('...')
-	print("root", bld.root.abspath(), bld.root)
-	print("srcnode", bld.srcnode.abspath(), bld.srcnode)
-	print("env", bld.env)
+	bld(rule='echo hi')
+	bld(rule='touch ${TGT}', target='foo.txt')
 
-	w = bld.path.find_resource('wscript')
-	print("wscript", w.abspath(), w)
-
-	x = bld.path.find_or_declare('xyz.txt')
-	print("build file", x.abspath(), x)
-	print("    bld dir ", x.bld_dir())
-	print("    suffix  ", x.suffix())
-	#print("ant_glob .   ->", bld.path.ant_glob('*'))
-	#print("ant_glob src ->", bld.path.ant_glob('src/*.txt'))
-
-	print("")
-	asrc = bld.path.find_resource("wscript")
-	print("src node")
-	print("  srcpath", asrc.srcpath())
-	print("  bldpath", asrc.bldpath())
-
-	print("")
-	print("srcnode is bld", bld.srcnode.is_bld())
-	abld = bld.srcnode.find_resource('xyz.txt')
-	print("abld!!!", abld)
-
-	print("bld node")
-	print("  srcpath", abld.srcpath())
-	print("  bldpath", abld.bldpath())
-
-	print("")
-	adir = bld.path
-	print("dir node")
-	print("  srcpath", adir.srcpath())
-	print("  bldpath", adir.bldpath())
-
-
-
-	bld(rule='echo hi', always=True)
-	bld(rule='touch ${TGT}', target='foo.txt', always=True)
-
-
+	return
 
 	bld(rule='touch ${TGT}', target='aaa')
 	t = bld(rule='touch ${TGT}', target='bbb', source='aaa')
