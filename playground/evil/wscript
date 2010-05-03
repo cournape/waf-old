@@ -51,7 +51,12 @@ def main():
 		if not fun:
 			ctx = getattr(Utils.g_module, 'build_context', Utils.Context)()
 			fake_build(ctx)
-			print "fake_build ok"
+			for g in ctx.task_manager.groups:
+				for t in g.tasks:
+					s = getattr(t, 'outputs', [])
+					for k in s:
+						if k.name.startswith(x):
+							print "try -> waf --targets=%s" % t.generator.name or t.generator.target
 			break
 
 		#print Utils.g_module.__dict__.keys()
