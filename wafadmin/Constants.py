@@ -12,7 +12,7 @@ maintainer: the version number is updated from the top-level wscript file
 HEXVERSION = 0x106000
 WAFVERSION="1.6.0"
 WAFREVISION = "XXXXX"
-ABI = 77
+ABI = 98
 
 # permissions
 O644 = 420
@@ -30,9 +30,6 @@ WAF_CONFIG_H       = 'config.h'
 
 SIG_NIL = b'iluvcuteoverload'
 
-VARIANT = '_VARIANT_'
-DEFAULT = 'default'
-
 SRCDIR  = 'top'
 BLDDIR  = 'out'
 APPNAME = 'APPNAME'
@@ -41,8 +38,8 @@ VERSION = 'VERSION'
 DEFINES = 'defines'
 UNDEFINED = ()
 
-BREAK = "break"
-CONTINUE = "continue"
+BREAK    = 'break'
+CONTINUE = 'continue'
 
 # task state
 NOT_RUN = 0
@@ -56,11 +53,8 @@ ASK_LATER = -1
 SKIP_ME = -2
 RUN_ME = -3
 
-
 LOG_FORMAT = "%(asctime)s %(c1)s%(zone)s%(c2)s %(message)s"
 HOUR_FORMAT = "%H:%M:%S"
-
-TEST_OK = True
 
 CFG_FILES = 'cfg_files'
 

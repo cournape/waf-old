@@ -23,11 +23,6 @@ Its Node class is referenced here as self.__class__
 import os, sys, shutil, re
 import Utils
 
-UNDEFINED = 0
-DIR = 1
-FILE = 2
-BUILD = 3
-
 # These fnmatch expressions are used by default to prune the directory tree
 # while doing the recursive traversal in the find_iter method of the Node class.
 prune_pats = '.git .bzr .hg .svn _MTN _darcs CVS SCCS'.split()
