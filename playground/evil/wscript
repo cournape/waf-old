@@ -30,8 +30,9 @@ def build(bld):
 		source = 'test_staticlib.c',
 		target='my_static_lib')
 
-import datetime
-import Scripting, Utils, Options, Logs
+import os, datetime
+import Scripting, Utils, Options, Logs, Environment
+from Constants import *
 
 def main():
 	Scripting.commands = Options.arg_line[:]
@@ -48,13 +49,15 @@ def main():
 			fun = getattr(Utils.g_module, x, None)
 
 		if not fun:
-			raise Utils.WscriptError('No such command %r' % x)
+			ctx = getattr(Utils.g_module, 'build_context', Utils.Context)()
+			fake_build(ctx)
+			print "fake_build ok"
+			break
 
 		#print Utils.g_module.__dict__.keys()
 		ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
 
 		if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
-			# compatibility TODO remove in waf 1.6
 			try:
 				fun(ctx)
 			except TypeError:
@@ -73,4 +76,31 @@ def main():
 			Scripting.commands.append('shutdown')
 
 Scripting.main = main
+
+
+def fake_build(bld):
+	"""create all the tasks for the project, but do not run the build
+	return the build context in use"""
+	bld = Scripting.check_configured(bld)
+
+	Options.commands['install'] = False
+	Options.commands['uninstall'] = False
+	Options.is_install = False
+
+	bld.is_install = 0 # False
+
+	try:
+		proj = Environment.Environment(Options.lockfile)
+	except IOError:
+		raise Utils.WafError("Project not configured (run 'waf configure' first)")
+
+	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
+	bld.load_envs()
+
+	Logs.info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
+	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
+
+	# execute something immediately before the build starts
+	bld.pre_build()
+	bld.flush()
 
