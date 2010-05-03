@@ -1,0 +1,76 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+# these variables are mandatory ('/' are converted automatically)
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+def build(bld):
+
+	bld(
+		features = 'cc cprogram',
+		source = bld.path.ant_glob('**/*.c'),
+		target = 'test_c_app',
+		uselib_local = 'my_static_lib',
+		includes = '. /usr/include')
+
+	bld(
+		features = 'cc cstaticlib',
+		source = 'test_staticlib.c',
+		target='my_static_lib')
+
+import datetime
+import Scripting, Utils, Options, Logs
+
+def main():
+	Scripting.commands = Options.arg_line[:]
+
+	while Scripting.commands:
+		x = Scripting.commands.pop(0)
+
+		ini = datetime.datetime.now()
+		if x == 'configure':
+			fun = Scripting.configure
+		elif x == 'build':
+			fun = Scripting.build
+		else:
+			fun = getattr(Utils.g_module, x, None)
+
+		if not fun:
+			raise Utils.WscriptError('No such command %r' % x)
+
+		#print Utils.g_module.__dict__.keys()
+		ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
+
+		if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
+			# compatibility TODO remove in waf 1.6
+			try:
+				fun(ctx)
+			except TypeError:
+				fun()
+		else:
+			fun(ctx)
+
+		ela = ''
+		if not Options.options.progress_bar:
+			ela = ' (%s)' % Utils.get_elapsed_time(ini)
+
+		if x != 'init' and x != 'shutdown':
+			Logs.info('%r finished successfully%s' % (x, ela))
+
+		if not Scripting.commands and x != 'shutdown':
+			Scripting.commands.append('shutdown')
+
+Scripting.main = main
+
