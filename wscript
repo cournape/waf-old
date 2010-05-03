@@ -241,8 +241,8 @@ def create_waf():
 				files.append(os.path.join(dd, k))
 	for x in files:
 		tarinfo = tar.gettarinfo(x, x)
-		tarinfo.uid=tarinfo.gid=1000
-		tarinfo.uname=tarinfo.gname="bozo"
+		tarinfo.uid = tarinfo.gid = 0
+		tarinfo.uname = tarinfo.gname = "root"
 		(code, size, cnt) = sfilter(x)
 		tarinfo.size = size
 		tar.addfile(tarinfo, code)
