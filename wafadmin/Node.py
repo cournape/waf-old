@@ -384,9 +384,6 @@ class Node(object):
 		if isinstance(lst, str):
 			lst = [x for x in lst.split('/') if x]
 
-		if not (self.is_src() or self.is_bld()):
-			return self.find_node(lst)
-
 		node = self.get_bld().search(lst)
 		if node:
 			return node
