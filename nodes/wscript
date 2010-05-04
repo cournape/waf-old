@@ -15,10 +15,11 @@ def build(bld):
 	bld(rule='echo hi')
 	bld(rule='touch ${TGT}', target='foo.txt')
 
-	return
 
 	bld(rule='touch ${TGT}', target='aaa')
 	t = bld(rule='touch ${TGT}', target='bbb', source='aaa')
+	t = bld(rule='touch ${TGT}', target='ccc', source='bbb')
+	t = bld(rule='touch ${TGT}', target='ddd', source='ccc')
 	t.create_task('foo')
 
 	bld.install_files('/tmp/bar', 'wscript')
