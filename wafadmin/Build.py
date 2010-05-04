@@ -484,7 +484,7 @@ class BuildContext(Context):
 		left = fs % (state, total, col1, pc, col2)
 		right = '][%s%s%s]' % (col1, eta, col2)
 
-		cols = Utils.get_term_cols() - len(left) - len(right) + 2*len(col1) + 2*len(col2)
+		cols = Logs.get_term_cols() - len(left) - len(right) + 2*len(col1) + 2*len(col2)
 		if cols < 7: cols = 7
 
 		ratio = int((cols*state)/total) - 1

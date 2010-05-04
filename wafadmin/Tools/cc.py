@@ -40,8 +40,7 @@ def apply_obj_vars_cc(self):
 	# local flags come first
 	# set the user-defined includes paths
 	for i in env['INC_PATHS']:
-		app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
-		app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
+		app('_CCINCFLAGS', [cpppath_st % i.bldpath(env), cpppath_st % i.srcpath(env)])
 
 	# set the library include paths
 	for i in env['CPPPATH']:

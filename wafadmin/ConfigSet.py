@@ -104,7 +104,10 @@ class ConfigSet(object):
 
 	def append_value(self, var, value):
 		current_value = self._get_list_value_for_modification(var)
-		current_value.extend(value)
+		try:
+			current_value.extend(value)
+		except:
+			current_value.append(value)
 
 	def prepend_value(self, var, value):
 		self.table[var] =  value + self._get_list_value_for_modification(var)

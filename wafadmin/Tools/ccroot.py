@@ -271,11 +271,11 @@ def apply_incpaths(self):
 			node = self.path.find_dir(path)
 
 		if node:
-			self.env.append_value('INC_PATHS', node)
+			self.env.append_value('INC_PATHS', [node])
 
 	# TODO WAF 1.6
 	if USE_TOP_LEVEL:
-		self.env.append_value('INC_PATHS', self.bld.srcnode)
+		self.env.append_value('INC_PATHS', [self.bld.srcnode])
 
 @feature('cc', 'cxx')
 @after('init_cc', 'init_cxx')
@@ -299,7 +299,7 @@ def apply_type_vars(self):
 			compvar = '%s_%s' % (x, var)
 			#print compvar
 			value = self.env[compvar]
-			if value: self.env.append_value(var, value)
+			if value: self.env.append_value(var, [value])
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('process_source')
@@ -357,10 +357,10 @@ def apply_lib_vars(self):
 
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
 			if 'cstaticlib' in y.features:
-				env.append_value('STATICLIB', link_name)
+				env.append_value('STATICLIB', [link_name])
 			elif 'cshlib' in y.features or 'cprogram' in y.features:
 				# WARNING some linkers can link against programs
-				env.append_value('LIB', link_name)
+				env.append_value('LIB', [link_name])
 
 			# the order
 			self.link_task.set_run_after(y.link_task)
@@ -392,7 +392,7 @@ def apply_lib_vars(self):
 	for x in self.uselib:
 		for v in self.p_flag_vars:
 			val = self.env[v + '_' + x]
-			if val: self.env.append_value(v, val)
+			if val: self.env.append_value(v, [val])
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
 @after('init_cc', 'init_cxx', 'apply_link')

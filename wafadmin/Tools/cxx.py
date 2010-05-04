@@ -43,8 +43,7 @@ def apply_obj_vars_cxx(self):
 	# local flags come first
 	# set the user-defined includes paths
 	for i in env['INC_PATHS']:
-		app('_CXXINCFLAGS', cxxpath_st % i.bldpath(env))
-		app('_CXXINCFLAGS', cxxpath_st % i.srcpath(env))
+		app('_CXXINCFLAGS', (cxxpath_st % i.path_from(self.bld.bldnode), cxxpath_st % i.path_from(self.bld.srcnode)))
 
 	# set the library include paths
 	for i in env['CPPPATH']:
