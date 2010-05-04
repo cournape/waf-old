@@ -9,7 +9,7 @@ from collections import deque
 import TaskGen, Task, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, warn
 from Utils import md5
-from TaskGen import taskgen, after, before, feature
+from TaskGen import after, before, feature, taskgen_method
 from Constants import *
 from Configure import conftest
 try:
@@ -476,7 +476,7 @@ def process_obj_files(self):
 		node = self.path.find_resource(x)
 		self.link_task.inputs.append(node)
 
-@taskgen
+@taskgen_method
 def add_obj_file(self, file):
 	"""Small example on how to link object files as if they were source
 	obj = bld.create_obj('cc')

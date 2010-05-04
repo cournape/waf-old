@@ -73,7 +73,7 @@ def apply_defines_cxx(self):
 	y = self.env['CXXDEFINES_ST']
 	self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 
-@extension(EXT_CXX)
+@extension(*EXT_CXX)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
 	if getattr(self, 'obj_ext', None):

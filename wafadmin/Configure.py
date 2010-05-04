@@ -170,7 +170,7 @@ class ConfigurationContext(Context):
 			if not tooldir:
 				download_tool(tool)
 
-			module = Utils.load_tool(tool, tooldir)
+			module = Base.load_tool(tool, tooldir)
 
 			if funs is not None:
 				self.eval_rules(funs)
@@ -277,7 +277,7 @@ class ConfigurationContext(Context):
 				if Options.platform == 'win32':
 					exts = '.exe,.com,.bat,.cmd'
 
-			for a in ext.split(','):
+			for a in exts.split(','):
 				if ret:
 					break
 				for b in filename:

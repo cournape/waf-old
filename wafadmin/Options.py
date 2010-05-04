@@ -91,7 +91,7 @@ class opt_parser(optparse.OptionParser):
 				if not module.configure.__doc__:
 					module.configure.__doc__ = 'configures the project'
 
-			ban = ['set_options', 'init', 'shutdown']
+			ban = ['options', 'init', 'shutdown']
 
 			optlst = [x for x in keys if not x in ban
 				and type(tbl[x]) is type(get_usage)
@@ -142,7 +142,7 @@ class OptionsContext(Context):
 			tool = tool.replace('++', 'xx')
 			module = Base.load_tool(tool, path)
 			try:
-				fun = module.set_options
+				fun = module.options
 			except AttributeError:
 				pass
 			else:

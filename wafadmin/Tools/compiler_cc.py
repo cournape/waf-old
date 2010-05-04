@@ -32,7 +32,7 @@ def detect(conf):
 	pretends to be something it is not (setting CC=icc and trying to configure gcc)
 	"""
 	try: test_for_compiler = Options.options.check_c_compiler
-	except AttributeError: conf.fatal("Add set_options(opt): opt.tool_options('compiler_cc')")
+	except AttributeError: conf.fatal("Add options(opt): opt.tool_options('compiler_cc')")
 	for compiler in test_for_compiler.split():
 		try:
 			conf.check_tool(compiler)
@@ -48,7 +48,7 @@ def detect(conf):
 	else:
 		conf.fatal('could not configure a c compiler!')
 
-def set_options(opt):
+def options(opt):
 	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = __list_possible_compiler(build_platform)
 	test_for_compiler = ' '.join(possible_compiler_list)

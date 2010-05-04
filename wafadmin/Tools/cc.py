@@ -69,7 +69,7 @@ def apply_defines_cc(self):
 	y = self.env['CCDEFINES_ST']
 	self.env['_CCDEFFLAGS'] = [y%x for x in milst]
 
-@extension(EXT_CC)
+@extension(*EXT_CC)
 def c_hook(self, node):
 	# create the compilation task: cpp or cc
 	if getattr(self, 'obj_ext', None):
