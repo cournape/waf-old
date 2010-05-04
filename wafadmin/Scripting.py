@@ -145,7 +145,7 @@ def run_commands():
 		run_command(cmd_name)
 		if not Options.options.progress_bar:
 			elapsed = ' (%s)' % str(timer)
-		info('%r finished successfully%s' % (cmd_name, elapsed))
+			info('%r finished successfully%s' % (cmd_name, elapsed))
 	run_command('shutdown')
 
 ###########################################################################################
