@@ -541,7 +541,6 @@ def compile_fun_noshell(name, line):
 		if var == 'SRC':
 			if meth: app('lst.append(task.inputs%s)' % meth)
 			else: app("lst.extend([a.path_from(task.generator.bld.bldnode) for a in task.inputs])")
-			app("print(task.generator.compiled_tasks)")
 		elif var == 'TGT':
 			if meth: app('lst.append(task.outputs%s)' % meth)
 			else: app("lst.extend([a.path_from(task.generator.bld.bldnode) for a in task.outputs])")
