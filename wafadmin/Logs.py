@@ -54,10 +54,10 @@ else:
 			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
 			struct.pack("HHHH", 0, 0, 0, 0)))[:2]
 			return cols
-		# we actually try the function once to see if it is suitable
+		# try the function once to see if it really works
 		try:
 			get_term_cols_real()
-		except IOError:
+		except:
 			pass
 		else:
 			get_term_cols = get_term_cols_real
