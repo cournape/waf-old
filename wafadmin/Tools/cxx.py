@@ -93,7 +93,7 @@ cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in=
 cls.scan = ccroot.scan
 cls.vars.append('CXXDEPS')
 
-link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath(env)} ${LINKFLAGS}'
+link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
 cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
 cls.maxjobs = 1
 cls.install = Utils.nada

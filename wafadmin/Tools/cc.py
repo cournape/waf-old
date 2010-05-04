@@ -89,7 +89,7 @@ cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c', sh
 cls.scan = ccroot.scan
 cls.vars.append('CCDEPS')
 
-link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath(env)} ${LINKFLAGS}'
+link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
 cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
 cls.maxjobs = 1
 cls.install = Utils.nada
