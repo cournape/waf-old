@@ -503,7 +503,7 @@ def compile_fun_shell(name, line):
 	for (var, meth) in extr:
 		if var == 'SRC':
 			if meth: app('task.inputs%s' % meth)
-			else: app('" ".join([a.srcpath(env) for a in task.inputs])')
+			else: app('" ".join([a.srcpath() for a in task.inputs])')
 		elif var == 'TGT':
 			if meth: app('task.outputs%s' % meth)
 			else: app('" ".join([a.bldpath() for a in task.outputs])')
@@ -540,7 +540,7 @@ def compile_fun_noshell(name, line):
 		(var, meth) = extr[x]
 		if var == 'SRC':
 			if meth: app('lst.append(task.inputs%s)' % meth)
-			else: app("lst.extend([a.srcpath(env) for a in task.inputs])")
+			else: app("lst.extend([a.srcpath() for a in task.inputs])")
 		elif var == 'TGT':
 			if meth: app('lst.append(task.outputs%s)' % meth)
 			else: app("lst.extend([a.bldpath() for a in task.outputs])")

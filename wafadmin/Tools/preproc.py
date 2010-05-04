@@ -596,7 +596,7 @@ class c_parser(object):
 			self.defs  = dict(defines) # make a copy
 		self.state = []
 
-		self.env   = None # needed for the variant when searching for files
+		self.env   = None # needed for the defines when searching for files
 
 		self.count_files = 0
 		self.currentnode_stack = []
@@ -633,7 +633,7 @@ class c_parser(object):
 	def addlines(self, node):
 
 		self.currentnode_stack.append(node.parent)
-		filepath = node.abspath(self.env)
+		filepath = node.abspath()
 
 		self.count_files += 1
 		if self.count_files > 30000: raise PreprocError("recursion limit exceeded")
@@ -663,7 +663,6 @@ class c_parser(object):
 		debug('preproc: scanning %s (in %s)' % (node.name, node.parent.name))
 
 		self.env = env
-		variant = node.variant(env)
 		bld = node.__class__.bld
 		try:
 			self.parse_cache = bld.parse_cache
@@ -780,7 +779,7 @@ def get_deps_simple(node, env, nodepaths=[], defines={}):
 	names = []
 
 	def find_deps(node):
-		lst = lines_includes(node.abspath(env))
+		lst = lines_includes(node.abspath())
 
 		for (_, line) in lst:
 			(t, filename) = extract_include(line, defines)
