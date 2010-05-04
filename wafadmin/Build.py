@@ -117,7 +117,6 @@ class BuildContext(Context):
 
 		self.all_task_gen = []
 		self.task_gen_cache_names = {}
-		self.cache_sig_vars = {}
 		self.log = None
 
 		self.is_install = None
@@ -386,16 +385,10 @@ class BuildContext(Context):
 		# ccroot objects use the same environment for building the .o at once
 		# the same environment and the same variables are used
 
-		idx = str(id(env)) + str(vars_lst)
-		try: return self.cache_sig_vars[idx]
-		except KeyError: pass
-
 		lst = [str(env[a]) for a in vars_lst]
 		ret = Utils.h_list(lst)
 		debug("envhash: %r %r" % (ret, lst))
 
-		# next time
-		self.cache_sig_vars[idx] = ret
 		return ret
 
 	def name_to_obj(self, name):
