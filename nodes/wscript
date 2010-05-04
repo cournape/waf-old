@@ -4,11 +4,10 @@ top = '.'
 out = 'bin'
 
 def options(opt):
-	return
-	print(opt)
+	opt.tool_options('compiler_cc')
 
 def configure(conf):
-	pass
+	conf.check_tool('compiler_cc')
 
 def build(bld):
 
