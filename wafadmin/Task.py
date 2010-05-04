@@ -503,10 +503,10 @@ def compile_fun_shell(name, line):
 	for (var, meth) in extr:
 		if var == 'SRC':
 			if meth: app('task.inputs%s' % meth)
-			else: app('" ".join([a.bldpath() for a in task.inputs])')
+			else: app('" ".join([a.path_from(task.generator.bld.bldnode) for a in task.inputs])')
 		elif var == 'TGT':
 			if meth: app('task.outputs%s' % meth)
-			else: app('" ".join([a.bldpath() for a in task.outputs])')
+			else: app('" ".join([a.path_from(task.generator.bld.bldnode) for a in task.outputs])')
 		else:
 			if not var in dvars: dvars.append(var)
 			app("p('%s')" % var)
@@ -540,10 +540,10 @@ def compile_fun_noshell(name, line):
 		(var, meth) = extr[x]
 		if var == 'SRC':
 			if meth: app('lst.append(task.inputs%s)' % meth)
-			else: app("lst.extend([a.bldpath() for a in task.inputs])")
+			else: app("lst.extend([a.path_from(task.generator.bld.bldnode) for a in task.inputs])")
 		elif var == 'TGT':
 			if meth: app('lst.append(task.outputs%s)' % meth)
-			else: app("lst.extend([a.bldpath() for a in task.outputs])")
+			else: app("lst.extend([a.path_from(task.generator.bld.bldnode) for a in task.outputs])")
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
@@ -684,7 +684,7 @@ def can_retrieve_cache(self):
 	for node in self.outputs:
 		node.sig = sig
 		if Options.options.progress_bar < 1:
-			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
+			self.generator.bld.printout('restoring from cache %r\n' % node.abspath())
 
 	self.cached = True
 	return True
