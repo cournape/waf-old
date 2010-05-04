@@ -31,9 +31,9 @@ def apply_uselib_cs(self):
 
 @feature('cs')
 @after('apply_uselib_cs')
-@before('apply_core')
+@before('process_source')
 def apply_cs(self):
-	try: self.meths.remove('apply_core')
+	try: self.meths.remove('process_source')
 	except ValueError: pass
 
 	# process the flags for the assemblies

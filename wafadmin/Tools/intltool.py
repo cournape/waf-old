@@ -15,10 +15,10 @@ Usage:
 bld.new_task_gen(features='intltool_in', source='a.po b.po', podir='po', cache='.intlcache', flags='')
 """
 
-@before('apply_core')
+@before('process_source')
 @feature('intltool_in')
 def iapply_intltool_in_f(self):
-	try: self.meths.remove('apply_core')
+	try: self.meths.remove('process_source')
 	except ValueError: pass
 
 	for i in self.to_list(self.source):
@@ -40,7 +40,7 @@ def iapply_intltool_in_f(self):
 
 @feature('intltool_po')
 def apply_intltool_po(self):
-	try: self.meths.remove('apply_core')
+	try: self.meths.remove('process_source')
 	except ValueError: pass
 
 	self.default_install_path = '${LOCALEDIR}'

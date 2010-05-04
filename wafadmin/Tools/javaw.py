@@ -55,7 +55,7 @@ public class Test {
 '''
 
 @feature('jar')
-@before('apply_core')
+@before('process_source')
 def jar_files(self):
 	basedir = getattr(self, 'basedir', '.')
 	destfile = getattr(self, 'destfile', 'test.jar')
@@ -78,7 +78,7 @@ def jar_files(self):
 	tsk.env['JARCREATE'] = jarcreate
 
 @feature('javac')
-@before('apply_core')
+@before('process_source')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
 		sourcepath='.', srcdir='.', source_re='**/*.java',

@@ -12,7 +12,7 @@ from TaskGen import taskgen, feature, after, before, extension
 from Configure import conftest
 
 EXT_D = ['.d', '.di', '.D']
-D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
+D_METHS = ['process_source', 'apply_vnum', 'apply_objdeps'] # additional d methods
 
 def filter_comments(filename):
 	txt = Utils.readf(filename)
@@ -316,7 +316,7 @@ def apply_d_libs(self):
 				self.env.append_unique('INC_PATHS', node)
 
 @feature('dprogram', 'dshlib', 'dstaticlib')
-@after('apply_core')
+@after('process_source')
 def apply_d_link(self):
 	link = getattr(self, 'link', None)
 	if not link:
@@ -327,7 +327,7 @@ def apply_d_link(self):
 	self.link_task = self.create_task(link, outputs, self.path.find_or_declare(get_target_name(self)))
 
 @feature('d')
-@after('apply_core')
+@after('process_source')
 def apply_d_vars(self):
 	env = self.env
 	dpath_st   = env['DPATH_ST']
@@ -463,7 +463,7 @@ def generate_header(self, filename, install_path):
 	self.meths.append('process_header')
 	self.header_lst.append([filename, install_path])
 
-@before('apply_core')
+@before('process_source')
 def process_header(self):
 	env = self.env
 	for i in getattr(self, 'header_lst', []):

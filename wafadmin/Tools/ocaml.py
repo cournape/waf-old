@@ -110,7 +110,7 @@ def apply_incpaths_ml(self):
 	# now the nodes are added to self.incpaths_lst
 
 @feature('ocaml')
-@before('apply_core')
+@before('process_source')
 def apply_vars_ml(self):
 	for i in self.incpaths_lst:
 		if self.bytecode_env:
@@ -136,7 +136,7 @@ def apply_vars_ml(self):
 				if self.native_env: self.native_env.append_value(vname, cnt)
 
 @feature('ocaml')
-@after('apply_core')
+@after('process_source')
 def apply_link_ml(self):
 
 	if self.bytecode_env:

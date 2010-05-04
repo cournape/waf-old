@@ -99,7 +99,7 @@ for pyfile in sys.argv[1:]:
 			if ret:
 				raise Utils.WafError('bytecode compilation failed %r' % path)
 
-@before('apply_core')
+@before('process_source')
 @after('vars_target_cprogram', 'vars_target_cstaticlib')
 @feature('py')
 def init_py(self):

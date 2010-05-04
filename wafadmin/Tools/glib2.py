@@ -18,7 +18,7 @@ def add_marshal_file(self, filename, prefix):
 	self.meths.append('process_marshal')
 	self.marshal_list.append((filename, prefix))
 
-@before('apply_core')
+@before('process_source')
 def process_marshal(self):
 	for f, prefix in getattr(self, 'marshal_list', []):
 		node = self.path.find_resource(f)
@@ -103,7 +103,7 @@ def add_enums(self, source='', target='',
 	                        'value-tail': value_tail,
 	                        'comments': comments})
 
-@before('apply_core')
+@before('process_source')
 def process_enums(self):
 	for enum in getattr(self, 'enums_list', []):
 		task = self.create_task('glib_mkenums')

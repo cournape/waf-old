@@ -145,7 +145,7 @@ def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
 @feature('tex')
-@before('apply_core')
+@before('process_source')
 def apply_tex(self):
 	if not getattr(self, 'type', None) in ['latex', 'pdflatex']:
 		self.type = 'pdflatex'

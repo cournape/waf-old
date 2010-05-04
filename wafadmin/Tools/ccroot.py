@@ -27,7 +27,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	try:
 		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		p.stdin.write(b'\n')
-		out = p.communicate()[0].decode("utf-8")
+		out = p.communicate()[0].decode('utf-8')
 	except:
 		conf.fatal('could not determine the compiler version %r' % cmd)
 
@@ -171,7 +171,7 @@ def get_target_name(self):
 	return os.path.join(dir, pattern % name)
 
 @feature('cc', 'cxx')
-@before('apply_core')
+@before('process_source')
 def default_cc(self):
 	"""compiled_tasks attribute must be set before the '.c->.o' tasks can be created"""
 	Utils.def_attrs(self,
@@ -209,14 +209,14 @@ def apply_verif(self):
 
 @feature('cprogram', 'dprogram')
 @after('default_cc')
-@before('apply_core')
+@before('process_source')
 def vars_target_cprogram(self):
 	self.default_install_path = self.env.BINDIR
 	self.default_chmod = O755
 
 @after('default_cc')
 @feature('cshlib', 'dshlib')
-@before('apply_core')
+@before('process_source')
 def vars_target_cshlib(self):
 	if self.env.DEST_BINFMT == 'pe':
 		#   set execute bit on libs to avoid 'permission denied' (issue 283)
@@ -234,11 +234,11 @@ def default_link_install(self):
 		self.bld.install_files(self.install_path, self.link_task.outputs[0], env=self.env, chmod=self.chmod)
 
 @feature('cc', 'cxx')
-@after('apply_type_vars', 'apply_lib_vars', 'apply_core')
+@after('apply_type_vars', 'apply_lib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
 	after processing the uselib for CPPPATH
-	after apply_core because some processing may add include paths
+	after process_source because some processing may add include paths
 	"""
 	lst = []
 	# TODO move the uselib processing out of here
@@ -302,9 +302,9 @@ def apply_type_vars(self):
 			if value: self.env.append_value(var, value)
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
-@after('apply_core')
+@after('process_source')
 def apply_link(self):
-	"""executes after apply_core for collecting 'compiled_tasks'
+	"""executes after process_source for collecting 'compiled_tasks'
 	use a custom linker if specified (self.link='name-of-custom-link-task')"""
 	link = getattr(self, 'link', None)
 	if not link:

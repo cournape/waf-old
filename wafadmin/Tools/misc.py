@@ -42,13 +42,13 @@ def apply_cmd(self):
 	tsk.install_path = self.install_path
 
 @feature('copy')
-@before('apply_core')
+@before('process_source')
 def apply_copy(self):
 	Utils.def_attrs(self, fun=copy_func)
 	self.default_install_path = 0
 
 	lst = self.to_list(self.source)
-	self.meths.remove('apply_core')
+	self.meths.remove('process_source')
 
 	for filename in lst:
 		node = self.path.find_resource(filename)
@@ -96,12 +96,12 @@ def subst_func(tsk):
 	if tsk.chmod: os.chmod(outfile, tsk.chmod)
 
 @feature('subst')
-@before('apply_core')
+@before('process_source')
 def apply_subst(self):
 	Utils.def_attrs(self, fun=subst_func)
 	self.default_install_path = 0
 	lst = self.to_list(self.source)
-	self.meths.remove('apply_core')
+	self.meths.remove('process_source')
 
 	self.dict = getattr(self, 'dict', {})
 
