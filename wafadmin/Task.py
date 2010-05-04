@@ -175,11 +175,11 @@ class TaskBase(object, metaclass=store_task_type):
 		d = self.attr('install')
 
 		if self.attr('install_path'):
-			lst = [a.path_from(bld.srcnode) for a in self.outputs]
+			lst = [a.path_from(bld.bldnode) for a in self.outputs]
 			perm = self.attr('chmod', O644)
 			if self.attr('src'):
 				# if src is given, install the sources too
-				lst += [a.path_from(bld.srcnode) for a in self.inputs]
+				lst += [a.path_from(bld.bldnode) for a in self.inputs]
 			if self.attr('filename'):
 				dir = self.install_path.rstrip(os.sep) + os.sep + self.attr('filename')
 				bld.install_as(dir, lst[0], self.env, perm)

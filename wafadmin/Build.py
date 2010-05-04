@@ -89,9 +89,6 @@ class BuildContext(Context):
 		self.node_class.__name__ = "Nod3"
 		self.node_class.bld = self
 
-		# task generator unique id generator
-		self.idx = {}
-
 		# map names to environments, the 'default' must be defined
 		self.all_envs = {}
 
