@@ -17,7 +17,7 @@ cls.install = Utils.nada
 # remove the output in case it already exists
 old = cls.run
 def wrap(self):
-	try: os.remove(self.outputs[0].abspath(self.env))
+	try: os.remove(self.outputs[0].abspath())
 	except OSError: pass
 	return old(self)
 setattr(cls, 'run', wrap)
