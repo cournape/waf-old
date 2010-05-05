@@ -330,10 +330,6 @@ class TaskGroup(object):
 				for b in outs[k]:
 					a.set_run_after(b)
 
-	def get_next_set(self):
-		"next list of tasks to execute using max job settings, returns (maxjobs, task_list)"
-		return self.tasks_in_parallel()
-
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
 		self.cstr_groups = defaultdict(list)
@@ -391,10 +387,10 @@ class TaskGroup(object):
 				elif val < 0:
 					self.set_order(keys[j], keys[i])
 
-	def tasks_in_parallel(self):
-		"(NORMAL) next list of tasks that may be executed in parallel"
+	def get_next_set(self):
+		"next list of tasks that may be executed in parallel"
 
-		if not getattr(self, 'ready', None):
+		if not getattr(self, 'ready_iter', None):
 
 			# if the constraints are set properly (ext_in/ext_out, before/after)
 			# the method set_constraints is not necessary (can be 15% penalty on no-op rebuilds)
@@ -408,7 +404,7 @@ class TaskGroup(object):
 			self.make_cstr_groups()
 			self.extract_constraints()
 
-			self.ready = True
+			self.ready_iter = True
 
 		keys = self.cstr_groups.keys()
 
@@ -433,8 +429,10 @@ class TaskGroup(object):
 				except KeyError: pass
 				self.cstr_groups.__delitem__(y)
 
-		if not toreturn and remainder:
-			raise WafError("Circular order constraint detected %r" % remainder)
+		if not toreturn:
+			self.ready_iter = False
+			if remainder:
+				raise WafError("Circular order constraint detected %r" % remainder)
 
 		return toreturn
 
