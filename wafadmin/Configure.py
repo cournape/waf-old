@@ -240,7 +240,7 @@ class ConfigurationContext(Context):
 		self.line_just = max(self.line_just, len(msg))
 		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
 			self.log.write(x)
-		Utils.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
+		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
 	def end_msg(self, result, color=None):
 		self.in_msg -= 1
@@ -259,7 +259,7 @@ class ConfigurationContext(Context):
 		color = color or defcolor
 		self.log.write(msg)
 		self.log.write('\n')
-		Utils.pprint(color, msg)
+		Logs.pprint(color, msg)
 
 	def find_program(self, filename, path_list=[], var=None, mandatory=False, environ=None, exts=''):
 		"wrapper that adds a configuration message"
@@ -300,7 +300,8 @@ class ConfigurationContext(Context):
 						if os.path.isfile(x):
 							ret = x
 
-		self.check_message('program', ','.join(filename), ret, ret)
+		self.start_msg('Checking for program ' + ','.join(filename))
+		self.end_msg(ret)
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 
 		if not ret and mandatory:
@@ -388,11 +389,11 @@ class ConfigurationContext(Context):
 		self.post_init()
 
 		if 'incomplete_src' in vars():
-			self.check_message_1('Setting srcdir to')
-			self.check_message_2(src)
+			self.start_msg('Setting srcdir to')
+			self.end_msg(src)
 		if 'incomplete_bld' in vars():
-			self.check_message_1('Setting blddir to')
-			self.check_message_2(bld)
+			self.start_msg('Setting blddir to')
+			self.end_msg(bld)
 
 	def store(self, file=''):
 		"save the config results into the cache file"
