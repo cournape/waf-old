@@ -365,13 +365,23 @@ class Node(object):
 			if node:
 				return node
 			self = self.get_src() # !!!
-		elif self.is_src():
-			node = self.get_bld().search(lst)
-			if node:
-				return node
+
+		node = self.search(lst)
+		if node:
+			# compute the signature only once
+			node.compute_sig()
+			return node
+
+		node = self.get_bld().search(lst)
+		if node:
+			return node
+
 		node = self.find_node(lst)
 		if node:
+			# compute the signature only once
 			node.compute_sig()
+			return node
+
 		return node
 
 	def find_or_declare(self, lst):
