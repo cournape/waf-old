@@ -291,7 +291,9 @@ class task_gen(object):
 		else: self.source += lst
 
 	def clone(self, env):
-		""
+		"""when creating a clone in a task generator method, 
+		make sure to set posted=False on the clone 
+		else the other task generator will not create its tasks"""
 		newobj = task_gen(bld=self.bld)
 		for x in self.__dict__:
 			if x in ['env', 'bld']:
