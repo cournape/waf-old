@@ -121,11 +121,11 @@ class formatter(logging.Formatter):
 				return rec.c1+rec.msg+rec.c2
 		return logging.Formatter.format(self, rec)
 
-def debug(msg):
+def debug(*k, **kw):
 	if verbose:
-		# FIXME why does it eat the newlines????
-		msg = msg.replace('\n', ' ')
-		logging.debug(msg)
+		k = list(k)
+		k[0] = k[0].replace('\n', ' ')
+		logging.debug(*k, **kw)
 
 def error(msg):
 	logging.error(msg)
