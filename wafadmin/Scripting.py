@@ -80,7 +80,6 @@ def waf_entry_point(current_directory, version, wafdir):
 	cProfile.runctx("import Scripting; Scripting.run_commands()", {}, {}, 'profi.txt')
 	p = pstats.Stats('profi.txt')
 	p.sort_stats('time').print_stats(45)
-
 	"""
 	try:
 		run_commands()
