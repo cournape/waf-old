@@ -296,7 +296,6 @@ class TaskGroup(object):
 		self.cstr_groups = defaultdict(list) # tasks having equivalent constraints
 		self.cstr_order = defaultdict(set) # partial order between the cstr groups
 		self.temp_tasks = [] # tasks put on hold
-		self.ready = 0
 		self.post_funs = []
 
 	def reset(self):
@@ -307,27 +306,10 @@ class TaskGroup(object):
 		self.temp_tasks = []
 		self.cstr_groups = defaultdict(list)
 		self.cstr_order = defaultdict(set)
-		self.ready = 0
 
 	def process_install(self):
 		for (f, k, kw) in self.post_funs:
 			f(*k, **kw)
-
-	def prepare(self):
-		"prepare the scheduling"
-		self.ready = 1
-
-		# if the constraints are set properly (ext_in/ext_out, before/after)
-		# the method set_constraints is not necessary (can be 15% penalty on no-op rebuilds)
-		#
-		# the constraint extraction thing is splitting the tasks by groups of independent tasks that may be parallelized
-		# this is slightly redundant with the task manager groups
-		#
-		# if the tasks have only files, set_constraints is required but extract_constraints is not necessary
-		#
-		self.set_constraints()
-		self.make_cstr_groups()
-		self.extract_constraints()
 
 	def set_constraints(self):
 		"will set the run_after constraints on all tasks, it may cause a slowdown"
@@ -412,7 +394,21 @@ class TaskGroup(object):
 	def tasks_in_parallel(self):
 		"(NORMAL) next list of tasks that may be executed in parallel"
 
-		if not self.ready: self.prepare()
+		if not getattr(self, 'ready', None):
+
+			# if the constraints are set properly (ext_in/ext_out, before/after)
+			# the method set_constraints is not necessary (can be 15% penalty on no-op rebuilds)
+			#
+			# the constraint extraction thing is splitting the tasks by groups of independent tasks that may be parallelized
+			# this is slightly redundant with the task manager groups
+			#
+			# if the tasks have only files, set_constraints is required but extract_constraints is not necessary
+			#
+			self.set_constraints()
+			self.make_cstr_groups()
+			self.extract_constraints()
+
+			self.ready = True
 
 		keys = self.cstr_groups.keys()
 
