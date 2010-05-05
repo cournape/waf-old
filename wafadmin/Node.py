@@ -285,7 +285,7 @@ class Node(object):
 		cache into the build context, cache_node_abspath
 		"""
 		try:
-			return self.cache_abspath()
+			return self.cache_abspath
 		except:
 			pass
 		# think twice before touching this (performance + complexity + correctness)
