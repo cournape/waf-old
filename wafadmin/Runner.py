@@ -311,25 +311,6 @@ class TaskGroup(object):
 		for (f, k, kw) in self.post_funs:
 			f(*k, **kw)
 
-	def set_constraints(self):
-		"will set the run_after constraints on all tasks, it may cause a slowdown"
-		tasks = self.tasks
-		ins = {}
-		outs = {}
-		for x in tasks:
-			for a in getattr(x, 'inputs', []):
-				try: ins[id(a)].append(x)
-				except KeyError: ins[id(a)] = [x]
-			for a in getattr(x, 'outputs', []):
-				try: outs[id(a)].append(x)
-				except KeyError: outs[id(a)] = [x]
-
-		links = set(ins.keys()).intersection(outs.keys())
-		for k in links:
-			for a in ins[k]:
-				for b in outs[k]:
-					a.set_run_after(b)
-
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
 		self.cstr_groups = defaultdict(list)
@@ -393,14 +374,14 @@ class TaskGroup(object):
 		if not getattr(self, 'ready_iter', None):
 
 			# if the constraints are set properly (ext_in/ext_out, before/after)
-			# the method set_constraints is not necessary (can be 15% penalty on no-op rebuilds)
+			# the method set_file_constraints is not necessary (can be 15% penalty on no-op rebuilds)
 			#
 			# the constraint extraction thing is splitting the tasks by groups of independent tasks that may be parallelized
 			# this is slightly redundant with the task manager groups
 			#
-			# if the tasks have only files, set_constraints is required but extract_constraints is not necessary
+			# if the tasks have only files, set_file_constraints is required but extract_constraints is not necessary
 			#
-			self.set_constraints()
+			self.set_file_constraints(self.tasks)
 			self.make_cstr_groups()
 			self.extract_constraints()
 
@@ -435,4 +416,23 @@ class TaskGroup(object):
 				raise WafError("Circular order constraint detected %r" % remainder)
 
 		return toreturn
+
+	def set_file_constraints(self, tasks):
+		"will set the run_after constraints on all tasks, it may cause a slowdown"
+		ins = {}
+		outs = {}
+		for x in tasks:
+			for a in getattr(x, 'inputs', []):
+				try: ins[id(a)].append(x)
+				except KeyError: ins[id(a)] = [x]
+			for a in getattr(x, 'outputs', []):
+				try: outs[id(a)].append(x)
+				except KeyError: outs[id(a)] = [x]
+
+		links = set(ins.keys()).intersection(outs.keys())
+		for k in links:
+			for a in ins[k]:
+				for b in outs[k]:
+					a.set_run_after(b)
+
 
