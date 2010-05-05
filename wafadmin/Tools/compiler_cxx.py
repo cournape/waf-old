@@ -30,15 +30,16 @@ def detect(conf):
 	except AttributeError: raise Configure.ConfigurationError("Add set_options(opt): opt.tool_options('compiler_cxx')")
 	for compiler in test_for_compiler.split():
 		try:
+			conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 			conf.check_tool(compiler)
 		except Configure.ConfigurationError as e:
 			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:
-				conf.check_message(compiler, '', True)
+				conf.end_msg(True)
 				conf.env['COMPILER_CXX'] = compiler
 				break
-			conf.check_message(compiler, '', False)
+			conf.end_msg(False)
 			break
 	else:
 		conf.fatal('could not configure a cxx compiler!')

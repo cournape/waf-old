@@ -35,15 +35,16 @@ def detect(conf):
 	except AttributeError: conf.fatal("Add options(opt): opt.tool_options('compiler_cc')")
 	for compiler in test_for_compiler.split():
 		try:
+			conf.start_msg('Checking for %r (c compiler)' % compiler)
 			conf.check_tool(compiler)
 		except Configure.ConfigurationError as e:
 			debug('compiler_cc: %r' % e)
 		else:
 			if conf.env['CC']:
-				conf.check_message(compiler, '', True)
+				conf.end_msg(True)
 				conf.env['COMPILER_CC'] = compiler
 				break
-			conf.check_message(compiler, '', False)
+			conf.end_msg(False)
 			break
 	else:
 		conf.fatal('could not configure a c compiler!')
