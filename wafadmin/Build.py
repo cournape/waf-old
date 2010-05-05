@@ -380,14 +380,35 @@ class BuildContext(Context):
 
 	def hash_env_vars(self, env, vars_lst):
 		"""hash environment variables
-		['CXX', ..] -> [env['CXX'], ..] -> md5()"""
+		['CXX', ..] -> [env['CXX'], ..] -> md5()
+
+		cached by build context
+		"""
 
 		# ccroot objects use the same environment for building the .o at once
 		# the same environment and the same variables are used
 
+		if not env.table:
+			env = env.parent
+			if not env:
+				return SIG_NIL
+
+		idx = str(id(env)) + str(vars_lst)
+		try:
+			cache = self.cache_env
+		except AttributeError:
+			cache = self.cache_env = {}
+		else:
+			try:
+				return self.cache_env[idx]
+			except KeyError:
+				pass
+
 		lst = [str(env[a]) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		debug("envhash: %r %r" % (ret, lst))
+		debug('envhash: %r %r', ret, lst)
+
+		cache[idx] = ret
 
 		return ret
 
