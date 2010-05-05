@@ -229,27 +229,37 @@ class ConfigurationContext(Context):
 		try: self.env.append_value(dest or var, Utils.to_list(self.environ[var]))
 		except KeyError: pass
 
-	def check_message_1(self, sr):
-		self.line_just = max(self.line_just, len(sr))
-		self.log.write(sr + '\n\n')
-		Logs.pprint('NORMAL', "%s :" % sr.ljust(self.line_just), sep='')
+	def start_msg(self, msg):
+		try:
+			if self.in_msg:
+				return
+		except:
+			self.in_msg = 1
+		self.in_msg += 1
 
-	def check_message_2(self, sr, color='GREEN'):
-		Logs.pprint(color, sr)
+		self.line_just = max(self.line_just, len(msg))
+		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
+			self.log.write(x)
+		Utils.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
-	def check_message(self, th, msg, state, option=''):
-		sr = 'Checking for %s %s' % (th, msg)
-		self.check_message_1(sr)
-		p = self.check_message_2
-		if state: p('ok ' + option)
-		else: p('not found', 'YELLOW')
+	def end_msg(self, result, color=None):
+		self.in_msg -= 1
+		if self.in_msg:
+			return
 
-	# FIXME remove in waf 1.6
-	# the parameter 'option' is not used (kept for compatibility)
-	def check_message_custom(self, th, msg, custom, option='', color='PINK'):
-		sr = 'Checking for %s %s' % (th, msg)
-		self.check_message_1(sr)
-		self.check_message_2(custom, color)
+		defcolor = 'GREEN'
+		if result == True:
+			msg = 'ok'
+		elif result == False:
+			msg = 'not found'
+			defcolor = 'YELLOW'
+		else:
+			msg = str(result)
+
+		color = color or defcolor
+		self.log.write(msg)
+		self.log.write('\n')
+		Utils.pprint(color, msg)
 
 	def find_program(self, filename, path_list=[], var=None, mandatory=False, environ=None, exts=''):
 		"wrapper that adds a configuration message"
