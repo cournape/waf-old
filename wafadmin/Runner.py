@@ -229,14 +229,15 @@ class TaskManager(object):
 	def get_next_set(self):
 		"""return the next set of tasks to execute
 		the first parameter is the maximum amount of parallelization that may occur"""
-		ret = None
-		while not ret and self.current_group < len(self.groups):
+
+		while self.current_group < len(self.groups):
 			ret = self.groups[self.current_group].get_next_set()
-			if ret: return ret
+			if ret:
+				return ret
 			else:
 				self.groups[self.current_group].process_install()
 				self.current_group += 1
-		return (None, None)
+		return []
 
 	def add_group(self, name=None, set=True):
 		#if self.groups and not self.groups[0].tasks:
@@ -322,7 +323,7 @@ class TaskGroup(object):
 		# the constraint extraction thing is splitting the tasks by groups of independent tasks that may be parallelized
 		# this is slightly redundant with the task manager groups
 		#
-		# if the tasks only have files, set_constraints is required but extract_constraints is not necessary
+		# if the tasks have only files, set_constraints is required but extract_constraints is not necessary
 		#
 		self.set_constraints()
 		self.make_cstr_groups()
