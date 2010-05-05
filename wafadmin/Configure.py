@@ -181,7 +181,7 @@ class ConfigurationContext(Utils.Context):
 					lst = os.listdir(d)
 					if tool + '.py' in lst:
 						break
-				else:
+				if 0:
 					# try to download the tool from the repository then
 					for x in Utils.to_list(Options.remote_repo):
 						for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
