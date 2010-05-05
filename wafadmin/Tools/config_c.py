@@ -200,13 +200,13 @@ def exec_cfg(self, kw):
 def check_cfg(self, *k, **kw):
 	self.validate_cfg(kw)
 	if 'msg' in kw:
-		self.check_message_1(kw['msg'])
+		self.start_msg(kw['msg'])
 	ret = None
 	try:
 		ret = self.exec_cfg(kw)
 	except Configure.ConfigurationError as e:
 		if 'errmsg' in kw:
-			self.check_message_2(kw['errmsg'], 'YELLOW')
+			self.end_msg(kw['errmsg'], 'YELLOW')
 		if 'mandatory' in kw and kw['mandatory']:
 			if Logs.verbose > 1:
 				raise
@@ -215,7 +215,7 @@ def check_cfg(self, *k, **kw):
 	else:
 		kw['success'] = ret
 		if 'okmsg' in kw:
-			self.check_message_2(self.ret_msg(kw['okmsg'], kw))
+			self.end_msg(self.ret_msg(kw['okmsg'], kw))
 
 	return ret
 
@@ -424,12 +424,12 @@ def check(self, *k, **kw):
 	# so this will be the generic function
 	# it will be safer to use check_cxx or check_cc
 	self.validate_c(kw)
-	self.check_message_1(kw['msg'])
+	self.start_msg(kw['msg'])
 	ret = None
 	try:
 		ret = self.run_c_code(*k, **kw)
 	except Configure.ConfigurationError as e:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
+		self.end_msg(kw['errmsg'], 'YELLOW')
 		if 'mandatory' in kw and kw['mandatory']:
 			if Logs.verbose > 1:
 				raise
@@ -437,7 +437,7 @@ def check(self, *k, **kw):
 				self.fatal('the configuration failed (see %r)' % self.log.name)
 	else:
 		kw['success'] = ret
-		self.check_message_2(self.ret_msg(kw['okmsg'], kw))
+		self.end_msg(self.ret_msg(kw['okmsg'], kw))
 
 	self.post_check(*k, **kw)
 	if not kw.get('execute', False):
