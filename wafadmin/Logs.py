@@ -127,13 +127,12 @@ def debug(*k, **kw):
 		k[0] = k[0].replace('\n', ' ')
 		logging.debug(*k, **kw)
 
-def error(msg):
-	logging.error(msg)
+def error(*k, **kw):
+	logging.error(*k, **kw)
 	if verbose > 1:
-		try:
-			# Base.WafError <- has a stack attribute
-			st = msg.stack
-		except AttributeError:
+		if isinstance(k[0], Utils.WafError):
+			st = k[0].stack
+		else:
 			st = traceback.extract_stack()
 		if st:
 			st = st[:-1]
