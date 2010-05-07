@@ -103,7 +103,7 @@ def detect(conf):
 				conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 
 			conf.env['INTLTOOL'] = Utils.to_list(conf.env['PERL']) + [intltooldir + os.sep + 'intltool-merge']
-			conf.check_message('intltool', '', True, ' '.join(conf.env['INTLTOOL']))
+			conf.msg('Checking for intltool', ' '.join(conf.env['INTLTOOL']))
 		else:
 			conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 

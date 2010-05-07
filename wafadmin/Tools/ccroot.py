@@ -234,6 +234,31 @@ def default_link_install(self):
 		self.bld.install_files(self.install_path, self.link_task.outputs[0], env=self.env, chmod=self.chmod)
 
 @feature('cc', 'cxx')
+@after('apply_lib_vars')
+def apply_defines(self):
+	"""after uselib is set for DEFINES"""
+	self.defines = getattr(self, 'defines', [])
+
+	lst = self.to_list(self.defines) + self.to_list(self.env['DEFINES'])
+	milst = []
+
+	# now process the local defines
+	for defi in lst:
+		if not defi in milst:
+			milst.extend(self.to_list(defi))
+
+	# DEFINES_USELIB
+	libs = self.to_list(self.uselib)
+	for l in libs:
+		val = self.env['DEFINES_'+l]
+		if val:
+			milst += self.to_list(val)
+
+	self.env['DEFLINES'] = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
+	y = self.env['DEFINES_ST']
+	self.env['_DEFFLAGS'] = [y%x for x in milst]
+
+@feature('cc', 'cxx')
 @after('apply_type_vars', 'apply_lib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
@@ -392,7 +417,7 @@ def apply_lib_vars(self):
 	for x in self.uselib:
 		for v in self.p_flag_vars:
 			val = self.env[v + '_' + x]
-			if val: self.env.append_value(v, [val])
+			if val: self.env.append_value(v, val)
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
 @after('init_cc', 'init_cxx', 'apply_link')

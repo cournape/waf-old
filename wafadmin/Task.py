@@ -263,7 +263,7 @@ class Task(TaskBase):
 
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
-		try: return self.cache_sig[0]
+		try: return self.cache_sig
 		except AttributeError: pass
 
 		m = md5()
@@ -282,16 +282,12 @@ class Task(TaskBase):
 
 		# we now have the signature (first element) and the details (for debugging)
 		ret = m.digest()
-		self.cache_sig = (ret, exp_sig, imp_sig, var_sig)
+		self.cache_sig = ret
 		return ret
 
 	def runnable_status(self):
 		"SKIP_ME RUN_ME or ASK_LATER"
 		#return 0 # benchmarking
-
-		if self.inputs and (not self.outputs):
-			if not getattr(self.__class__, 'quiet', None):
-				warn("invalid task (no inputs OR outputs): override in a Task subclass or set the attribute 'quiet' %r" % self)
 
 		for t in self.run_after:
 			if not t.hasrun:
@@ -324,9 +320,6 @@ class Task(TaskBase):
 				debug("task: task %r must run as the output nodes do not exist" % self)
 				return RUN_ME
 
-		# debug if asked to
-		if Logs.verbose: self.debug_why(bld.task_sigs[key])
-
 		if new_sig != prev_sig:
 			return RUN_ME
 		return SKIP_ME
@@ -351,20 +344,6 @@ class Task(TaskBase):
 			node.sig = sig
 
 		bld.task_sigs[self.unique_id()] = self.cache_sig
-
-	def debug_why(self, old_sigs):
-		"explains why a task is run"
-
-		new_sigs = self.cache_sig
-		def v(x):
-			return Utils.to_hex(x)
-
-		debug("Task %r" % self)
-		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Configuration data variable']
-		tmp = 'task: -> %s: %s %s'
-		for x in range(len(msgs)):
-			if (new_sigs[x] != old_sigs[x]):
-				debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
 	def sig_explicit_deps(self):
 		bld = self.generator.bld

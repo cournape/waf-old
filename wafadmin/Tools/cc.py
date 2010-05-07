@@ -13,7 +13,7 @@ from TaskGen import feature, before, extension, after
 g_cc_flag_vars = [
 'CCDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
+'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'DEFINES']
 
 EXT_CC = ['.c']
 
@@ -37,6 +37,8 @@ def apply_obj_vars_cc(self):
 	app = env.append_unique
 	cpppath_st = env['CPPPATH_ST']
 
+	print(self.env._CCINCFLAGS)
+
 	# local flags come first
 	# set the user-defined includes paths
 	for i in env['INC_PATHS']:
@@ -44,29 +46,7 @@ def apply_obj_vars_cc(self):
 
 	# set the library include paths
 	for i in env['CPPPATH']:
-		app('_CCINCFLAGS', cpppath_st % i)
-
-@feature('cc')
-@after('apply_lib_vars')
-def apply_defines_cc(self):
-	"""after uselib is set for CCDEFINES"""
-	self.defines = getattr(self, 'defines', [])
-	lst = self.to_list(self.defines) + self.to_list(self.env['CCDEFINES'])
-	milst = []
-
-	# now process the local defines
-	for defi in lst:
-		if not defi in milst:
-			milst.append(defi)
-
-	# CCDEFINES_
-	libs = self.to_list(self.uselib)
-	for l in libs:
-		val = self.env['CCDEFINES_'+l]
-		if val: milst += val
-	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
-	y = self.env['CCDEFINES_ST']
-	self.env['_CCDEFFLAGS'] = [y%x for x in milst]
+		app('_CCINCFLAGS', [cpppath_st % i])
 
 @extension(*EXT_CC)
 def c_hook(self, node):
@@ -83,7 +63,7 @@ def c_hook(self, node):
 		raise Utils.WafError('Have you forgotten to set the feature "cc" on %s?' % str(self))
 	return task
 
-cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c', shell=False)
 cls.scan = ccroot.scan
 cls.vars.append('CCDEPS')

@@ -352,10 +352,10 @@ def check_python_version(conf, minver=None):
 	# Feedback
 	pyver_full = '.'.join(map(str, pyver_tuple[:3]))
 	if minver is None:
-		conf.check_message_custom('Python version', '', pyver_full)
+		conf.msg('Python version', pyver_full)
 	else:
 		minver_str = '.'.join(map(str, minver))
-		conf.check_message('Python version', ">= %s" % (minver_str,), result, option=pyver_full)
+		conf.msg('Python version', result, ">= %s" % (minver_str,) and 'GREEN' or 'YELLOW')
 
 	if not result:
 		conf.fatal('The python version is too old (%r)' % minver)

@@ -12,7 +12,7 @@ from TaskGen import feature, before, extension, after
 g_cxx_flag_vars = [
 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
+'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'DEFINES']
 "main cpp variables"
 
 EXT_CXX = ['.cpp', '.cc', '.cxx', '.C', '.c++']
@@ -47,30 +47,7 @@ def apply_obj_vars_cxx(self):
 
 	# set the library include paths
 	for i in env['CPPPATH']:
-		app('_CXXINCFLAGS', cxxpath_st % i)
-
-@feature('cxx')
-@after('apply_lib_vars')
-def apply_defines_cxx(self):
-	"""after uselib is set for CXXDEFINES"""
-	self.defines = getattr(self, 'defines', [])
-	lst = self.to_list(self.defines) + self.to_list(self.env['CXXDEFINES'])
-	milst = []
-
-	# now process the local defines
-	for defi in lst:
-		if not defi in milst:
-			milst.append(defi)
-
-	# CXXDEFINES_USELIB
-	libs = self.to_list(self.uselib)
-	for l in libs:
-		val = self.env['CXXDEFINES_'+l]
-		if val: milst += self.to_list(val)
-
-	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
-	y = self.env['CXXDEFINES_ST']
-	self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
+		app('_CXXINCFLAGS', [cxxpath_st % i])
 
 @extension(*EXT_CXX)
 def cxx_hook(self, node):
@@ -87,7 +64,7 @@ def cxx_hook(self, node):
 		raise Utils.WafError('Have you forgotten to set the feature "cxx" on %s?' % str(self))
 	return task
 
-cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_DEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx', shell=False)
 cls.scan = ccroot.scan
 cls.vars.append('CXXDEPS')

@@ -4,6 +4,8 @@ Waf 1.6
 The points listed with a '+' indicate potential sub-projects (contributions will be welcome)
 
 General
+- give the pkg-config binary path
+- improve the path handling (split by '/')
 - global module repository to avoid re-doing "import"
 - refactor the environment thing
 - debug builds (step-by-step execution + scheduler changes)

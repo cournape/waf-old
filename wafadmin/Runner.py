@@ -219,7 +219,7 @@ class Parallel(object):
 		assert (self.count == 0 or self.stop)
 
 class TaskManager(object):
-	"""The manager is attached to the build object, it holds a list of TaskGroup"""
+	"""The manager is attached to the build context, it holds a list of TaskGroup"""
 	def __init__(self):
 		self.groups = []
 		self.tasks_done = []
@@ -261,16 +261,17 @@ class TaskManager(object):
 			self.current_group = idx
 
 	def add_task_gen(self, tgen):
-		if not self.groups: self.add_group()
+		if not self.groups:
+			self.add_group()
 		self.groups[self.current_group].tasks_gen.append(tgen)
 
 	def add_task(self, task):
-		if not self.groups: self.add_group()
+		if not self.groups:
+			self.add_group()
 		self.groups[self.current_group].tasks.append(task)
 
 	def total(self):
 		total = 0
-		if not self.groups: return 0
 		for group in self.groups:
 			total += len(group.tasks)
 		return total
@@ -312,7 +313,7 @@ class TaskGroup(object):
 			f(*k, **kw)
 
 	def make_cstr_groups(self):
-		"unite the tasks that have similar constraints"
+		"join the tasks that have similar constraints"
 		self.cstr_groups = defaultdict(list)
 		for x in self.tasks:
 			h = x.hash_constraints()
@@ -418,16 +419,20 @@ class TaskGroup(object):
 		return toreturn
 
 	def set_file_constraints(self, tasks):
-		"will set the run_after constraints on all tasks, it may cause a slowdown"
+		"will set the run_after constraints on all tasks (may cause a slowdown with lots of tasks)"
 		ins = {}
 		outs = {}
 		for x in tasks:
 			for a in getattr(x, 'inputs', []):
-				try: ins[id(a)].append(x)
-				except KeyError: ins[id(a)] = [x]
+				try:
+					ins[id(a)].append(x)
+				except KeyError:
+					ins[id(a)] = [x]
 			for a in getattr(x, 'outputs', []):
-				try: outs[id(a)].append(x)
-				except KeyError: outs[id(a)] = [x]
+				try:
+					outs[id(a)].append(x)
+				except KeyError:
+					outs[id(a)] = [x]
 
 		links = set(ins.keys()).intersection(outs.keys())
 		for k in links:

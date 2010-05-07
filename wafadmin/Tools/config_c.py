@@ -64,33 +64,32 @@ def parse_flags(line, uselib, env):
 
 		if st == '-I' or st == '/I':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('CPPPATH_' + uselib, ot)
+			env.append_unique('CPPPATH_' + uselib, [ot])
 		elif st == '-D':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('CXXDEFINES_' + uselib, ot)
-			env.append_unique('CCDEFINES_' + uselib, ot)
+			env.append_unique('DEFINES_' + uselib, [ot])
 		elif st == '-l':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('LIB_' + uselib, ot)
+			env.append_unique('LIB_' + uselib, [ot])
 		elif st == '-L':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('LIBPATH_' + uselib, ot)
+			env.append_unique('LIBPATH_' + uselib, [ot])
 		elif x == '-pthread' or x.startswith('+'):
-			env.append_unique('CCFLAGS_' + uselib, x)
-			env.append_unique('CXXFLAGS_' + uselib, x)
-			env.append_unique('LINKFLAGS_' + uselib, x)
+			env.append_unique('CCFLAGS_' + uselib, [x])
+			env.append_unique('CXXFLAGS_' + uselib, [x])
+			env.append_unique('LINKFLAGS_' + uselib, [x])
 		elif x == '-framework':
-			env.append_unique('FRAMEWORK_' + uselib, lst.pop(0))
+			env.append_unique('FRAMEWORK_' + uselib, [lst.pop(0)])
 		elif x.startswith('-F'):
-			env.append_unique('FRAMEWORKPATH_' + uselib, x[2:])
+			env.append_unique('FRAMEWORKPATH_' + uselib, [x[2:]])
 		elif x.startswith('-std'):
-			env.append_unique('CCFLAGS_' + uselib, x)
-			env.append_unique('LINKFLAGS_' + uselib, x)
+			env.append_unique('CCFLAGS_' + uselib, [x])
+			env.append_unique('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-Wl'):
-			env.append_unique('LINKFLAGS_' + uselib, x)
+			env.append_unique('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-m') or x.startswith('-f'):
-			env.append_unique('CCFLAGS_' + uselib, x)
-			env.append_unique('CXXFLAGS_' + uselib, x)
+			env.append_unique('CCFLAGS_' + uselib, [x])
+			env.append_unique('CXXFLAGS_' + uselib, [x])
 
 @conf
 def ret_msg(self, f, kw):
@@ -410,8 +409,7 @@ def post_check(self, *k, **kw):
 			lk = k.lower()
 			# inconsistency: includes -> CPPPATH
 			if k == 'CPPPATH': lk = 'includes'
-			if k == 'CXXDEFINES': lk = 'defines'
-			if k == 'CCDEFINES': lk = 'defines'
+			if k == 'DEFINES': lk = 'defines'
 			if lk in kw:
 				val = kw[lk]
 				# remove trailing slash

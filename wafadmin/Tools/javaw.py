@@ -213,7 +213,7 @@ def check_java_class(self, classname, with_classpath=None):
 	self.log.write("%s\n" % str(cmd))
 	found = Utils.exec_command(cmd, shell=False, log=self.log)
 
-	self.check_message('Java class %s' % classname, "", not found)
+	self.msg('Checking for java class %s' % classname, not found)
 
 	shutil.rmtree(javatestdir, True)
 

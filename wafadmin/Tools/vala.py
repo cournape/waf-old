@@ -255,16 +255,13 @@ def detect(conf):
 	except Exception:
 		valac_version = (0, 0, 0)
 
-	conf.check_message('program version',
-			'valac >= ' + min_version_str,
-			valac_version >= min_version,
-			"%d.%d.%d" % valac_version)
-
-	conf.check_tool('gnu_dirs')
+	conf.msg('Checking for valac version >= ' + min_version_str, "%d.%d.%d" % valac_version, valac_version >= min_version)
 
 	if valac_version < min_version:
 		conf.fatal("valac version too old to be used with this tool")
 		return
+
+	conf.check_tool('gnu_dirs')
 
 	conf.env['VALAC_VERSION'] = valac_version
 	conf.env['VALAFLAGS'] = ''

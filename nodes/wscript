@@ -21,7 +21,11 @@ def build(bld):
 	t = bld(rule='touch ${TGT}', target='ddd', source='ccc')
 	t.create_task('foo')
 
+	#print( 'path from srcnode', bld.path.find_or_declare('aaa').path_from(bld.bldnode) )
+
 	bld.install_files('/tmp/bar', 'wscript')
+
+	bld(features='cc cprogram', source='main.c', target='app')
 
 
 def init(self):

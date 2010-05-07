@@ -30,7 +30,7 @@ def find_cpp(conf):
 def xlc_common_flags(conf):
 	v = conf.env
 
-	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS
+	# CPPFLAGS DEFINES _CCINCFLAGS _CCDEFFLAGS
 	v['CCFLAGS_DEBUG'] = ['-g']
 	v['CCFLAGS_RELEASE'] = ['-O2']
 
@@ -48,7 +48,7 @@ def xlc_common_flags(conf):
 	v['STATICLIB_ST']        = '-l%s'
 	v['STATICLIBPATH_ST']    = '-L%s'
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
-	v['CCDEFINES_ST']        = '-D%s'
+	v['DEFINES_ST']        = '-D%s'
 
 	v['SONAME_ST']           = ''
 	v['SHLIB_MARKER']        = ''

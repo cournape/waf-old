@@ -21,8 +21,8 @@ else:
 
 import os, sys
 import ccroot, cxx
-import TaskGen, Task, Utils, Runner, Options, Node
-from TaskGen import taskgen, feature, after, extension
+import TaskGen, Task, Utils, Runner, Options, Node, Base
+from TaskGen import feature, after, extension
 from Logs import error
 from Constants import *
 
@@ -46,7 +46,7 @@ class qxx_task(Task.Task):
 		for x in nodes:
 			if x.name.endswith('.moc'):
 				nodes.remove(x)
-				names.append(x.relpath_gen(self.inputs[0].parent))
+				names.append(x.path_from(self.inputs[0].parent))
 		return (nodes, names)
 
 	def runnable_status(self):
@@ -84,14 +84,14 @@ class qxx_task(Task.Task):
 
 		moctasks=[]
 		mocfiles=[]
-		variant = node.variant(self.env)
 		try:
 			tmp_lst = tree.raw_deps[self.unique_id()]
 			tree.raw_deps[self.unique_id()] = []
 		except KeyError:
 			tmp_lst = []
 		for d in tmp_lst:
-			if not d.endswith('.moc'): continue
+			if not d.endswith('.moc'):
+				continue
 			# paranoid check
 			if d in mocfiles:
 				error("paranoia owns")
@@ -106,23 +106,22 @@ class qxx_task(Task.Task):
 
 			if not ext:
 				base2 = d[:-4]
-				paths = [node.parent.srcpath(self.env), node.parent.bldpath(self.env)]
-				poss = [(x, y) for x in MOC_H for y in paths]
-				for (i, path) in poss:
-					try:
-						# TODO we could use find_resource
-						os.stat(os.path.join(path, base2+i))
-					except OSError:
-						pass
-					else:
-						ext = i
+				for exth in MOC_H:
+					print("trying", base2+exth, tree.node_deps[self.unique_id()])
+					k = node.parent.find_node(base2+exth)
+					if k:
+						print(found, k)
 						break
-				if not ext: raise Utils.WafError("no header found for %s which is a moc file" % str(d))
+				else:
+					raise Base.WafError("no header found for %s which is a moc file" % str(d))
+					#TODO
 
 			# next time we will not search for the extension (look at the 'for' loop below)
-			h_node = node.parent.find_resource(base2+i)
+
+			print(node.parent, base2+exth)
+			h_node = node.parent.find_resource(base2 + exth)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[(self.inputs[0].parent.id, self.env.variant(), m_node.name)] = h_node
+			tree.node_deps[(self.inputs[0].parent.id, m_node.name)] = h_node
 
 			# create the task
 			task = Task.TaskBase.classes['moc'](self.env, normal=0)
@@ -144,7 +143,7 @@ class qxx_task(Task.Task):
 			name = d.name
 			if name.endswith('.moc'):
 				task = Task.TaskBase.classes['moc'](self.env, normal=0)
-				task.set_inputs(tree.node_deps[(self.inputs[0].parent.id, self.env.variant(), name)]) # 1st element in a tuple
+				task.set_inputs(tree.node_deps[(self.inputs[0].parent.id, name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
 				generator = tree.generator
@@ -160,14 +159,14 @@ class qxx_task(Task.Task):
 	run = Task.TaskBase.classes['cxx'].__dict__['run']
 
 def translation_update(task):
-	outs = [a.abspath(task.env) for a in task.outputs]
+	outs = [a.abspath() for a in task.outputs]
 	outs = " ".join(outs)
 	lupdate = task.env['QT_LUPDATE']
 
 	for x in task.inputs:
-		file = x.abspath(task.env)
+		file = x.abspath()
 		cmd = "%s %s -ts %s" % (lupdate, file, outs)
-		Utils.pprint('BLUE', cmd)
+		Logs.pprint('BLUE', cmd)
 		task.generator.bld.exec_command(cmd)
 
 class XMLHandler(ContentHandler):
@@ -189,7 +188,7 @@ def scan(self):
 	parser = make_parser()
 	curHandler = XMLHandler()
 	parser.setContentHandler(curHandler)
-	fi = open(self.inputs[0].abspath(self.env))
+	fi = open(self.inputs[0].abspath())
 	parser.parse(fi)
 	fi.close()
 
@@ -203,7 +202,7 @@ def scan(self):
 
 	return (nodes, names)
 
-@extension(EXT_RCC)
+@extension(*EXT_RCC)
 def create_rcc_task(self, node):
 	"hook for rcc files"
 	rcnode = node.change_ext('_rc.cpp')
@@ -212,7 +211,7 @@ def create_rcc_task(self, node):
 	self.compiled_tasks.append(cpptask)
 	return cpptask
 
-@extension(EXT_UI)
+@extension(*EXT_UI)
 def create_uic_task(self, node):
 	"hook for uic tasks"
 	uictask = self.create_task('ui4', node)
@@ -263,7 +262,7 @@ def apply_qt4(self):
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
 
-@extension(EXT_QT4)
+@extension(*EXT_QT4)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
 	try: obj_ext = self.obj_ext
@@ -273,7 +272,7 @@ def cxx_hook(self, node):
 	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
-	outfile = task.outputs[0].abspath(task.env)
+	outfile = task.outputs[0].abspath()
 	f = open(outfile, 'w')
 	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
 	for k in task.inputs:
@@ -286,7 +285,7 @@ def process_qm2rcc(task):
 
 b = Task.simple_task_type
 b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], shell=False)
-cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx_task', after="qm2rcc", shell=False)
+cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx_task', after="qm2rcc", shell=False)
 cls.scan = scan
 b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc qxx_task', shell=False)
 b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc', shell=False)
@@ -372,8 +371,6 @@ def detect_qt4(conf):
 				env[var]=ret
 				break
 
-	vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
-
 	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
 	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
 	if not env['QT_UIC']:
@@ -386,10 +383,10 @@ def detect_qt4(conf):
 
 	version = version.replace('Qt User Interface Compiler ','')
 	version = version.replace('User Interface Compiler for Qt', '')
-	if version.find(" 3.") != -1:
-		conf.check_message('uic version', '(too old)', 0, option='(%s)'%version)
-		sys.exit(1)
-	conf.check_message('uic version', '', 1, option='(%s)'%version)
+	if version.find(' 3.') != -1:
+		conf.msg('uic version', '(%s: too old)' % version, False)
+		conf.fatal('uic is too old')
+	conf.msg('uic version', '(%s)'%version)
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
@@ -402,6 +399,7 @@ def detect_qt4(conf):
 	env['ui_PATTERN'] = 'ui_%s.h'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
 
+	vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
 	vars_debug = [a+'_debug' for a in vars]
 
 	pkgconfig = env['pkg-config'] or 'PKG_CONFIG_PATH=%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
@@ -411,19 +409,21 @@ def detect_qt4(conf):
 		except ValueError:
 			pass
 
-	# the libpaths are set nicely, unfortunately they make really long command-lines
+	# the libpaths make really long command-lines
 	# remove the qtcore ones from qtgui, etc
 	def process_lib(vars_, coreval):
 		for d in vars_:
 			var = d.upper()
-			if var == 'QTCORE': continue
+			if var == 'QTCORE':
+				continue
 
 			value = env['LIBPATH_'+var]
 			if value:
 				core = env[coreval]
 				accu = []
 				for lib in value:
-					if lib in core: continue
+					if lib in core:
+						continue
 					accu.append(lib)
 				env['LIBPATH_'+var] = accu
 
@@ -448,13 +448,11 @@ def detect_qt4(conf):
 		process_rpath(vars, 'LIBPATH_QTCORE')
 		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
-	env['QTLOCALE'] = str(env['PREFIX'])+'/share/locale'
-
 def detect(conf):
 	detect_qt4(conf)
 
-def set_options(opt):
-	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
+def options(opt):
+	opt.add_option('--want-rpath', action='store_true', default=False, dest='want_rpath', help='enable the rpath for qt libraries')
 
 	opt.add_option('--header-ext',
 		type='string',

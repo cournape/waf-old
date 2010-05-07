@@ -197,6 +197,7 @@ class BuildContext(Context):
 
 		self.recurse(self.curdir)
 		self.pre_build()
+		self.flush()
 		try:
 			self.compile()
 		finally:
@@ -271,8 +272,6 @@ class BuildContext(Context):
 	def compile(self):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
 		debug('build: compile called')
-
-		self.flush()
 
 		self.generator = Runner.Parallel(self, Options.options.jobs)
 

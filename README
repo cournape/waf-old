@@ -4,7 +4,6 @@ WHAT YOU WILL FIND HERE
 The development version of Waf.
 
 It requires python 3 for the moment (fixes for python 2 come last)
-Most of the work is on the data structure at the moment
 The current code is in experimental state
 
 ---------------------------

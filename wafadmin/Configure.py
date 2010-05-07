@@ -229,6 +229,14 @@ class ConfigurationContext(Context):
 		try: self.env.append_value(dest or var, Utils.to_list(self.environ[var]))
 		except KeyError: pass
 
+	def msg(self, msg, result, color=None):
+		self.start_msg('Checking for ' + msg)
+
+		if not isinstance(color, str):
+			color = color and 'GREEN' or 'YELLOW'
+
+		self.end_msg(result, color)
+
 	def start_msg(self, msg):
 		try:
 			if self.in_msg:

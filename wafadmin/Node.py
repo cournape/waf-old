@@ -181,10 +181,14 @@ class Node(object):
 		"read the file system, make the nodes as needed"
 
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x]
+			lst = [x for x in lst.split('/') if x and x != '.']
 
 		cur = self
 		for x in lst:
+			if x == '..':
+				cur = cur.parent
+				continue
+
 			try:
 				if x in cur.children:
 					cur = cur.children[x]
@@ -214,10 +218,14 @@ class Node(object):
 	def make_node(self, lst):
 		"make a branch of nodes"
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x]
+			lst = [x for x in lst.split('/') if x and x != '.']
 
 		cur = self
 		for x in lst:
+			if x == '..':
+				cur = cur.parent
+				continue
+
 			if getattr(cur, 'children', {}):
 				if x in cur.children:
 					cur = cur.children[x]
@@ -230,11 +238,14 @@ class Node(object):
 	def search(self, lst):
 		"dumb search for existing nodes"
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x]
+			lst = [x for x in lst.split('/') if x and x != '.']
 
 		cur = self
 		try:
 			for x in lst:
+				if x == '..':
+					cur = cur.parent
+					continue
 				cur = cur.children[x]
 			return cur
 		except:
@@ -358,7 +369,7 @@ class Node(object):
 		try to find a declared build node or a source file
 		"""
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x]
+			lst = [x for x in lst.split('/') if x and x != '.']
 
 		if self.is_bld():
 			node = self.search(lst)
@@ -392,7 +403,7 @@ class Node(object):
 		if no node is found, create it in the build directory
 		"""
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x]
+			lst = [x for x in lst.split('/') if x and x != '.']
 
 		node = self.get_bld().search(lst)
 		if node:
@@ -412,7 +423,7 @@ class Node(object):
 		create the corresponding mappings source <-> build directories
 		"""
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x]
+			lst = [x for x in lst.split('/') if x and x != '.']
 
 		node = self.find_node(lst)
 		try:

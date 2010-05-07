@@ -21,7 +21,7 @@ def find_gcc(conf):
 def gcc_common_flags(conf):
 	v = conf.env
 
-	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS
+	# CPPFLAGS DEFINES _CCINCFLAGS _CCDEFFLAGS
 
 	v['CCFLAGS_DEBUG'] = ['-g']
 
@@ -41,7 +41,7 @@ def gcc_common_flags(conf):
 	v['STATICLIB_ST']        = '-l%s'
 	v['STATICLIBPATH_ST']    = '-L%s'
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
-	v['CCDEFINES_ST']        = '-D%s'
+	v['DEFINES_ST']        = '-D%s'
 
 	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'

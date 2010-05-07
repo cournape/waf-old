@@ -21,7 +21,7 @@ def find_gxx(conf):
 def gxx_common_flags(conf):
 	v = conf.env
 
-	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS
+	# CPPFLAGS DEFINES _CXXINCFLAGS _CXXDEFFLAGS
 	v['CXXFLAGS_DEBUG'] = ['-g']
 	v['CXXFLAGS_RELEASE'] = ['-O2']
 
@@ -39,7 +39,7 @@ def gxx_common_flags(conf):
 	v['STATICLIB_ST']        = '-l%s'
 	v['STATICLIBPATH_ST']    = '-L%s'
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
-	v['CXXDEFINES_ST']       = '-D%s'
+	v['DEFINES_ST']       = '-D%s'
 
 	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
