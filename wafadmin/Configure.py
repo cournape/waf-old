@@ -46,39 +46,27 @@ class ConfigurationError(WscriptError):
 	pass
 
 def download_tool(tool, force=False):
-	# check if the tool exists in the Tools or 3rdparty folders
-	_Tools =    os.sep.join((Options.waf_dir, 'wafadmin', 'Tools'))
-	_3rdparty = os.sep.join((Options.waf_dir, 'wafadmin', '3rdparty'))
-
-	for d in (_Tools, _3rdparty):
-
-		if force:
-			continue
-
-		lst = os.listdir(d)
-		if tool + '.py' in lst:
-			break
-	else:
-		# try to download the tool from the repository then
-		for x in Utils.to_list(Options.remote_repo):
-			for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
-				url = '/'.join((x, sub, tool + '.py'))
-				try:
-					web = urlopen(url)
-					if web.getcode() != 200:
-						continue
-				except Exception as e:
+	for x in Utils.to_list(Options.remote_repo):
+		for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
+			url = '/'.join((x, sub, tool + '.py'))
+			try:
+				web = urlopen(url)
+				if web.getcode() != 200:
 					continue
-				else:
-					try:
-						loc = open(_3rdparty + os.sep + tool + '.py', 'wb')
-						loc.write(web.read())
-						web.close()
-					finally:
-						loc.close()
-					Logs.warn('downloaded %s from %s' % (tool, url))
+			except Exception as e:
+				continue
 			else:
-					break
+				try:
+					loc = open(_3rdparty + os.sep + tool + '.py', 'wb')
+					loc.write(web.read())
+					web.close()
+				finally:
+					loc.close()a
+				Logs.warn('downloaded %s from %s' % (tool, url))
+				return Base.load_tool(tool)
+		else:
+				break
+		raise Base.WafError('Could not load the tool')
 
 @command_context('configure')
 class ConfigurationContext(Context):
@@ -167,10 +155,12 @@ class ConfigurationContext(Context):
 				continue
 			self.tool_cache.append(mag)
 
-			if not tooldir:
-				download_tool(tool)
-
-			module = Base.load_tool(tool, tooldir)
+			try:
+				module = Base.load_tool(tool, tooldir)
+			except Exception as e:
+				if 1:
+					raise e
+				module = download_tool(tool)
 
 			if funs is not None:
 				self.eval_rules(funs)
