@@ -217,8 +217,8 @@ class task_gen(object):
 			#error("OBJECT ALREADY POSTED" + str( self))
 			return
 
-		self.posted = True
 		self.apply()
+		self.posted = True
 		debug('task_gen: posted %s', self.name)
 
 	def get_hook(self, ext):
