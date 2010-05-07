@@ -61,7 +61,7 @@ def download_tool(tool, force=False):
 					loc.write(web.read())
 					web.close()
 				finally:
-					loc.close()a
+					loc.close()
 				Logs.warn('downloaded %s from %s' % (tool, url))
 				return Base.load_tool(tool)
 		else:
