@@ -472,7 +472,7 @@ def apply_obj_vars(self):
 	app = v.append_unique
 
 	if v['FULLSTATIC']:
-		v.append_value('LINKFLAGS', v['FULLSTATIC_MARKER'])
+		v.append_value('LINKFLAGS', [v['FULLSTATIC_MARKER']])
 
 	for i in v['RPATH']:
 		if i and rpath_st:
@@ -483,14 +483,14 @@ def apply_obj_vars(self):
 		app('LINKFLAGS', staticlibpath_st % i)
 
 	if v['STATICLIB']:
-		v.append_value('LINKFLAGS', v['STATICLIB_MARKER'])
+		v.append_value('LINKFLAGS', [v['STATICLIB_MARKER']])
 		k = [(staticlib_st % i) for i in v['STATICLIB']]
 		app('LINKFLAGS', k)
 
 	# fully static binaries ?
 	if not v['FULLSTATIC']:
 		if v['STATICLIB'] or v['LIB']:
-			v.append_value('LINKFLAGS', v['SHLIB_MARKER'])
+			v.append_value('LINKFLAGS', [v['SHLIB_MARKER']])
 
 	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
 
