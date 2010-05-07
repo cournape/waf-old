@@ -107,10 +107,8 @@ class qxx_task(Task.Task):
 			if not ext:
 				base2 = d[:-4]
 				for exth in MOC_H:
-					print("trying", base2+exth, tree.node_deps[self.unique_id()])
 					k = node.parent.find_node(base2+exth)
 					if k:
-						print(found, k)
 						break
 				else:
 					raise Base.WafError("no header found for %s which is a moc file" % str(d))
@@ -118,13 +116,12 @@ class qxx_task(Task.Task):
 
 			# next time we will not search for the extension (look at the 'for' loop below)
 
-			print(node.parent, base2+exth)
 			h_node = node.parent.find_resource(base2 + exth)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[(self.inputs[0].parent.id, m_node.name)] = h_node
+			tree.node_deps[(self.inputs[0].parent.abspath(), m_node.name)] = h_node
 
 			# create the task
-			task = Task.TaskBase.classes['moc'](self.env, normal=0)
+			task = Task.TaskBase.classes['moc'](env=self.env, generator=self.generator)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
@@ -142,8 +139,8 @@ class qxx_task(Task.Task):
 		for d in lst:
 			name = d.name
 			if name.endswith('.moc'):
-				task = Task.TaskBase.classes['moc'](self.env, normal=0)
-				task.set_inputs(tree.node_deps[(self.inputs[0].parent.id, name)]) # 1st element in a tuple
+				task = Task.TaskBase.classes['moc'](env=self.env, generator=self.generator)
+				task.set_inputs(tree.node_deps[(self.inputs[0].parent.abspath(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
 				generator = tree.generator
