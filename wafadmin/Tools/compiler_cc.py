@@ -8,15 +8,16 @@ import Utils, Configure, Options
 from Logs import debug
 
 c_compiler = {
-	'win32':  ['msvc', 'gcc'],
-	'cygwin': ['gcc'],
-	'darwin': ['gcc'],
-	'aix':    ['xlc', 'gcc'],
-	'linux':  ['gcc', 'icc', 'suncc'],
-	'sunos':  ['gcc', 'suncc'],
-	'irix':   ['gcc'],
-	'hpux':   ['gcc'],
-	'default': ['gcc']
+'win32':  ['msvc', 'gcc'],
+'cygwin': ['gcc'],
+'darwin': ['gcc'],
+'aix':    ['xlc', 'gcc'],
+'linux':  ['gcc', 'icc', 'suncc'],
+'sunos':  ['gcc', 'suncc'],
+'irix':   ['gcc'],
+'hpux':   ['gcc'],
+'gnu':    ['gcc'],
+'default': ['gcc']
 }
 
 def __list_possible_compiler(platform):

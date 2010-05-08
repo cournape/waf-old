@@ -363,7 +363,7 @@ def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
 	"""
 	Get the binary format based on the unversioned platform name.
 	"""
-	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos'):
+	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos', 'gnu'):
 		return 'elf'
 	elif unversioned_sys_platform == 'darwin':
 		return 'mac-o'
