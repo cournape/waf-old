@@ -277,7 +277,6 @@ class Task(TaskBase):
 
 		# implicit deps
 		if self.scan:
-			self.scan()
 			try:
 				imp_sig = self.sig_implicit_deps()
 			except ValueError:
