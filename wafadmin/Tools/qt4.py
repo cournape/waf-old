@@ -46,7 +46,7 @@ class qxx(Task.Task):
 		for x in nodes:
 			if x.name.endswith('.moc'):
 				nodes.remove(x)
-				names.append(x.path_from(self.inputs[0].parent))
+				names.append(x.path_from(self.inputs[0].parent.get_bld()))
 		return (nodes, names)
 
 	def runnable_status(self):
