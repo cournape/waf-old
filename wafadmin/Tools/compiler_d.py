@@ -21,7 +21,7 @@ def detect(conf):
 	else:
 		conf.fatal('no suitable d compiler was found')
 
-def set_options(opt):
+def options(opt):
 	d_compiler_opts = opt.add_option_group('D Compiler Options')
 	d_compiler_opts.add_option('--check-dmd-first', action='store_true',
 			help='checks for the gdc compiler before dmd (default is the other way round)',

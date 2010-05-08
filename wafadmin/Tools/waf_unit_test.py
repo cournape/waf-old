@@ -93,6 +93,6 @@ def summary(bld):
 			Utils.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
 			if fail: Utils.pprint('NORMAL', ret.replace('\\n', '\n'))
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
 

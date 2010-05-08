@@ -27,7 +27,7 @@ def __list_possible_compiler(platform):
 
 def detect(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
-	except AttributeError: raise Configure.ConfigurationError("Add set_options(opt): opt.tool_options('compiler_cxx')")
+	except AttributeError: raise Configure.ConfigurationError("Add options(opt): opt.tool_options('compiler_cxx')")
 	for compiler in test_for_compiler.split():
 		try:
 			conf.start_msg('Checking for %r (c++ compiler)' % compiler)
@@ -44,7 +44,7 @@ def detect(conf):
 	else:
 		conf.fatal('could not configure a cxx compiler!')
 
-def set_options(opt):
+def options(opt):
 	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = __list_possible_compiler(build_platform)
 	test_for_compiler = ' '.join(possible_compiler_list)

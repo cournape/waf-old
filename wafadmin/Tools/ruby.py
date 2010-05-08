@@ -113,7 +113,7 @@ def check_ruby_ext_devel(conf):
 	else:
 		conf.env.LIBDIR_RUBY = read_config('sitelibdir')[0]
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--with-ruby-archdir', type='string', dest='rubyarchdir', help='Specify directory where to install arch specific files')
 	opt.add_option('--with-ruby-libdir', type='string', dest='rubylibdir', help='Specify alternate ruby library path')
 	opt.add_option('--with-ruby-binary', type='string', dest='rubybinary', help='Specify alternate ruby binary')

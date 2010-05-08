@@ -121,7 +121,7 @@ def detect(conf):
 		# Define to 1 if <locale.h> is present
 		conf.check(header_name='locale.h')
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
 	opt.add_option('--datadir', type='string', default='', dest='datadir', help='read-only application data')
 

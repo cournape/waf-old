@@ -83,7 +83,7 @@ def detect(conf):
 		lst = [name for name, _, _ in _options if not env[name.upper()]]
 		raise Utils.WafError('Variable substitution failure %r' % lst)
 
-def set_options(opt):
+def options(opt):
 
 	inst_dir = opt.add_option_group('Installation directories',
 'By default, "waf install" will put the files in\

@@ -63,6 +63,6 @@ def detect(conf):
 		conf.env.MCS = csc
 	conf.find_program(['gmcs', 'mcs'], var='MCS')
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--with-csc-binary', type='string', dest='cscbinary')
 

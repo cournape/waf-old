@@ -389,7 +389,7 @@ def detect(conf):
 	v['PYC'] = getattr(Options.options, 'pyc', 1)
 	v['PYO'] = getattr(Options.options, 'pyo', 1)
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--nopyc',
 			action='store_false',
 			default=1,

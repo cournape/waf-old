@@ -111,7 +111,7 @@ def check_perl_ext_devel(conf):
 
 	return True
 
-def set_options(opt):
+def options(opt):
 	opt.add_option("--with-perl-binary", type="string", dest="perlbinary", help = 'Specify alternate perl binary', default=None)
 	opt.add_option("--with-perl-archdir", type="string", dest="perlarchdir", help = 'Specify directory where to install arch specific files', default=None)
 
