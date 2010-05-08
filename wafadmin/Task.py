@@ -264,27 +264,27 @@ class Task(TaskBase):
 
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
-		try: return self.cache_sig[0]
+		try: return self.cache_sig
 		except AttributeError: pass
 
-		m = md5()
+		self.m = md5()
 
 		# explicit deps
-		exp_sig = self.sig_explicit_deps()
-		m.update(exp_sig)
-
-		# implicit deps
-		imp_sig = self.scan and self.sig_implicit_deps() or SIG_NIL
-		m.update(imp_sig)
+		self.sig_explicit_deps()
 
 		# env vars
-		var_sig = self.sig_vars()
-		m.update(var_sig)
+		self.sig_vars()
 
-		# for now it seems that we have to keep all this info
+		# implicit deps
+		if self.scan:
+			try:
+				imp_sig = self.sig_implicit_deps()
+			except ValueError:
+				return self.signature()
+
 		# we now have the signature (first element) and the details (for debugging)
-		ret = m.digest()
-		self.cache_sig = (ret, exp_sig, imp_sig, var_sig)
+
+		ret = self.cache_sig = m.digest()
 		return ret
 
 	def runnable_status(self):
@@ -322,7 +322,7 @@ class Task(TaskBase):
 				debug("task: task %r must run as the output nodes do not exist" % self)
 				return RUN_ME
 
-		if new_sig != prev_sig[0]:
+		if new_sig != prev_sig:
 			return RUN_ME
 		return SKIP_ME
 
@@ -349,11 +349,14 @@ class Task(TaskBase):
 
 	def sig_explicit_deps(self):
 		bld = self.generator.bld
-		m = md5()
+		upd = self.m.update
 
 		# the inputs
 		for x in self.inputs + getattr(self, 'dep_nodes', []):
-			m.update(x.sig)
+			try:
+				upd(x.sig)
+			except AttributeError:
+				raise Base.WafError('Missing node signature for %r (required by %r)' % (x, self))
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
@@ -368,32 +371,31 @@ class Task(TaskBase):
 					if isinstance(v, Node.Node):
 						try:
 							v = v.sig
-						except AttributeError: # make it fatal?
-							v = ''
+						except AttributeError:
+							raise Utils.WafError('Missing node signature for %r (required by %r)' % (v, self))
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
-					m.update(v)
+					upd(v)
 
 		for x in self.deps_nodes:
-			m.update(x.sig)
-
-		return m.digest()
+			upd(x.sig)
+		return self.m.digest()
 
 	def sig_vars(self):
-		m = md5()
 		bld = self.generator.bld
 		env = self.env
+		upd = self.m.update
 
 		# dependencies on the environment vars
 		act_sig = bld.hash_env_vars(env, self.__class__.vars)
-		m.update(act_sig)
+		upd(act_sig)
 
 		# additional variable dependencies, if provided
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
-			m.update(bld.hash_env_vars(env, dep_vars))
+			upd(bld.hash_env_vars(env, dep_vars))
 
-		return m.digest()
+		return self.m.digest()
 
 	#def scan(self, node):
 	#	"""this method returns a tuple containing:
@@ -412,14 +414,13 @@ class Task(TaskBase):
 
 		# get the task signatures from previous runs
 		key = self.unique_id()
-		prev_sigs = bld.task_sigs.get(key, ())
-		if prev_sigs:
-			try:
-				# for issue #379
-				if prev_sigs[2] == self.compute_sig_implicit_deps():
-					return prev_sigs[2]
-			except (AttributeError, OSError):
-				pass
+		prev = bld.task_sigs.get((key, 'imp'), [])
+
+		# for issue #379
+		if prev and prev == self.compute_sig_implicit_deps():
+			return prev
+		del bld.task_sigs[key]
+		raise ValueError('rescan')
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
@@ -431,25 +432,34 @@ class Task(TaskBase):
 		bld.raw_deps[key] = names
 
 		# recompute the signature and return it
-		sig = self.compute_sig_implicit_deps()
-
+		bld.task_sigs[(key, 'imp')] = sig = self.compute_sig_implicit_deps()
 		return sig
 
 	def compute_sig_implicit_deps(self):
 		"""it is intended for .cpp and inferred .h files
 		there is a single list (no tree traversal)
-		this is the hot spot so ... do not touch"""
-		m = md5()
-		upd = m.update
+		this is a hot spot so ... do not touch"""
+
+		upd = self.m.update
 
 		bld = self.generator.bld
 		env = self.env
 
-		for k in bld.node_deps.get(self.unique_id(), []):
-			# can do an optimization here
-			upd(k.sig) # should thow an AttributeError
+		try:
+			for k in bld.node_deps.get(self.unique_id(), []):
+				# can do an optimization here
+				upd(k.sig)
+		except AttributeError:
+			# do it again to display a meaningful error message
+			nodes = []
+			for k in bld.node_deps.get(self.unique_id(), []):
+				try:
+					k.sig
+				except AttributeError:
+					nodes.append(k)
+			raise Utils.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
 
-		return m.digest()
+		return self.m.digest()
 
 def funex(c):
 	dc = {}
