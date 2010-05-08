@@ -282,8 +282,6 @@ class Task(TaskBase):
 			except ValueError:
 				return self.signature()
 
-		# we now have the signature (first element) and the details (for debugging)
-
 		ret = self.cache_sig = self.m.digest()
 		return ret
 
@@ -417,10 +415,11 @@ class Task(TaskBase):
 		prev = bld.task_sigs.get((key, 'imp'), [])
 
 		# for issue #379
-		if prev and prev == self.compute_sig_implicit_deps():
-			return prev
-		del bld.task_sigs[key]
-		raise ValueError('rescan')
+		if prev:
+			if prev == self.compute_sig_implicit_deps():
+				return prev
+			del bld.task_sigs[(key, 'imp')]
+			raise ValueError('rescan')
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
