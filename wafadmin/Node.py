@@ -145,6 +145,14 @@ class Node(object):
 
 	def compute_sig(self):
 		"compute the signature if it is a file"
+		try:
+			if id(self) in self.bld.hash_cache:
+				return
+		except AttributeError:
+			self.bld.hash_cache = {}
+
+		self.bld.hash_cache[id(self)] = True
+
 		self.sig = Utils.h_file(self.abspath())
 
 	def listdir(self):
