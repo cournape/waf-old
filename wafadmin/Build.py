@@ -229,16 +229,10 @@ class BuildContext(Context):
 				# handle missing file/empty file
 				pass
 
-			try:
-				if f: data = cPickle.load(f)
-			except AttributeError:
-				# handle file of an old Waf version
-				# that has an attribute which no longer exist
-				# (e.g. AttributeError: 'module' object has no attribute 'BuildDTO')
-				if Logs.verbose > 1: raise
-
-			if data:
-				for x in SAVED_ATTRS: setattr(self, x, data[x])
+			if f:
+				data = cPickle.load(f)
+				for x in SAVED_ATTRS:
+					setattr(self, x, data[x])
 			else:
 				debug('build: Build cache loading failed')
 

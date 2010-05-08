@@ -354,7 +354,7 @@ class Task(TaskBase):
 			try:
 				upd(x.sig)
 			except AttributeError:
-				raise Base.WafError('Missing node signature for %r (required by %r)' % (x, self))
+				raise WafError('Missing node signature for %r (required by %r)' % (x, self))
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
@@ -370,7 +370,7 @@ class Task(TaskBase):
 						try:
 							v = v.sig
 						except AttributeError:
-							raise Utils.WafError('Missing node signature for %r (required by %r)' % (v, self))
+							raise WafError('Missing node signature for %r (required by %r)' % (v, self))
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
 					upd(v)
@@ -456,7 +456,7 @@ class Task(TaskBase):
 					k.sig
 				except AttributeError:
 					nodes.append(k)
-			raise Utils.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
+			raise WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
 
 		return self.m.digest()
 
