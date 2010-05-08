@@ -31,7 +31,7 @@ def process_marshal(self):
 
 		task = self.create_task('glib_genmarshal', node, [h_node, c_node])
 		task.env.GLIB_GENMARSHAL_PREFIX = prefix
-	self.allnodes.append(c_node)
+	self.source.append(c_node)
 
 def genmarshal_func(self):
 
@@ -124,7 +124,7 @@ def process_enums(self):
 			raise Utils.WafError('missing target ' + str(enum))
 		tgt_node = self.path.find_or_declare(enum['target'])
 		if tgt_node.name.endswith('.c'):
-			self.allnodes.append(tgt_node)
+			self.source.append(tgt_node)
 		env['GLIB_MKENUMS_TARGET'] = tgt_node.abspath(env)
 
 

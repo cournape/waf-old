@@ -30,7 +30,7 @@ def big_bison(self, node):
 	tsk.cwd = node.bld_dir(tsk.env)
 
 	# and the c/cxx file must be compiled too
-	self.allnodes.append(outs[0])
+	self.source.append(outs[0])
 
 def detect(conf):
 	conf.find_program('bison', var='BISON', mandatory=True)

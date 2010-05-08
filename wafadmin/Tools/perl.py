@@ -22,7 +22,7 @@ def init_perlext(self):
 def xsubpp_file(self, node):
 	outnode = node.change_ext('.c')
 	self.create_task('xsubpp', node, outnode)
-	self.allnodes.append(outnode)
+	self.source.append(outnode)
 
 Task.simple_task_type('xsubpp', xsubpp_str, color='BLUE', before='cc cxx')
 

@@ -215,7 +215,7 @@ def vala_file(self, node):
 
 	c_node = node.change_ext('.c')
 	output_nodes.append(c_node)
-	self.allnodes.append(c_node)
+	self.source.append(c_node)
 
 	if env['VALAC_VERSION'] < (0, 7, 0):
 		output_nodes.append(node.change_ext('.h'))

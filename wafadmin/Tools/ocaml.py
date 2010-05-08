@@ -168,13 +168,13 @@ def mll_hook(self, node):
 	mll_task = self.create_task('ocamllex', node, node.change_ext('.ml'), env=self.native_env)
 	self.mlltasks.append(mll_task)
 
-	self.allnodes.append(mll_task.outputs[0])
+	self.source.append(mll_task.outputs[0])
 
 @extension(EXT_MLY)
 def mly_hook(self, node):
 	mly_task = self.create_task('ocamlyacc', node, [node.change_ext('.ml'), node.change_ext('.mli')], env=self.native_env)
 	self.mlytasks.append(mly_task)
-	self.allnodes.append(mly_task.outputs[0])
+	self.source.append(mly_task.outputs[0])
 
 	task = self.create_task('ocamlcmi', mly_task.outputs[1], mly_task.outputs[1].change_ext('.cmi'), env=self.native_env)
 
