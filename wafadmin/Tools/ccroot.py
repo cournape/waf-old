@@ -258,7 +258,7 @@ def apply_defines(self):
 	y = self.env['DEFINES_ST']
 	self.env['_DEFFLAGS'] = [y%x for x in milst]
 
-@feature('cc', 'cxx')
+@feature('cc', 'cxx', 'asm')
 @after('apply_type_vars', 'apply_lib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
@@ -301,6 +301,20 @@ def apply_incpaths(self):
 	# TODO WAF 1.6
 	if USE_TOP_LEVEL:
 		self.env.append_value('INC_PATHS', [self.bld.srcnode])
+
+	env = self.env
+	app = env.append_unique
+	cpppath_st = env['CPPPATH_ST']
+
+	# local flags come first
+	# set the user-defined includes paths
+	for i in env['INC_PATHS']:
+		app('_INCFLAGS', [cpppath_st % i.bldpath(env), cpppath_st % i.srcpath(env)])
+
+	# set the library include paths
+	for i in env['CPPPATH']:
+		app('_INCFLAGS', [cpppath_st % i])
+
 
 @feature('cc', 'cxx')
 @after('init_cc', 'init_cxx')

@@ -10,7 +10,7 @@ from TaskGen import extension, taskgen, after, before
 
 EXT_ASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
 
-as_str = '${AS} ${ASFLAGS} ${_ASINCFLAGS} ${SRC} -o ${TGT}'
+as_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 Task.simple_task_type('asm', as_str, 'PINK', ext_out='.o')
 
 @extension(EXT_ASM)
@@ -21,16 +21,6 @@ def asm_hook(self, node):
 
 	task = self.create_task('asm', node, node.change_ext(obj_ext))
 	self.compiled_tasks.append(task)
-	self.meths.append('asm_incflags')
-
-@taskgen
-@after('apply_obj_vars_cc')
-@after('apply_obj_vars_cxx')
-@before('apply_link')
-def asm_incflags(self):
-	if self.env['ASINCFLAGS']: self.env['_ASINCFLAGS'] = self.env['ASINCFLAGS']
-	if 'cxx' in self.features: self.env['_ASINCFLAGS'] = self.env['_CXXINCFLAGS']
-	else: self.env['_ASINCFLAGS'] = self.env['_CCINCFLAGS']
 
 def detect(conf):
 	conf.find_program(['gas', 'as'], var='AS')
