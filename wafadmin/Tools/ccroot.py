@@ -262,13 +262,13 @@ def apply_defines(self):
 @after('apply_type_vars', 'apply_lib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
-	after processing the uselib for CPPPATH
+	after processing the uselib for INCLUDES
 	after process_source because some processing may add include paths
 	"""
 	lst = []
 	# TODO move the uselib processing out of here
 	for lib in self.to_list(self.uselib):
-		for path in self.env['CPPPATH_' + lib]:
+		for path in self.env['INCLUDES_' + lib]:
 			if not path in lst:
 				lst.append(path)
 	if preproc.go_absolute:
@@ -281,7 +281,7 @@ def apply_incpaths(self):
 			if preproc.go_absolute or not os.path.isabs(path):
 				lst.append(path)
 			else:
-				self.env.prepend_value('CPPPATH', path)
+				self.env.prepend_value('INCLUDES', path)
 
 	for path in lst:
 		node = None
@@ -309,12 +309,11 @@ def apply_incpaths(self):
 	# local flags come first
 	# set the user-defined includes paths
 	for i in env['INC_PATHS']:
-		app('_INCFLAGS', [cpppath_st % i.bldpath(env), cpppath_st % i.srcpath(env)])
+		app('_INCFLAGS', [cpppath_st % i.bldpath(), cpppath_st % i.srcpath()])
 
 	# set the library include paths
-	for i in env['CPPPATH']:
+	for i in env['INCLUDES']:
 		app('_INCFLAGS', [cpppath_st % i])
-
 
 @feature('cc', 'cxx')
 @after('init_cc', 'init_cxx')

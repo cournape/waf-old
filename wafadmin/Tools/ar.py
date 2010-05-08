@@ -7,7 +7,7 @@
 
 import os, sys
 import Task, Utils
-from Configure import conftest
+from Configure import conf
 
 ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o')
@@ -24,10 +24,10 @@ setattr(cls, 'run', wrap)
 
 @conf
 def find_ar(conf):
-	conf.check_tool('ar', var='AR', mandatory=True)
+	conf.check_tool('ar')
 
 def detect(conf):
-	conf.find_ar()
+	conf.find_program('ar', var='AR', mandatory=True)
 	conf.env.ARFLAGS = 'rcs'
 
 

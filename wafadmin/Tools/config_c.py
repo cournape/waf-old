@@ -64,7 +64,7 @@ def parse_flags(line, uselib, env):
 
 		if st == '-I' or st == '/I':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('CPPPATH_' + uselib, [ot])
+			env.append_unique('INCLUDES_' + uselib, [ot])
 		elif st == '-D':
 			if not ot: ot = lst.pop(0)
 			env.append_unique('DEFINES_' + uselib, [ot])
@@ -407,8 +407,7 @@ def post_check(self, *k, **kw):
 		import cc, cxx
 		for k in set(cc.g_cc_flag_vars).union(cxx.g_cxx_flag_vars):
 			lk = k.lower()
-			# inconsistency: includes -> CPPPATH
-			if k == 'CPPPATH': lk = 'includes'
+			if k == 'INCLUDES': lk = 'includes'
 			if k == 'DEFINES': lk = 'defines'
 			if lk in kw:
 				val = kw[lk]
