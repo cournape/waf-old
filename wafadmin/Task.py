@@ -307,7 +307,7 @@ class Task(TaskBase):
 		# compare the signature to a signature computed previously
 		key = self.unique_id()
 		try:
-			prev_sig = bld.task_sigs[key][0]
+			prev_sig = bld.task_sigs[key]
 		except KeyError:
 			debug("task: task %r must run as it was never run before or the task code changed" % self)
 			return RUN_ME
