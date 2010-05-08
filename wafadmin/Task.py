@@ -284,7 +284,7 @@ class Task(TaskBase):
 
 		# we now have the signature (first element) and the details (for debugging)
 
-		ret = self.cache_sig = m.digest()
+		ret = self.cache_sig = self.m.digest()
 		return ret
 
 	def runnable_status(self):
