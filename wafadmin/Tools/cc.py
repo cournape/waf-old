@@ -64,12 +64,12 @@ def c_hook(self, node):
 	return task
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c', shell=False)
+cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
 cls.scan = ccroot.scan
 cls.vars.append('CCDEPS')
 
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
-cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
+cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin')
 cls.maxjobs = 1
 cls.install = Utils.nada
 

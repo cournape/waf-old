@@ -535,25 +535,17 @@ def compile_fun_noshell(name, line):
 	debug('action: %s' % fun)
 	return (funex(fun), dvars)
 
-def compile_fun(name, line, shell=None):
+def compile_fun(name, line, shell=False):
 	"commands can be launched by the shell or not"
 	if line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
 		shell = True
-	#else:
-	#	shell = False
-
-	if shell is None:
-		if sys.platform == 'win32':
-			shell = False
-		else:
-			shell = True
 
 	if shell:
 		return compile_fun_shell(name, line)
 	else:
 		return compile_fun_noshell(name, line)
 
-def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[], shell=None):
+def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[], shell=False):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line, shell)
 	fun.code = line

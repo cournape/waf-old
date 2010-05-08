@@ -281,11 +281,11 @@ def process_qm2rcc(task):
 	f.close()
 
 b = Task.simple_task_type
-b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], shell=False)
-cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx_task', after="qm2rcc", shell=False)
+b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
+cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx_task', after="qm2rcc")
 cls.scan = scan
-b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc qxx_task', shell=False)
-b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc', shell=False)
+b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc qxx_task')
+b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc')
 
 Task.task_type_from_func('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', before='rcc', after='ts2qm')
 
