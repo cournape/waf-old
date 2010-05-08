@@ -76,10 +76,10 @@ def apply_intltool_po(self):
 	else:
 		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
-Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', shell=False)
+Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 Task.simple_task_type('intltool',
 	'${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
-	color='BLUE', after="cc_link cxx_link", shell=False)
+	color='BLUE', after="cc_link cxx_link")
 
 def detect(conf):
 	pocom = conf.find_program('msgfmt')

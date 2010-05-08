@@ -22,7 +22,7 @@ def rc_file(self, node):
 	self.compiled_tasks.append(rctask)
 
 # create our action, for use with rc file
-Task.simple_task_type('winrc', winrc_str, color='BLUE', before='cc cxx', shell=False)
+Task.simple_task_type('winrc', winrc_str, color='BLUE', before='cc cxx')
 
 def detect(conf):
 	v = conf.env

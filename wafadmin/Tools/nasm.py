@@ -42,7 +42,7 @@ def nasm_file(self, node):
 	self.meths.append('apply_nasm_vars')
 
 # create our action here
-Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o', shell=False)
+Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o')
 
 def detect(conf):
 	nasm = conf.find_program(['nasm', 'yasm'], var='NASM', mandatory=True)
