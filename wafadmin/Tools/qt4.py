@@ -31,7 +31,7 @@ EXT_RCC = ['.qrc']
 EXT_UI  = ['.ui']
 EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
-class qxx_task(Task.Task):
+class qxx(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 
 	before = ['cxx_link', 'static_link']
@@ -282,9 +282,9 @@ def process_qm2rcc(task):
 
 b = Task.simple_task_type
 b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
-cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx_task', after="qm2rcc")
+cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx', after="qm2rcc")
 cls.scan = scan
-b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc qxx_task')
+b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc qxx')
 b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc')
 
 Task.task_type_from_func('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', before='rcc', after='ts2qm')
