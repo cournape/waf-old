@@ -99,10 +99,9 @@ skipped   = 's'
 
 def repl(m):
 	s = m.group(1)
-	if s is not None: return ' '
-	s = m.group(3)
-	if s is None: return ''
-	return s
+	if s:
+		return ' '
+	return m.group(3) or ''
 
 def filter_comments(filename):
 	# return a list of tuples : keyword, line
