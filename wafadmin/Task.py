@@ -44,6 +44,7 @@ class store_task_type(type):
 
 		if name.endswith('_task'):
 			name = name.replace('_task', '')
+		if name != 'TaskBase':
 			TaskBase.classes[name] = cls
 
 class TaskBase(object, metaclass=store_task_type):
