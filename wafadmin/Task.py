@@ -264,7 +264,7 @@ class Task(TaskBase):
 
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
-		try: return self.cache_sig
+		try: return self.cache_sig[0]
 		except AttributeError: pass
 
 		m = md5()
@@ -281,9 +281,10 @@ class Task(TaskBase):
 		var_sig = self.sig_vars()
 		m.update(var_sig)
 
+		# for now it seems that we have to keep all this info
 		# we now have the signature (first element) and the details (for debugging)
 		ret = m.digest()
-		self.cache_sig = ret
+		self.cache_sig = (ret, exp_sig, imp_sig, var_sig)
 		return ret
 
 	def runnable_status(self):
@@ -321,7 +322,7 @@ class Task(TaskBase):
 				debug("task: task %r must run as the output nodes do not exist" % self)
 				return RUN_ME
 
-		if new_sig != prev_sig:
+		if new_sig != prev_sig[0]:
 			return RUN_ME
 		return SKIP_ME
 
