@@ -14,6 +14,13 @@ from Configure import conf
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['process_source', 'apply_vnum', 'apply_objdeps'] # additional d methods
 
+PHOBOS = '''
+import std.stdio;
+int main() {
+	return 0;
+}
+'''
+
 def filter_comments(filename):
 	txt = Utils.readf(filename)
 	buf = []
@@ -452,7 +459,7 @@ cls = Task.simple_task_type('d_link', link_str, color='YELLOW')
 override_exec(cls)
 
 # for feature request #104
-@taskgen
+@taskgen_method
 def generate_header(self, filename, install_path):
 	if not hasattr(self, 'header_lst'): self.header_lst = []
 	self.meths.append('process_header')
@@ -487,4 +494,15 @@ def d_platform_flags(conf):
 		v['D_program_PATTERN']   = '%s'
 		v['D_shlib_PATTERN']     = 'lib%s.so'
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
+
+@conf
+def check_phobos(conf):
+	try:
+		conf.check_cc(features='d', fragment=PHOBOS, mandatory=True, compile_filename='test.d')
+	except Configure.ConfigurationError, e:
+		pass
+	else:
+		conf.env.IS_PHOBOS = True
+		return True
+	return False
 
