@@ -18,6 +18,7 @@ def configure(conf):
 		conf.fatal("either dmd or gdc is required (d compilers)")
 
 	conf.env.LIB_PTHREAD = ['pthread']
+	conf.check_phobos()
 
 def build(bld):
 	bld.add_subdirs('src')

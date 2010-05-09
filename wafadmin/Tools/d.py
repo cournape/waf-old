@@ -13,6 +13,13 @@ from Configure import conftest
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
 
+PHOBOS = """
+import std.stdio;
+int main() {
+	return 0;
+}
+"""
+
 def filter_comments(filename):
 	txt = Utils.readf(filename)
 	i = 0
@@ -471,6 +478,17 @@ def d_platform_flags(conf):
 		v['D_program_PATTERN']   = '%s'
 		v['D_shlib_PATTERN']	 = 'lib%s.so'
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
+
+@conftest
+def check_phobos(conf):
+	try:
+		conf.check_cc(features='d', fragment=PHOBOS, mandatory=True, compile_filename='test.d')
+	except Configure.ConfigurationError, e:
+		pass
+	else:
+		conf.env.IS_PHOBOS = True
+		return True
+	return False
 
 # quick test #
 if __name__ == "__main__":
