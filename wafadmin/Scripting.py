@@ -210,6 +210,17 @@ def distclean_dir(dirname):
 				except:
 					Logs.warn('could not remove %r' % fname)
 
+	for x in [DBFILE, 'config.log']:
+		try:
+			os.unlink(x)
+		except:
+			pass
+
+	try:
+		shutil.rmtree('c4che')
+	except:
+		pass
+
 def distclean(ctx):
 	'''removes the build directory'''
 	lst = os.listdir('.')
