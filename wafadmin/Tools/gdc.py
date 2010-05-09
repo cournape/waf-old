@@ -4,13 +4,13 @@
 
 import sys
 import Utils, ar
-from Configure import conftest
+from Configure import conf
 
-@conftest
+@conf
 def find_gdc(conf):
 	conf.find_program('gdc', var='D_COMPILER', mandatory=True)
 
-@conftest
+@conf
 def common_flags_gdc(conf):
 	v = conf.env
 

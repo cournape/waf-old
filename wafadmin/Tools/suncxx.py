@@ -6,9 +6,9 @@
 import os, optparse
 import Utils, Options, Configure
 import ccroot, ar
-from Configure import conftest
+from Configure import conf
 
-@conftest
+@conf
 def find_sxx(conf):
 	v = conf.env
 	cc = None
@@ -21,7 +21,7 @@ def find_sxx(conf):
 	v['CXX']  = cc
 	v['CXX_NAME'] = 'sun'
 
-@conftest
+@conf
 def sxx_common_flags(conf):
 	v = conf.env
 

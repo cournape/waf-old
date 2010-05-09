@@ -34,7 +34,7 @@ import Utils, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, info, warn, error
 from TaskGen import after, before, feature
 
-from Configure import conftest, conf
+from Configure import conf
 import ccroot, cc, cxx, ar, winres
 
 import _winreg
@@ -427,7 +427,7 @@ def check_libs_msvc(self, libnames, is_static=False, mandatory=False):
 	for libname in Utils.to_list(libnames):
 		self.check_lib_msvc(libname, is_static, mandatory=mandatory)
 
-@conftest
+@conf
 def no_autodetect(conf):
 	conf.eval_rules(detect.replace('autodetect', ''))
 
@@ -443,7 +443,7 @@ cxx_add_flags
 link_add_flags
 '''
 
-@conftest
+@conf
 def autodetect(conf):
 	v = conf.env
 	compiler, path, includes, libdirs = detect_msvc(conf)
@@ -464,7 +464,7 @@ def _get_prog_names(conf, compiler):
 		lib_name = 'LIB'
 	return compiler_name, linker_name, lib_name
 
-@conftest
+@conf
 def find_msvc(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
 	if sys.platform != 'win32':
@@ -530,7 +530,7 @@ def find_msvc(conf):
 	if not conf.env['WINRC']:
 		warn('Resource compiler not found. Compiling resource file is disabled')
 
-@conftest
+@conf
 def msvc_common_flags(conf):
 	v = conf.env
 

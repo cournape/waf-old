@@ -7,9 +7,9 @@
 import os, sys
 import Configure, Options, Utils
 import ccroot, ar
-from Configure import conftest
+from Configure import conf
 
-@conftest
+@conf
 def find_gcc(conf):
 	cc = conf.find_program(['gcc', 'cc'], var='CC', mandatory=True)
 	cc = conf.cmd_to_list(cc)
@@ -17,7 +17,7 @@ def find_gcc(conf):
 	conf.env.CC_NAME = 'gcc'
 	conf.env.CC      = cc
 
-@conftest
+@conf
 def gcc_common_flags(conf):
 	v = conf.env
 
@@ -65,7 +65,7 @@ def gcc_common_flags(conf):
 	v['CCFLAGS_MACBUNDLE']   = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
-@conftest
+@conf
 def gcc_modifier_win32(conf):
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
@@ -86,14 +86,14 @@ def gcc_modifier_win32(conf):
 	# that the linker emits otherwise.
 	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import')
 
-@conftest
+@conf
 def gcc_modifier_cygwin(conf):
 	gcc_modifier_win32(conf)
 	v = conf.env
 	v['shlib_PATTERN']       = 'cyg%s.dll'
 	v.append_value('shlib_LINKFLAGS', '-Wl,--enable-auto-image-base')
 
-@conftest
+@conf
 def gcc_modifier_darwin(conf):
 	v = conf.env
 	v['shlib_CCFLAGS']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
@@ -106,7 +106,7 @@ def gcc_modifier_darwin(conf):
 	v['STATICLIB_MARKER']    = ''
 	v['SONAME_ST']           = ''
 
-@conftest
+@conf
 def gcc_modifier_aix(conf):
 	v = conf.env
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
@@ -115,7 +115,7 @@ def gcc_modifier_aix(conf):
 
 	v['SHLIB_MARKER']        = ''
 
-@conftest
+@conf
 def gcc_modifier_platform(conf):
 	# * set configurations specific for a platform.
 	# * the destination platform is detected automatically by looking at the macros the compiler predefines,

@@ -10,7 +10,7 @@ import os, imp, sys, shlex, shutil, subprocess
 from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs, TaskGen
 from Constants import *
-from Configure import conf, conftest
+from Configure import conf
 
 cfg_ver = {
 	'atleast-version': '>=',
@@ -668,7 +668,7 @@ def get_config_header(self):
 			config_header.append('#define %s %s' % (key, value))
 	return "\n".join(config_header)
 
-@conftest
+@conf
 def find_cpp(conf):
 	v = conf.env
 	cpp = None
@@ -679,26 +679,26 @@ def find_cpp(conf):
 	if not cpp: cpp = v['CXX']
 	v['CPP'] = cpp
 
-@conftest
+@conf
 def cc_add_flags(conf):
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')
 	conf.add_os_flags('CPPFLAGS')
 
-@conftest
+@conf
 def cxx_add_flags(conf):
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('CPPFLAGS')
 
-@conftest
+@conf
 def link_add_flags(conf):
 	conf.add_os_flags('LINKFLAGS')
 	conf.add_os_flags('LDFLAGS', 'LINKFLAGS')
 
-@conftest
+@conf
 def cc_load_tools(conf):
 	conf.check_tool('cc')
 
-@conftest
+@conf
 def cxx_load_tools(conf):
 	conf.check_tool('cxx')
 

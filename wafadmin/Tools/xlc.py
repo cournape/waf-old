@@ -8,16 +8,16 @@
 import os, sys
 import Configure, Options, Utils
 import ccroot, ar
-from Configure import conftest
+from Configure import conf
 
-@conftest
+@conf
 def find_xlc(conf):
 	cc = conf.find_program(['xlc_r', 'xlc'], var='CC', mandatory=True)
 	cc = conf.cmd_to_list(cc)
 	conf.env.CC_NAME = 'xlc'
 	conf.env.CC      = cc
 
-@conftest
+@conf
 def find_cpp(conf):
 	v = conf.env
 	cpp = None
@@ -26,7 +26,7 @@ def find_cpp(conf):
 	if not cpp: cpp = v['CC']
 	v['CPP'] = cpp
 
-@conftest
+@conf
 def xlc_common_flags(conf):
 	v = conf.env
 

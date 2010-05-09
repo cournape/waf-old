@@ -5,20 +5,20 @@
 
 import sys
 import Utils, ar
-from Configure import conftest
+from Configure import conf
 
-@conftest
+@conf
 def find_dmd(conf):
 	conf.find_program(['dmd', 'ldc'], var='D_COMPILER', mandatory=True)
 
-@conftest
+@conf
 def common_flags_ldc(conf):
 	v = conf.env
 	v['DFLAGS']         = ['-d-version=Posix']
 	v['DLINKFLAGS']     = []
 	v['D_shlib_DFLAGS'] = ['-relocation-model=pic']
 
-@conftest
+@conf
 def common_flags_dmd(conf):
 	v = conf.env
 

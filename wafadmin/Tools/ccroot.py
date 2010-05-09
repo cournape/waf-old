@@ -11,7 +11,7 @@ from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import after, before, feature, taskgen_method
 from Constants import *
-from Configure import conftest
+from Configure import conf
 try:
 	from cStringIO import StringIO
 except ImportError:
@@ -644,7 +644,7 @@ cls.quiet = 1
 
 # ============ the --as-needed flag should added during the configuration, not at runtime =========
 
-@conftest
+@conf
 def add_as_needed(conf):
 	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
 		conf.env.append_unique('LINKFLAGS', '--as-needed')

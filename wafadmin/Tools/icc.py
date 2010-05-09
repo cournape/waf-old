@@ -6,9 +6,9 @@
 import os, sys
 import Configure, Options, Utils
 import ccroot, ar, gcc
-from Configure import conftest
+from Configure import conf
 
-@conftest
+@conf
 def find_icc(conf):
 	if sys.platform == 'cygwin':
 		conf.fatal('The Intel compiler does not work on Cygwin')
