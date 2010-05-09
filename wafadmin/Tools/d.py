@@ -212,7 +212,7 @@ class d_parser(object):
 			self.iter(nd)
 
 	def iter(self, node):
-		path = node.abspath(self.env) # obtain the absolute path
+		path = node.abspath() # obtain the absolute path
 		code = "".join(filter_comments(path)) # read the file and filter the comments
 		names = self.get_strings(code) # obtain the import strings
 		for x in names:

@@ -8,7 +8,7 @@ c/c++ configuration routines
 
 import os, imp, sys, shlex, shutil, subprocess
 from Utils import md5
-import Build, Utils, Configure, Task, Options, Logs, TaskGen
+import Build, Utils, Configure, Task, Options, Logs, TaskGen, Base
 from Constants import *
 from Configure import conf
 
@@ -487,17 +487,18 @@ def run_c_code(self, *k, **kw):
 	back = os.path.abspath('.')
 
 	bld = Build.BuildContext()
+	bld.make_root()
+	bld.init_dirs(dir, bdir)
+
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = env
-	bld.lst_variants = bld.all_envs.keys()
-	bld.load_dirs(dir, bdir)
 
 	os.chdir(dir)
 
-	bld.rescan(bld.srcnode)
-
-	o = bld.new_task_gen(features=[kw['compile_mode'], kw['type']], source=test_f_name, target='testprog')
+	if not 'features' in kw:
+		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram cc"
+	o = bld(features=kw['features'], source=test_f_name, target='testprog')
 
 	for k, v in kw.items():
 		setattr(o, k, v)
@@ -505,9 +506,10 @@ def run_c_code(self, *k, **kw):
 	self.log.write("==>\n%s\n<==\n" % kw['code'])
 
 	# compile the program
+	bld.flush()
 	try:
 		bld.compile()
-	except Utils.WafError:
+	except Base.WafError:
 		ret = Utils.ex_stack()
 	else:
 		ret = 0
