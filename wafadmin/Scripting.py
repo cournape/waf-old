@@ -194,6 +194,22 @@ def copytree(src, dst, build_dir):
 		else:
 			shutil.copy2(srcname, dstname)
 
+def can_distclean(name):
+	for k in '.o .moc .exe'.split():
+		if name.endswith(k):
+			return True
+	return False
+
+def distclean_dir(dirname):
+	for (root, dirs, files) in os.walk(dirname):
+		for f in files:
+			if can_distclean(f):
+				fname = root + os.sep + f
+				try:
+					os.unlink(fname)
+				except:
+					Logs.warn('could not remove %r' % fname)
+
 def distclean(ctx):
 	'''removes the build directory'''
 	lst = os.listdir('.')
@@ -214,7 +230,7 @@ def distclean(ctx):
 					if e.errno != errno.ENOENT:
 						Logs.warn('project %r cannot be removed' % proj[BLDDIR])
 			else:
-				Logs.warn('Skipping %r (no build directory)' % proj['out_dir'])
+				distclean_dir(proj['out_dir'])
 
 			try:
 				os.remove(f)
