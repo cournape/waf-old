@@ -10,9 +10,9 @@ Node: filesystem structure, contains lists of nodes
 2. Some potential class properties are stored in Build: nodes to depend on..
 unused class members increase the .wafpickle file size sensibly with lots of objects.
 
-3. The build is lunched from the top of the build dir (for example, in build/).
+3. The build is launched from the top of the build dir (for example, in build/).
 
-4. Node objects should not be created directly - use make_node or find_node
+4. Although Node objects should not be created directly, the methods make_node or find_node may be used for exceptional circumstances
 
 Each instance of Build.BuildContext has a unique Node subclass.
 (aka: 'Nod3', see BuildContext initializer)

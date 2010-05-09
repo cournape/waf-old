@@ -9,7 +9,7 @@ import ccroot # <- leave this
 import TaskGen, Utils, Task, Logs
 from Logs import debug, error
 from TaskGen import taskgen, feature, after, before, extension
-from Configure import conftest
+from Configure import conf
 
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['process_source', 'apply_vnum', 'apply_objdeps'] # additional d methods
@@ -474,7 +474,7 @@ def process_header(self):
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
 Task.simple_task_type('d_header', d_header_str, color='BLUE')
 
-@conftest
+@conf
 def d_platform_flags(conf):
 	v = conf.env
 	binfmt = v.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
@@ -487,36 +487,4 @@ def d_platform_flags(conf):
 		v['D_program_PATTERN']   = '%s'
 		v['D_shlib_PATTERN']     = 'lib%s.so'
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
-
-# quick test #
-if __name__ == "__main__":
-	#Logs.verbose = 2
-
-	try: arg = sys.argv[1]
-	except IndexError: arg = "file.d"
-
-	print("".join(filter_comments(arg)))
-	# TODO
-	paths = ['.']
-
-	#gruik = filter()
-	#gruik.start(arg)
-
-	#code = "".join(gruik.buf)
-
-	#print "we have found the following code"
-	#print code
-
-	#print "now parsing"
-	#print "-------------------------------------------"
-	"""
-	parser_ = d_parser()
-	parser_.start(arg)
-
-	print "module: %s" % parser_.module
-	print "imports: ",
-	for imp in parser_.imports:
-		print imp + " ",
-	print
-"""
 

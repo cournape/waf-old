@@ -451,6 +451,4 @@ def conf(f):
 	setattr(ConfigurationContext, f.__name__, f)
 	return f
 
-# TODO eliminate
-conftest = conf
 
