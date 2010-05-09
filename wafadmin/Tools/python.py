@@ -8,7 +8,7 @@
 import os, sys, subprocess
 import TaskGen, Utils, Utils, Runner, Options, Build
 from Logs import debug, warn, info
-from TaskGen import extension, taskgen, before, after, feature
+from TaskGen import extension, taskgen_method, before, after, feature
 from Configure import conf
 
 FRAG_2 = '''
