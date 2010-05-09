@@ -13,6 +13,7 @@ from Configure import conf
 
 EXT_PY = ['.py']
 FRAG_2 = '''
+#include "Python.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -285,7 +286,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
 	# See if it compiles
-	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
+	conf.check(define_name='HAVE_PYTHON_H',
 		   uselib='PYEMBED', fragment=FRAG_2,
 		   errmsg='Could not find the python development headers', mandatory=mandatory)
 
