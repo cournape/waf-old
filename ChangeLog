@@ -17,4 +17,5 @@ NEW IN WAF 1.6.0
 * rename apply_core -> process_source
 * rename apply_rule -> process_rule
 * remove task_gen.allnodes: modify self.source directly
+* fuse the include system for c, c++, gas and nasm
 
