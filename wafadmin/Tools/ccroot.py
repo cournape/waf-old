@@ -432,7 +432,7 @@ def apply_lib_vars(self):
 			val = self.env[v + '_' + x]
 			if val: self.env.append_value(v, val)
 
-@feature('cprogram', 'cstaticlib', 'cshlib')
+@feature('cprogram', 'cstaticlib', 'cshlib', 'dprogram', 'dstaticlib', 'dshlib')
 @after('init_cc', 'init_cxx', 'apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
@@ -584,7 +584,7 @@ def apply_implib(self):
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
-@feature('cshlib')
+@feature('cshlib', 'dshlib')
 @after('apply_link')
 @before('apply_lib_vars', 'default_link_install')
 def apply_vnum(self):

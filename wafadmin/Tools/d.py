@@ -8,11 +8,10 @@ from collections import deque
 import ccroot # <- leave this
 import TaskGen, Utils, Task, Logs
 from Logs import debug, error
-from TaskGen import taskgen, feature, after, before, extension
+from TaskGen import taskgen_method, feature, after, before, extension
 from Configure import conf
 
 EXT_D = ['.d', '.di', '.D']
-D_METHS = ['process_source', 'apply_vnum', 'apply_objdeps'] # additional d methods
 
 DLIB = """
 version(D_Version2) {
@@ -257,9 +256,6 @@ d_params = {
 def init_d(self):
 	for x in d_params:
 		setattr(self, x, getattr(self, x, d_params[x]))
-
-# okay, we borrow a few methods from ccroot
-TaskGen.bind_feature('d', D_METHS)
 
 @feature('d')
 @before('apply_d_libs')
