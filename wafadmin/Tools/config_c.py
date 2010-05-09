@@ -489,6 +489,7 @@ def run_c_code(self, *k, **kw):
 	bld = Build.BuildContext()
 	bld.make_root()
 	bld.init_dirs(dir, bdir)
+	bld.out_dir = bdir
 
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
@@ -523,7 +524,7 @@ def run_c_code(self, *k, **kw):
 
 	# keep the name of the program to execute
 	if kw['execute']:
-		lastprog = o.link_task.outputs[0].abspath(env)
+		lastprog = o.link_task.outputs[0].abspath()
 
 	# if we need to run the program, try to get its result
 	if kw['execute']:
