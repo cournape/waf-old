@@ -21,18 +21,19 @@ def configure(conf):
 	conf.check_phobos()
 
 def build(bld):
-	bld.add_subdirs('src')
+	if bld.env.IS_PHOBOS:
+		bld.add_subdirs('src')
 
-	# here is how to use the object-oriented notation
-	obj = bld(features='d dstaticlib')
-	obj.source = '''
-	testlib/code.d
-	'''
-	obj.importpaths = '.'
-	obj.name        = 'testlib'
-	obj.target      = 'testlib'
+		# here is how to use the object-oriented notation
+		obj = bld(features='d dstaticlib')
+		obj.source = '''
+		testlib/code.d
+		'''
+		obj.importpaths = '.'
+		obj.name        = 'testlib'
+		obj.target      = 'testlib'
 
-	"""
+		"""
 	compiling with d, linking with gcc:
 	* in the configuration, add conf.check_tool('gcc')
 	* in the object creation, add 3 lines
@@ -47,15 +48,17 @@ def build(bld):
 	obj.target = 'testlib'
 	"""
 
-	obj = bld(features='d dprogram')
-	obj.source = '''
-	example.d
-	'''
-	obj.target       = 'd_test'
-	obj.uselib_local = 'testlib'
-	obj.uselib       = 'PTHREAD'
-	obj.importpaths  = '.'
+		obj = bld(features='d dprogram')
+		obj.source = '''
+		example.d
+		'''
+		obj.target       = 'd_test'
+		obj.uselib_local = 'testlib'
+		obj.uselib       = 'PTHREAD'
+		obj.importpaths  = '.'
 
+	else:
+		bld(features='d dprogram', source='foo.d', target='bar')
 
 	# ---------------------------------------
 	# to use in the development phase:
