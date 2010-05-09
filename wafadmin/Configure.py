@@ -367,8 +367,6 @@ class ConfigurationContext(Context):
 		bld = getattr(Options.options, BLDDIR, None)
 		if not bld:
 			bld = getattr(Base.g_module, BLDDIR, None)
-			if bld == '.':
-				raise WafError('Setting blddir="." may cause distclean problems')
 		if not bld:
 			bld = 'build'
 			incomplete_bld = 1

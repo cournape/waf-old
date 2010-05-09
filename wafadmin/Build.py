@@ -179,9 +179,6 @@ class BuildContext(Context):
 	def prepare(self):
 		self.is_install = 0
 
-		if self.top_dir == self.out_dir:
-			raise WafError("build dir must be different from srcdir: %s" % self.top_dir)
-
 		self.load()
 
 		self.init_dirs(self.top_dir, self.out_dir)
