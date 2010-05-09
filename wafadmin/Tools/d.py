@@ -13,10 +13,27 @@ from Configure import conftest
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
 
-PHOBOS = """
-import std.stdio;
-int main() {
-	return 0;
+DLIB = """
+version(D_Version2) {
+	import std.stdio;
+	int main() {
+		writefln("phobos2");
+		return 0;
+	}
+} else {
+	version(Tango) {
+		import tango.stdc.stdio;
+		int main() {
+			printf("tango");
+			return 0;
+		}
+	} else {
+		import std.stdio;
+		int main() {
+			writefln("phobos1");
+			return 0;
+		}
+	}
 }
 """
 
@@ -480,15 +497,9 @@ def d_platform_flags(conf):
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
 
 @conftest
-def check_phobos(conf):
-	try:
-		conf.check_cc(features='d', fragment=PHOBOS, mandatory=True, compile_filename='test.d')
-	except Configure.ConfigurationError, e:
-		pass
-	else:
-		conf.env.IS_PHOBOS = True
-		return True
-	return False
+def check_dlibrary(conf):
+	ret = conf.check_cc(features='d dprogram', fragment=DLIB, mandatory=True, compile_filename='test.d', execute=True)
+	conf.env.DLIBRARY = ret.strip()
 
 # quick test #
 if __name__ == "__main__":

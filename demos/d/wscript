@@ -18,10 +18,10 @@ def configure(conf):
 		conf.fatal("either dmd or gdc is required (d compilers)")
 
 	conf.env.LIB_PTHREAD = ['pthread']
-	conf.check_phobos()
+	conf.check_dlibrary()
 
 def build(bld):
-	if bld.env.IS_PHOBOS:
+	if bld.env.DLIBRARY != 'tango':
 		bld.add_subdirs('src')
 
 		# here is how to use the object-oriented notation
