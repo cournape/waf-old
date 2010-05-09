@@ -130,7 +130,7 @@ def debug(*k, **kw):
 def error(*k, **kw):
 	logging.error(*k, **kw)
 	if verbose > 1:
-		if isinstance(k[0], Utils.WafError):
+		if isinstance(k[0], Base.WafError):
 			st = k[0].stack
 		else:
 			st = traceback.extract_stack()

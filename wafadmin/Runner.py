@@ -69,7 +69,7 @@ class TaskConsumer(threading.Thread):
 			else:
 				try:
 					tsk.post_run()
-				except Utils.WafError:
+				except Base.WafError:
 					pass
 				except Exception:
 					tsk.err_msg = Utils.ex_stack()

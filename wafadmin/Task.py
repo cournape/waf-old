@@ -297,11 +297,7 @@ class Task(TaskBase):
 		bld = self.generator.bld
 
 		# first compute the signature
-		try:
-			new_sig = self.signature()
-		except KeyError:
-			debug("task: something is wrong, computing the task %r signature failed" % self)
-			return RUN_ME
+		new_sig = self.signature()
 
 		# compare the signature to a signature computed previously
 		key = self.unique_id()
