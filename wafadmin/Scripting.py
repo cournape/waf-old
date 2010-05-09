@@ -194,16 +194,22 @@ def copytree(src, dst, build_dir):
 		else:
 			shutil.copy2(srcname, dstname)
 
-def can_distclean(name):
+def _can_distclean(name):
+	"""
+	this method can change anytime and without prior notice
+	"""
 	for k in '.o .moc .exe'.split():
 		if name.endswith(k):
 			return True
 	return False
 
 def distclean_dir(dirname):
+	"""
+	called when top==out
+	"""
 	for (root, dirs, files) in os.walk(dirname):
 		for f in files:
-			if can_distclean(f):
+			if _can_distclean(f):
 				fname = root + os.sep + f
 				try:
 					os.unlink(fname)
@@ -305,7 +311,7 @@ def dist(ctx):
 	return arch_name
 
 def distcheck(ctx):
-	'''checks if the sources compile (tarball from 'dist')'''
+	'''checks if the project compiles (tarball from 'dist')'''
 	import tempfile, tarfile
 
 	appname = getattr(Base.g_module, APPNAME, 'noname')
