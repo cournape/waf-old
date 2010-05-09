@@ -344,12 +344,7 @@ def apply_d_vars(self):
 			env.append_unique('DFLAGS', env['DFLAGS_' + i])
 
 	for x in self.features:
-		if not x in ['dprogram', 'dstaticlib', 'dshlib']:
-			continue
-		x.lstrip('d')
-		d_shlib_dflags = env['D_' + x + '_DFLAGS']
-		if d_shlib_dflags:
-			env.append_unique('DFLAGS', d_shlib_dflags)
+		env.append_unique('DFLAGS', env[x + '_DFLAGS'])
 
 	# add import paths
 	for i in uselib:
