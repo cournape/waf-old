@@ -205,13 +205,16 @@ def distclean(ctx):
 				Logs.warn('could not read %r' % f)
 				continue
 
-			try:
-				shutil.rmtree(proj['out_dir'])
-			except IOError:
-				pass
-			except OSError as e:
-				if e.errno != errno.ENOENT:
-					Logs.warn('project %r cannot be removed' % proj[BLDDIR])
+			if proj['out_dir'] != proj['top_dir']:
+				try:
+					shutil.rmtree(proj['out_dir'])
+				except IOError:
+					pass
+				except OSError as e:
+					if e.errno != errno.ENOENT:
+						Logs.warn('project %r cannot be removed' % proj[BLDDIR])
+			else:
+				Logs.warn('Skipping %r (no build directory)' % proj['out_dir'])
 
 			try:
 				os.remove(f)
