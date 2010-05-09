@@ -30,6 +30,8 @@ def build(bld):
 		source = 'test_staticlib.c',
 		target='my_static_lib')
 
+### cut here ###
+
 import os, datetime
 import Scripting, Utils, Options, Logs, Environment
 from Constants import *
@@ -58,10 +60,10 @@ def main():
 						if k.name.startswith(x):
 
 							print "executing ", t, t.run()
-							n2 = bld.root.find_dir(os.getcwd())
-							print k.relpath_gen(n2)
-							t.position=[0, 0]
-							print t.display()
+							#n2 = bld.root.find_dir(os.getcwd())
+							#print k.relpath_gen(n2)
+							#t.position=[0, 0]
+							#print t.display()
 							#print "try -> waf --targets=%s" % t.generator.name or t.generator.target
 			break
 
