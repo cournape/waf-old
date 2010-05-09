@@ -100,8 +100,8 @@ def options(opt):
 		dest='strip_comments')
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
-	opt.add_option('--tools', action='store', help='Comma-separated 3rd party tools to add, eg: "boost,fluid" [Default: ""]',
-		dest='add3rdparty', default='')
+	opt.add_option('--tools', action='store', help='Comma-separated 3rd party tools to add, eg: "compat,ocaml" [Default: ""]',
+		dest='add3rdparty', default='compat')
 	opt.tool_options('python')
 
 def compute_revision():
@@ -211,8 +211,8 @@ def create_waf():
 				files.append(os.path.join(dd, k))
 	for x in files:
 		tarinfo = tar.gettarinfo(x, x)
-		tarinfo.uid=tarinfo.gid=1000
-		tarinfo.uname=tarinfo.gname="bozo"
+		tarinfo.uid   = tarinfo.gid   = 0
+		tarinfo.uname = tarinfo.gname = 'root'
 		(code, size, cnt) = sfilter(x)
 		tarinfo.size = size
 		tar.addfile(tarinfo, code)
