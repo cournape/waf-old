@@ -13,7 +13,7 @@ EXT_ASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
 as_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 Task.simple_task_type('asm', as_str, 'PINK', ext_out='.o')
 
-@extension(EXT_ASM)
+@extension(*EXT_ASM)
 def asm_hook(self, node):
 	# create the compilation task: cpp or cc
 	try: obj_ext = self.obj_ext

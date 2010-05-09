@@ -163,14 +163,14 @@ def apply_link_ml(self):
 		# we produce a .o file to be used by gcc
 		self.compiled_tasks.append(linktask)
 
-@extension(EXT_MLL)
+@extension(*EXT_MLL)
 def mll_hook(self, node):
 	mll_task = self.create_task('ocamllex', node, node.change_ext('.ml'), env=self.native_env)
 	self.mlltasks.append(mll_task)
 
 	self.source.append(mll_task.outputs[0])
 
-@extension(EXT_MLY)
+@extension(*EXT_MLY)
 def mly_hook(self, node):
 	mly_task = self.create_task('ocamlyacc', node, [node.change_ext('.ml'), node.change_ext('.mli')], env=self.native_env)
 	self.mlytasks.append(mly_task)
@@ -178,17 +178,17 @@ def mly_hook(self, node):
 
 	task = self.create_task('ocamlcmi', mly_task.outputs[1], mly_task.outputs[1].change_ext('.cmi'), env=self.native_env)
 
-@extension(EXT_MLI)
+@extension(*EXT_MLI)
 def mli_hook(self, node):
 	task = self.create_task('ocamlcmi', node, node.change_ext('.cmi'), env=self.native_env)
 	self.mlitasks.append(task)
 
-@extension(EXT_MLC)
+@extension(*EXT_MLC)
 def mlc_hook(self, node):
 	task = self.create_task('ocamlcc', node, node.change_ext('.o'), env=self.native_env)
 	self.compiled_tasks.append(task)
 
-@extension(EXT_ML)
+@extension(*EXT_ML)
 def ml_hook(self, node):
 	if self.native_env:
 		task = self.create_task('ocamlx', node, node.change_ext('.cmx'), env=self.native_env)

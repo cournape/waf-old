@@ -11,7 +11,6 @@ from Logs import debug, warn, info
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
 
-EXT_PY = ['.py']
 FRAG_2 = '''
 #ifdef __cplusplus
 extern "C" {
@@ -53,7 +52,7 @@ def init_pyembed(self):
 	if not 'PYEMBED' in self.uselib:
 		self.uselib.append('PYEMBED')
 
-@extension(EXT_PY)
+@extension('.py')
 def process_py(self, node):
 	if not (self.bld.is_install or self.install_path):
 		return

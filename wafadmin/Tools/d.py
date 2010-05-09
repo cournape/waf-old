@@ -405,7 +405,7 @@ def add_shlib_d_flags(self):
 	for linkflag in self.env['D_shlib_LINKFLAGS']:
 		self.env.append_unique('DLINKFLAGS', linkflag)
 
-@extension(EXT_D)
+@extension(*EXT_D)
 def d_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task(self.generate_headers and 'd_with_header' or 'd')

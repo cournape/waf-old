@@ -9,11 +9,9 @@ import TaskGen, Task
 from Utils import quote_whitespace
 from TaskGen import extension
 
-EXT_WINRC = ['.rc']
-
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
 
-@extension(EXT_WINRC)
+@extension('.rc')
 def rc_file(self, node):
 	obj_ext = '.rc.o'
 	if self.env['WINRC_TGT_F'] == '/fo': obj_ext = '.res'

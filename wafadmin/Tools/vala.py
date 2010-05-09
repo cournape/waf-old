@@ -6,8 +6,6 @@ import os.path, shutil
 import Task, Runner, Utils, Logs, Build, Node
 from TaskGen import extension, after, before
 
-EXT_VALA = ['.vala', '.gs']
-
 class valac_task(Task.Task):
 
 	vars = ("VALAC", "VALAC_VERSION", "VALAFLAGS")
@@ -126,7 +124,7 @@ class valac_task(Task.Task):
 		except:
 			pass
 
-@extension(EXT_VALA)
+@extension('.vala', '.gs')
 def vala_file(self, node):
 	valatask = getattr(self, "valatask", None)
 	# there is only one vala task and it compiles all vala files .. :-/
