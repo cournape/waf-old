@@ -26,7 +26,7 @@ setattr(cls, 'run', wrap)
 def find_ar(conf):
 	conf.check_tool('ar')
 
- def configure(conf):
+def configure(conf):
 	conf.find_program('ar', var='AR')
 	conf.env.ARFLAGS = 'rcs'
 

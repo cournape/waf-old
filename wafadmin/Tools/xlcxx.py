@@ -68,7 +68,7 @@ def xlcxx_common_flags(conf):
 	v['staticlib_LINKFLAGS'] = ''
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
- def configure(conf):
+def configure(conf):
 	conf.find_xlcxx()
 	conf.find_cpp()
 	conf.find_ar()

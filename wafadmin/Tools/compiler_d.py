@@ -5,7 +5,7 @@
 import os, sys, imp, types
 import Utils, Configure, Options
 
- def configure(conf):
+def configure(conf):
 	if getattr(Options.options, 'check_dmd_first', None):
 		test_for_compiler = ['dmd', 'gdc']
 	else:

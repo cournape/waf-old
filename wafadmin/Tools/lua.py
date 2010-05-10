@@ -20,6 +20,6 @@ TaskGen.declare_chain(
 def init_lua(self):
 	self.default_chmod = O755
 
- def configure(conf):
+def configure(conf):
 	conf.find_program('luac', var='LUAC')
 

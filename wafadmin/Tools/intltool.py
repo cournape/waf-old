@@ -81,7 +81,7 @@ Task.simple_task_type('intltool',
 	'${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
 	color='BLUE', after="cc_link cxx_link")
 
- def configure(conf):
+def configure(conf):
 	conf.find_program('msgfmt', var='POCOM')
 	# NOTE: it is possible to set INTLTOOL in the environment, but it must not have spaces in it
 

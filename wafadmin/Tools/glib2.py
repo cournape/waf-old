@@ -158,7 +158,7 @@ Task.simple_task_type('glib_mkenums',
 	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
 	color='PINK', before='cc cxx')
 
- def configure(conf):
+def configure(conf):
 	glib_genmarshal = conf.find_program('glib-genmarshal', var='GLIB_GENMARSHAL')
 	mk_enums_tool = conf.find_program('glib-mkenums', var='GLIB_MKENUMS')
 

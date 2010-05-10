@@ -32,7 +32,7 @@ def big_bison(self, node):
 	# and the c/cxx file must be compiled too
 	self.source.append(outs[0])
 
- def configure(conf):
+def configure(conf):
 	conf.find_program('bison', var='BISON')
 	conf.env['BISONFLAGS'] = '-d'
 

@@ -29,6 +29,6 @@ Task.simple_task_type('dbus_binding_tool',
 	'${DBUS_BINDING_TOOL} --prefix=${DBUS_BINDING_TOOL_PREFIX} --mode=${DBUS_BINDING_TOOL_MODE} --output=${TGT} ${SRC}',
 	color='BLUE', before='cc')
 
- def configure(conf):
+def configure(conf):
 	dbus_binding_tool = conf.find_program('dbus-binding-tool', var='DBUS_BINDING_TOOL')
 

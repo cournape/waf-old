@@ -445,7 +445,7 @@ def detect_qt4(conf):
 		process_rpath(vars, 'LIBPATH_QTCORE')
 		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
- def configure(conf):
+def configure(conf):
 	detect_qt4(conf)
 
 def options(opt):

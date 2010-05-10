@@ -53,7 +53,7 @@ def common_flags_dmd(conf):
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = ['-H', '-Hf']
 
- def configure(conf):
+def configure(conf):
 	conf.find_dmd()
 	conf.check_tool('ar')
 	conf.check_tool('d')
