@@ -9,10 +9,9 @@ Task manager -> Task groups -> Tasks
 import os, shutil, sys, re, random, datetime
 from collections import defaultdict
 from Utils import md5
-import Build, Runner, Utils, Node, Logs, Options
+import Build, Runner, Utils, Node, Logs, Options, Base
 from Logs import debug, warn, error
 from Constants import *
-from Base import WafError
 
 COMPILE_TEMPLATE_SHELL = '''
 def f(task):
@@ -44,9 +43,10 @@ class store_task_type(type):
 
 		if name.endswith('_task'):
 			name = name.replace('_task', '')
-		if name != 'TaskBase' and name != 'evil':
+		if name != 'evil':
 			TaskBase.classes[name] = cls
 
+# avoid a metaclass, code can run in python 2.6 and 3.x unmodified
 evil = store_task_type('evil', (object,), {})
 
 class TaskBase(evil):
@@ -336,7 +336,7 @@ class Task(TaskBase):
 			except OSError:
 				self.hasrun = MISSING
 				self.err_msg = '-> missing file: %r' % node.abspath()
-				raise WafError
+				raise Base.WafError
 
 			# important, store the signature for the next run
 			node.sig = sig
@@ -352,7 +352,7 @@ class Task(TaskBase):
 			try:
 				upd(x.sig)
 			except AttributeError:
-				raise WafError('Missing node signature for %r (required by %r)' % (x, self))
+				raise Base.WafError('Missing node signature for %r (required by %r)' % (x, self))
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
@@ -368,7 +368,7 @@ class Task(TaskBase):
 						try:
 							v = v.sig
 						except AttributeError:
-							raise WafError('Missing node signature for %r (required by %r)' % (v, self))
+							raise Base.WafError('Missing node signature for %r (required by %r)' % (v, self))
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
 					upd(v)
@@ -454,7 +454,7 @@ class Task(TaskBase):
 					k.sig
 				except AttributeError:
 					nodes.append(k)
-			raise WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
+			raise Base.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
 
 		return self.m.digest()
 
