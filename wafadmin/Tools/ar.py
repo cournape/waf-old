@@ -27,7 +27,7 @@ def find_ar(conf):
 	conf.check_tool('ar')
 
 def detect(conf):
-	conf.find_program('ar', var='AR', mandatory=True)
+	conf.find_program('ar', var='AR')
 	conf.env.ARFLAGS = 'rcs'
 
 

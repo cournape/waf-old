@@ -11,7 +11,7 @@ from Configure import conf
 
 @conf
 def find_gxx(conf):
-	cxx = conf.find_program(['g++', 'c++'], var='CXX', mandatory=True)
+	cxx = conf.find_program(['g++', 'c++'], var='CXX')
 	cxx = conf.cmd_to_list(cxx)
 	ccroot.get_cc_version(conf, cxx, gcc=True)
 	conf.env.CXX_NAME = 'gcc'

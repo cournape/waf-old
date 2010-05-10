@@ -33,6 +33,6 @@ def big_bison(self, node):
 	self.source.append(outs[0])
 
 def detect(conf):
-	conf.find_program('bison', var='BISON', mandatory=True)
+	conf.find_program('bison', var='BISON')
 	conf.env['BISONFLAGS'] = '-d'
 

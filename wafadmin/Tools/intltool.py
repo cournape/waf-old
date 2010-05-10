@@ -82,12 +82,7 @@ Task.simple_task_type('intltool',
 	color='BLUE', after="cc_link cxx_link")
 
 def detect(conf):
-	pocom = conf.find_program('msgfmt')
-	if not pocom:
-		# if msgfmt should not be mandatory, catch the thrown exception in your wscript
-		conf.fatal('The program msgfmt (gettext) is mandatory!')
-	conf.env['POCOM'] = pocom
-
+	conf.find_program('msgfmt', var='POCOM')
 	# NOTE: it is possible to set INTLTOOL in the environment, but it must not have spaces in it
 
 	intltool = conf.find_program('intltool-merge', var='INTLTOOL')

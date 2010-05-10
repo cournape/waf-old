@@ -240,7 +240,7 @@ def detect(conf):
 	min_version = (0, 1, 6)
 	min_version_str = "%d.%d.%d" % min_version
 
-	valac = conf.find_program('valac', var='VALAC', mandatory=True)
+	valac = conf.find_program('valac', var='VALAC')
 
 	if not conf.env["HAVE_GTHREAD"]:
 		conf.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')

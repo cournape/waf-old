@@ -259,7 +259,7 @@ class ConfigurationContext(Context):
 		self.log.write('\n')
 		Logs.pprint(color, msg)
 
-	def find_program(self, filename, path_list=[], var=None, mandatory=False, environ=None, exts=''):
+	def find_program(self, filename, path_list=[], var=None, mandatory=True, environ=None, exts=''):
 		"wrapper that adds a configuration message"
 
 		if not environ:

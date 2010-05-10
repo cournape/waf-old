@@ -8,7 +8,7 @@ from Configure import conf
 
 @conf
 def find_gdc(conf):
-	conf.find_program('gdc', var='D_COMPILER', mandatory=True)
+	conf.find_program('gdc', var='D_COMPILER')
 
 @conf
 def common_flags_gdc(conf):

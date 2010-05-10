@@ -288,7 +288,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
 		   env=test_env, fragment=FRAG_2,
-		   errmsg='Could not find the python development headers', mandatory=1)
+		   errmsg='Could not find the python development headers', mandatory=True)
 
 @conf
 def check_python_version(conf, minver=None):

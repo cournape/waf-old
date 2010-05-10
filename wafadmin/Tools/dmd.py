@@ -9,7 +9,7 @@ from Configure import conf
 
 @conf
 def find_dmd(conf):
-	conf.find_program(['dmd', 'ldc'], var='D_COMPILER', mandatory=True)
+	conf.find_program(['dmd', 'ldc'], var='D_COMPILER')
 
 @conf
 def common_flags_ldc(conf):

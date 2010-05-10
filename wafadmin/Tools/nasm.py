@@ -33,5 +33,5 @@ def nasm_file(self, node):
 Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o')
 
 def detect(conf):
-	nasm = conf.find_program(['nasm', 'yasm'], var='NASM', mandatory=True)
+	nasm = conf.find_program(['nasm', 'yasm'], var='NASM')
 

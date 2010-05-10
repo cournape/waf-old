@@ -34,7 +34,7 @@ def check_ruby_version(conf, minver=()):
 	if Options.options.rubybinary:
 		conf.env.RUBY = Options.options.rubybinary
 	else:
-		conf.find_program("ruby", var="RUBY", mandatory=True)
+		conf.find_program('ruby', var='RUBY')
 
 	ruby = conf.env.RUBY
 

@@ -11,7 +11,7 @@ from Configure import conf
 
 @conf
 def find_gcc(conf):
-	cc = conf.find_program(['gcc', 'cc'], var='CC', mandatory=True)
+	cc = conf.find_program(['gcc', 'cc'], var='CC')
 	cc = conf.cmd_to_list(cc)
 	ccroot.get_cc_version(conf, cc, gcc=True)
 	conf.env.CC_NAME = 'gcc'
