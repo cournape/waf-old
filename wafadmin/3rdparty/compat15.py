@@ -22,6 +22,8 @@ def load_tool(*k, **kw):
 	return ret
 	if 'options' in ret.__dict__:
 		ret.set_options = ret.options
+	if 'detect' in ret.__dict__ and not 'configure' in ret.__dict__:
+		ret.configure = ret.detect
 Base.load_tool = load_tool
 
 import Scripting
