@@ -60,6 +60,6 @@ def detect(conf):
 	conf.common_flags_dmd()
 	conf.d_platform_flags()
 
-	if conf.env.D_COMPILER.find('ldc') > -1:
+	if str(conf.env.D_COMPILER).find('ldc') > -1:
 		conf.common_flags_ldc()
 

@@ -397,3 +397,7 @@ def update(ctx):
 				reconf(proj)
 """
 
+# the following import will be removed in waf 1.6.10
+import compat15
+
+
