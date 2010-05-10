@@ -31,8 +31,6 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 import os, sys
-if sys.hexversion<0x300000f:
-	raise ImportError('Waf 1.6 requires Python >= 3.0 (for now)')
 
 VERSION="1.6.0"
 REVISION="x"
@@ -89,6 +87,11 @@ def unpack_wafdir(dir):
 
 	for x in ['Tools', '3rdparty']:
 		os.chmod(join('wafadmin',x), 493)
+
+	if sys.hexversion>0x300000f:
+		sys.path = [join(dir, 'wafadmin')] + sys.path
+		import fixpy2
+		fixpy2.fixdir(dir)
 
 	os.unlink(tmp)
 	os.chdir(cwd)
