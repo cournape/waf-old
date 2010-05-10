@@ -4,7 +4,11 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, traceback, datetime, inspect, errno, subprocess
+import sys
+if sys.hexversion<0x300000f:
+	raise ImportError('Waf 1.6 requires Python >= 3.0 (the source directory)')
+
+import os, shutil, traceback, datetime, inspect, errno, subprocess
 import Utils, Configure, Build, Logs, Options, ConfigSet, Task
 from Logs import error, warn, info
 from Constants import *
@@ -14,9 +18,6 @@ import Base
 g_gz = 'bz2'
 
 build_dir_override = None
-
-if sys.hexversion<0x300000f:
-	raise ImportError('Waf 1.6 requires Python >= 3.0 (the source directory)')
 
 def waf_entry_point(current_directory, version, wafdir):
 	"""This is the main entry point, all Waf execution starts here."""

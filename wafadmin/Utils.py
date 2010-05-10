@@ -7,7 +7,12 @@ Utilities and cross-platform fixes.
 """
 
 import os, sys, string, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
-from collections import UserDict
+
+try:
+	from collections import UserDict
+except:
+	from UserDict import UserDict
+
 import Logs
 from Constants import *
 

@@ -5,7 +5,10 @@
 "Execute the tasks"
 
 import os, shutil, sys, re, random, time, threading, traceback, datetime
-from queue import Queue
+try:
+	from queue import Queue
+except:
+	from Queue import Queue
 import Build, Utils, Node, Logs, Options
 from Logs import debug, warn, error
 from Base import WafError

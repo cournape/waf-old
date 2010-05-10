@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # encoding: ISO8859-1
 # Thomas Nagy, 2005-2010
 
@@ -94,7 +94,7 @@ def unpack_wafdir(dir):
 	for x in ['Tools', '3rdparty']:
 		os.chmod(join('wafadmin',x), 493)
 
-	if sys.hexversion>0x300000f:
+	if sys.hexversion<0x300000f:
 		sys.path = [join(dir, 'wafadmin')] + sys.path
 		import fixpy2
 		fixpy2.fixdir(dir)

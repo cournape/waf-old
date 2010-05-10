@@ -101,7 +101,7 @@ def options(opt):
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
 	opt.add_option('--tools', action='store', help='Comma-separated 3rd party tools to add, eg: "compat,ocaml" [Default: ""]',
-		dest='add3rdparty', default='compat')
+		dest='add3rdparty', default='compat15')
 	opt.tool_options('python')
 
 def compute_revision():
@@ -180,8 +180,8 @@ def sfilter(path):
 		cnt = f.read()
 	f.close()
 
-	if path.endswith('Options.py') or path.endswith('Scripting.py'):
-		cnt = cnt.replace('Utils.python_version_guard()', '')
+	if path.endswith('Scripting.py'):
+		cnt = cnt.replace("if sys.hexversion<0x300000f:\n\traise ImportError('Waf 1.6 requires Python >= 3.0 (the source directory)')", '')
 
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 

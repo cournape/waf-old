@@ -42,9 +42,9 @@ def subst(*k):
 		return fun
 	return do_subst
 
-@subst('Scripting.py')
+@subst('Task.py')
 def r1(code):
-	code = code.replace("if sys.hexversion<0x300000f:\n\traise ImportError('Waf 1.6 requires Python >= 3.0 (the source directory)')", "")
+	code = code.replace("class TaskBase(object,metaclass=store_task_type):", "class TaskBase(object):\n\t__metaclass__ = store_task_type\n")
 	return code
 
 def fixdir(dir):
