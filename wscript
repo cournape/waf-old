@@ -181,7 +181,7 @@ def sfilter(path):
 	f.close()
 
 	if path.endswith('Scripting.py'):
-		cnt = cnt.replace("if sys.hexversion<0x300000f:\n\traise ImportError('Waf 1.6 requires Python >= 3.0 (the source directory)')", '')
+		cnt = cnt.replace("if sys.hexversion<0x206000f:\n\traise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')", '')
 
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 

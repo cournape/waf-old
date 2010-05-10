@@ -53,14 +53,8 @@ def r0(code):
 	code = code.replace('as e:', ',e:')
 	return code
 
-@subst('Task.py')
-def r1(code):
-	code = code.replace("class TaskBase(object,metaclass=store_task_type):", "class TaskBase(object):\n\t__metaclass__ = store_task_type\n")
-	return code
-
 @subst('Constants.py')
-def r2(code):
+def r1(code):
 	code = code.replace("b'iluvcuteoverload'", "'iluvcuteoverload'")
 	return code
-
 

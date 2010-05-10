@@ -44,10 +44,12 @@ class store_task_type(type):
 
 		if name.endswith('_task'):
 			name = name.replace('_task', '')
-		if name != 'TaskBase':
+		if name != 'TaskBase' and name != 'evil':
 			TaskBase.classes[name] = cls
 
-class TaskBase(object, metaclass=store_task_type):
+evil = store_task_type('evil', (object,), {})
+
+class TaskBase(evil):
 	"""Base class for all Waf tasks
 
 	The most important methods are (by usual order of call):
