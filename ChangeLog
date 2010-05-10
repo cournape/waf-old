@@ -4,7 +4,7 @@ NEW IN WAF 1.6.0
 * Python 3 syntax by default
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
-* new Node class
+* Better Node apis
 * Utils.load_tool -> Base.load_tool
 * set_options becomes options
 * only the build-related commands require a configured project

@@ -19,7 +19,6 @@ General
 + multiprocess for distributed compilation (vs threads?)
 
 build context generalization to tasks and task generators?
-Move the typo detector into a separate tool
 Post the task generators by groups or as a whole (delegate to the task manager)
 autoconfig for any kind of command
 support for // configurations
