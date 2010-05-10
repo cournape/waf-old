@@ -43,7 +43,7 @@ class store_task_type(type):
 
 		if name.endswith('_task'):
 			name = name.replace('_task', '')
-		if name != 'evil':
+		if name != 'evil' and name != 'TaskBase':
 			TaskBase.classes[name] = cls
 
 # avoid a metaclass, code can run in python 2.6 and 3.x unmodified
