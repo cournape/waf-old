@@ -41,6 +41,12 @@ cwd = os.getcwd()
 join = os.path.join
 
 WAF='waf'
+def b(x):
+	return x
+if sys.hexversion>0x300000f:
+	WAF='waf3'
+	def b(x):
+		return x.encode()
 
 def err(m):
 	print(('\033[91mError: %s\033[0m' % m))
@@ -52,13 +58,13 @@ def unpack_wafdir(dir):
 	while 1:
 		line = f.readline()
 		if not line: err('run waf-light from a folder containing wafadmin')
-		if line == b'#==>\n':
+		if line == b('#==>\n'):
 			txt = f.readline()
 			if not txt: err(c % 1)
-			if f.readline() != b'#<==\n': err(c % 2)
+			if f.readline() != b('#<==\n'): err(c % 2)
 			break
 	if not txt: err(c % 3)
-	txt = txt[1:-1].replace(C1, b'\n').replace(C2, b'\r')
+	txt = txt[1:-1].replace(b(C1), b('\n')).replace(b(C2), b('\r'))
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
