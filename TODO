@@ -4,16 +4,16 @@ Waf 1.6
 The points listed with a '+' indicate potential sub-projects (contributions will be welcome)
 
 General
+
 - give the pkg-config binary path
 - improve the path handling (split by '/')
 - global module repository to avoid re-doing "import"
 - refactor the environment thing
 - debug builds (step-by-step execution + scheduler changes)
 - cc_root.py rewrite to reduce the amount of methods (header processing, flags processing, os fixes)
-- unification uselib / uselib_local / objects
+- unification uselib / uselib_local / objects -> attribute 'uses'?
 - new global variable uselib_vars and generalization of uselib for all kinds of task generators
 - cache the configuration test results for multiple calls
-- better Node apis
 - no shell for execution
 + CMake file interpreter
 + multiprocess for distributed compilation (vs threads?)
