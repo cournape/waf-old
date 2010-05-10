@@ -36,6 +36,7 @@ def common_flags_dmd(conf):
 	v['D_LINKER']          = v['D_COMPILER']
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = '-of'
+	v['CPPPATH_ST']        = '-I%s'
 
 	v['DLIB_ST']           = '-L-l%s' # template for adding libs
 	v['DLIBPATH_ST']       = '-L-L%s' # template for adding libpaths

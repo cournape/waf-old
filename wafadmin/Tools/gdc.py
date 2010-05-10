@@ -27,6 +27,7 @@ def common_flags_gdc(conf):
 	v['D_LINKER']          = v['D_COMPILER']
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = ['-o', '']
+	v['CPPPATH_ST']        = '-I%s'
 
 	v['DLIB_ST']           = '-l%s' # template for adding libs
 	v['DLIBPATH_ST']       = '-L%s' # template for adding libpaths

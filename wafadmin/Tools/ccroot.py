@@ -19,8 +19,6 @@ except ImportError:
 
 import config_c # <- necessary for the configuration, do not touch
 
-USE_TOP_LEVEL = False
-
 def get_cc_version(conf, cc, gcc=False, icc=False):
 
 	cmd = cc + ['-dM', '-E', '-']
@@ -175,7 +173,6 @@ def get_target_name(self):
 def default_cc(self):
 	"""compiled_tasks attribute must be set before the '.c->.o' tasks can be created"""
 	Utils.def_attrs(self,
-		includes = '',
 		defines= '',
 		rpaths = '',
 		uselib = '',
@@ -258,7 +255,7 @@ def apply_defines(self):
 	y = self.env['DEFINES_ST']
 	self.env['_DEFFLAGS'] = [y%x for x in milst]
 
-@feature('cc', 'cxx', 'asm')
+@feature('cc', 'cxx', 'd', 'asm')
 @after('apply_type_vars', 'apply_lib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
@@ -276,7 +273,7 @@ def apply_incpaths(self):
 			if not path in lst:
 				lst.append(path)
 
-	for path in self.to_list(self.includes):
+	for path in self.to_list(getattr(self, 'includes', [])):
 		if not path in lst:
 			if preproc.go_absolute or not os.path.isabs(path):
 				lst.append(path)
@@ -297,10 +294,6 @@ def apply_incpaths(self):
 
 		if node:
 			self.env.append_value('INC_PATHS', [node])
-
-	# TODO WAF 1.6
-	if USE_TOP_LEVEL:
-		self.env.append_value('INC_PATHS', [self.bld.srcnode])
 
 	env = self.env
 	app = env.append_unique

@@ -373,15 +373,6 @@ def apply_d_vars(self):
 				if not entry in importpaths:
 					importpaths.append(entry)
 
-	# now process the import paths
-	for path in importpaths:
-		if os.path.isabs(path):
-			env.append_unique('_DIMPORTFLAGS', [dpath_st % path])
-		else:
-			node = self.path.find_dir(path)
-			env.append_unique('INC_PATHS', [node])
-			env.append_unique('_DIMPORTFLAGS', [dpath_st % node.srcpath(), dpath_st % node.bldpath()])
-
 	# add library paths
 	for i in uselib:
 		if env['LIBPATH_' + i]:
@@ -433,8 +424,8 @@ def d_hook(self, node):
 		header_node = node.change_ext(self.env['DHEADER_ext'])
 		task.outputs += [header_node]
 
-d_str = '${D_COMPILER} ${DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
-d_with_header_str = '${D_COMPILER} ${DFLAGS} ${_DIMPORTFLAGS} \
+d_str = '${D_COMPILER} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+d_with_header_str = '${D_COMPILER} ${DFLAGS} ${_INCFLAGS} \
 ${D_HDR_F}${TGT[1].bldpath(env)} \
 ${D_SRC_F}${SRC} \
 ${D_TGT_F}${TGT[0].bldpath(env)}'
