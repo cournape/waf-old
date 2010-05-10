@@ -232,7 +232,7 @@ class ConfigurationContext(Context):
 			if self.in_msg:
 				return
 		except:
-			self.in_msg = 1
+			self.in_msg = 0
 		self.in_msg += 1
 
 		self.line_just = max(self.line_just, len(msg))
