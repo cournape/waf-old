@@ -130,8 +130,6 @@ class OptionsContext(Context):
 		return self.parser.get_option_group(opt_str)
 
 	def tool_options(self, tool_list, *k, **kw):
-		Utils.python_version_guard()
-
 		#if not k[0]:
 		#	raise Utils.WscriptError('invalid tool_options call %r %r' % (k, kw))
 		tools = Utils.to_list(tool_list)
