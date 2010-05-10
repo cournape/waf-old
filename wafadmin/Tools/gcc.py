@@ -125,7 +125,7 @@ def gcc_modifier_platform(conf):
 	if gcc_modifier_func:
 			gcc_modifier_func(conf)
 
-def detect(conf):
+ def configure(conf):
 	conf.find_gcc()
 	conf.find_cpp()
 	conf.find_ar()

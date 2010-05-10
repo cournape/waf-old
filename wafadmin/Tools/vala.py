@@ -236,7 +236,7 @@ def vala_file(self, node):
 	valatask.inputs.append(node)
 	valatask.outputs.extend(output_nodes)
 
-def detect(conf):
+ def configure(conf):
 	min_version = (0, 1, 6)
 	min_version_str = "%d.%d.%d" % min_version
 

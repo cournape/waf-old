@@ -22,7 +22,7 @@ def asm_hook(self, node):
 	task = self.create_task('asm', node, node.change_ext(obj_ext))
 	self.compiled_tasks.append(task)
 
-def detect(conf):
+ def configure(conf):
 	conf.find_program(['gas', 'as'], var='AS')
 	if not conf.env.AS:
 		conf.env.AS = conf.env.CC

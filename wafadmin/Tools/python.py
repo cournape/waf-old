@@ -370,7 +370,7 @@ def check_python_module(conf, module_name):
 	if not result:
 		conf.fatal('Could not find the python module %r' % module_name)
 
-def detect(conf):
+ def configure(conf):
 
 	if not conf.env.PYTHON:
 		conf.env.PYTHON = sys.executable

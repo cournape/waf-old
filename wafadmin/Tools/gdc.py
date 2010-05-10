@@ -44,7 +44,7 @@ def common_flags_gdc(conf):
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = '-fintfc -fintfc-file='
 
-def detect(conf):
+ def configure(conf):
 	conf.find_gdc()
 	conf.check_tool('ar')
 	conf.check_tool('d')

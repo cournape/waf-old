@@ -22,7 +22,7 @@ def rc_file(self, node):
 # create our action, for use with rc file
 Task.simple_task_type('winrc', winrc_str, color='BLUE', before='cc cxx')
 
-def detect(conf):
+ def configure(conf):
 	v = conf.env
 
 	winrc = v['WINRC']

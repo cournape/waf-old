@@ -26,7 +26,7 @@ def __list_possible_compiler(platform):
 	except KeyError:
 		return cxx_compiler["default"]
 
-def detect(conf):
+ def configure(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: raise Configure.ConfigurationError("Add options(opt): opt.tool_options('compiler_cxx')")
 	for compiler in test_for_compiler.split():

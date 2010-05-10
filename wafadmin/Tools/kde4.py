@@ -25,7 +25,7 @@ def apply_msgfmt(self):
 		task.filename = getattr(self, 'appname', 'set_your_appname') + '.mo'
 		task.chmod = self.chmod
 
-def detect(conf):
+ def configure(conf):
 	kdeconfig = conf.find_program('kde4-config')
 	if not kdeconfig:
 		conf.fatal('we need kde4-config')

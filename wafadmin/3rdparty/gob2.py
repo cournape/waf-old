@@ -11,7 +11,7 @@ TaskGen.declare_chain(
 	ext_out = '.c'
 )
 
-def detect(conf):
+ def configure(conf):
 	gob2 = conf.find_program('gob2', var='GOB2', mandatory=True)
 	conf.env['GOB2'] = gob2
 	conf.env['GOB2FLAGS'] = ''

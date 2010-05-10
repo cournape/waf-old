@@ -163,7 +163,7 @@ def post_run_javac(self):
 	return Task.Task.post_run(self)
 cls.post_run = post_run_javac
 
-def detect(conf):
+ def configure(conf):
 	# If JAVA_PATH is set, we prepend it to the path list
 	java_path = conf.environ['PATH'].split(os.pathsep)
 	v = conf.env

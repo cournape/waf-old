@@ -32,6 +32,6 @@ def nasm_file(self, node):
 # create our action here
 Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o')
 
-def detect(conf):
+ def configure(conf):
 	nasm = conf.find_program(['nasm', 'yasm'], var='NASM')
 

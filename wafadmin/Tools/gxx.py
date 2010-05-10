@@ -123,7 +123,7 @@ def gxx_modifier_platform(conf):
 	if gxx_modifier_func:
 			gxx_modifier_func(conf)
 
-def detect(conf):
+ def configure(conf):
 	conf.find_gxx()
 	conf.find_cpp()
 	conf.find_ar()

@@ -59,7 +59,7 @@ pdfdir, pdf documentation, ${DOCDIR}
 psdir, ps documentation, ${DOCDIR}
 '''.split('\n') if x]
 
-def detect(conf):
+ def configure(conf):
 	def get_param(varname, default):
 		return getattr(Options.options, varname, '') or default
 

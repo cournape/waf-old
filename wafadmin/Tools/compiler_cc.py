@@ -26,7 +26,7 @@ def __list_possible_compiler(platform):
 	except KeyError:
 		return c_compiler["default"]
 
-def detect(conf):
+ def configure(conf):
 	"""
 	for each compiler for the platform, try to configure the compiler
 	in theory the tools should raise a configuration error if the compiler

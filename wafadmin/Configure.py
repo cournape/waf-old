@@ -165,7 +165,7 @@ class ConfigurationContext(Context):
 			if funs is not None:
 				self.eval_rules(funs)
 			else:
-				func = getattr(module, 'detect', None)
+				func = getattr(module, 'configure', None)
 				if func:
 					if type(func) is type(Utils.readf): func(self)
 					else: self.eval_rules(func)

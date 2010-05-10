@@ -19,6 +19,6 @@ TaskGen.declare_chain(
 	before = 'cc cxx',
 )
 
-def detect(conf):
+ def configure(conf):
 	conf.find_program('flex', var='FLEX')
 

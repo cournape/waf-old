@@ -200,7 +200,7 @@ def apply_tex(self):
 				self.create_task('pdf2ps', task.outputs, node.change_ext('.ps'))
 	self.source = []
 
-def detect(conf):
+ def configure(conf):
 	v = conf.env
 	for p in 'tex latex pdflatex bibtex dvips dvipdf ps2pdf makeindex pdf2ps'.split():
 		conf.find_program(p, var=p.upper())

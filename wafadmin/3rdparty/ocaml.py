@@ -276,7 +276,7 @@ act.runnable_status = link_may_start
 act = b('ocalinkx', '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', after="ocamlx ocamlcc")
 act.runnable_status = link_may_start
 
-def detect(conf):
+ def configure(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
 	occ = conf.find_program('ocamlc', var='OCAMLC')
 	if (not opt) or (not occ):
