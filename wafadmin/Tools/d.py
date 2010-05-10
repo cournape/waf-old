@@ -227,12 +227,14 @@ def scan(self):
 	"look for .d/.di the .d source need"
 	env = self.env
 	gruik = d_parser(env, env['INC_PATHS'])
-	gruik.start(self.inputs[0])
+	node = self.inputs[0]
+	gruik.start(node)
+	nodes = gruik.nodes
+	names = gruik.names
 
 	if Logs.verbose:
-		debug('deps: nodes found for %s: %s %s' % (str(self.inputs[0]), str(gruik.nodes), str(gruik.names)))
-		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
-	return (gruik.nodes, gruik.names)
+		debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+	return (nodes, names)
 
 def get_target_name(self):
 	"for d programs and libs"
