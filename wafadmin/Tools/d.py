@@ -311,8 +311,8 @@ def apply_d_libs(self):
 
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
 			if 'dstaticlib' in y.features or 'dshlib' in y.features:
-				env.append_unique('DLINKFLAGS', env.DLIB_ST % link_name)
-				env.append_unique('DLINKFLAGS', env.DLIBPATH_ST % y.link_task.outputs[0].parent.bldpath(env))
+				env.append_unique('DLINKFLAGS', [env.DLIB_ST % link_name])
+				env.append_unique('DLINKFLAGS', [env.DLIBPATH_ST % y.link_task.outputs[0].parent.bldpath(env)])
 
 			# the order
 			self.link_task.set_run_after(y.link_task)
@@ -333,7 +333,7 @@ def apply_d_libs(self):
 				node = y.path.find_dir(x)
 				if not node:
 					raise Utils.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
-				self.env.append_unique('INC_PATHS', node)
+				self.env.append_unique('INC_PATHS', [node])
 
 @feature('dprogram', 'dshlib', 'dstaticlib')
 @after('process_source')
@@ -376,12 +376,11 @@ def apply_d_vars(self):
 	# now process the import paths
 	for path in importpaths:
 		if os.path.isabs(path):
-			env.append_unique('_DIMPORTFLAGS', dpath_st % path)
+			env.append_unique('_DIMPORTFLAGS', [dpath_st % path])
 		else:
 			node = self.path.find_dir(path)
-			self.env.append_unique('INC_PATHS', node)
-			env.append_unique('_DIMPORTFLAGS', dpath_st % node.srcpath(env))
-			env.append_unique('_DIMPORTFLAGS', dpath_st % node.bldpath(env))
+			env.append_unique('INC_PATHS', [node])
+			env.append_unique('_DIMPORTFLAGS', [dpath_st % node.srcpath(), dpath_st % node.bldpath()])
 
 	# add library paths
 	for i in uselib:
@@ -394,7 +393,7 @@ def apply_d_vars(self):
 	# now process the library paths
 	# apply same path manipulation as used with import paths
 	for path in libpaths:
-		env.append_unique('DLINKFLAGS', libpath_st % path)
+		env.append_unique('DLINKFLAGS', [libpath_st % path])
 
 	# add libraries
 	for i in uselib:
@@ -405,25 +404,19 @@ def apply_d_vars(self):
 	libs.extend(self.to_list(self.libs))
 
 	# process user flags
-	for flag in self.to_list(self.dflags):
-		env.append_unique('DFLAGS', flag)
+	env.append_unique('DFLAGS', self.to_list(self.dflags))
 
 	# now process the libraries
-	for lib in libs:
-		env.append_unique('DLINKFLAGS', lib_st % lib)
+	env.append_unique('DLINKFLAGS', [lib_st % lib for lib in libs])
 
 	# add linker flags
 	for i in uselib:
-		dlinkflags = env['DLINKFLAGS_' + i]
-		if dlinkflags:
-			for linkflag in dlinkflags:
-				env.append_unique('DLINKFLAGS', linkflag)
+		env.append_unique('DLINKFLAGS', env['DLINKFLAGS_' + i])
 
 @feature('dshlib')
 @after('apply_d_vars')
 def add_shlib_d_flags(self):
-	for linkflag in self.env['D_shlib_LINKFLAGS']:
-		self.env.append_unique('DLINKFLAGS', linkflag)
+	self.env.append_unique('DLINKFLAGS', self.env['D_shlib_LINKFLAGS'])
 
 @extension(*EXT_D)
 def d_hook(self, node):
