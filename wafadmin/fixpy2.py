@@ -9,6 +9,12 @@ burn a book, save a tree
 import os
 all_modifs = {}
 
+def fixdir(dir):
+	global all_modifs
+	for k in all_modifs:
+		for v in all_modifs[k]:
+			modif(os.path.join(dir, 'wafadmin'), k, v)
+
 def modif(dir, name, fun):
 	if name == '*':
 		lst = []
@@ -42,14 +48,19 @@ def subst(*k):
 		return fun
 	return do_subst
 
+@subst('*')
+def r0(code):
+	code = code.replace('as e:', ',e:')
+	return code
+
 @subst('Task.py')
 def r1(code):
 	code = code.replace("class TaskBase(object,metaclass=store_task_type):", "class TaskBase(object):\n\t__metaclass__ = store_task_type\n")
 	return code
 
-def fixdir(dir):
-	global all_modifs
-	for k in all_modifs:
-		for v in all_modifs[k]:
-			modif(os.path.join(dir, 'wafadmin'), k, v)
+@subst('Constants.py')
+def r2(code):
+	code = code.replace("b'iluvcuteoverload'", "'iluvcuteoverload'")
+	return code
+
 
