@@ -104,6 +104,12 @@ def create_parser(module=None):
 		help    = 'amount of parallel jobs (%r)' % default_jobs,
 		dest    = 'jobs')
 
+	p('-l', '--load',
+		type    = 'float',
+		default = -1.0,
+		help    = 'maximum load for task parallelization',
+		dest    = 'load')
+
 	p('-k', '--keep',
 		action  = 'store_true',
 		default = False,
