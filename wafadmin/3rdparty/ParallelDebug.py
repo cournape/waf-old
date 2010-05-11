@@ -22,10 +22,11 @@ BAND = 22
 # green #4da74d
 # lila  #a751ff
 
-Utils.g_module.title = "Parallel build representation for samba/source3 with 4 jobs on a dual-core cpu"
+Utils.g_module.title = "Parallel build representation for 'waf -j12 -l4.0 -p' a dual-core cpu, starting with an initial load of 1.0"
 
 mp = {
 'cc': '#4da74d',
+'cxx': '#4da74d',
 'copy_script': '#ff0000',
 'cc_link' : '#a751ff',
 'static_link': '#a751ff'
