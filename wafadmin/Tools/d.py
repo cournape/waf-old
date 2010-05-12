@@ -276,7 +276,7 @@ def init_d(self):
 
 @feature('d')
 @after('apply_d_link', 'init_d')
-@before('apply_vnum')
+@before('apply_vnum', 'apply_incpaths')
 def apply_d_libs(self):
 	"""after apply_link because of 'link_task'
 	after default_cc because of the attribute 'uselib'"""

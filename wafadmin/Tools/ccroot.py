@@ -6,7 +6,7 @@
 
 import os, sys, re, subprocess
 from collections import deque
-import TaskGen, Task, Utils, preproc, Logs, Build, Options
+import TaskGen, Task, Utils, preproc, Logs, Build, Options, Node
 from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import after, before, feature, taskgen_method
@@ -262,51 +262,36 @@ def apply_incpaths(self):
 	after processing the uselib for INCLUDES
 	after process_source because some processing may add include paths
 	"""
-	lst = []
-	# TODO move the uselib processing out of here
+
+	paths = self.to_list(getattr(self, 'includes', []))
 	for lib in self.to_list(self.uselib):
 		for path in self.env['INCLUDES_' + lib]:
-			if not path in lst:
-				lst.append(path)
-	if preproc.go_absolute:
-		for path in preproc.standard_includes:
-			if not path in lst:
-				lst.append(path)
+			paths.append(path)
 
-	for path in self.to_list(getattr(self, 'includes', [])):
-		if not path in lst:
-			if preproc.go_absolute or not os.path.isabs(path):
-				lst.append(path)
-			else:
-				self.env.prepend_value('INCLUDES', path)
+	lst = []
+	seen = set([])
+	for path in paths:
 
-	for path in lst:
-		node = None
-		if os.path.isabs(path):
-			if preproc.go_absolute:
-				node = self.bld.root.find_dir(path)
-		elif path[0] == '#':
-			node = self.bld.srcnode
-			if len(path) > 1:
-				node = node.find_dir(path[1:])
+		if path in seen:
+			continue
+		seen.add(path)
+
+		if isinstance(path, Node.Node):
+			lst.append(node)
 		else:
-			node = self.path.find_dir(path)
+			if os.path.isabs(path):
+				lst.append(self.root.make_node(path))
+			else:
+				if path[0] == '#':
+					lst.append(self.bld.bldnode.make_node(path[1:]))
+					lst.append(self.bld.srcnode.make_node(path[1:]))
+				else:
+					lst.append(self.path.get_bld().make_node(path))
+					lst.append(self.path.make_node(path))
 
-		if node:
-			self.env.append_value('INC_PATHS', [node])
-
-	env = self.env
-	app = env.append_unique
-	cpppath_st = env['CPPPATH_ST']
-
-	# local flags come first
-	# set the user-defined includes paths
-	for i in env['INC_PATHS']:
-		app('_INCFLAGS', [cpppath_st % i.bldpath(), cpppath_st % i.srcpath()])
-
-	# set the library include paths
-	for i in env['INCLUDES']:
-		app('_INCFLAGS', [cpppath_st % i])
+	self.env.append_value('INC_PATHS', lst)
+	cpppath_st = self.env['CPPPATH_ST']
+	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
 
 @feature('cc', 'cxx')
 @after('init_cc', 'init_cxx')
