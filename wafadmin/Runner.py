@@ -127,18 +127,6 @@ class Parallel(object):
 	def refill_task_list(self):
 		"called to set the next group of tasks"
 
-		if Options.options.load > 0:
-			try:
-				while 1:
-					(x, a, b) = os.getloadavg()
-					if x < Options.options.load:
-						break
-					if self.count < 2:
-						break
-					self.get_out()
-			except:
-				pass
-
 		while self.count > self.numjobs + GAP or self.count >= self.maxjobs:
 			self.get_out()
 
