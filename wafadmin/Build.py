@@ -432,7 +432,7 @@ class BuildContext(Context):
 		debug('build: delayed operation TaskGen.flush() called')
 
 		if Options.options.compile_targets:
-			debug('task_gen: posting objects %r listed in compile_targets', Options.options.compile_targets)
+			debug('task_gen: posting task generators %r', Options.options.compile_targets)
 
 			mana = self.task_manager
 
