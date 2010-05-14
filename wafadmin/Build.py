@@ -420,7 +420,7 @@ class BuildContext(Context):
 						cache[target] = x
 		return cache.get(name, None)
 
-	def flush(self, all=1):
+	def flush(self):
 		"""tell the task generators to create the tasks"""
 
 		self.timer = Utils.Timer()
@@ -432,36 +432,44 @@ class BuildContext(Context):
 		debug('build: delayed operation TaskGen.flush() called')
 
 		if Options.options.compile_targets:
-			debug('task_gen: posting objects listed in compile_targets')
+			debug('task_gen: posting objects %r listed in compile_targets', Options.options.compile_targets)
 
-			# ensure the target names exist, fail before any post()
-			target_objects = Utils.DefaultDict(list)
-			for target_name in Options.options.compile_targets.split(','):
-				# trim target_name (handle cases when the user added spaces to targets)
-				target_name = target_name.strip()
-				for env in self.all_envs.values():
-					obj = self.name_to_obj(target_name)
-					if obj:
-						target_objects[target_name].append(obj)
-				if not target_name in target_objects and all:
-					raise WafError("target '%s' does not exist" % target_name)
+			mana = self.task_manager
 
-			to_compile = []
-			for x in target_objects.values():
-				for y in x:
-					to_compile.append(id(y))
+			to_post = []
+			min_grp = 0
+			for name in Options.options.compile_targets.split(','):
+				tg = self.name_to_obj(name)
 
-			# tasks must be posted in order of declaration
-			# we merely apply a filter to discard the ones we are not interested in
-			for i in range(len(self.task_manager.groups)):
-				g = self.task_manager.groups[i]
-				self.task_manager.current_group = i
-				for tg in g.tasks_gen:
-					if id(tg) in to_compile:
-						tg.post()
+				if not tg:
+					raise WafError('target %r does not exist' % name)
+
+				m = mana.group_idx(tg)
+				if m > min_grp:
+					min_grp = m
+					to_post = [tg]
+				elif m == min_grp:
+					to_post.append(tg)
+
+			debug('group: Forcing up to group %s for target %s', mana.group_name(min_grp), Options.options.compile_targets)
+
+			# post all the task generators in previous groups
+			for i in xrange(len(mana.groups)):
+				mana.current_group = i
+				if i == min_grp:
+					break
+				g = mana.groups[i]
+				debug('group: Forcing group %s', mana.group_name(g))
+				for t in g.tasks_gen:
+					debug('group: Posting %s', t.name or t.target)
+					t.post()
+
+			# then post the task generators listed in compile_targets in the last group
+			for t in to_post:
+				t.post()
 
 		else:
-			debug('task_gen: posting objects (normal)')
+			debug('task_gen: posting task generators (normal)')
 			for i in range(len(self.task_manager.groups)):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
