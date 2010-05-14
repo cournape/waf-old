@@ -790,3 +790,16 @@ class CleanContext(BuildContext):
 		for v in 'node_deps task_sigs raw_deps'.split():
 			setattr(self, v, {})
 
+@command_context('list', 'build')
+class ListContext(BuildContext):
+	"""list the targets to execute"""
+	def run_user_code(self):
+		self.recurse(self.curdir)
+		self.pre_build()
+		self.flush()
+		self.name_to_obj('')
+		lst = list(self.task_gen_cache_names.keys())
+		lst.sort()
+		for k in lst:
+			Logs.pprint('GREEN', k)
+
