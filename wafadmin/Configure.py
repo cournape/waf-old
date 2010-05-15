@@ -69,6 +69,8 @@ def download_tool(tool, force=False):
 		raise Base.WafError('Could not load the tool')
 
 class ConfigurationContext(Context):
+	"""configures the project"""
+
 	cmd = 'configure'
 
 	tests = {}

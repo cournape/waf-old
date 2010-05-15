@@ -75,35 +75,31 @@ class opt_parser(optparse.OptionParser):
 		gr.add_option('-f', '--force', dest='force', default=False, action='store_true', help='force file installation')
 
 	def get_usage(self):
-		cmds_str = []
-		module = Base.g_module
-		if module:
-			# create the help messages for commands
-			tbl = module.__dict__
-			keys = list(tbl.keys())
-			keys.sort()
+		cmds_str = {}
+		for cls in Base.classes:
+			if not cls.cmd:
+				continue
 
-			if 'build' in tbl:
-				if not module.build.__doc__:
-					module.build.__doc__ = 'builds the project'
-			if 'configure' in tbl:
-				if not module.configure.__doc__:
-					module.configure.__doc__ = 'configures the project'
+			s = cls.__doc__ or ''
+			cmds_str[cls.cmd] = s
 
-			ban = ['options', 'init', 'shutdown']
+		if Base.g_module:
+			for (k, v) in Base.g_module.__dict__.items():
+				if k in ['options', 'init', 'shutdown']:
+					continue
 
-			optlst = [x for x in keys if not x in ban
-				and type(tbl[x]) is type(Base.create_context)
-				and tbl[x].__doc__
-				and not x.startswith('_')]
+				if type(v) is type(Base.create_context):
+					if v.__doc__ and not k.startswith('_'):
+						cmds_str[k] = v.__doc__
 
-			just = max([len(x) for x in optlst])
+		just = 0
+		for k in cmds_str:
+			just = max(just, len(k))
 
-			for x in optlst:
-				cmds_str.append('  %s: %s' % (x.ljust(just), tbl[x].__doc__))
-			ret = '\n'.join(cmds_str)
-		else:
-			ret = ' '.join(cmds)
+		lst = ['  %s: %s' % (k.ljust(just), v) for (k, v) in cmds_str.items()]
+		lst.sort()
+		ret = '\n'.join(lst)
+
 		return '''waf [command] [options]
 
 Main commands (example: ./waf build -j4)

@@ -62,7 +62,7 @@ def group_method(fun):
 	return f
 
 class BuildContext(Context):
-	"holds the dependency tree"
+	"""executes the build"""
 
 	cmd = 'build'
 
@@ -750,6 +750,7 @@ class BuildContext(Context):
 # for now. TODO: separate more functionality from the build context.
 
 class InstallContext(BuildContext):
+	"""installs the targets on the system"""
 	cmd = 'install'
 	def run_user_code(self):
 		self.is_install = INSTALL
@@ -757,6 +758,7 @@ class InstallContext(BuildContext):
 		self.install()
 
 class UninstallContext(InstallContext):
+	"""removes the targets installed"""
 	cmd = 'uninstall'
 	def run_user_code(self):
 		self.is_install = UNINSTALL
@@ -773,6 +775,7 @@ class UninstallContext(InstallContext):
 			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
 class CleanContext(BuildContext):
+	"""cleans the project"""
 	cmd = 'clean'
 	def run_user_code(self):
 		self.recurse(self.curdir)
@@ -793,7 +796,7 @@ class CleanContext(BuildContext):
 			setattr(self, v, {})
 
 class ListContext(BuildContext):
-	"""list the targets to execute"""
+	"""lists the targets to execute"""
 
 	cmd = 'list'
 	def run_user_code(self):
