@@ -25,7 +25,7 @@ except ImportError: import pickle as cPickle
 import ConfigSet, Utils, Options, Logs
 from Logs import warn
 from Constants import *
-from Base import command_context, WafError, WscriptError, Context
+from Base import WafError, WscriptError, Context
 import Base
 
 try:
@@ -68,8 +68,9 @@ def download_tool(tool, force=False):
 				break
 		raise Base.WafError('Could not load the tool')
 
-@command_context('configure')
 class ConfigurationContext(Context):
+	cmd = 'configure'
+
 	tests = {}
 	error_handlers = []
 	def __init__(self, start_dir=None, blddir='', srcdir=''):

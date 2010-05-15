@@ -16,7 +16,7 @@ except: import pickle as cPickle
 import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Configure
 from Logs import debug, error, info
 from Constants import *
-from Base import command_context, WafError, Context, load_tool
+from Base import WafError, Context, load_tool
 
 SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 "Build class members to save"
@@ -61,9 +61,11 @@ def group_method(fun):
 			fun(*k, **kw)
 	return f
 
-@command_context('build')
 class BuildContext(Context):
 	"holds the dependency tree"
+
+	cmd = 'build'
+
 	def __init__(self, start=None):
 		super(BuildContext, self).__init__(start)
 
@@ -747,15 +749,15 @@ class BuildContext(Context):
 # The classes below are stubs that integrate functionality from Scripting.py
 # for now. TODO: separate more functionality from the build context.
 
-@command_context('install', 'build')
 class InstallContext(BuildContext):
+	cmd = 'install'
 	def run_user_code(self):
 		self.is_install = INSTALL
 		self.execute_build()
 		self.install()
 
-@command_context('uninstall', 'build')
 class UninstallContext(InstallContext):
+	cmd = 'uninstall'
 	def run_user_code(self):
 		self.is_install = UNINSTALL
 
@@ -770,8 +772,8 @@ class UninstallContext(InstallContext):
 		finally:
 			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
-@command_context('clean', 'build')
 class CleanContext(BuildContext):
+	cmd = 'clean'
 	def run_user_code(self):
 		self.recurse(self.curdir)
 		try:
@@ -790,9 +792,10 @@ class CleanContext(BuildContext):
 		for v in 'node_deps task_sigs raw_deps'.split():
 			setattr(self, v, {})
 
-@command_context('list', 'build')
 class ListContext(BuildContext):
 	"""list the targets to execute"""
+
+	cmd = 'list'
 	def run_user_code(self):
 		self.recurse(self.curdir)
 		self.pre_build()

@@ -55,30 +55,41 @@ class WscriptError(WafError):
 				return (frame[0], frame[1])
 		return (None, None)
 
-context_dict = {}
+classes = []
 def create_context(cmd_name, *k, **kw):
-	try:
-		return context_dict[cmd_name](*k, **kw)
-	except KeyError:
-		ctx = Context(*k, **kw)
-		ctx.function_name = cmd_name
-		return ctx
+	"""TODO warn if more than one context is provided for a given command?"""
+	global classes
+	for x in classes:
+		if x.cmd == cmd_name:
+			return x(*k, **kw)
+	ctx = Context(*k, **kw)
+	ctx.fun = cmd_name
+	return ctx
 
-class command_context(object):
-	"""
-	Command context decorator. Indicates which command should receive
-	this context as its argument (first arg), and which function should be
-	executed in user scripts (second arg).
-	"""
-	def __init__(self, command_name, function_name=None):
-		self.command_name = command_name
-		self.function_name = function_name if function_name else command_name
-	def __call__(self, cls):
-		context_dict[self.command_name] = cls
-		setattr(cls, 'function_name', self.function_name)
-		return cls
+class store_context(type):
+	"""metaclass, store the command classes into a global list"""
+	def __init__(cls, name, bases, dict):
+		super(store_context, cls).__init__(name, bases, dict)
+		name = cls.__name__
 
-class Context(object):
+		if name == 'ctx' or name == 'Context':
+			return
+
+		try:
+			cls.cmd
+		except AttributeError:
+			raise WafError('Missing command for the context class %r (cmd)' % name)
+
+		if not getattr(cls, 'fun', None):
+			cls.fun = cls.cmd
+
+		global classes
+		classes.append(cls)
+
+# metaclass
+ctx = store_context('ctx', (object,), {})
+
+class Context(ctx):
 	"""
 	Base class for command contexts. Those objects are passed as the arguments
 	of user functions (commands) defined in Waf scripts.
@@ -95,19 +106,6 @@ class Context(object):
 	def post_recurse(self, obj, f, d):
 		pass
 
-	def user_function_name(self):
-		"""
-		Get the user function name. First use an instance variable, then
-		try the class variable. The instance variable will be set by
-		Scripting.py if the class variable is not set.
-		"""
-		name = getattr(self, 'function_name', None)
-		if not name:
-			name = getattr(self.__class__, 'function_name', None)
-		if not name:
-			raise WafError('%s does not have an associated user function name.' % self.__class__.__name__)
-		return name
-
 	def recurse(self, dirs, name=None):
 		"""
 		Run user code from the supplied list of directories.
@@ -117,7 +115,7 @@ class Context(object):
 		@type  name: string
 		@param name: Name of function to invoke from the wscript
 		"""
-		function_name = name or self.user_function_name()
+		function_name = self.fun
 
 		# convert to absolute paths
 		dirs = Utils.to_list(dirs)
@@ -174,7 +172,7 @@ class Context(object):
 
 	def run_user_code(self):
 		"""Call the user function to which this context is bound."""
-		f = getattr(g_module, self.user_function_name(), None)
+		f = getattr(g_module, self.fun, None)
 		if f is None:
 			raise WscriptError('Undefined command: %s' % self.user_function_name())
 		try:

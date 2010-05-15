@@ -7,7 +7,7 @@
 
 import os, sys, imp, types, tempfile, optparse
 import Logs, Utils, Base
-from Base import command_context, Context
+from Base import Context
 from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -112,10 +112,12 @@ Main commands (example: ./waf build -j4)
 ''' % ret
 
 
-@command_context('', 'options')
 class OptionsContext(Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
+
+	cmd = ''
+	fun = 'options'
 
 	def __init__(self):
 		super(self.__class__, self).__init__()
