@@ -20,4 +20,5 @@ NEW IN WAF 1.6.0
 * fuse the include system for c, c++, d, gas and nasm
 * allow top == out (no build directory)
 * fuse the Tool/wscript system (detect->configure, set_options->options)
+* new command "waf list" to list the x for "waf build --targets=x"
 
