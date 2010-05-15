@@ -7,7 +7,6 @@
 
 import os, sys, imp, types, tempfile, optparse
 import Logs, Utils, Base
-from Base import Context
 from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -75,9 +74,9 @@ class opt_parser(optparse.OptionParser):
 		gr.add_option('--destdir', help='installation root [default: %r]' % default_destdir, default=default_destdir, dest='destdir')
 		gr.add_option('-f', '--force', dest='force', default=False, action='store_true', help='force file installation')
 
-	def usage(self):
+	def get_usage(self):
 		cmds_str = []
-		module = Utils.g_module
+		module = Base.g_module
 		if module:
 			# create the help messages for commands
 			tbl = module.__dict__
@@ -94,7 +93,7 @@ class opt_parser(optparse.OptionParser):
 			ban = ['options', 'init', 'shutdown']
 
 			optlst = [x for x in keys if not x in ban
-				and type(tbl[x]) is type(get_usage)
+				and type(tbl[x]) is type(Base.create_context)
 				and tbl[x].__doc__
 				and not x.startswith('_')]
 
@@ -112,7 +111,7 @@ Main commands (example: ./waf build -j4)
 ''' % ret
 
 
-class OptionsContext(Context):
+class OptionsContext(Base.Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
 
