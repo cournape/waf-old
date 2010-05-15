@@ -4,6 +4,7 @@ NEW IN WAF 1.5.17
 * Fixed the use of waf cache with Python 3.x builds
 * Fixed a bug in the "Python.h" detection
 * d library detection (phobos 1, 2 or tango)
+* When "--targets" is given, post the task generators from previous build groups
 * New example for Cython
 * New example for CUDA
 
