@@ -142,7 +142,7 @@ def parse_options():
 def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
 	ctx = Base.create_context(cmd_name)
-	ctx.current_command = cmd_name
+	ctx.cmd = cmd_name
 	ctx.execute()
 
 def run_commands():
@@ -320,7 +320,7 @@ def distcheck(ctx):
 	version = getattr(Base.g_module, VERSION, '1.0')
 
 	waf = os.path.abspath(sys.argv[0])
-	tarball = dist(appname, version)
+	tarball = Base.g_module.dist(ctx)
 	t = tarfile.open(tarball)
 	for x in t: t.extract(x)
 	t.close()

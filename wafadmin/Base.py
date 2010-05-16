@@ -175,10 +175,8 @@ class Context(ctx):
 		f = getattr(g_module, self.fun, None)
 		if f is None:
 			raise WscriptError('Undefined command: %s' % self.user_function_name())
-		try:
-			f(self)
-		except TypeError:
-			f()
+
+		f(self)
 
 	def finalize(self):
 		"""Executed after the user function finishes."""
