@@ -485,6 +485,21 @@ def apply_obj_vars(self):
 
 	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
 
+@taskgen_method
+def create_compiled_task(self, name, node):
+	# create the compilation task: cpp or cc
+	if getattr(self, 'obj_ext', None):
+		obj_ext = self.obj_ext
+	else:
+		obj_ext = '_%d.o' % self.idx
+
+	task = self.create_task(name, node, node.change_ext(obj_ext))
+	try:
+		self.compiled_tasks.append(task)
+	except AttributeError:
+		self.compiled_tasks = [task]
+	return task
+
 @after('apply_link')
 def process_obj_files(self):
 	if not hasattr(self, 'obj_files'): return
@@ -626,4 +641,6 @@ cls.quiet = 1
 def add_as_needed(conf):
 	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
 		conf.env.append_unique('LINKFLAGS', '--as-needed')
+
+
 

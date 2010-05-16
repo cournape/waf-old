@@ -15,17 +15,11 @@ nasm_str = '${NASM} ${NASM_FLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 @feature('asm')
 @before('apply_link')
 def apply_nasm_vars(self):
-	if hasattr(self, 'nasm_flags'):
-		for flag in self.to_list(self.nasm_flags):
-			self.env.append_value('NASM_FLAGS', flag)
+	self.env.append_value('NASM_FLAGS', self.to_list(getattr(self, 'nasm_flags', [])))
 
 @extension('.s', '.S', '.asm', '.ASM', '.spp', '.SPP')
 def nasm_file(self, node):
-	try: obj_ext = self.obj_ext
-	except AttributeError: obj_ext = '_%d.o' % self.idx
-
- 	task = self.create_task('nasm', node, node.change_ext(obj_ext))
-	self.compiled_tasks.append(task)
+	return self.create_compiled_task('nasm', node)
 
 # create our action here
 Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o')

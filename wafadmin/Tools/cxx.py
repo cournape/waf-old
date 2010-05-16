@@ -34,18 +34,7 @@ def init_cxx(self):
 
 @extension(*EXT_CXX)
 def cxx_hook(self, node):
-	# create the compilation task: cpp or cc
-	if getattr(self, 'obj_ext', None):
-		obj_ext = self.obj_ext
-	else:
-		obj_ext = '_%d.o' % self.idx
-
-	task = self.create_task('cxx', node, node.change_ext(obj_ext))
-	try:
-		self.compiled_tasks.append(task)
-	except AttributeError:
-		raise Utils.WafError('Have you forgotten to set the feature "cxx" on %s?' % str(self))
-	return task
+	return self.create_compiled_task('cxx', node)
 
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx')

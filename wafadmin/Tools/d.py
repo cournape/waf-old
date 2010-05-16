@@ -413,18 +413,13 @@ def add_shlib_d_flags(self):
 
 @extension(*EXT_D)
 def d_hook(self, node):
-	# create the compilation task: cpp or cc
-	task = self.create_task(self.generate_headers and 'd_with_header' or 'd')
-	try: obj_ext = self.obj_ext
-	except AttributeError: obj_ext = '_%d.o' % self.idx
-
-	task.inputs = [node]
-	task.outputs = [node.change_ext(obj_ext)]
-	self.compiled_tasks.append(task)
-
 	if self.generate_headers:
+		task = self.create_compiled_task('d_with_header', node)
 		header_node = node.change_ext(self.env['DHEADER_ext'])
-		task.outputs += [header_node]
+		task.output.append(header_node)
+	else:
+		task = self.create_compiled_task('d', node)
+	return task
 
 d_str = '${D_COMPILER} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 d_with_header_str = '${D_COMPILER} ${DFLAGS} ${_INCFLAGS} \

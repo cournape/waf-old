@@ -261,12 +261,7 @@ def apply_qt4(self):
 
 @extension(*EXT_QT4)
 def cxx_hook(self, node):
-	# create the compilation task: cpp or cc
-	try: obj_ext = self.obj_ext
-	except AttributeError: obj_ext = '_%d.o' % self.idx
-
-	task = self.create_task('qxx', node, node.change_ext(obj_ext))
-	self.compiled_tasks.append(task)
+	return self.create_compiled_task('qxx', node)
 
 def process_qm2rcc(task):
 	outfile = task.outputs[0].abspath()

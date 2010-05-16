@@ -13,13 +13,13 @@ winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAG
 @extension('.rc')
 def rc_file(self, node):
 	obj_ext = '.rc.o'
-	if self.env['WINRC_TGT_F'] == '/fo': obj_ext = '.res'
-
+	if self.env['WINRC_TGT_F'] == '/fo':
+		obj_ext = '.res'
 	rctask = self.create_task('winrc', node, node.change_ext(obj_ext))
 	self.compiled_tasks.append(rctask)
 
 # create our action, for use with rc file
-Task.simple_task_type('winrc', winrc_str, color='BLUE', before='cc cxx')
+Task.simple_task_type('winrc', winrc_str, color='BLUE', before=['cc', 'cxx'])
 
 def configure(conf):
 	v = conf.env

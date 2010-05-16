@@ -31,18 +31,7 @@ def init_cc(self):
 
 @extension(*EXT_CC)
 def c_hook(self, node):
-	# create the compilation task: cpp or cc
-	if getattr(self, 'obj_ext', None):
-		obj_ext = self.obj_ext
-	else:
-		obj_ext = '_%d.o' % self.idx
-
-	task = self.create_task('cc', node, node.change_ext(obj_ext))
-	try:
-		self.compiled_tasks.append(task)
-	except AttributeError:
-		raise Utils.WafError('Have you forgotten to set the feature "cc" on %s?' % str(self))
-	return task
+	return self.create_compiled_task('cc', node)
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
