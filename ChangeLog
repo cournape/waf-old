@@ -21,4 +21,5 @@ NEW IN WAF 1.6.0
 * allow top == out (no build directory)
 * fuse the Tool/wscript system (detect->configure, set_options->options)
 * new command "waf list" to list the x for "waf build --targets=x"
+* rename Task.TaskBase.classes -> Task.classes
 
