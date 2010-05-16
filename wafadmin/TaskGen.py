@@ -36,7 +36,6 @@ class task_gen(object):
 	mappings = {}
 	prec = defaultdict(list)
 	features = defaultdict(set)
-	classes = {}
 
 	def __init__(self, *kw, **kwargs):
 
@@ -179,7 +178,7 @@ class task_gen(object):
 				return None
 
 	def create_task(self, name, src=None, tgt=None):
-		task = Task.TaskBase.classes[name](env=self.env.derive(), generator=self)
+		task = Task.classes[name](env=self.env.derive(), generator=self)
 		if src:
 			task.set_inputs(src)
 		if tgt:

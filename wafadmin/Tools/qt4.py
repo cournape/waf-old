@@ -121,7 +121,7 @@ class qxx(Task.Task):
 			tree.node_deps[(self.inputs[0].parent.abspath(), m_node.name)] = h_node
 
 			# create the task
-			task = Task.TaskBase.classes['moc'](env=self.env, generator=self.generator)
+			task = Task.classes['moc'](env=self.env, generator=self.generator)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
@@ -139,7 +139,7 @@ class qxx(Task.Task):
 		for d in lst:
 			name = d.name
 			if name.endswith('.moc'):
-				task = Task.TaskBase.classes['moc'](env=self.env, generator=self.generator)
+				task = Task.classes['moc'](env=self.env, generator=self.generator)
 				task.set_inputs(tree.node_deps[(self.inputs[0].parent.abspath(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
@@ -153,7 +153,7 @@ class qxx(Task.Task):
 		self.run_after = moctasks
 		self.moc_done = 1
 
-	run = Task.TaskBase.classes['cxx'].__dict__['run']
+	run = Task.classes['cxx'].__dict__['run']
 
 def translation_update(task):
 	outs = [a.abspath() for a in task.outputs]
@@ -245,7 +245,7 @@ def apply_qt4(self):
 			u.outputs = trans
 
 		if getattr(self, 'langname', None):
-			t = Task.TaskBase.classes['qm2rcc'](self.env)
+			t = Task.classes['qm2rcc'](self.env)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_or_declare(self.langname+'.qrc'))
 			t.path = self.path

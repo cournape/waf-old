@@ -35,6 +35,8 @@ def f(task):
 	return task.exec_command(lst, cwd=wd)
 '''
 
+classes = {}
+
 class store_task_type(type):
 	"store the task types that have a name ending in _task into a map (remember the existing task types)"
 	def __init__(cls, name, bases, dict):
@@ -44,7 +46,8 @@ class store_task_type(type):
 		if name.endswith('_task'):
 			name = name.replace('_task', '')
 		if name != 'evil' and name != 'TaskBase':
-			TaskBase.classes[name] = cls
+			global classes
+			classes[name] = cls
 
 # avoid a metaclass, code can run in python 2.6 and 3.x unmodified
 evil = store_task_type('evil', (object,), {})
@@ -66,7 +69,6 @@ class TaskBase(evil):
 
 	color = "GREEN"
 	maxjobs = MAXJOBS
-	classes = {}
 	stat = None
 
 	def __init__(self, *k, **kw):
@@ -574,7 +576,8 @@ def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[
 	}
 
 	cls = type(Task)(name, (Task,), params)
-	TaskBase.classes[name] = cls
+	global classes
+	classes[name] = cls
 	return cls
 
 def always_run(cls):

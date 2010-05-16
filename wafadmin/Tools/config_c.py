@@ -243,7 +243,7 @@ def validate_c(self, kw):
 	env = kw['env']
 	if not 'compiler' in kw:
 		kw['compiler'] = 'cc'
-		if env['CXX_NAME'] and Task.TaskBase.classes.get('cxx', None):
+		if env['CXX_NAME'] and Task.classes.get('cxx', None):
 			kw['compiler'] = 'cxx'
 			if not self.env['CXX']:
 				self.fatal('a c++ compiler is required')
