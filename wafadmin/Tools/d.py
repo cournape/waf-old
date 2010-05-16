@@ -499,4 +499,3 @@ def check_dlibrary(conf):
 	ret = conf.check_cc(features='d dprogram', fragment=DLIB, mandatory=True, compile_filename='test.d', execute=True)
 	conf.env.DLIBRARY = ret.strip()
 
-

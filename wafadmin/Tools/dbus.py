@@ -3,13 +3,14 @@
 # Ali Sabil, 2007
 
 import Task, Utils
-from TaskGen import taskgen, before, after, feature
+from TaskGen import taskgen_method, before
 
-@taskgen
+@taskgen_method
 def add_dbus_file(self, filename, prefix, mode):
 	if not hasattr(self, 'dbus_lst'):
 		self.dbus_lst = []
-	self.meths.append('process_dbus')
+	if not 'process_dbus' in self.meths:
+		self.meths.append('process_dbus')
 	self.dbus_lst.append([filename, prefix, mode])
 
 @before('apply_core')

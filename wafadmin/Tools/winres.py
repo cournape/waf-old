@@ -6,7 +6,6 @@
 
 import os, sys, re
 import TaskGen, Task
-from Utils import quote_whitespace
 from TaskGen import extension
 
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
@@ -24,20 +23,20 @@ Task.simple_task_type('winrc', winrc_str, color='BLUE', before='cc cxx')
 
 def configure(conf):
 	v = conf.env
-
-	winrc = v['WINRC']
 	v['WINRC_TGT_F'] = '-o'
 	v['WINRC_SRC_F'] = '-i'
+
 	# find rc.exe
-	if not winrc:
-		if v['CC_NAME'] in ['gcc', 'cc', 'g++', 'c++']:
-			winrc = conf.find_program('windres', var='WINRC', path_list = v['PATH'])
-		elif v['CC_NAME'] == 'msvc':
-			winrc = conf.find_program('RC', var='WINRC', path_list = v['PATH'])
+	if not conf.env.WINRC:
+		if v.CC_NAME in ['gcc', 'cc', 'g++', 'c++']:
+			winrc = conf.find_program('windres', var='WINRC')
+		elif v.CC_NAME == 'msvc':
+			winrc = conf.find_program('RC', var='WINRC')
 			v['WINRC_TGT_F'] = '/fo'
 			v['WINRC_SRC_F'] = ''
-	if not winrc:
+
+	if not conf.env.WINRC:
 		conf.fatal('winrc was not found!')
 
-	v['WINRCFLAGS'] = ''
+	v['WINRCFLAGS'] = []
 

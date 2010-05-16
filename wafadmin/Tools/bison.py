@@ -34,5 +34,5 @@ def big_bison(self, node):
 
 def configure(conf):
 	conf.find_program('bison', var='BISON')
-	conf.env['BISONFLAGS'] = '-d'
+	conf.env.BISONFLAGS = ['-d']
 

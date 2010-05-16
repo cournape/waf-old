@@ -12,8 +12,6 @@ from TaskGen import taskgen, before, extension
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 
-EXT_NASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
-
 @feature('asm')
 @before('apply_link')
 def apply_nasm_vars(self):
@@ -21,7 +19,7 @@ def apply_nasm_vars(self):
 		for flag in self.to_list(self.nasm_flags):
 			self.env.append_value('NASM_FLAGS', flag)
 
-@extension(*EXT_NASM)
+@extension('.s', '.S', '.asm', '.ASM', '.spp', '.SPP')
 def nasm_file(self, node):
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx

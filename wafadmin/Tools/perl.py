@@ -86,10 +86,10 @@ def check_perl_ext_devel(conf):
 	Also sets the ARCHDIR_PERL variable useful as installation path,
 	which can be overridden by --with-perl-archdir option.
 	"""
-	if not conf.env['PERL']:
-		return False
 
-	perl = conf.env['PERL']
+	perl = conf.env.PERL
+	if not perl:
+		conf.fatal('find perl first')
 
 	def read_out(cmd):
 		return Utils.to_list(Utils.cmd_output(perl + cmd))
@@ -107,8 +107,6 @@ def check_perl_ext_devel(conf):
 		conf.env["ARCHDIR_PERL"] = getattr(Options.options, 'perlarchdir')
 
 	conf.env['perlext_PATTERN'] = '%s.' + Utils.cmd_output(perl + " -MConfig -e'print $Config{dlext}'")
-
-	return True
 
 def options(opt):
 	opt.add_option("--with-perl-binary", type="string", dest="perlbinary", help = 'Specify alternate perl binary', default=None)

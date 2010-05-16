@@ -10,7 +10,7 @@ Custom objects:
 
 import shutil, re, os, subprocess
 import TaskGen, Node, Task, Utils, Build, Constants
-from TaskGen import feature, taskgen, after, before
+from TaskGen import feature, after, before
 from Logs import debug
 
 def copy_func(tsk):

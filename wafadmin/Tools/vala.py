@@ -242,7 +242,7 @@ def configure(conf):
 
 	valac = conf.find_program('valac', var='VALAC')
 
-	if not conf.env["HAVE_GTHREAD"]:
+	if not conf.env.HAVE_GTHREAD:
 		conf.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')
 
 	try:
@@ -256,11 +256,9 @@ def configure(conf):
 	conf.msg('Checking for valac version >= ' + min_version_str, "%d.%d.%d" % valac_version, valac_version >= min_version)
 
 	if valac_version < min_version:
-		conf.fatal("valac version too old to be used with this tool")
-		return
+		conf.fatal("the valac version %r is too old (%r)" % (valac_version, min_version))
 
 	conf.check_tool('gnu_dirs')
-
-	conf.env['VALAC_VERSION'] = valac_version
-	conf.env['VALAFLAGS'] = ''
+	conf.env.VALAC_VERSION = valac_version
+	conf.env.VALAFLAGS     = []
 

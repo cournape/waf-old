@@ -6,7 +6,7 @@
 
 import os, re
 import Configure, TaskGen, Task, Utils, Runner, Options, Build, config_c
-from TaskGen import feature, before, taskgen
+from TaskGen import feature, before
 from Logs import error
 
 """
@@ -76,13 +76,13 @@ def apply_intltool_po(self):
 	else:
 		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
-Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
+Task.simple_task_type('po', '${MSGFMT} -o ${TGT} ${SRC}', color='BLUE')
 Task.simple_task_type('intltool',
 	'${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
 	color='BLUE', after="cc_link cxx_link")
 
 def configure(conf):
-	conf.find_program('msgfmt', var='POCOM')
+	conf.find_program('msgfmt', var='MSGFMT')
 	# NOTE: it is possible to set INTLTOOL in the environment, but it must not have spaces in it
 
 	intltool = conf.find_program('intltool-merge', var='INTLTOOL')
@@ -90,9 +90,6 @@ def configure(conf):
 		# if intltool-merge should not be mandatory, catch the thrown exception in your wscript
 		if Options.platform == 'win32':
 			perl = conf.find_program('perl', var='PERL')
-			if not perl:
-				conf.fatal('The program perl (required by intltool) could not be found')
-
 			intltooldir = Configure.find_file('intltool-merge', os.environ['PATH'].split(os.pathsep))
 			if not intltooldir:
 				conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')

@@ -6,14 +6,12 @@
 
 import os, sys
 import Task
-from TaskGen import extension, taskgen, after, before
-
-EXT_ASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
+from TaskGen import extension
 
 as_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 Task.simple_task_type('asm', as_str, 'PINK', ext_out='.o')
 
-@extension(*EXT_ASM)
+@extension('.s', '.S', '.asm', '.ASM', '.spp', '.SPP')
 def asm_hook(self, node):
 	# create the compilation task: cpp or cc
 	try: obj_ext = self.obj_ext
@@ -23,7 +21,5 @@ def asm_hook(self, node):
 	self.compiled_tasks.append(task)
 
 def configure(conf):
-	conf.find_program(['gas', 'as'], var='AS')
-	if not conf.env.AS:
-		conf.env.AS = conf.env.CC
+	conf.find_program(['gas', 'as', 'gcc'], var='AS')
 

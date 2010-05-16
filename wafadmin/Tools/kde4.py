@@ -4,7 +4,7 @@
 
 import os, sys, re
 import Options, TaskGen, Task, Utils
-from TaskGen import taskgen, feature, after
+from TaskGen import feature, after
 
 @feature('msgfmt')
 def init_msgfmt(self):
@@ -64,7 +64,7 @@ def configure(conf):
 	conf.env['CPPPATH_KDECORE'] = conf.env['KDE4_INCLUDE_INSTALL_DIR']
 	conf.env.append_value('CPPPATH_KDECORE', conf.env['KDE4_INCLUDE_INSTALL_DIR']+"/KDE")
 
-	conf.env['MSGFMT'] = conf.find_program('msgfmt')
+	conf.find_program('msgfmt', var='MSGFMT')
 
 Task.simple_task_type('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE')
 

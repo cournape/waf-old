@@ -32,7 +32,7 @@ You would have to run:
 import os, re
 from Configure import conf
 import TaskGen, Task, Utils, Options, Build
-from TaskGen import feature, before, taskgen
+from TaskGen import feature, before
 
 class_check_source = '''
 public class Test {
