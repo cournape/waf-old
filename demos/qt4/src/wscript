@@ -15,8 +15,7 @@ def build(bld):
 
 	## the sources can be given manually
 	## or found automatically in the directories specified
-	#obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc'
-	obj.find_sources_in_dirs('.')
+	obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc aboutDialog.ui'
 
 	#obj.lang='fr es' <- find_sources_in_dirs sets this
 	obj.langname='langs'
