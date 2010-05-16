@@ -311,7 +311,7 @@ class TaskManager(object):
 				tsk.install()
 
 class TaskGroup(object):
-	"the compilation of one group does not begin until the previous group has finished (in the manager)"
+	"""all the tasks from one group must be done before going to the next group"""
 	def __init__(self):
 		self.tasks = [] # this list will be consumed
 		self.tasks_gen = []
