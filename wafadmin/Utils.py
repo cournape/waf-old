@@ -168,10 +168,6 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 		Logs.error("waf version should be at most %s (%s found)" % (maxi, ver))
 		sys.exit(0)
 
-def python_version_guard():
-	if sys.hexversion < 0x30000f0:
-		raise ImportError("Waf 1.6 requires Python >= 3.0")
-
 def ex_stack():
 	exc_type, exc_value, tb = sys.exc_info()
 	exc_lines = traceback.format_exception(exc_type, exc_value, tb)
