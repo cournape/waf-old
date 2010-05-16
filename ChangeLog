@@ -1,7 +1,7 @@
 NEW IN WAF 1.6.0
 ----------------
 
-* Python 3 syntax by default
+* Python 3 syntax by default (runs unmodified for 2.6, 2.7, 3.0 and 3.1)
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
 * Better Node apis
@@ -13,13 +13,13 @@ NEW IN WAF 1.6.0
 * eliminate find_sources_in_dirs
 * bld.new_task_gen(...) disappears, use bld(...)
 * plugin updates
-* accept node objects everywhere
-* rename apply_core -> process_source
-* rename apply_rule -> process_rule
+* accept node objects in the source and includes attributes
 * remove task_gen.allnodes: modify self.source directly
 * fuse the include system for c, c++, d, gas and nasm
 * allow top == out (no build directory)
 * fuse the Tool/wscript system (detect->configure, set_options->options)
 * new command "waf list" to list the x for "waf build --targets=x"
+* rename apply_core -> process_source
+* rename apply_rule -> process_rule
 * rename Task.TaskBase.classes -> Task.classes
 
