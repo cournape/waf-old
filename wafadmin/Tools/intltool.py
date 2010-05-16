@@ -12,7 +12,7 @@ from Logs import error
 """
 Usage:
 
-bld.new_task_gen(features='intltool_in', source='a.po b.po', podir='po', cache='.intlcache', flags='')
+bld(features='intltool_in', source='a.po b.po', podir='po', cache='.intlcache', flags='')
 """
 
 @before('process_source')

@@ -28,6 +28,9 @@ from Logs import debug, error, warn
 from Constants import *
 from Base import WafError, WscriptError
 
+feats = defaultdict(set)
+"""remember the methods declaring features"""
+
 class task_gen(object):
 	"""
 	generate task objects which may be executed in parallel by the scheduler
@@ -35,7 +38,6 @@ class task_gen(object):
 
 	mappings = {}
 	prec = defaultdict(list)
-	features = defaultdict(set)
 
 	def __init__(self, *kw, **kwargs):
 
@@ -54,7 +56,7 @@ class task_gen(object):
 		# list of mappings extension -> function
 		self.mappings = {}
 
-		# list of features (see the documentation)
+		# list of methods to execute (by name)
 		self.features = []
 
 		# not always a good idea
@@ -97,7 +99,7 @@ class task_gen(object):
 		# add the methods listed in the features
 		self.features = Utils.to_list(self.features)
 		for x in self.features + ['*']:
-			st = task_gen.features[x]
+			st = feats[x]
 			if not st:
 				warn('feature %r does not exist - bind at least one method to it' % x)
 			keys.update(st)
@@ -135,7 +137,8 @@ class task_gen(object):
 					else:
 						tmp.append(x)
 
-		if prec: raise WafError("graph has a cycle %s" % str(prec))
+		if prec:
+			raise WafError("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
 
@@ -276,7 +279,7 @@ def feature(*k):
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
 		for name in k:
-			task_gen.features[name].update([func.__name__])
+			feats[name].update([func.__name__])
 		return func
 	return deco
 
@@ -434,8 +437,8 @@ def sequence_order(self):
 	Note that the method is executed in last position
 
 	to use:
-	bld.new_task_gen(features='javac seq')
-	bld.new_task_gen(features='jar seq')
+	bld(features='javac seq')
+	bld(features='jar seq')
 
 	to start a new sequence, set the attribute seq_start, for example:
 	obj.seq_start = True
