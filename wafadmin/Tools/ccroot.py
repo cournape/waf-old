@@ -313,9 +313,7 @@ def apply_type_vars(self):
 		# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
 		for var in self.p_type_vars:
 			compvar = '%s_%s' % (x, var)
-			#print compvar
-			value = self.env[compvar]
-			if value: self.env.append_value(var, [value])
+			self.env.append_value(var, self.env[compvar])
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('process_source')
@@ -386,11 +384,11 @@ def apply_lib_vars(self):
 			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
 
 			# add the link path too
-			tmp_path = y.link_task.outputs[0].parent.bldpath(self.env)
-			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
+			tmp_path = y.link_task.outputs[0].parent.bldpath()
+			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', [tmp_path])
 
 		# add ancestors uselib too - but only propagate those that have no staticlib
-		for v in self.to_list(y.uselib):
+		for v in self.to_list(getattr(y, 'uselib', [])):
 			if not env['STATICLIB_' + v]:
 				if not v in self.uselib:
 					self.uselib.insert(0, v)
@@ -402,7 +400,7 @@ def apply_lib_vars(self):
 				node = y.path.find_dir(x)
 				if not node:
 					raise Utils.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
-				self.env.append_unique('INC_PATHS', node)
+				self.includes.append(node)
 
 	# 2. the case of the libs defined outside
 	for x in self.uselib:
@@ -470,8 +468,8 @@ def apply_obj_vars(self):
 			app('LINKFLAGS', rpath_st % i)
 
 	for i in v['LIBPATH']:
-		app('LINKFLAGS', libpath_st % i)
-		app('LINKFLAGS', staticlibpath_st % i)
+		app('LINKFLAGS', [libpath_st % i])
+		app('LINKFLAGS', [staticlibpath_st % i])
 
 	if v['STATICLIB']:
 		v.append_value('LINKFLAGS', [v['STATICLIB_MARKER']])
@@ -573,7 +571,7 @@ def apply_implib(self):
 	self.link_task.outputs.append(implib)
 	self.bld.install_as('${LIBDIR}/%s' % implib.name, implib, self.env)
 
-	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
+	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
@@ -621,7 +619,7 @@ def apply_vnum(self):
 	tsk.set_outputs(node.parent.find_or_declare(name2))
 
 def exec_vnum_link(self):
-	path = self.outputs[0].abspath(self.env)
+	path = self.outputs[0].abspath()
 	try:
 		os.remove(path)
 	except OSError:
@@ -641,6 +639,4 @@ cls.quiet = 1
 def add_as_needed(conf):
 	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
 		conf.env.append_unique('LINKFLAGS', '--as-needed')
-
-
 

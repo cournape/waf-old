@@ -190,7 +190,7 @@ class task_gen(object):
 		return task
 
 	def name_to_obj(self, name):
-		return self.bld.name_to_obj(name, self.env)
+		return self.bld.name_to_obj(name)
 
 	def clone(self, env):
 		""

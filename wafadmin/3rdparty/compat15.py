@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 
+print("loading compat")
+import Utils
+import ConfigSet
+ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive
+ConfigSet.ConfigSet.set_variant = Utils.nada
+
 import Build
 Build.BuildContext.add_subdirs = Build.BuildContext.recurse
 
