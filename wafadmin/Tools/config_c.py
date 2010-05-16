@@ -56,6 +56,11 @@ int main() {
 def parse_flags(line, uselib, env):
 	"""pkg-config still has bugs on some platforms, and there are many -config programs, parsing flags is necessary :-/"""
 
+	try:
+		line = line.encode('ascii')
+	except:
+		pass
+
 	lst = shlex.split(line)
 	while lst:
 		x = lst.pop(0)

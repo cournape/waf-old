@@ -280,7 +280,7 @@ def apply_incpaths(self):
 			lst.append(node)
 		else:
 			if os.path.isabs(path):
-				lst.append(self.root.make_node(path))
+				lst.append(self.bld.root.make_node(path))
 			else:
 				if path[0] == '#':
 					lst.append(self.bld.bldnode.make_node(path[1:]))
