@@ -328,7 +328,7 @@ def detect_qt4(conf):
 	cand = None
 	prev_ver = ['4', '0', '0']
 	for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
-		qmake = conf.find_program(qmk, path_list=paths)
+		qmake = conf.find_program(qmk, path_list=paths, mandatory=False)
 		if qmake:
 			try:
 				version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip()
@@ -358,7 +358,7 @@ def detect_qt4(conf):
 
 	def find_bin(lst, var):
 		for f in lst:
-			ret = conf.find_program(f, path_list=paths)
+			ret = conf.find_program(f, path_list=paths, mandatory=False)
 			if ret:
 				env[var]=ret
 				break
