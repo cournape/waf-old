@@ -65,8 +65,8 @@ def xlc_common_flags(conf):
 	v['shlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
-	v['staticlib_LINKFLAGS'] = ''
-	v['staticlib_PATTERN']   = 'lib%s.a'
+	v['stlib_LINKFLAGS'] = ''
+	v['stlib_PATTERN']   = 'lib%s.a'
 
 def configure(conf):
 	conf.find_xlc()

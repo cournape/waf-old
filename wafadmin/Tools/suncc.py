@@ -61,8 +61,8 @@ def scc_common_flags(conf):
 	v['shlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
-	v['staticlib_LINKFLAGS'] = ['-Bstatic']
-	v['staticlib_PATTERN']   = 'lib%s.a'
+	v['stlib_LINKFLAGS'] = ['-Bstatic']
+	v['stlib_PATTERN']   = 'lib%s.a'
 
 detect = '''
 find_scc

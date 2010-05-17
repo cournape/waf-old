@@ -231,7 +231,7 @@ def check_cfg(self, *k, **kw):
 
 # env: an optional environment (modified -> provide a copy)
 # compiler: cc or cxx - it tries to guess what is best
-# type: program, shlib, staticlib, objects
+# type: program, shlib, stlib, objects
 # code: a c code to execute
 # uselib_store: where to add the variables
 # uselib: parameters to use for building
@@ -348,11 +348,11 @@ def validate_c(self, kw):
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = kw['lib'].upper()
 
-	if 'staticlib' in kw:
+	if 'stlib' in kw:
 		if not 'msg' in kw:
-			kw['msg'] = 'Checking for static library %s' % kw['staticlib']
+			kw['msg'] = 'Checking for static library %s' % kw['stlib']
 		if not 'uselib_store' in kw:
-			kw['uselib_store'] = kw['staticlib'].upper()
+			kw['uselib_store'] = kw['stlib'].upper()
 
 	if 'fragment' in kw:
 		# an additional code fragment may be provided to replace the predefined code

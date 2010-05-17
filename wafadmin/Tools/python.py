@@ -99,7 +99,7 @@ for pyfile in sys.argv[1:]:
 				raise Utils.WafError('bytecode compilation failed %r' % path)
 
 @before('process_source')
-@after('vars_target_cprogram', 'vars_target_cstaticlib')
+@after('vars_target_cprogram', 'vars_target_lib')
 @feature('py')
 def init_py(self):
 	self.default_install_path = '${PYTHONDIR}'

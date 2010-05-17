@@ -153,7 +153,7 @@ def scan(self):
 def get_target_name(self):
 	tp = 'program'
 	for x in self.features:
-		if x in ['cshlib', 'cstaticlib']:
+		if x in ['cshlib', 'cstlib']:
 			tp = x.lstrip('c')
 
 	pattern = self.env[tp + '_PATTERN']
@@ -194,16 +194,6 @@ def default_cc(self):
 	if not self.env.BINDIR: self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
 	if not self.env.LIBDIR: self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
 
-@feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-def apply_verif(self):
-	"""no particular order, used for diagnostic"""
-	if not (self.source or getattr(self, 'add_objects', None) or getattr(self, 'uselib_local', None)):
-		raise Utils.WafError('no source files specified for %s' % self)
-	if not self.target:
-		raise Utils.WafError('no target for %s' % self)
-
-# TODO reference the d programs, shlibs in d.py, not here
-
 @feature('cprogram', 'dprogram')
 @after('default_cc')
 @before('process_source')
@@ -214,7 +204,7 @@ def vars_target_cprogram(self):
 @after('default_cc')
 @feature('cshlib', 'dshlib')
 @before('process_source')
-def vars_target_cshlib(self):
+def vars_target_lib(self):
 	if self.env.DEST_BINFMT == 'pe':
 		#   set execute bit on libs to avoid 'permission denied' (issue 283)
 		self.default_chmod = O755
@@ -222,8 +212,8 @@ def vars_target_cshlib(self):
 	else:
 		self.default_install_path = self.env.LIBDIR
 
-@feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-@after('apply_link', 'vars_target_cprogram', 'vars_target_cshlib')
+@feature('cprogram', 'dprogram', 'cstlib', 'dstlib', 'cshlib', 'dshlib')
+@after('apply_link', 'vars_target_cprogram', 'vars_target_lib')
 def default_link_install(self):
 	"""you may kill this method to inject your own installation for the first element
 	any other install should only process its own nodes and not those from the others"""
@@ -301,7 +291,7 @@ def apply_type_vars(self):
 	after init_cc and init_cxx because web need p_type_vars
 	"""
 	for x in self.features:
-		if not x in ['cprogram', 'cstaticlib', 'cshlib']:
+		if not x in ['cprogram', 'cstlib', 'cshlib']:
 			continue
 		x = x.lstrip('c')
 
@@ -315,14 +305,14 @@ def apply_type_vars(self):
 			compvar = '%s_%s' % (x, var)
 			self.env.append_value(var, self.env[compvar])
 
-@feature('cprogram', 'cshlib', 'cstaticlib')
+@feature('cprogram', 'cshlib', 'cstlib')
 @after('process_source')
 def apply_link(self):
 	"""executes after process_source for collecting 'compiled_tasks'
 	use a custom linker if specified (self.link='name-of-custom-link-task')"""
 	link = getattr(self, 'link', None)
 	if not link:
-		if 'cstaticlib' in self.features: link = 'static_link'
+		if 'cstlib' in self.features: link = 'static_link'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 
@@ -363,14 +353,14 @@ def apply_lib_vars(self):
 		if getattr(y, 'uselib_local', None):
 			lst = y.to_list(y.uselib_local)
 			if 'cshlib' in y.features or 'cprogram' in y.features:
-				lst = [x for x in lst if not 'cstaticlib' in self.name_to_obj(x).features]
+				lst = [x for x in lst if not 'cstlib' in self.name_to_obj(x).features]
 			tmp.extend(lst)
 
 		# link task and flags
 		if getattr(y, 'link_task', None):
 
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
-			if 'cstaticlib' in y.features:
+			if 'cstlib' in y.features:
 				env.append_value('STATICLIB', [link_name])
 			elif 'cshlib' in y.features or 'cprogram' in y.features:
 				# WARNING some linkers can link against programs
@@ -408,7 +398,7 @@ def apply_lib_vars(self):
 			val = self.env[v + '_' + x]
 			if val: self.env.append_value(v, val)
 
-@feature('cprogram', 'cstaticlib', 'cshlib', 'dprogram', 'dstaticlib', 'dshlib')
+@feature('cprogram', 'cstlib', 'cshlib', 'dprogram', 'dstlib', 'dshlib')
 @after('init_cc', 'init_cxx', 'apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
@@ -447,7 +437,7 @@ def apply_objdeps(self):
 		for t in y.compiled_tasks:
 			self.link_task.inputs.extend(t.outputs)
 
-@feature('cprogram', 'cshlib', 'cstaticlib')
+@feature('cprogram', 'cshlib', 'cstlib')
 @after('apply_lib_vars')
 def apply_obj_vars(self):
 	"""after apply_lib_vars for uselib"""

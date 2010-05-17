@@ -55,8 +55,8 @@ def gxx_common_flags(conf):
 	v['shlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
-	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-	v['staticlib_PATTERN']   = 'lib%s.a'
+	v['stlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['stlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
 	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
@@ -96,7 +96,7 @@ def gxx_modifier_darwin(conf):
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
 
-	v['staticlib_LINKFLAGS'] = []
+	v['stlib_LINKFLAGS'] = []
 
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''

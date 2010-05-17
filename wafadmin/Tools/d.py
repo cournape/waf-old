@@ -241,7 +241,7 @@ def get_target_name(self):
 	v = self.env
 	tp = 'program'
 	for x in self.features:
-		if x in ['dshlib', 'dstaticlib']:
+		if x in ['dshlib', 'dstlib']:
 			tp = x.lstrip('d')
 	return v['D_%s_PATTERN' % tp] % self.target
 
@@ -305,14 +305,14 @@ def apply_d_libs(self):
 		if getattr(y, 'uselib_local', None):
 			lst = y.to_list(y.uselib_local)
 			if 'dshlib' in y.features or 'cprogram' in y.features:
-				lst = [x for x in lst if not 'cstaticlib' in self.name_to_obj(x).features]
+				lst = [x for x in lst if not 'cstlib' in self.name_to_obj(x).features]
 			tmp.extend(lst)
 
 		# link task and flags
 		if getattr(y, 'link_task', None):
 
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
-			if 'dstaticlib' in y.features or 'dshlib' in y.features:
+			if 'dstlib' in y.features or 'dshlib' in y.features:
 				env.append_unique('DLINKFLAGS', [env.DLIB_ST % link_name])
 				env.append_unique('DLINKFLAGS', [env.DLIBPATH_ST % y.link_task.outputs[0].parent.bldpath(env)])
 
@@ -337,12 +337,12 @@ def apply_d_libs(self):
 					raise Utils.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
 				self.env.append_unique('INC_PATHS', [node])
 
-@feature('dprogram', 'dshlib', 'dstaticlib')
+@feature('dprogram', 'dshlib', 'dstlib')
 @after('process_source')
 def apply_d_link(self):
 	link = getattr(self, 'link', None)
 	if not link:
-		if 'dstaticlib' in self.features: link = 'static_link'
+		if 'dstlib' in self.features: link = 'static_link'
 		else: link = 'd_link'
 
 	outputs = [t.outputs[0] for t in self.compiled_tasks]

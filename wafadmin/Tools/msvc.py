@@ -607,8 +607,8 @@ def msvc_common_flags(conf):
 	v['IMPLIB_ST']      = '/IMPLIB:%s'
 
 	# static library
-	v['staticlib_LINKFLAGS'] = ['']
-	v['staticlib_PATTERN']   = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
+	v['stlib_LINKFLAGS'] = ['']
+	v['stlib_PATTERN']   = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
@@ -626,10 +626,10 @@ def apply_flags_msvc(self):
 	subsystem = getattr(self, 'subsystem', '')
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
-		flags = 'cstaticlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
+		flags = 'cstlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
 		self.env.append_value(flags, subsystem)
 
-	if getattr(self, 'link_task', None) and not 'cstaticlib' in self.features:
+	if getattr(self, 'link_task', None) and not 'cstlib' in self.features:
 		for f in self.env.LINKFLAGS:
 			d = f.lower()
 			if d[1:] == 'debug':
@@ -639,7 +639,7 @@ def apply_flags_msvc(self):
 				self.bld.install_files(self.install_path, [pdbnode], env=self.env)
 				break
 
-@feature('cprogram', 'cshlib', 'cstaticlib')
+@feature('cprogram', 'cshlib', 'cstlib')
 @after('apply_lib_vars')
 @before('apply_obj_vars')
 def apply_obj_vars_msvc(self):
@@ -664,12 +664,12 @@ def apply_obj_vars_msvc(self):
 	staticlibpath_st = env['STATICLIBPATH_ST']
 
 	for i in env['LIBPATH']:
-		app('LINKFLAGS', libpath_st % i)
+		app('LINKFLAGS', [libpath_st % i])
 		if not libpaths.count(i):
 			libpaths.append(i)
 
 	for i in env['LIBPATH']:
-		app('LINKFLAGS', staticlibpath_st % i)
+		app('LINKFLAGS', [staticlibpath_st % i])
 		if not libpaths.count(i):
 			libpaths.append(i)
 
@@ -679,7 +679,7 @@ def apply_obj_vars_msvc(self):
 			app('LINKFLAGS', env['SHLIB_MARKER']) # TODO does SHLIB_MARKER work?
 
 	for i in env['STATICLIB']:
-		app('LINKFLAGS', staticlib_st % i)
+		app('LINKFLAGS', [staticlib_st % i])
 
 	for i in env['LIB']:
 		app('LINKFLAGS', lib_st % i)

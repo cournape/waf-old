@@ -32,7 +32,7 @@ class valac_task(Task.Task):
 
 		features = self.generator.features
 
-		if 'cshlib' in features or 'cstaticlib' in features:
+		if 'cshlib' in features or 'cstlib' in features:
 			output_dir = self.outputs[0].bld_dir(env)
 			cmd.append('--library ' + self.target)
 			if env['VALAC_VERSION'] >= (0, 7, 0):
@@ -94,7 +94,7 @@ class valac_task(Task.Task):
 		bld = self.generator.bld
 		features = self.generator.features
 
-		if self.attr("install_path") and ("cshlib" in features or "cstaticlib" in features):
+		if self.attr("install_path") and ('cshlib' in features or 'cstlib' in features):
 			headers_list = [o for o in self.outputs if o.suffix() == ".h"]
 			vapi_list = [o for o in self.outputs if (o.suffix() in (".vapi", ".deps"))]
 			gir_list = [o for o in self.outputs if o.suffix() == ".gir"]
