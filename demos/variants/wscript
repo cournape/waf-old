@@ -20,9 +20,7 @@ def build(bld):
 	bld(features='cc cprogram', source='main.c', target='app')
 
 import Build
-class foo(Build.BuildContext):
+class one_variant(Build.BuildContext):
 	cmd = 'debug'
-	def __init__(self, **kw):
-		super(self.__class__, self).__init__(**kw)
-		self.out_dir = self.out_dir + '/debug'
+	variant = 'debug'
 
