@@ -24,7 +24,9 @@ def build(bld):
 
 # ------ new declaration for variants -------
 #
-# calling 'waf debug' will create a copy of the current build into another output directory
+# calling 'waf clean_debug debug' will build into another output directory
+# note how "bld.variant" is used to detect the current variant
+#
 
 import Build
 class one_variant(Build.BuildContext):
