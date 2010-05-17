@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+# these variables are mandatory ('/' are converted automatically)
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+def build(bld):
+	bld(features='cc cprogram', source='main.c', target='app')
+
+import Build
+class foo(Build.BuildContext):
+	cmd = 'debug'
+	def __init__(self, **kw):
+		super(self.__class__, self).__init__(**kw)
+		self.out_dir = self.out_dir + '/debug'
+
