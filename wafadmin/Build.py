@@ -76,6 +76,11 @@ class BuildContext(Context):
 		if not getattr(self, 'out_dir', None):
 			self.out_dir = Options.out_dir
 
+		try:
+			self.variant_dir = os.path.join(self.out_dir, self.variant)
+		except AttributeError:
+			self.variant_dir = self.out_dir
+
 		if not getattr(self, 'cache_dir', None):
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
 
@@ -175,6 +180,7 @@ class BuildContext(Context):
 		self.bldnode = self.root.make_node(bld)
 		self.bldnode.mkdir()
 
+		# TODO to cache or not to cache?
 		self.bld2src = {id(self.bldnode): self.srcnode}
 		self.src2bld = {id(self.srcnode): self.bldnode}
 
@@ -183,7 +189,7 @@ class BuildContext(Context):
 
 		self.load()
 
-		self.init_dirs(self.top_dir, self.out_dir)
+		self.init_dirs(self.top_dir, self.variant_dir)
 
 		if not self.all_envs:
 			self.load_envs()
@@ -703,7 +709,8 @@ class BuildContext(Context):
 			if not kw.get('cwd', None):
 				kw['cwd'] = self.cwd
 		except AttributeError:
-			self.cwd = kw['cwd'] = self.out_dir
+			self.cwd = kw['cwd'] = self.variant_dir
+
 		return Utils.exec_command(cmd, **kw)
 
 	def printout(self, s):
