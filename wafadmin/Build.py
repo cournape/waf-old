@@ -65,6 +65,7 @@ class BuildContext(Context):
 	"""executes the build"""
 
 	cmd = 'build'
+	variant = ''
 
 	def __init__(self, start=None):
 		super(BuildContext, self).__init__(start)
@@ -76,10 +77,11 @@ class BuildContext(Context):
 		if not getattr(self, 'out_dir', None):
 			self.out_dir = Options.out_dir
 
-		try:
-			self.variant_dir = os.path.join(self.out_dir, self.variant)
-		except AttributeError:
+		if not getattr(self, 'variant_dir', None):
 			self.variant_dir = self.out_dir
+
+		if self.variant:
+			self.variant_dir = os.path.join(self.out_dir, self.variant)
 
 		if not getattr(self, 'cache_dir', None):
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR

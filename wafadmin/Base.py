@@ -154,10 +154,9 @@ class Context(ctx):
 				self.pre_recurse(user_function, wscript_file, d)
 				old_dir = self.curdir
 				self.curdir = d
+
 				try:
 					user_function(self)
-				except TypeError:
-					user_function()
 				finally:
 					self.curdir = old_dir
 				self.post_recurse(user_function, wscript_file, d)
