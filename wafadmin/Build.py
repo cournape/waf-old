@@ -718,7 +718,9 @@ class BuildContext(Utils.Context):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
 				if Logs.verbose:
-					Logs.debug('group: group %s' % ([x for x in self.task_manager.groups_names if id(self.task_manager.groups_names[x]) == id(g)][0]))
+					groups = [x for x in self.task_manager.groups_names if id(self.task_manager.groups_names[x]) == id(g)]
+					name = groups and groups[0] or 'unnamed'
+					Logs.debug('group: group', name)
 				for tg in g.tasks_gen:
 					if not tg.path.is_child_of(ln):
 						continue
