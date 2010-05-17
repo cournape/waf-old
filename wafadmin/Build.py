@@ -229,7 +229,7 @@ class BuildContext(Context):
 			Node.Nod3 = self.node_class
 
 			try:
-				f = open(os.path.join(self.out_dir, DBFILE), 'rb')
+				f = open(os.path.join(self.variant_dir, DBFILE), 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
 				pass
@@ -252,7 +252,7 @@ class BuildContext(Context):
 
 		# some people are very nervous with ctrl+c so we have to make a temporary file
 		Node.Nod3 = self.node_class
-		db = os.path.join(self.out_dir, DBFILE)
+		db = os.path.join(self.variant_dir, DBFILE)
 		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
