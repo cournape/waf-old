@@ -173,7 +173,7 @@ class Context(ctx):
 		"""Call the user function to which this context is bound."""
 		f = getattr(g_module, self.fun, None)
 		if f is None:
-			raise WscriptError('Undefined command: %s' % self.user_function_name())
+			raise WscriptError('Undefined command: %s' % self.fun)
 
 		f(self)
 
