@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 bld(
-	features     = 'cc cstaticlib',
+	features     = 'cc cstlib',
 	source       = 'test_staticlib.c',
 	target       = 'my_static_lib')
 

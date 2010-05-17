@@ -19,8 +19,19 @@ def configure(conf):
 def build(bld):
 	bld(features='cc cprogram', source='main.c', target='app')
 
+	if bld.variant == 'debug':
+		bld.env.append_value('CCFLAGS', ['-O2'])
+
+# ------ new declaration for variants -------
+#
+# calling 'waf debug' will create a copy of the current build into another output directory
+
 import Build
 class one_variant(Build.BuildContext):
 	cmd = 'debug'
+	variant = 'debug'
+
+class clean_debug(Build.CleanContext):
+	cmd = 'clean_debug'
 	variant = 'debug'
 
