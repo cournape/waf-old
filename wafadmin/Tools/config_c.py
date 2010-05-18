@@ -136,6 +136,7 @@ def cmd_and_log(self, cmd, kw):
 		self.log.write('error %r' % e)
 		self.fatal(str(e))
 
+	# placeholder, don't touch
 	out = str(out)
 	err = str(err)
 

@@ -112,6 +112,8 @@ def r9(code):
 @subst('Tools/config_c.py')
 def r10(code):
 	code = code.replace("key=kw['success']", "key=kw['success']\n\t\t\t\ttry:\n\t\t\t\t\tkey=key.decode('utf-8')\n\t\t\t\texcept:\n\t\t\t\t\tpass")
+	code = code.replace('out=str(out)','out=out.decode("utf-8")')
+	code = code.replace('err=str(err)','err=err.decode("utf-8")')
 	return code
 
 def fixdir(dir):
