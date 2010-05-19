@@ -35,8 +35,6 @@ except ImportError:
 				self[key] = value
 				return value
 
-import Logs
-
 is_win32 = sys.platform == 'win32'
 indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
@@ -112,24 +110,14 @@ if is_win32:
 			del(kw['log'])
 		kw['shell'] = isinstance(s, str)
 
-		if len(s) > 2000:
+		if isinstance(s, str) and len(s) > 2000:
 			startupinfo = subprocess.STARTUPINFO()
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			kw['startupinfo'] = startupinfo
 
 		try:
-			if 'stdout' not in kw:
-				kw['stdout'] = subprocess.PIPE
-				kw['stderr'] = subprocess.PIPE
-				proc = subprocess.Popen(s,**kw)
-				(stdout, stderr) = proc.communicate()
-				Logs.info(stdout)
-				if stderr:
-					Logs.error(stderr)
-				return proc.returncode
-			else:
-				proc = subprocess.Popen(s,**kw)
-				return proc.wait()
+			proc = subprocess.Popen(s,**kw)
+			return proc.wait()
 		except OSError:
 			return -1
 
