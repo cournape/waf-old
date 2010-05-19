@@ -6,11 +6,9 @@
 Task manager -> Task groups -> Tasks
 """
 
-import os, shutil, sys, re, random, datetime
+import os, shutil, re
 from collections import defaultdict
-from Utils import md5
-import Build, Runner, Utils, Node, Logs, Options, Base
-from Logs import debug, warn, error
+import Utils, Node, Logs, Options, Base
 from Constants import *
 
 COMPILE_TEMPLATE_SHELL = '''
@@ -235,7 +233,7 @@ class Task(TaskBase):
 			return self.uid
 		except AttributeError:
 			"this is not a real hot zone, but we want to avoid surprizes here"
-			m = md5()
+			m = Utils.md5()
 			up = m.update
 			up(self.__class__.__name__.encode())
 			p = None
@@ -271,7 +269,7 @@ class Task(TaskBase):
 		try: return self.cache_sig
 		except AttributeError: pass
 
-		self.m = md5()
+		self.m = Utils.md5()
 
 		# explicit deps
 		self.sig_explicit_deps()
@@ -308,7 +306,7 @@ class Task(TaskBase):
 		try:
 			prev_sig = bld.task_sigs[key]
 		except KeyError:
-			debug("task: task %r must run as it was never run before or the task code changed" % self)
+			Logs.debug("task: task %r must run as it was never run before or the task code changed" % self)
 			return RUN_ME
 
 		# compare the signatures of the outputs
@@ -317,7 +315,7 @@ class Task(TaskBase):
 				if node.sig != new_sig:
 					return RUN_ME
 			except AttributeError:
-				debug("task: task %r must run as the output nodes do not exist" % self)
+				Logs.debug("task: task %r must run as the output nodes do not exist" % self)
 				return RUN_ME
 
 		if new_sig != prev_sig:
@@ -424,7 +422,7 @@ class Task(TaskBase):
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
 		if Logs.verbose:
-			debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
+			Logs.debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
 
 		# store the dependencies in the cache
 		bld.node_deps[key] = nodes
@@ -505,7 +503,7 @@ def compile_fun_shell(name, line):
 
 	c = COMPILE_TEMPLATE_SHELL % (line, parm)
 
-	debug('action: %s' % c)
+	Logs.debug('action: %s' % c)
 	return (funex(c), dvars)
 
 def compile_fun_noshell(name, line):
@@ -543,7 +541,7 @@ def compile_fun_noshell(name, line):
 			app("lst.extend(%r)" % params[-1].split())
 
 	fun = COMPILE_TEMPLATE_NOSHELL % "\n\t".join(buf)
-	debug('action: %s' % fun)
+	Logs.debug('action: %s' % fun)
 	return (funex(fun), dvars)
 
 def compile_fun(name, line, shell=False):
@@ -652,7 +650,7 @@ def can_retrieve_cache(self):
 			# mark the cache file as used recently (modified)
 			os.utime(orig, None)
 		except (OSError, IOError):
-			debug('task: failed retrieving file')
+			Logs.debug('task: failed retrieving file')
 			return None
 
 	# is it the same folder?
