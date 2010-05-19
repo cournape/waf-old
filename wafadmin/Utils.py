@@ -221,14 +221,14 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 
 	if min_val > ver:
 		Logs.error("waf version should be at least %s (%s found)" % (mini, ver))
-		sys.exit(0)
+		sys.exit(1)
 
 	try: max_val = maxi + 0
 	except TypeError: max_val = int(maxi.replace('.', '0'), 16)
 
 	if max_val < ver:
 		Logs.error("waf version should be at most %s (%s found)" % (maxi, ver))
-		sys.exit(0)
+		sys.exit(1)
 
 def python_24_guard():
 	if sys.hexversion < 0x20400f0 or sys.hexversion >= 0x3000000:
