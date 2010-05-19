@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 import os, re, logging, traceback, sys
-import ansiterm
+import ansiterm, Base
 from Constants import *
 
 zones = ''
