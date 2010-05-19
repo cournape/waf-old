@@ -53,9 +53,6 @@ ASK_LATER = -1
 SKIP_ME = -2
 RUN_ME = -3
 
-LOG_FORMAT = "%(asctime)s %(c1)s%(zone)s%(c2)s %(message)s"
-HOUR_FORMAT = "%H:%M:%S"
-
 CFG_FILES = 'cfg_files'
 
 # positive '->' install

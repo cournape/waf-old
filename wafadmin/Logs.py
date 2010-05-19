@@ -3,8 +3,15 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 import os, re, logging, traceback, sys
-import ansiterm, Base
-from Constants import *
+
+try:
+	import ansiterm
+except:
+	# optional module for colors on win32, just ignore if it cannot be imported
+	pass
+
+LOG_FORMAT = "%(asctime)s %(c1)s%(zone)s%(c2)s %(message)s"
+HOUR_FORMAT = "%H:%M:%S"
 
 zones = ''
 verbose = 0
@@ -130,10 +137,7 @@ def debug(*k, **kw):
 def error(*k, **kw):
 	logging.error(*k, **kw)
 	if verbose > 1:
-		if isinstance(k[0], Base.WafError):
-			st = k[0].stack
-		else:
-			st = traceback.extract_stack()
+		st = traceback.extract_stack()
 		if st:
 			st = st[:-1]
 			buf = []
@@ -155,9 +159,6 @@ def init_log():
 	log.addHandler(hdlr)
 	log.addFilter(log_filter())
 	log.setLevel(logging.DEBUG)
-
-# may be initialized more than once
-init_log()
 
 def pprint(col, str, label='', sep=os.linesep):
 	"print messages in color"

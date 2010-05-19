@@ -10,7 +10,6 @@ if sys.hexversion<0x206000f:
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
 import Utils, Configure, Build, Logs, Options, ConfigSet, Task, Base
-from Logs import error, warn, info
 from Constants import *
 
 g_gz = 'bz2'
@@ -20,8 +19,10 @@ build_dir_override = None
 def waf_entry_point(current_directory, version, wafdir):
 	"""This is the main entry point, all Waf execution starts here."""
 
+	Logs.init_log()
+
 	if WAFVERSION != version:
-		error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
+		Logs.error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
 		sys.exit(1)
 
 	Options.waf_dir = wafdir
@@ -60,19 +61,19 @@ def waf_entry_point(current_directory, version, wafdir):
 			opt_obj.curdir = current_directory
 			opt_obj.parse_args()
 			sys.exit(0)
-		error('Waf: Run from a directory containing a file named "%s"' % WSCRIPT_FILE)
+		Logs.error('Waf: Run from a directory containing a file named "%s"' % WSCRIPT_FILE)
 		sys.exit(1)
 
 	try:
 		os.chdir(Options.run_dir)
 	except OSError:
-		error("Waf: The folder %r is unreadable" % Options.run_dir)
+		Logs.error("Waf: The folder %r is unreadable" % Options.run_dir)
 		sys.exit(1)
 
 	try:
 		set_main_module(Options.run_dir + os.sep + WSCRIPT_FILE)
 	except:
-		error("Waf: The wscript in %r is unreadable" % Options.run_dir)
+		Logs.error("Waf: The wscript in %r is unreadable" % Options.run_dir)
 		sys.exit(1)
 
 	parse_options()
@@ -90,7 +91,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		print(e)
 	except Base.WafError as e:
 		traceback.print_exc(file=sys.stdout)
-		error(str(e))
+		Logs.error(str(e))
 		sys.exit(1)
 	except KeyboardInterrupt:
 		Logs.pprint('RED', 'Interrupted')
@@ -154,7 +155,7 @@ def run_commands():
 		run_command(cmd_name)
 		if not Options.options.progress_bar:
 			elapsed = ' (%s)' % str(timer)
-			info('%r finished successfully%s' % (cmd_name, elapsed))
+			Logs.info('%r finished successfully%s' % (cmd_name, elapsed))
 	run_command('shutdown')
 
 ###########################################################################################
@@ -307,7 +308,7 @@ def dist(ctx):
 	except:
 		digest = ''
 
-	info('New archive created: %s%s' % (arch_name, digest))
+	Logs.info('New archive created: %s%s' % (arch_name, digest))
 
 	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
 	return arch_name
@@ -391,11 +392,11 @@ def update(ctx):
 					mod = Utils.load_module(file)
 					h = hash((h, mod.waf_hash_val))
 		except (OSError, IOError):
-			warn('Reconfiguring the project: a file is unavailable')
+			Logs.warn('Reconfiguring the project: a file is unavailable')
 			reconf(proj)
 		else:
 			if (h != proj['hash']):
-				warn('Reconfiguring the project: the configuration has changed')
+				Logs.warn('Reconfiguring the project: the configuration has changed')
 				reconf(proj)
 """
 
