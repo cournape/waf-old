@@ -13,23 +13,32 @@ try:
 except:
 	from UserDict import UserDict
 
-import Logs
-from Constants import *
-
-is_win32 = sys.platform == 'win32'
-indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
-
-# never fail on module import, we may apply the fixes from another module
 try:
 	from hashlib import md5
 except:
+	# never fail to enable fixes from another module
 	pass
 
 try:
 	from collections import defaultdict as DefaultDict
-except:
-	pass
+except ImportError:
+	# DefaultDict was introduced in python 2.5
+	class DefaultDict(dict):
+		def __init__(self, default_factory):
+			super(DefaultDict, self).__init__()
+			self.default_factory = default_factory
+		def __getitem__(self, key):
+			try:
+				return super(DefaultDict, self).__getitem__(key)
+			except KeyError:
+				value = self.default_factory()
+				self[key] = value
+				return value
 
+import Logs
+
+is_win32 = sys.platform == 'win32'
+indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 def readf(fname, m='r'):
 	"""
@@ -142,6 +151,9 @@ if is_win32:
 	listdir = listdir_win32
 
 def num2ver(ver):
+	"""
+	convert a string, tuple or version number into an integer
+	"""
 	if isinstance(ver, str):
 		ver = tuple(ver.split('.'))
 	if isinstance(ver, tuple):
@@ -150,27 +162,6 @@ def num2ver(ver):
 			ret += 256**(2 - i) * int(ver[i])
 		return ret
 	return ver
-
-def waf_version(mini = 0x010000, maxi = 0x100000):
-	"""
-	Halt execution if the version of Waf is not in the range.
-
-	Versions should be supplied as hex. 0x01000000 means 1.0.0,
-	0x010408 means 1.4.8, etc.
-
-	@type  mini: number, tuple or string
-	@param mini: Minimum required version
-	@type  maxi: number, tuple or string
-	@param maxi: Maximum allowed version
-	"""
-	ver = HEXVERSION
-	if num2ver(min_val) > ver:
-		Logs.error("waf version should be at least %s (%s found)" % (mini, ver))
-		sys.exit(1)
-
-	if num2ver(max_val) < ver:
-		Logs.error("waf version should be at most %s (%s found)" % (maxi, ver))
-		sys.exit(1)
 
 def ex_stack():
 	exc_type, exc_value, tb = sys.exc_info()

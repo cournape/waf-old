@@ -449,4 +449,23 @@ def conf(f):
 	setattr(ConfigurationContext, f.__name__, f)
 	return f
 
+@conf
+def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
+	"""
+	check for the waf version
+
+	Versions should be supplied as hex. 0x01000000 means 1.0.0,
+	0x010408 means 1.4.8, etc.
+
+	@type  mini: number, tuple or string
+	@param mini: Minimum required version
+	@type  maxi: number, tuple or string
+	@param maxi: Maximum allowed version
+	"""
+	ver = HEXVERSION
+	if num2ver(min_val) > ver:
+		conf.fatal('waf version should be at least %r (%r found)' % (mini, ver))
+
+	if num2ver(max_val) < ver:
+		conf.fatal('waf version should be at most %r (%r found)' % (maxi, ver))
 
