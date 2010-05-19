@@ -21,12 +21,10 @@ Additionally, task_gen provides the method "process_source"
 WARNING: subclasses must reimplement the clone method
 """
 
-import os, traceback, copy
-import Build, Task, Utils, Logs, Options
+import traceback, copy
+import Task, Utils, Logs, Base
 from collections import defaultdict
-from Logs import debug, error, warn
 from Constants import *
-from Base import WafError, WscriptError
 
 feats = defaultdict(set)
 """remember the methods declaring features"""
@@ -101,7 +99,7 @@ class task_gen(object):
 		for x in self.features + ['*']:
 			st = feats[x]
 			if not st:
-				warn('feature %r does not exist - bind at least one method to it' % x)
+				Logs.warn('feature %r does not exist - bind at least one method to it' % x)
 			keys.update(st)
 
 		# copy the precedence table
@@ -138,18 +136,18 @@ class task_gen(object):
 						tmp.append(x)
 
 		if prec:
-			raise WafError("graph has a cycle %s" % str(prec))
+			raise Base.WafError("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
 
 		# then we run the methods in order
-		debug('task_gen: posting %s %d' % (self, id(self)))
+		Logs.debug('task_gen: posting %s %d' % (self, id(self)))
 		for x in out:
 			try:
 				v = getattr(self, x)
 			except AttributeError:
-				raise WafError("tried to retrieve %s which is not a valid method" % x)
-			debug('task_gen: -> %s (%d)' % (x, id(self)))
+				raise Base.WafError("tried to retrieve %s which is not a valid method" % x)
+			Logs.debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 
 	def post(self):
@@ -165,7 +163,7 @@ class task_gen(object):
 			return
 		self.posted = True
 		self.apply()
-		debug('task_gen: posted %s' % self.name)
+		Logs.debug('task_gen: posted %s' % self.name)
 
 	def get_hook(self, node):
 		"""
@@ -198,12 +196,12 @@ class task_gen(object):
 		for x in self.__dict__:
 			if x in ['env', 'bld']:
 				continue
-			elif x in ["path", "features"]:
+			elif x in ['path', 'features']:
 				setattr(newobj, x, getattr(self, x))
 			else:
 				setattr(newobj, x, copy.copy(getattr(self, x)))
 
-		newobj.__class__ = self.__class__
+		newobj.posted = False
 		if isinstance(env, str):
 			newobj.env = self.bld.all_envs[env].derive()
 		else:
@@ -339,7 +337,7 @@ def process_source(self):
 		if isinstance(el, str):
 			node = find(el)
 			if not node:
-				raise WafError("source not found: '%s' in '%s'" % (el, self.path))
+				raise Base.WafError("source not found: '%s' in '%s'" % (el, self.path))
 		else:
 			node = el
 		lst.append(node)
@@ -349,7 +347,7 @@ def process_source(self):
 		# self.mappings or task_gen.mappings map the file extension to a function
 		x = self.get_hook(node)
 		if not x:
-			raise WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, self.__class__.mappings.keys()))
+			raise Base.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, self.__class__.mappings.keys()))
 		x(self, node)
 feature('*')(process_source)
 
@@ -402,7 +400,7 @@ def process_rule(self):
 		for x in self.to_list(self.source):
 			y = self.path.find_resource(x)
 			if not y:
-				raise WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
+				raise Base.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
 			tsk.inputs.append(y)
 
 	if getattr(self, 'always', None):

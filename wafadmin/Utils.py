@@ -6,7 +6,7 @@
 Utilities and cross-platform fixes.
 """
 
-import os, sys, string, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
+import os, sys, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
 
 try:
 	from collections import UserDict

@@ -13,7 +13,7 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Configure
+import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options
 from Logs import debug, error, info
 from Constants import *
 from Base import WafError, Context, load_tool
