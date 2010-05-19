@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005-2008 (ita)
+# Thomas Nagy, 2005-2010 (ita)
 
 """
 Configuration system
@@ -22,11 +22,8 @@ Note: the c/c++ related code is in the module config_c
 import os, shlex, sys, time
 try: import cPickle
 except ImportError: import pickle as cPickle
-import ConfigSet, Utils, Options, Logs
-from Logs import warn
+import ConfigSet, Utils, Options, Logs, Base
 from Constants import *
-from Base import WafError, WscriptError, Context
-import Base
 
 try:
 	from urllib import request
@@ -42,7 +39,7 @@ conf_template = '''# project %(app)s configured on %(now)s by
 #
 '''
 
-class ConfigurationError(WscriptError):
+class ConfigurationError(Base.WscriptError):
 	pass
 
 def download_tool(tool, force=False):
@@ -68,7 +65,7 @@ def download_tool(tool, force=False):
 				break
 		raise Base.WafError('Could not load the tool')
 
-class ConfigurationContext(Context):
+class ConfigurationContext(Base.Context):
 	"""configures the project"""
 
 	cmd = 'configure'
@@ -209,7 +206,7 @@ class ConfigurationContext(Context):
 			env['PREFIX'] = os.path.abspath(os.path.expanduser(Options.options.prefix))
 			self.all_envs[name] = env
 		else:
-			if fromenv: warn("The environment %s may have been configured already" % name)
+			if fromenv: Logs.warn("The environment %s may have been configured already" % name)
 		return env
 
 	def setenv(self, name):

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005 (ita)
+# Thomas Nagy, 2005-2010 (ita)
 
-import ansiterm
 import os, re, logging, traceback, sys
+import ansiterm
 from Constants import *
 
 zones = ''

@@ -11,7 +11,7 @@ This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
 import os, copy, re
-import Logs, Options, Utils, Base
+import Logs, Utils
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 

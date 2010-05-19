@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Scott Newton, 2005 (scottn)
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2010 (ita)
 
 "Custom command-line options"
 
-import os, sys, imp, types, tempfile, optparse
+import os, types, tempfile, optparse
 import Logs, Utils, Base
 from Constants import *
 

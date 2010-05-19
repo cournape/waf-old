@@ -1,21 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005-2008 (ita)
+# Thomas Nagy, 2005-2010 (ita)
 
 "Execute the tasks"
 
-import os, shutil, sys, re, random, time, threading, traceback, datetime
+import os, sys, random, threading
+from collections import defaultdict
 try:
 	from queue import Queue
 except:
 	from Queue import Queue
-import Build, Utils, Node, Logs, Options
-from Logs import debug, warn, error
-from Base import WafError
+import Utils, Logs, Options
 from Constants import *
-from collections import defaultdict
-from Utils import md5
-
 
 GAP = 15
 
@@ -267,7 +263,7 @@ class TaskManager(object):
 		g = TaskGroup()
 
 		if name and name in self.groups_names:
-			error('add_group: name %s already present' % name)
+			Logs.error('add_group: name %s already present' % name)
 		self.groups_names[name] = g
 		self.groups.append(g)
 		if set:
@@ -436,7 +432,7 @@ class TaskGroup(object):
 		if not toreturn:
 			self.ready_iter = False
 			if remainder:
-				raise WafError("Circular order constraint detected %r" % remainder)
+				raise Base.WafError("Circular order constraint detected %r" % remainder)
 
 		return toreturn
 

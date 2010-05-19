@@ -20,7 +20,7 @@ The BuildContext is referenced here as self.bld
 Its Node class is referenced here as self.__class__
 """
 
-import os, sys, shutil, re
+import os, shutil, re
 import Utils
 
 # These fnmatch expressions are used by default to prune the directory tree
