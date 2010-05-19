@@ -240,6 +240,9 @@ def load_tool(tool, tooldir=None):
 	@type  tooldir: list
 	@param tooldir: List of directories to search for the tool module
 	"""
+	tool = tool.replace('++', 'xx')
+	tool = tool.replace('java', 'javaw')
+
 	if tooldir:
 		assert isinstance(tooldir, list)
 		sys.path = tooldir + sys.path
@@ -252,5 +255,4 @@ def load_tool(tool, tooldir=None):
 		if tooldir:
 			for d in tooldir:
 				sys.path.remove(d)
-
 

@@ -134,7 +134,6 @@ class OptionsContext(Base.Context):
 		path = Utils.to_list(kw.get('tooldir', ''))
 
 		for tool in tools:
-			tool = tool.replace('++', 'xx')
 			module = Base.load_tool(tool, path)
 			try:
 				fun = module.options
