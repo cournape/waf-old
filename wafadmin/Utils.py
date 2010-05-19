@@ -141,6 +141,16 @@ if is_win32:
 		return os.listdir(s)
 	listdir = listdir_win32
 
+def num2ver(ver):
+	if isinstance(ver, str):
+		ver = tuple(ver.split('.'))
+	if isinstance(ver, tuple):
+		ret = 0
+		for i in xrange(len(ver)):
+			ret += 256**(2 - i) * int(ver[i])
+		return ret
+	return ver
+
 def waf_version(mini = 0x010000, maxi = 0x100000):
 	"""
 	Halt execution if the version of Waf is not in the range.
@@ -148,25 +158,19 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 	Versions should be supplied as hex. 0x01000000 means 1.0.0,
 	0x010408 means 1.4.8, etc.
 
-	@type  mini: number
+	@type  mini: number, tuple or string
 	@param mini: Minimum required version
-	@type  maxi: number
+	@type  maxi: number, tuple or string
 	@param maxi: Maximum allowed version
 	"""
 	ver = HEXVERSION
-	try: min_val = mini + 0
-	except TypeError: min_val = int(mini.replace('.', '0'), 16)
-
-	if min_val > ver:
+	if num2ver(min_val) > ver:
 		Logs.error("waf version should be at least %s (%s found)" % (mini, ver))
-		sys.exit(0)
+		sys.exit(1)
 
-	try: max_val = maxi + 0
-	except TypeError: max_val = int(maxi.replace('.', '0'), 16)
-
-	if max_val < ver:
+	if num2ver(max_val) < ver:
 		Logs.error("waf version should be at most %s (%s found)" % (maxi, ver))
-		sys.exit(0)
+		sys.exit(1)
 
 def ex_stack():
 	exc_type, exc_value, tb = sys.exc_info()
