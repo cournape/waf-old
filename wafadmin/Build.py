@@ -13,20 +13,19 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options
+import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Base
 from Logs import debug, error, info
 from Constants import *
-from Base import WafError, Context, load_tool
 
 SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 "Build class members to save"
 
-class BuildError(WafError):
+class BuildError(Base.WafError):
 	def __init__(self, b=None, t=[]):
 		self.bld = b
 		self.tasks = t
 		self.ret = 1
-		WafError.__init__(self, self.format_error())
+		Base.WafError.__init__(self, self.format_error())
 
 	def format_error(self):
 		lst = ['Build failed']
@@ -34,6 +33,20 @@ class BuildError(WafError):
 			txt = tsk.format_error()
 			if txt: lst.append(txt)
 		return '\n'.join(lst)
+
+def check_dir(dir):
+	"""
+	Ensure that a directory exists. Equivalent to mkdir -p.
+	@type  dir: string
+	@param dir: Path to directory
+	"""
+	try:
+		os.stat(dir)
+	except OSError:
+		try:
+			os.makedirs(dir)
+		except OSError as e:
+			raise Base.WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
 
 def group_method(fun):
 	"""
@@ -61,7 +74,7 @@ def group_method(fun):
 			fun(*k, **kw)
 	return f
 
-class BuildContext(Context):
+class BuildContext(Base.Context):
 	"""executes the build"""
 
 	cmd = 'build'
@@ -142,19 +155,19 @@ class BuildContext(Context):
 
 	def __copy__(self):
 		"""no build context copies"""
-		raise WafError('build contexts are not supposed to be copied')
+		raise Base.WafError('build contexts are not supposed to be copied')
 
 	def load_envs(self):
 		try:
 			lst = Utils.listdir(self.cache_dir)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
-				raise WafError('The project was not configured: run "waf configure" first!')
+				raise Base.WafError('The project was not configured: run "waf configure" first!')
 			else:
 				raise
 
 		if not lst:
-			raise WafError('The cache directory is empty: reconfigure the project')
+			raise Base.WafError('The cache directory is empty: reconfigure the project')
 
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
@@ -220,7 +233,7 @@ class BuildContext(Context):
 			pass
 		else:
 			if env['version'] < HEXVERSION:
-				raise WafError('Version mismatch! reconfigure the project')
+				raise Base.WafError('Version mismatch! reconfigure the project')
 			for t in env['tools']:
 				self.setup(**t)
 
@@ -337,7 +350,7 @@ class BuildContext(Context):
 			for i in tool: self.setup(i, tooldir)
 			return
 
-		module = load_tool(tool, tooldir)
+		module = Base.load_tool(tool, tooldir)
 		if hasattr(module, "setup"): module.setup(self)
 
 	# ======================================= #
@@ -452,7 +465,7 @@ class BuildContext(Context):
 				tg = self.name_to_obj(name)
 
 				if not tg:
-					raise WafError('target %r does not exist' % name)
+					raise Base.WafError('target %r does not exist' % name)
 
 				m = mana.group_idx(tg)
 				if m > min_grp:
@@ -546,7 +559,7 @@ class BuildContext(Context):
 					os.stat(src)
 				except (OSError, IOError):
 					error('File %r does not exist' % src)
-				raise WafError('Could not install the file %r' % tgt)
+				raise Base.WafError('Could not install the file %r' % tgt)
 			return True
 
 		elif self.is_install < 0:
@@ -600,7 +613,7 @@ class BuildContext(Context):
 
 		destpath = self.get_install_path(path, env)
 
-		Utils.check_dir(destpath)
+		check_dir(destpath)
 
 		installed_files = []
 		for filename in lst:
@@ -613,11 +626,11 @@ class BuildContext(Context):
 				else:
 					nd = cwd.find_resource(filename)
 				if not nd:
-					raise WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
+					raise Base.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
 
 				if relative_trick:
 					destfile = os.path.join(destpath, filename)
-					Utils.check_dir(os.path.dirname(destfile))
+					check_dir(os.path.dirname(destfile))
 				else:
 					destfile = os.path.join(destpath, nd.name)
 
@@ -639,7 +652,7 @@ class BuildContext(Context):
 			env = self.env
 
 		if not path:
-			raise WafError("where do you want to install %r? (%r?)" % (srcfile, path))
+			raise Base.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
 
 		if not cwd:
 			cwd = self.path
@@ -647,7 +660,7 @@ class BuildContext(Context):
 		destpath = self.get_install_path(path, env)
 
 		dir, name = os.path.split(destpath)
-		Utils.check_dir(dir)
+		check_dir(dir)
 
 		# the source path
 		if isinstance(srcfile, Node.Node):
@@ -657,7 +670,7 @@ class BuildContext(Context):
 			if not os.path.isabs(srcfile):
 				node = cwd.find_resource(srcfile)
 				if not node:
-					raise WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
+					raise Base.WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
 				src = node.abspath()
 
 		return self.do_install(src, destpath, chmod)
@@ -670,12 +683,12 @@ class BuildContext(Context):
 			return
 
 		if not path:
-			raise WafError("where do you want to install %r? (%r?)" % (src, path))
+			raise Base.WafError("where do you want to install %r? (%r?)" % (src, path))
 
 		tgt = self.get_install_path(path, env)
 
 		dir, name = os.path.split(tgt)
-		Utils.check_dir(dir)
+		check_dir(dir)
 
 		if self.is_install > 0:
 			link = False

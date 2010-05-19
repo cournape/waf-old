@@ -291,20 +291,6 @@ def h_fun(fun):
 			pass
 		return h
 
-def check_dir(dir):
-	"""
-	Ensure that a directory exists. Equivalent to mkdir -p.
-	@type  dir: string
-	@param dir: Path to directory
-	"""
-	try:
-		os.stat(dir)
-	except OSError:
-		try:
-			os.makedirs(dir)
-		except OSError as e:
-			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
-
 def cmd_output(cmd, **kw):
 	"""
 	Execute a command and return its output as a string.
