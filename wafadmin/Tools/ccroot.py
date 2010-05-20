@@ -476,7 +476,7 @@ def apply_obj_vars(self):
 @taskgen_method
 def create_compiled_task(self, name, node):
 	# create the compilation task: cc, cxx, asm, ...
-	out = '%s_%d.o' % (node.name, self.idx)
+	out = '%s.%d.o' % (node.name, self.idx)
 	task = self.create_task(name, node, node.parent.find_or_declare(out))
 	try:
 		self.compiled_tasks.append(task)

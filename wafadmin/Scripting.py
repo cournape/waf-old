@@ -61,19 +61,19 @@ def waf_entry_point(current_directory, version, wafdir):
 			opt_obj.curdir = current_directory
 			opt_obj.parse_args()
 			sys.exit(0)
-		Logs.error('Waf: Run from a directory containing a file named "%s"' % WSCRIPT_FILE)
+		Logs.error('Waf: Run from a directory containing a file named %r' % WSCRIPT_FILE)
 		sys.exit(1)
 
 	try:
 		os.chdir(Options.run_dir)
 	except OSError:
-		Logs.error("Waf: The folder %r is unreadable" % Options.run_dir)
+		Logs.error('Waf: The folder %r is unreadable' % Options.run_dir)
 		sys.exit(1)
 
 	try:
 		set_main_module(Options.run_dir + os.sep + WSCRIPT_FILE)
 	except:
-		Logs.error("Waf: The wscript in %r is unreadable" % Options.run_dir)
+		Logs.error('Waf: The wscript in %r is unreadable' % Options.run_dir)
 		sys.exit(1)
 
 	parse_options()
