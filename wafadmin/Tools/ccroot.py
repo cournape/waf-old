@@ -475,13 +475,9 @@ def apply_obj_vars(self):
 
 @taskgen_method
 def create_compiled_task(self, name, node):
-	# create the compilation task: cpp or cc
-	if getattr(self, 'obj_ext', None):
-		obj_ext = self.obj_ext
-	else:
-		obj_ext = '_%d.o' % self.idx
-
-	task = self.create_task(name, node, node.change_ext(obj_ext))
+	# create the compilation task: cc, cxx, asm, ...
+	out = '%s_%d.o' % (node.name, self.idx)
+	task = self.create_task(name, node, node.parent.find_or_declare(out))
 	try:
 		self.compiled_tasks.append(task)
 	except AttributeError:
