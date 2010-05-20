@@ -192,7 +192,8 @@ def find_boost_includes(self, kw):
 
 	version = 0
 	for include_path in boostPath:
-		boost_paths = glob.glob(os.path.join(include_path, 'boost*'))
+		boost_paths = [p for p in glob.glob(os.path.join(include_path, 'boost*')) if os.path.isdir(p)]
+		debug('BOOST Paths: %r' % boost_paths)
 		for path in boost_paths:
 			pathname = os.path.split(path)[-1]
 			ret = -1
