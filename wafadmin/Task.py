@@ -22,7 +22,6 @@ Custom task clases may be created by subclassing or factories (TODO)
 """
 
 import os, shutil, re
-from collections import defaultdict
 import Utils, Node, Logs, Options, Base
 from Constants import *
 

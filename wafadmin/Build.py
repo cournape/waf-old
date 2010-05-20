@@ -146,7 +146,7 @@ class BuildContext(Base.Context):
 		############ stuff below has not been reviewed
 
 		# Manual dependencies.
-		self.deps_man = Utils.DefaultDict(list)
+		self.deps_man = Utils.defaultdict(list)
 
 	def __call__(self, *k, **kw):
 		"""Creates a task generator"""

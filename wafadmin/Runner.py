@@ -5,7 +5,6 @@
 "Execute the tasks"
 
 import os, sys, random, threading
-from collections import defaultdict
 try:
 	from queue import Queue
 except:
@@ -312,8 +311,8 @@ class TaskGroup(object):
 		self.tasks = [] # this list will be consumed
 		self.tasks_gen = []
 
-		self.cstr_groups = defaultdict(list) # tasks having equivalent constraints
-		self.cstr_order = defaultdict(set) # partial order between the cstr groups
+		self.cstr_groups = Utils.defaultdict(list) # tasks having equivalent constraints
+		self.cstr_order = Utils.defaultdict(set) # partial order between the cstr groups
 		self.temp_tasks = [] # tasks put on hold
 		self.post_funs = []
 
@@ -323,8 +322,8 @@ class TaskGroup(object):
 			self.tasks += self.cstr_groups[x]
 		self.tasks = self.temp_tasks + self.tasks
 		self.temp_tasks = []
-		self.cstr_groups = defaultdict(list)
-		self.cstr_order = defaultdict(set)
+		self.cstr_groups = Utils.defaultdict(list)
+		self.cstr_order = Utils.defaultdict(set)
 
 	def process_install(self):
 		for (f, k, kw) in self.post_funs:
@@ -332,7 +331,7 @@ class TaskGroup(object):
 
 	def make_cstr_groups(self):
 		"join the tasks that have similar constraints"
-		self.cstr_groups = defaultdict(list)
+		self.cstr_groups = Utils.defaultdict(list)
 		for x in self.tasks:
 			h = x.hash_constraints()
 			self.cstr_groups[h].append(x)

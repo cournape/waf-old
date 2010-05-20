@@ -20,16 +20,16 @@ except:
 	pass
 
 try:
-	from collections import defaultdict as DefaultDict
+	from collections import defaultdict
 except ImportError:
-	# DefaultDict was introduced in python 2.5
-	class DefaultDict(dict):
+	# defaultdict was introduced in python 2.5
+	class defaultdict(dict):
 		def __init__(self, default_factory):
-			super(DefaultDict, self).__init__()
+			super(defaultdict, self).__init__()
 			self.default_factory = default_factory
 		def __getitem__(self, key):
 			try:
-				return super(DefaultDict, self).__getitem__(key)
+				return super(defaultdict, self).__getitem__(key)
 			except KeyError:
 				value = self.default_factory()
 				self[key] = value
