@@ -32,7 +32,7 @@ remote_repo = ['http://waf.googlecode.com/svn/']
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
 if not default_prefix:
-	if platform == 'win32': default_prefix = tempfile.gettempdir()
+	if platform == 'win32': default_prefix = os.path.normcase(tempfile.gettempdir())
 	else: default_prefix = '/usr/local/'
 
 default_jobs = os.environ.get('JOBS', -1)
