@@ -32,7 +32,7 @@
 
 import os.path, glob, types, re, sys
 import Configure, config_c, Options, Utils, Logs
-from Logs import warn
+from Logs import warn, debug
 from Configure import conf
 
 boost_code = '''
