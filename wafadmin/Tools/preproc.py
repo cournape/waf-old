@@ -609,16 +609,35 @@ class c_parser(object):
 		self.curfile = ''
 		self.ban_includes = []
 
+	def cached_find_resource(self, node, filename):
+		"""
+		just an idea (TODO)
+		"""
+		try:
+			nd = node.bld.cache_nd
+		except:
+			nd = node.bld.cache_nd = {}
+
+		tup = hash((id(node), filename))
+		if tup in nd:
+			return nd[tup]
+
+		ret = node.find_resource(filename)
+		nd[tup] = ret
+		return ret
+
 	def tryfind(self, filename):
 		self.curfile = filename
 
 		# for msvc it should be a for loop on the whole stack
-		found = self.currentnode_stack[-1].find_resource(filename)
+		found = self.cached_find_resource(self.currentnode_stack[-1], filename)
+		#found = self.currentnode_stack[-1].find_resource(filename)
 
 		for n in self.nodepaths:
 			if found:
 				break
-			found = n.find_resource(filename)
+			found = self.cached_find_resource(n, filename)
+			#found = n.find_resource(filename)
 
 		if not found:
 			if not filename in self.names:
