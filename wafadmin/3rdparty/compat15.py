@@ -52,3 +52,13 @@ def set_main_module(f):
 		Base.g_module.options = Base.g_module.set_options
 Scripting.set_main_module = set_main_module
 
+import TaskGen
+old_apply = TaskGen.task_gen.apply
+def apply(self):
+	self.features = self.to_list(self.features)
+	if 'cstaticlib' in self.features:
+		self.features.append('cstlib')
+		self.features.remove('cstaticlib')
+	old_apply(self)
+TaskGen.task_gen.apply = apply
+
