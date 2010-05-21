@@ -24,7 +24,6 @@ import ccroot, cxx
 import TaskGen, Task, Utils, Runner, Options, Node, Base
 from TaskGen import feature, after, extension
 from Logs import error
-from Constants import *
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']
@@ -54,7 +53,7 @@ class qxx(Task.Task):
 			# if there is a moc task, delay the computation of the file signature
 			for t in self.run_after:
 				if not t.hasrun:
-					return ASK_LATER
+					return Task.ASK_LATER
 			# the moc file enters in the dependency calculation
 			# so we need to recompute the signature when the moc file is present
 			self.signature()
@@ -63,9 +62,9 @@ class qxx(Task.Task):
 			# yes, really, there are people who generate cxx files
 			for t in self.run_after:
 				if not t.hasrun:
-					return ASK_LATER
+					return Task.ASK_LATER
 			self.add_moc_tasks()
-			return ASK_LATER
+			return Task.ASK_LATER
 
 	def add_moc_tasks(self):
 

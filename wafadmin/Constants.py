@@ -39,18 +39,6 @@ UNDEFINED = ()
 BREAK    = 'break'
 CONTINUE = 'continue'
 
-# task state
-NOT_RUN = 0
-MISSING = 1
-CRASHED = 2
-EXCEPTION = 3
-SKIPPED = 8
-SUCCESS = 9
-
-ASK_LATER = -1
-SKIP_ME = -2
-RUN_ME = -3
-
 CFG_FILES = 'cfg_files'
 
 # positive '->' install

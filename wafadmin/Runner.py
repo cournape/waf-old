@@ -9,10 +9,10 @@ try:
 	from queue import Queue
 except:
 	from Queue import Queue
-import Utils, Logs, Options
-from Constants import *
+import Utils, Logs, Options, Task
 
 GAP = 15
+MAXJOBS = 999
 
 run_old = threading.Thread.run
 def run(*args, **kwargs):
@@ -54,7 +54,7 @@ class TaskConsumer(threading.Thread):
 				else: ret = tsk.call_run()
 			except Exception as e:
 				tsk.err_msg = Utils.ex_stack()
-				tsk.hasrun = EXCEPTION
+				tsk.hasrun = Task.EXCEPTION
 
 				# TODO cleanup
 				m.error_handler(tsk)
@@ -63,7 +63,7 @@ class TaskConsumer(threading.Thread):
 
 			if ret:
 				tsk.err_code = ret
-				tsk.hasrun = CRASHED
+				tsk.hasrun = Task.CRASHED
 			else:
 				try:
 					tsk.post_run()
@@ -71,10 +71,10 @@ class TaskConsumer(threading.Thread):
 					pass
 				except Exception:
 					tsk.err_msg = Utils.ex_stack()
-					tsk.hasrun = EXCEPTION
+					tsk.hasrun = Task.EXCEPTION
 				else:
-					tsk.hasrun = SUCCESS
-			if tsk.hasrun != SUCCESS:
+					tsk.hasrun = Task.SUCCESS
+			if tsk.hasrun != Task.SUCCESS:
 				m.error_handler(tsk)
 
 			m.out.put(tsk)
@@ -184,17 +184,17 @@ class Parallel(object):
 				st = tsk.runnable_status()
 			except Exception as e:
 				tsk.err_msg = Utils.ex_stack()
-				tsk.hasrun = EXCEPTION
+				tsk.hasrun = Task.EXCEPTION
 				self.processed += 1
 				self.error_handler(tsk)
 				self.manager.add_finished(tsk)
 				continue
 
-			if st == ASK_LATER:
+			if st == Task.ASK_LATER:
 				self.postpone(tsk)
-			elif st == SKIP_ME:
+			elif st == Task.SKIP_ME:
 				self.processed += 1
-				tsk.hasrun = SKIPPED
+				tsk.hasrun = Task.SKIPPED
 				self.manager.add_finished(tsk)
 			else:
 				# run me: put the task in ready queue

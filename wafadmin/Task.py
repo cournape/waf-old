@@ -23,7 +23,18 @@ Custom task clases may be created by subclassing or factories (TODO)
 
 import os, shutil, re
 import Utils, Node, Logs, Options, Base
-from Constants import *
+
+# task state
+NOT_RUN = 0
+MISSING = 1
+CRASHED = 2
+EXCEPTION = 3
+SKIPPED = 8
+SUCCESS = 9
+
+ASK_LATER = -1
+SKIP_ME = -2
+RUN_ME = -3
 
 COMPILE_TEMPLATE_SHELL = '''
 def f(task):
@@ -80,7 +91,6 @@ class TaskBase(evil):
 	"""
 
 	color = "GREEN"
-	maxjobs = MAXJOBS
 	stat = None
 
 	def __init__(self, *k, **kw):
@@ -163,8 +173,7 @@ class TaskBase(evil):
 			str(a('before', '')),
 			str(a('after', '')),
 			str(a('ext_in', '')),
-			str(a('ext_out', '')),
-			self.__class__.maxjobs))
+			str(a('ext_out', ''))))
 		return sum
 
 	def format_error(self):
