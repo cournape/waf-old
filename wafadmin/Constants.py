@@ -18,8 +18,6 @@ ABI = 98
 O644 = 420
 O755 = 493
 
-MAXJOBS = 99999999
-
 CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
 DBFILE             = '.wafpickle-%d' % ABI
@@ -36,13 +34,5 @@ VERSION = 'VERSION'
 DEFINES = 'defines'
 UNDEFINED = ()
 
-BREAK    = 'break'
-CONTINUE = 'continue'
-
 CFG_FILES = 'cfg_files'
-
-# positive '->' install
-# negative '<-' uninstall
-INSTALL = 1337
-UNINSTALL = -1337
 

@@ -17,6 +17,11 @@ import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, 
 from Logs import debug, error, info
 from Constants import *
 
+# positive '->' install
+# negative '<-' uninstall
+INSTALL = 1337
+UNINSTALL = -1337
+
 SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 "Build class members to save"
 

@@ -25,6 +25,9 @@ except ImportError: import pickle as cPickle
 import ConfigSet, Utils, Options, Logs, Base
 from Constants import *
 
+BREAK    = 'break'
+CONTINUE = 'continue'
+
 try:
 	from urllib import request
 except:
