@@ -16,6 +16,14 @@ wscript file representing the entry point of the project
 
 WSCRIPT_FILE = 'wscript'
 
+# do not touch these 5 lines, they are updated automatically
+HEXVERSION = 0x106000
+WAFVERSION="1.6.0"
+WAFREVISION = "XXXXX"
+ABI = 98
+DBFILE = '.wafpickle-%d' % ABI
+
+
 class WafError(Exception):
 	def __init__(self, *args):
 		self.args = args

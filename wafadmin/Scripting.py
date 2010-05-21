@@ -10,7 +10,7 @@ if sys.hexversion<0x206000f:
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
 import Utils, Configure, Build, Logs, Options, ConfigSet, Task, Base
-from Constants import *
+#from Constants import *
 
 g_gz = 'bz2'
 
@@ -21,7 +21,7 @@ def waf_entry_point(current_directory, version, wafdir):
 
 	Logs.init_log()
 
-	if WAFVERSION != version:
+	if Base.WAFVERSION != version:
 		Logs.error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
 		sys.exit(1)
 

@@ -40,7 +40,7 @@ platform = Utils.unversioned_sys_platform()
 
 class opt_parser(optparse.OptionParser):
 	def __init__(self):
-		optparse.OptionParser.__init__(self, conflict_handler="resolve", version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
+		optparse.OptionParser.__init__(self, conflict_handler="resolve", version = 'waf %s (%s)' % (Base.WAFVERSION, Base.WAFREVISION))
 
 		self.formatter.width = Logs.get_term_cols()
 		p = self.add_option

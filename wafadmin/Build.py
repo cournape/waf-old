@@ -22,6 +22,7 @@ from Constants import *
 INSTALL = 1337
 UNINSTALL = -1337
 
+
 SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 "Build class members to save"
 
@@ -237,7 +238,7 @@ class BuildContext(Base.Context):
 		except (IOError, OSError):
 			pass
 		else:
-			if env['version'] < HEXVERSION:
+			if env['version'] < Base.HEXVERSION:
 				raise Base.WafError('Version mismatch! reconfigure the project')
 			for t in env['tools']:
 				self.setup(**t)
@@ -249,7 +250,7 @@ class BuildContext(Base.Context):
 			Node.Nod3 = self.node_class
 
 			try:
-				f = open(os.path.join(self.variant_dir, DBFILE), 'rb')
+				f = open(os.path.join(self.variant_dir, Base.DBFILE), 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
 				pass
@@ -272,7 +273,7 @@ class BuildContext(Base.Context):
 
 		# some people are very nervous with ctrl+c so we have to make a temporary file
 		Node.Nod3 = self.node_class
-		db = os.path.join(self.variant_dir, DBFILE)
+		db = os.path.join(self.variant_dir, Base.DBFILE)
 		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)

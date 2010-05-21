@@ -4,15 +4,7 @@
 
 """
 these constants are somewhat public, try not to mess them
-
-maintainer: the version number is updated from the top-level wscript file
 """
-
-# do not touch these three lines, they are updated automatically
-HEXVERSION = 0x106000
-WAFVERSION="1.6.0"
-WAFREVISION = "XXXXX"
-ABI = 98
 
 # permissions
 O644 = 420
@@ -20,7 +12,6 @@ O755 = 493
 
 CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
-DBFILE             = '.wafpickle-%d' % ABI
 WAF_CONFIG_LOG     = 'config.log'
 WAF_CONFIG_H       = 'config.h'
 

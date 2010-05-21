@@ -47,7 +47,7 @@ class ConfigurationError(Base.WscriptError):
 
 def download_tool(tool, force=False):
 	for x in Utils.to_list(Options.remote_repo):
-		for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
+		for sub in ['branches/waf-%s/wafadmin/3rdparty' % Base.WAFVERSION, 'trunk/wafadmin/3rdparty']:
 			url = '/'.join((x, sub, tool + '.py'))
 			try:
 				web = urlopen(url)
@@ -128,8 +128,8 @@ class ConfigurationContext(Base.Context):
 		pyver = sys.hexversion
 		systype = sys.platform
 		args = " ".join(sys.argv)
-		wafver = WAFVERSION
-		abi = ABI
+		wafver = Base.WAFVERSION
+		abi = Base.ABI
 		self.log.write(conf_template % vars())
 
 	def __del__(self):
@@ -402,7 +402,7 @@ class ConfigurationContext(Base.Context):
 		if not file:
 			file = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
 
-		file.write('version = 0x%x\n' % HEXVERSION)
+		file.write('version = 0x%x\n' % Base.HEXVERSION)
 		file.write('tools = %r\n' % self.tools)
 		file.close()
 
@@ -463,7 +463,7 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 	@type  maxi: number, tuple or string
 	@param maxi: Maximum allowed version
 	"""
-	ver = HEXVERSION
+	ver = Base.HEXVERSION
 	if num2ver(min_val) > ver:
 		conf.fatal('waf version should be at least %r (%r found)' % (mini, ver))
 
