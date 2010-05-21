@@ -208,7 +208,6 @@ def load_module(file_path):
 		pass
 
 	module = imp.new_module(WSCRIPT_FILE)
-	print("gruik")
 	try:
 		code = Utils.readf(file_path, m='rU')
 	except (IOError, OSError):
@@ -218,15 +217,15 @@ def load_module(file_path):
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
-	print ("ehe")
 	try:
 		exec(code, module.__dict__)
 	except Exception as e:
-		print("exception is", e)
 		try:
-			raise WscriptError(traceback.format_exc(), file_path)
+			ex = WscriptError(traceback.format_exc(), file_path)
 		except:
 			raise e
+		else:
+			raise ex
 	sys.path.remove(module_dir)
 
 	g_loaded_modules[file_path] = module

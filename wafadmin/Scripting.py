@@ -72,9 +72,13 @@ def waf_entry_point(current_directory, version, wafdir):
 
 	try:
 		set_main_module(Options.run_dir + os.sep + WSCRIPT_FILE)
-	except:
-		Logs.error('Waf: The wscript in %r is unreadable' % Options.run_dir)
+	except Base.WscriptError as e:
+		Logs.error(str(e))
 		sys.exit(1)
+	except Exception as e:
+		Logs.error('Waf: The wscript in %r is unreadable' % Options.run_dir, e)
+		traceback.print_exc(file=sys.stdout)
+		sys.exit(2)
 
 	parse_options()
 
@@ -89,6 +93,7 @@ def waf_entry_point(current_directory, version, wafdir):
 	except Exception as e:
 		traceback.print_exc(file=sys.stdout)
 		print(e)
+		sys.exit(2)
 	except Base.WafError as e:
 		traceback.print_exc(file=sys.stdout)
 		Logs.error(str(e))
@@ -100,7 +105,7 @@ def waf_entry_point(current_directory, version, wafdir):
 
 def set_main_module(file_path):
 	"Load custom options, if defined"
-	Base.g_module = Base.load_module(file_path, 'wscript_main')
+	Base.g_module = Base.load_module(file_path)
 	Base.g_module.root_path = file_path
 
 	# note: to register the module globally, use the following:
