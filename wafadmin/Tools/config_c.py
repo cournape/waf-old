@@ -394,7 +394,7 @@ def post_check(self, *k, **kw):
 
 	is_success = 0
 	if kw['execute']:
-		if kw['success']:
+		if kw['success'] is not None:
 			is_success = kw['success']
 	else:
 		is_success = (kw['success'] == 0)
