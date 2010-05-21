@@ -22,4 +22,6 @@ NEW IN WAF 1.6.0
 * rename apply_core -> process_source
 * rename apply_rule -> process_rule
 * rename Task.TaskBase.classes -> Task.classes
+* the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
+
 
