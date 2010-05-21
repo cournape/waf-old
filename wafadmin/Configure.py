@@ -20,8 +20,6 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, shlex, sys, time
-try: import cPickle
-except ImportError: import pickle as cPickle
 import ConfigSet, Utils, Options, Logs, Base
 
 BREAK    = 'break'

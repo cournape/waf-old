@@ -15,8 +15,9 @@ import Logs, Utils
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
 class ConfigSet(object):
-	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
-	An environment instance can be stored into a file and loaded easily
+	"""A dict that honor serialization and parent relationships
+	Store and retrieve values easily and in a human-readable format
+	it is not possible to serialize functions though
 	"""
 	__slots__ = ("table", "parent")
 	def __init__(self, filename=None):

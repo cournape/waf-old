@@ -61,6 +61,11 @@ exclude_regs = '''
 **/.DS_Store'''
 
 class Node(object):
+	"""
+	This class is divided into two parts, the basic methods meant for filesystem access, and
+	the ones which are bound to a context (the build context). The imports do not reflect this.
+	"""
+
 	__slots__ = ('name', 'sig', 'children', 'parent', 'cache_abspath', 'cache_isdir')
 	def __init__(self, name, parent):
 		self.name = name
