@@ -13,18 +13,20 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Base
+import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Base, Configure
 from Logs import debug, error, info
-from Constants import *
 
-# positive '->' install
-# negative '<-' uninstall
 INSTALL = 1337
-UNINSTALL = -1337
+"""positive value '->' install"""
 
+UNINSTALL = -1337
+"""negative value '<-' uninstall"""
 
 SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
-"Build class members to save"
+"""Build class members to save"""
+
+CFG_FILES = 'cfg_files'
+"""files from the build direcotry to hash before starting the build"""
 
 class BuildError(Base.WafError):
 	def __init__(self, b=None, t=[]):
@@ -103,7 +105,7 @@ class BuildContext(Base.Context):
 			self.variant_dir = os.path.join(self.out_dir, self.variant)
 
 		if not getattr(self, 'cache_dir', None):
-			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
+			self.cache_dir = self.out_dir + os.sep + Configure.CACHE_DIR
 
 		# the manager will hold the tasks
 		self.task_manager = Runner.TaskManager()
@@ -176,9 +178,9 @@ class BuildContext(Base.Context):
 			raise Base.WafError('The cache directory is empty: reconfigure the project')
 
 		for file in lst:
-			if file.endswith(CACHE_SUFFIX):
+			if file.endswith(Configure.CACHE_SUFFIX):
 				env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, file))
-				name = file[:-len(CACHE_SUFFIX)]
+				name = file[:-len(Configure.CACHE_SUFFIX)]
 				self.all_envs[name] = env
 
 				for f in env[CFG_FILES]:
@@ -535,7 +537,7 @@ class BuildContext(Base.Context):
 
 		return msg
 
-	def do_install(self, src, tgt, chmod=O644):
+	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""returns true if the file was effectively installed or uninstalled, false otherwise"""
 		if self.is_install > 0:
 			if not Options.options.force:
@@ -594,7 +596,7 @@ class BuildContext(Base.Context):
 			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 		return destpath
 
-	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False, cwd=None):
+	def install_files(self, path, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None):
 		"""To install files only after they have been built, put the calls in a method named
 		post_build on the top-level wscript
 
@@ -646,7 +648,7 @@ class BuildContext(Base.Context):
 				installed_files.append(destfile)
 		return installed_files
 
-	def install_as(self, path, srcfile, env=None, chmod=O644, cwd=None):
+	def install_as(self, path, srcfile, env=None, chmod=Utils.O644, cwd=None):
 		"""
 		srcfile may be a string or a Node representing the file to install
 

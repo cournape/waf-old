@@ -23,6 +23,8 @@ WAFREVISION = "XXXXX"
 ABI = 98
 DBFILE = '.wafpickle-%d' % ABI
 
+APPNAME = 'APPNAME'
+VERSION = 'VERSION'
 
 class WafError(Exception):
 	def __init__(self, *args):

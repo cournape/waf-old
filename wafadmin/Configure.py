@@ -23,10 +23,20 @@ import os, shlex, sys, time
 try: import cPickle
 except ImportError: import pickle as cPickle
 import ConfigSet, Utils, Options, Logs, Base
-from Constants import *
 
 BREAK    = 'break'
 CONTINUE = 'continue'
+
+CACHE_DIR = 'c4che'
+"""location of the cache files"""
+
+CACHE_SUFFIX = '.cache.py'
+
+WAF_CONFIG_LOG     = 'config.log'
+WAF_CONFIG_H       = 'config.h'
+
+SRCDIR  = 'top'
+BLDDIR  = 'out'
 
 try:
 	from urllib import request
@@ -34,7 +44,6 @@ except:
 	from urllib import urlopen
 else:
 	urlopen = request.urlopen
-
 
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)

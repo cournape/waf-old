@@ -271,8 +271,8 @@ def dist(ctx):
 	'''makes a tarball for redistributing the sources'''
 	import tarfile
 
-	appname = getattr(Base.g_module, APPNAME, 'noname')
-	version = getattr(Base.g_module, VERSION, '1.0')
+	appname = getattr(Base.g_module, Base.APPNAME, 'noname')
+	version = getattr(Base.g_module, Base.VERSION, '1.0')
 
 	tmp_folder = appname + '-' + version
 	arch_name = tmp_folder+'.tar.'+g_gz
@@ -322,8 +322,8 @@ def distcheck(ctx):
 	'''checks if the project compiles (tarball from 'dist')'''
 	import tempfile, tarfile
 
-	appname = getattr(Base.g_module, APPNAME, 'noname')
-	version = getattr(Base.g_module, VERSION, '1.0')
+	appname = getattr(Base.g_module, Base.APPNAME, 'noname')
+	version = getattr(Base.g_module, Base.VERSION, '1.0')
 
 	waf = os.path.abspath(sys.argv[0])
 	tarball = Base.g_module.dist(ctx)

@@ -12,6 +12,9 @@ import Build, Utils, Configure, Task, Options, Logs, TaskGen, Base
 from Constants import *
 from Configure import conf
 
+DEFINES = 'definez'
+UNDEFINED = ()
+
 cfg_ver = {
 	'atleast-version': '>=',
 	'exact-version': '==',

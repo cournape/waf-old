@@ -202,7 +202,7 @@ class TaskBase(evil):
 
 		if self.attr('install_path'):
 			lst = [a.path_from(bld.bldnode) for a in self.outputs]
-			perm = self.attr('chmod', O644)
+			perm = self.attr('chmod', Utils.O644)
 			if self.attr('src'):
 				# if src is given, install the sources too
 				lst += [a.path_from(bld.bldnode) for a in self.inputs]
@@ -727,7 +727,7 @@ def put_files_cache(self):
 				pass
 		else:
 			try:
-				os.chmod(dname, O755)
+				os.chmod(dname, Utils.O755)
 			except:
 				pass
 

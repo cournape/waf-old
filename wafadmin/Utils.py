@@ -22,6 +22,12 @@ except:
 SIG_NIL = b'iluvcuteoverload'
 """if you change the hash type, do not forget to change SIG_NIL"""
 
+O644 = 420
+"""permission for regular files"""
+
+O755 = 493
+"""permission for executable files"""
+
 try:
 	from collections import defaultdict
 except ImportError:

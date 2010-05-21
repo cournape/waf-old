@@ -59,7 +59,7 @@ class task_gen(object):
 		# not always a good idea
 		self.tasks = []
 
-		self.default_chmod = O644
+		self.default_chmod = Utils.O644
 		self.default_install_path = None
 
 		self.bld = kwargs['bld']
@@ -217,7 +217,7 @@ class task_gen(object):
 	install_path = property(get_inst_path, set_inst_path)
 
 	def get_chmod(self):
-		return getattr(self, '_chmod', getattr(self, 'default_chmod', O644))
+		return getattr(self, '_chmod', getattr(self, 'default_chmod', Utils.O644))
 
 	def set_chmod(self, val):
 		self._chmod = val

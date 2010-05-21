@@ -199,7 +199,7 @@ def default_cc(self):
 @before('process_source')
 def vars_target_cprogram(self):
 	self.default_install_path = self.env.BINDIR
-	self.default_chmod = O755
+	self.default_chmod = Utils.O755
 
 @after('default_cc')
 @feature('cshlib', 'dshlib')
@@ -207,7 +207,7 @@ def vars_target_cprogram(self):
 def vars_target_lib(self):
 	if self.env.DEST_BINFMT == 'pe':
 		#   set execute bit on libs to avoid 'permission denied' (issue 283)
-		self.default_chmod = O755
+		self.default_chmod = Utils.O755
 		self.default_install_path = self.env.BINDIR
 	else:
 		self.default_install_path = self.env.LIBDIR
