@@ -50,8 +50,7 @@ class WscriptError(WafError):
 		stack.reverse()
 		for frame in stack:
 			file_name = os.path.basename(frame[0])
-			is_wscript = (file_name == WSCRIPT_FILE or file_name == WSCRIPT_BUILD_FILE)
-			if is_wscript:
+			if file_name.find(WSCRIPT_FILE) > -1:
 				return (frame[0], frame[1])
 		return (None, None)
 
