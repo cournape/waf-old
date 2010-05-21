@@ -10,7 +10,6 @@ import TaskGen, Task, Utils, preproc, Logs, Build, Options, Node
 from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import after, before, feature, taskgen_method
-from Constants import *
 from Configure import conf
 try:
 	from cStringIO import StringIO

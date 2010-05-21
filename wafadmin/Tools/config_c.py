@@ -9,7 +9,6 @@ c/c++ configuration routines
 import os, imp, sys, shlex, shutil, subprocess
 from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs, TaskGen, Base
-from Constants import *
 from Configure import conf
 
 DEFINES = 'definez'

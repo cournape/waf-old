@@ -23,7 +23,6 @@ WARNING: subclasses must reimplement the clone method
 
 import traceback, copy
 import Task, Utils, Logs, Base
-from Constants import *
 
 feats = Utils.defaultdict(set)
 """remember the methods declaring features"""

@@ -10,7 +10,6 @@ if sys.hexversion<0x206000f:
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
 import Utils, Configure, Build, Logs, Options, ConfigSet, Task, Base
-#from Constants import *
 
 g_gz = 'bz2'
 
@@ -253,7 +252,7 @@ def distclean(ctx):
 					pass
 				except OSError as e:
 					if e.errno != errno.ENOENT:
-						Logs.warn('project %r cannot be removed' % proj[BLDDIR])
+						Logs.warn('project %r cannot be removed' % proj[Base.BLDDIR])
 			else:
 				distclean_dir(proj['out_dir'])
 
@@ -290,7 +289,7 @@ def dist(ctx):
 		pass
 
 	# copy the files into the temporary folder
-	copytree('.', tmp_folder, getattr(Base.g_module, BLDDIR, None))
+	copytree('.', tmp_folder, getattr(Base.g_module, Base.BLDDIR, None))
 
 	# undocumented hook for additional cleanup
 	dist_hook = getattr(Base.g_module, 'dist_hook', None)
@@ -377,7 +376,7 @@ def update(ctx):
 		else:
 			try:
 				bld = Utils.create_context('build', self.curdir)
-				bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
+				bld.load_dirs(proj[Base.SRCDIR], proj[Base.BLDDIR])
 				bld.load_envs()
 			except Base.WafError:
 				reconf(proj)

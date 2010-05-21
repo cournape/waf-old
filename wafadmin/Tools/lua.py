@@ -3,9 +3,7 @@
 # Sebastian Schlingmann, 2008
 # Thomas Nagy, 2008 (ita)
 
-import TaskGen
-from TaskGen import taskgen, feature
-from Constants import *
+import TaskGen, Utils
 
 TaskGen.declare_chain(
 	name = 'luac',
@@ -16,7 +14,7 @@ TaskGen.declare_chain(
 	install = 'LUADIR', # env variable
 )
 
-@feature('lua')
+@TaskGen.feature('lua')
 def init_lua(self):
 	self.default_chmod = O755
 

@@ -9,7 +9,7 @@ Custom objects:
 """
 
 import shutil, re, os, subprocess
-import TaskGen, Node, Task, Utils, Build, Constants
+import TaskGen, Node, Task, Utils, Build
 from TaskGen import feature, after, before
 from Logs import debug
 
@@ -404,7 +404,7 @@ def post_run(self):
 		x.sig = Utils.h_file(x.abspath(self.env))
 
 def runnable_status(self):
-	return Constants.RUN_ME
+	return self.RUN_ME
 
 Task.task_type_from_func('copy', vars=[], func=action_process_file_func)
 

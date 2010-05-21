@@ -7,7 +7,6 @@
 
 import os, types, tempfile, optparse
 import Logs, Utils, Base
-from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 

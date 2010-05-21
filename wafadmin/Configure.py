@@ -35,9 +35,6 @@ CACHE_SUFFIX = '.cache.py'
 WAF_CONFIG_LOG     = 'config.log'
 WAF_CONFIG_H       = 'config.h'
 
-SRCDIR  = 'top'
-BLDDIR  = 'out'
-
 try:
 	from urllib import request
 except:
@@ -367,16 +364,16 @@ class ConfigurationContext(Base.Context):
 		pass
 
 	def prepare(self):
-		src = getattr(Options.options, SRCDIR, None)
-		if not src: src = getattr(Base.g_module, SRCDIR, None)
+		src = getattr(Options.options, Base.SRCDIR, None)
+		if not src: src = getattr(Base.g_module, Base.SRCDIR, None)
 		if not src:
 			src = '.'
 			incomplete_src = 1
 		src = os.path.abspath(src)
 
-		bld = getattr(Options.options, BLDDIR, None)
+		bld = getattr(Options.options, Base.BLDDIR, None)
 		if not bld:
-			bld = getattr(Base.g_module, BLDDIR, None)
+			bld = getattr(Base.g_module, Base.BLDDIR, None)
 		if not bld:
 			bld = 'build'
 			incomplete_bld = 1

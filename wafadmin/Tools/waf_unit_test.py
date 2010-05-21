@@ -4,7 +4,6 @@
 import os, sys, subprocess
 import Build, TaskGen, Utils, Options, Logs, Task
 from TaskGen import before, after, feature
-from Constants import *
 
 """
 New unit test system

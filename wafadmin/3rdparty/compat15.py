@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 
-from Constants import *
-
 import Utils
 import ConfigSet
 ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive

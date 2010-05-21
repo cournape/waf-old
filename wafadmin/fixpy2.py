@@ -53,7 +53,7 @@ def r0(code):
 	code = code.replace('as e:', ',e:')
 	return code
 
-@subst('Constants.py')
+@subst('Utils.py')
 def r1(code):
 	code = code.replace("b'iluvcuteoverload'", "'iluvcuteoverload'")
 	return code

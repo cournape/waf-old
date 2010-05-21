@@ -26,6 +26,9 @@ DBFILE = '.wafpickle-%d' % ABI
 APPNAME = 'APPNAME'
 VERSION = 'VERSION'
 
+SRCDIR  = 'top'
+BLDDIR  = 'out'
+
 class WafError(Exception):
 	def __init__(self, *args):
 		self.args = args
