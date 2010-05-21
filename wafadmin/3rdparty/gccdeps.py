@@ -109,12 +109,12 @@ def post_run(self):
 
 	Task.Task.post_run(self)
 
-import Constants, Base
+import Base
 def sig_implicit_deps(self):
 	try:
 		return Task.Task.sig_implicit_deps(self)
 	except Base.WafError:
-		return Constants.SIG_NIL
+		return Utils.SIG_NIL
 
 for name in 'cc cxx'.split():
 	try:
