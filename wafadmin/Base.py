@@ -192,7 +192,7 @@ g_loaded_modules = {}
 Dictionary holding already loaded modules, keyed by their absolute path.
 private cache
 """
-def load_module(file_path, name=WSCRIPT_FILE):
+def load_module(file_path):
 	"""
 	Load a Python source file containing user code.
 	@type  file_path: string
@@ -207,8 +207,8 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	except KeyError:
 		pass
 
-	module = imp.new_module(name)
-
+	module = imp.new_module(WSCRIPT_FILE)
+	print("gruik")
 	try:
 		code = Utils.readf(file_path, m='rU')
 	except (IOError, OSError):
@@ -218,9 +218,11 @@ def load_module(file_path, name=WSCRIPT_FILE):
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
+	print ("ehe")
 	try:
 		exec(code, module.__dict__)
 	except Exception as e:
+		print("exception is", e)
 		try:
 			raise WscriptError(traceback.format_exc(), file_path)
 		except:

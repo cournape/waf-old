@@ -37,8 +37,8 @@ def load_tool(*k, **kw):
 Base.load_tool = load_tool
 
 rev = Base.load_module
-def load_module(file_path, name=WSCRIPT_FILE):
-	ret = rev(file_path, name)
+def load_module(file_path):
+	ret = rev(file_path)
 	if 'set_options' in ret.__dict__:
 		ret.options = ret.set_options
 	return ret

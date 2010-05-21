@@ -389,7 +389,7 @@ def update(ctx):
 				if file.endswith('configure'):
 					h = hash((h, Utils.readf(file)))
 				else:
-					mod = Utils.load_module(file)
+					mod = Base.load_module(file)
 					h = hash((h, mod.waf_hash_val))
 		except (OSError, IOError):
 			Logs.warn('Reconfiguring the project: a file is unavailable')
