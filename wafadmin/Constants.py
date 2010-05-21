@@ -23,7 +23,6 @@ MAXJOBS = 99999999
 CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
 DBFILE             = '.wafpickle-%d' % ABI
-WSCRIPT_FILE       = 'wscript'
 WAF_CONFIG_LOG     = 'config.log'
 WAF_CONFIG_H       = 'config.h'
 

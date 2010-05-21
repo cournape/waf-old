@@ -7,13 +7,14 @@ Base classes (mostly abstract)
 """
 
 import traceback, os, imp, sys
-from Constants import *
 import Utils
 
 g_module = None
 """
 wscript file representing the entry point of the project
 """
+
+WSCRIPT_FILE = 'wscript'
 
 class WafError(Exception):
 	def __init__(self, *args):

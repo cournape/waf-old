@@ -50,7 +50,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			break
 
 		if not Options.run_dir:
-			if WSCRIPT_FILE in lst:
+			if Base.WSCRIPT_FILE in lst:
 				Options.run_dir = cur
 
 		cur = os.path.dirname(cur)
@@ -61,7 +61,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			opt_obj.curdir = current_directory
 			opt_obj.parse_args()
 			sys.exit(0)
-		Logs.error('Waf: Run from a directory containing a file named %r' % WSCRIPT_FILE)
+		Logs.error('Waf: Run from a directory containing a file named %r' % Base.WSCRIPT_FILE)
 		sys.exit(1)
 
 	try:
@@ -71,7 +71,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		sys.exit(1)
 
 	try:
-		set_main_module(Options.run_dir + os.sep + WSCRIPT_FILE)
+		set_main_module(Options.run_dir + os.sep + Base.WSCRIPT_FILE)
 	except Base.WscriptError as e:
 		Logs.error(str(e))
 		sys.exit(1)
