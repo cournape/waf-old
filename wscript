@@ -19,8 +19,6 @@ import os, sys, base64, shutil, re, random, io, optparse, tempfile
 import Utils, Options, Build
 from hashlib import md5
 
-from Constants import *
-
 import Configure
 Configure.autoconfig = 1
 
@@ -57,7 +55,7 @@ def init(*k, **kw):
 		except:
 			pass
 
-		sub_file('wafadmin/Constants.py', pats)
+		sub_file('wafadmin/Base.py', pats)
 
 		sys.exit(0)
 	elif Options.options.waf:
@@ -277,7 +275,7 @@ def create_waf():
 		f.close()
 
 	if sys.platform != 'win32':
-		os.chmod('waf', O755)
+		os.chmod('waf', Utils.O755)
 	os.unlink('%s.tar.%s' % (mw, zipType))
 
 def make_copy(inf, outf):
@@ -322,7 +320,7 @@ def build(bld):
 		install_path = '${PREFIX}/%s/Tools/' % dir,
 	)
 
-	bld.install_files('${PREFIX}/bin', 'waf', chmod=O755)
+	bld.install_files('${PREFIX}/bin', 'waf', chmod=Utils.O755)
 
 	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	#print "make sure the PATH contains %s/bin:$PATH" % prefix
