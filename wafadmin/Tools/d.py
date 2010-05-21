@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Carlos Rafael Giani, 2007 (dv)
-# Thomas Nagy, 2007-2008 (ita)
+# Thomas Nagy, 2007-2010 (ita)
 
 import os, sys, re
 from collections import deque

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: UTF-8
 # Petar Forai
-# Thomas Nagy 2008
+# Thomas Nagy 2008-2010 (ita)
 
 import re
 import Task, Utils, Logs

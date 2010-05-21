@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2007 (ita)
+# Thomas Nagy, 2007-2010 (ita)
 # Gustavo Carneiro (gjc), 2007
 
 "Python support"

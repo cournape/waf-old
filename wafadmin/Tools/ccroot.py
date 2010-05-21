@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005-2008 (ita)
+# Thomas Nagy, 2005-2010 (ita)
 
 "base for all c/c++ programs and libraries"
 

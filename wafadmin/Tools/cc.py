@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2010 (ita)
 
 "Base for c programs/libraries"
 
@@ -40,6 +40,5 @@ cls.vars.append('CCDEPS')
 
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
 cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin')
-cls.maxjobs = 1
 cls.install = Utils.nada
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Sebastian Schlingmann, 2008
-# Thomas Nagy, 2008 (ita)
+# Thomas Nagy, 2008-2010 (ita)
 
 import TaskGen, Utils
 
@@ -16,7 +16,7 @@ TaskGen.declare_chain(
 
 @TaskGen.feature('lua')
 def init_lua(self):
-	self.default_chmod = O755
+	self.default_chmod = Utils.O755
 
 def configure(conf):
 	conf.find_program('luac', var='LUAC')

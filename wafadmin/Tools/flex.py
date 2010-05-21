@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # John O'Meara, 2006
-# Thomas Nagy, 2006-2008
+# Thomas Nagy, 2006-2010 (ita)
 
 "Flex processing"
 

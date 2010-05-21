@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Stian Selnes, 2008
-# Thomas Nagy 2009
+# Thomas Nagy 2009-2010 (ita)
 
 import os, sys
 import Configure, Options, Utils

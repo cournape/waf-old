@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006-2008 (ita)
+# Thomas Nagy, 2006-2010 (ita)
 # Ralf Habacker, 2006 (rh)
 # Yinon Ehrlich, 2009
 

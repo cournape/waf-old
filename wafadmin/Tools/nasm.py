@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2008
+# Thomas Nagy, 2008-2010 (ita)
 
 """
 Nasm processing
