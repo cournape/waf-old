@@ -27,21 +27,21 @@ class WafError(Exception):
 		return str(len(self.args) == 1 and self.args[0] or self.args)
 
 class WscriptError(WafError):
-	def __init__(self, message, wscript_file=None):
-		if wscript_file:
-			self.wscript_file = wscript_file
-			self.wscript_line = None
+	def __init__(self, message, pyfile=None):
+		if pyfile:
+			self.pyfile = pyfile
+			self.pyline = None
 		else:
 			try:
-				(self.wscript_file, self.wscript_line) = self.locate_error()
+				(self.pyfile, self.pyline) = self.locate_error()
 			except:
-				(self.wscript_file, self.wscript_line) = (None, None)
+				(self.pyfile, self.pyline) = (None, None)
 
 		msg_file_line = ''
-		if self.wscript_file:
-			msg_file_line = "%s:" % self.wscript_file
-			if self.wscript_line:
-				msg_file_line += "%s:" % self.wscript_line
+		if self.pyfile:
+			msg_file_line = "%s:" % self.pyfile
+			if self.pyline:
+				msg_file_line += "%s:" % self.pyline
 		err_message = "%s error: %s" % (msg_file_line, message)
 		WafError.__init__(self, err_message)
 
