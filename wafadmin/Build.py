@@ -186,7 +186,7 @@ class BuildContext(Base.Context):
 						hash = Utils.h_file(newnode.abspath(env))
 					except (IOError, AttributeError):
 						error("cannot find %r" % f)
-						hash = SIG_NIL
+						hash = Utils.SIG_NIL
 					newnode.sig = hash
 
 	def make_root(self):
@@ -409,7 +409,7 @@ class BuildContext(Base.Context):
 		if not env.table:
 			env = env.parent
 			if not env:
-				return SIG_NIL
+				return Utils.SIG_NIL
 
 		idx = str(id(env)) + str(vars_lst)
 		try:

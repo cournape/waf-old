@@ -11,7 +11,7 @@ def signature(self):
 	m.update(exp_sig)
 
 	# implicit deps
-	imp_sig = self.scan and self.sig_implicit_deps() or SIG_NIL
+	imp_sig = self.scan and self.sig_implicit_deps() or Utils.SIG_NIL
 	m.update(imp_sig)
 
 	# env vars

@@ -24,8 +24,6 @@ DBFILE             = '.wafpickle-%d' % ABI
 WAF_CONFIG_LOG     = 'config.log'
 WAF_CONFIG_H       = 'config.h'
 
-SIG_NIL = b'iluvcuteoverload'
-
 SRCDIR  = 'top'
 BLDDIR  = 'out'
 APPNAME = 'APPNAME'

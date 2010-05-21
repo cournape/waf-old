@@ -19,6 +19,9 @@ except:
 	# never fail to enable fixes from another module
 	pass
 
+SIG_NIL = b'iluvcuteoverload'
+"""if you change the hash type, do not forget to change SIG_NIL"""
+
 try:
 	from collections import defaultdict
 except ImportError:
