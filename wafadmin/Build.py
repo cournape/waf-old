@@ -13,8 +13,7 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Base, Configure
-from Logs import debug, error, info
+import Runner, TaskGen, Node, Utils, ConfigSet, Task, Logs, Options, Base, Configure
 
 INSTALL = 1337
 """positive value '->' install"""
@@ -188,7 +187,7 @@ class BuildContext(Base.Context):
 					try:
 						hash = Utils.h_file(newnode.abspath(env))
 					except (IOError, AttributeError):
-						error("cannot find %r" % f)
+						Logs.error("cannot find %r" % f)
 						hash = Utils.SIG_NIL
 					newnode.sig = hash
 
@@ -230,7 +229,7 @@ class BuildContext(Base.Context):
 			self.compile()
 		finally:
 			if Options.options.progress_bar: print('')
-			info("Waf: Leaving directory `%s'" % self.out_dir)
+			Logs.info("Waf: Leaving directory `%s'" % self.out_dir)
 		self.post_build()
 
 	def load(self):
@@ -262,7 +261,7 @@ class BuildContext(Base.Context):
 				for x in SAVED_ATTRS:
 					setattr(self, x, data[x])
 			else:
-				debug('build: Build cache loading failed')
+				Logs.debug('build: Build cache loading failed')
 
 		finally:
 			if f: f.close()
@@ -293,7 +292,7 @@ class BuildContext(Base.Context):
 
 	def compile(self):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
-		debug('build: compile called')
+		Logs.debug('build: compile called')
 
 		self.generator = Runner.Parallel(self, Options.options.jobs)
 
@@ -302,7 +301,7 @@ class BuildContext(Base.Context):
 				if on: sys.stderr.write(Logs.colors.cursor_on)
 				else: sys.stderr.write(Logs.colors.cursor_off)
 
-		debug('build: executor starting')
+		Logs.debug('build: executor starting')
 
 		try:
 			dw(on=False)
@@ -326,7 +325,7 @@ class BuildContext(Base.Context):
 
 	def install(self):
 		"this function is called for both install and uninstall"
-		debug('build: install called')
+		Logs.debug('build: install called')
 
 		self.flush()
 
@@ -427,7 +426,7 @@ class BuildContext(Base.Context):
 
 		lst = [str(env[a]) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		debug('envhash: %r %r', ret, lst)
+		Logs.debug('envhash: %r %r', ret, lst)
 
 		cache[idx] = ret
 
@@ -460,10 +459,10 @@ class BuildContext(Base.Context):
 		self.task_gen_cache_names = {}
 		self.name_to_obj('')
 
-		debug('build: delayed operation TaskGen.flush() called')
+		Logs.debug('build: delayed operation TaskGen.flush() called')
 
 		if Options.options.compile_targets:
-			debug('task_gen: posting task generators %r', Options.options.compile_targets)
+			Logs.debug('task_gen: posting task generators %r', Options.options.compile_targets)
 
 			mana = self.task_manager
 
@@ -482,7 +481,7 @@ class BuildContext(Base.Context):
 				elif m == min_grp:
 					to_post.append(tg)
 
-			debug('group: Forcing up to group %s for target %s', mana.group_name(min_grp), Options.options.compile_targets)
+			Logs.debug('group: Forcing up to group %s for target %s', mana.group_name(min_grp), Options.options.compile_targets)
 
 			# post all the task generators in previous groups
 			for i in xrange(len(mana.groups)):
@@ -490,9 +489,9 @@ class BuildContext(Base.Context):
 				if i == min_grp:
 					break
 				g = mana.groups[i]
-				debug('group: Forcing group %s', mana.group_name(g))
+				Logs.debug('group: Forcing group %s', mana.group_name(g))
 				for t in g.tasks_gen:
-					debug('group: Posting %s', t.name or t.target)
+					Logs.debug('group: Posting %s', t.name or t.target)
 					t.post()
 
 			# then post the task generators listed in compile_targets in the last group
@@ -500,7 +499,7 @@ class BuildContext(Base.Context):
 				t.post()
 
 		else:
-			debug('task_gen: posting task generators (normal)')
+			Logs.debug('task_gen: posting task generators (normal)')
 			for i in range(len(self.task_manager.groups)):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
@@ -512,7 +511,7 @@ class BuildContext(Base.Context):
 		try:
 			return self.all_envs[name]
 		except KeyError:
-			error('no such environment: '+name)
+			Logs.error('no such environment: '+name)
 			return None
 
 	def progress_line(self, state, total, col1, col2):
@@ -553,7 +552,7 @@ class BuildContext(Base.Context):
 						return False
 
 			srclbl = src.replace(self.srcnode.abspath()+os.sep, '')
-			info("* installing %s as %s" % (srclbl, tgt))
+			Logs.info("* installing %s as %s" % (srclbl, tgt))
 
 			# following is for shared libs and stale inodes (-_-)
 			try: os.remove(tgt)
@@ -566,12 +565,12 @@ class BuildContext(Base.Context):
 				try:
 					os.stat(src)
 				except (OSError, IOError):
-					error('File %r does not exist' % src)
+					Logs.error('File %r does not exist' % src)
 				raise Base.WafError('Could not install the file %r' % tgt)
 			return True
 
 		elif self.is_install < 0:
-			info("* uninstalling %s" % tgt)
+			Logs.info("* uninstalling %s" % tgt)
 
 			self.uninstall.append(tgt)
 
@@ -708,13 +707,13 @@ class BuildContext(Base.Context):
 			if link:
 				try: os.remove(tgt)
 				except OSError: pass
-				info('* symlink %s (-> %s)' % (tgt, src))
+				Logs.info('* symlink %s (-> %s)' % (tgt, src))
 				os.symlink(src, tgt)
 			return 0
 
 		else: # UNINSTALL
 			try:
-				info('* removing %s' % (tgt))
+				Logs.info('* removing %s' % (tgt))
 				os.remove(tgt)
 				return 0
 			except OSError:
@@ -722,7 +721,7 @@ class BuildContext(Base.Context):
 
 	def exec_command(self, cmd, **kw):
 		# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
-		debug('runner: system command -> %s' % cmd)
+		Logs.debug('runner: system command -> %s' % cmd)
 		if self.log:
 			self.log.write('%s\n' % cmd)
 			kw['log'] = self.log
@@ -815,7 +814,7 @@ class CleanContext(BuildContext):
 			self.save()
 
 	def clean(self):
-		debug('build: clean called')
+		Logs.debug('build: clean called')
 
 		# TODO clean could remove the files except the ones listed in env[CFG_FILES]
 
