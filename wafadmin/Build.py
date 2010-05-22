@@ -134,9 +134,6 @@ class BuildContext(Base.Context):
 		# ======================================= #
 		# cache variables
 
-		# list of targets to uninstall for removing the empty folders after uninstalling
-		self.uninstall = []
-
 		for v in 'task_sigs node_deps raw_deps'.split():
 			setattr(self, v, {})
 
@@ -147,8 +144,6 @@ class BuildContext(Base.Context):
 		self.all_task_gen = []
 		self.task_gen_cache_names = {}
 		self.log = None
-
-		self.is_install = None
 
 		############ stuff below has not been reviewed
 
@@ -325,34 +320,6 @@ class BuildContext(Base.Context):
 
 		if self.task_manager.error:
 			raise BuildError(self, self.task_manager.tasks_done)
-
-	def install(self):
-		"""Called for both install and uninstall"""
-		Logs.debug('build: install called')
-
-		self.flush()
-
-		# remove empty folders after uninstalling
-		if self.is_install < 0:
-			lst = []
-			for x in self.uninstall:
-				dir = os.path.dirname(x)
-				if not dir in lst: lst.append(dir)
-			lst.sort()
-			lst.reverse()
-
-			nlst = []
-			for y in lst:
-				x = y
-				while len(x) > 4:
-					if not x in nlst: nlst.append(x)
-					x = os.path.dirname(x)
-
-			nlst.sort()
-			nlst.reverse()
-			for x in nlst:
-				try: os.rmdir(x)
-				except OSError: pass
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"""Loads the waf tools used during the build (task classes, etc)"""
@@ -542,6 +509,92 @@ class BuildContext(Base.Context):
 
 		return msg
 
+	def exec_command(self, cmd, **kw):
+		"""'runner' zone is printed out for waf -v, see wafadmin/Options.py"""
+		Logs.debug('runner: system command -> %s' % cmd)
+		if self.log:
+			self.log.write('%s\n' % cmd)
+			kw['log'] = self.log
+
+		# ensure that a command is always frun from somewhere
+		try:
+			if not kw.get('cwd', None):
+				kw['cwd'] = self.cwd
+		except AttributeError:
+			self.cwd = kw['cwd'] = self.variant_dir
+
+		return Utils.exec_command(cmd, **kw)
+
+	def printout(self, s):
+		"""for printing stuff TODO remove?"""
+		f = self.log or sys.stderr
+		f.write(s)
+		#f.flush()
+
+	def pre_recurse(self, name_or_mod, path, nexdir):
+		"""from the context class"""
+		if not hasattr(self, 'oldpath'):
+			self.oldpath = []
+		self.oldpath.append(self.path)
+		self.path = self.root.find_dir(nexdir)
+		return {'bld': self, 'ctx': self}
+
+	def post_recurse(self, name_or_mod, path, nexdir):
+		"""from the context path"""
+		self.path = self.oldpath.pop()
+
+	def pre_build(self):
+		"""executes the user-defined methods before the build starts"""
+		if hasattr(self, 'pre_funs'):
+			for m in self.pre_funs:
+				m(self)
+
+	def post_build(self):
+		"""executes the user-defined methods after the build is complete"""
+		if hasattr(self, 'post_funs'):
+			for m in self.post_funs:
+				m(self)
+
+	def add_pre_fun(self, meth):
+		"""binds a method to be executed after the scripts are read and before the build starts"""
+		try: self.pre_funs.append(meth)
+		except AttributeError: self.pre_funs = [meth]
+
+	def add_post_fun(self, meth):
+		"""binds a method to be executed immediately after the build is complete"""
+		try: self.post_funs.append(meth)
+		except AttributeError: self.post_funs = [meth]
+
+	def install_files(self, *k, **kw):
+		pass
+
+	def install_as(self, *k, **kw):
+		pass
+
+	def symlink_as(self, *k, **kw):
+		pass
+
+# The classes below are stubs that integrate functionality from Scripting.py
+# for now. TODO: separate more functionality from the build context.
+
+class InstallContext(BuildContext):
+	"""installs the targets on the system"""
+	cmd = 'install'
+
+	def __init__(self, start=None):
+		super(InstallContext, self).__init__(start)
+
+		# list of targets to uninstall for removing the empty folders after uninstalling
+		self.uninstall = []
+
+		self.is_install = INSTALL
+
+	def run_user_code(self):
+		"""see Context.run_user_code"""
+		self.is_install = INSTALL
+		self.execute_build()
+		self.install()
+
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""returns true if the file was effectively installed or uninstalled, false otherwise"""
 		if self.is_install > 0:
@@ -600,6 +653,34 @@ class BuildContext(Base.Context):
 		if destdir:
 			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 		return destpath
+
+	def install(self):
+		"""Called for both install and uninstall"""
+		Logs.debug('build: install called')
+
+		self.flush()
+
+		# remove empty folders after uninstalling
+		if self.is_install < 0:
+			lst = []
+			for x in self.uninstall:
+				dir = os.path.dirname(x)
+				if not dir in lst: lst.append(dir)
+			lst.sort()
+			lst.reverse()
+
+			nlst = []
+			for y in lst:
+				x = y
+				while len(x) > 4:
+					if not x in nlst: nlst.append(x)
+					x = os.path.dirname(x)
+
+			nlst.sort()
+			nlst.reverse()
+			for x in nlst:
+				try: os.rmdir(x)
+				except OSError: pass
 
 	def install_files(self, path, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None):
 		"""To install files only after they have been built, put the calls in a method named
@@ -725,77 +806,10 @@ class BuildContext(Base.Context):
 			except OSError:
 				return 1
 
-	def exec_command(self, cmd, **kw):
-		"""'runner' zone is printed out for waf -v, see wafadmin/Options.py"""
-		Logs.debug('runner: system command -> %s' % cmd)
-		if self.log:
-			self.log.write('%s\n' % cmd)
-			kw['log'] = self.log
-
-		# ensure that a command is always frun from somewhere
-		try:
-			if not kw.get('cwd', None):
-				kw['cwd'] = self.cwd
-		except AttributeError:
-			self.cwd = kw['cwd'] = self.variant_dir
-
-		return Utils.exec_command(cmd, **kw)
-
-	def printout(self, s):
-		"""for printing stuff TODO remove?"""
-		f = self.log or sys.stderr
-		f.write(s)
-		#f.flush()
-
-	def pre_recurse(self, name_or_mod, path, nexdir):
-		"""from the context class"""
-		if not hasattr(self, 'oldpath'):
-			self.oldpath = []
-		self.oldpath.append(self.path)
-		self.path = self.root.find_dir(nexdir)
-		return {'bld': self, 'ctx': self}
-
-	def post_recurse(self, name_or_mod, path, nexdir):
-		"""from the context path"""
-		self.path = self.oldpath.pop()
-
-	def pre_build(self):
-		"""executes the user-defined methods before the build starts"""
-		if hasattr(self, 'pre_funs'):
-			for m in self.pre_funs:
-				m(self)
-
-	def post_build(self):
-		"""executes the user-defined methods after the build is complete"""
-		if hasattr(self, 'post_funs'):
-			for m in self.post_funs:
-				m(self)
-
-	def add_pre_fun(self, meth):
-		"""binds a method to be executed after the scripts are read and before the build starts"""
-		try: self.pre_funs.append(meth)
-		except AttributeError: self.pre_funs = [meth]
-
-	def add_post_fun(self, meth):
-		"""binds a method to be executed immediately after the build is complete"""
-		try: self.post_funs.append(meth)
-		except AttributeError: self.post_funs = [meth]
-
 	install_as = group_method(install_as)
 	install_files = group_method(install_files)
 	symlink_as = group_method(symlink_as)
 
-# The classes below are stubs that integrate functionality from Scripting.py
-# for now. TODO: separate more functionality from the build context.
-
-class InstallContext(BuildContext):
-	"""installs the targets on the system"""
-	cmd = 'install'
-	def run_user_code(self):
-		"""see Context.run_user_code"""
-		self.is_install = INSTALL
-		self.execute_build()
-		self.install()
 
 class UninstallContext(InstallContext):
 	"""removes the targets installed"""
