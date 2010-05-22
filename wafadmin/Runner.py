@@ -84,12 +84,12 @@ class Parallel(object):
 	keep the consumer threads busy, and avoid consuming cpu cycles
 	when no more tasks can be added (end of the build, etc)
 	"""
-	def __init__(self, bld, j=2):
+	def __init__(self, manager):
 
 		# number of consumers
-		self.numjobs = j
+		self.numjobs = Options.options.jobs
 
-		self.manager = bld.task_manager
+		self.manager = manager
 		self.manager.current_group = 0
 
 		self.total = self.manager.total()
@@ -223,6 +223,7 @@ class TaskManager(object):
 		self.tasks_done = []
 		self.current_group = 0
 		self.groups_names = {}
+		self.error = False
 
 	def group_name(self, g):
 		"""name for the group g (utility)"""
@@ -304,6 +305,10 @@ class TaskManager(object):
 				if f: f(tsk)
 			else:
 				tsk.install()
+
+	def start(self):
+		generator = Parallel(self)
+		generator.start() # vroom
 
 class TaskGroup(object):
 	"""all the tasks from one group must be done before going to the next group"""

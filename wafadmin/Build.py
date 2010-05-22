@@ -299,8 +299,6 @@ class BuildContext(Base.Context):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
 		Logs.debug('build: compile called')
 
-		self.generator = Runner.Parallel(self, Options.options.jobs)
-
 		def dw(on=True):
 			if Options.options.progress_bar:
 				if on: sys.stderr.write(Logs.colors.cursor_on)
@@ -310,7 +308,7 @@ class BuildContext(Base.Context):
 
 		try:
 			dw(on=False)
-			self.generator.start()
+			self.task_manager.start()
 		except KeyboardInterrupt:
 			dw()
 			if Runner.TaskConsumer.consumers:
@@ -325,7 +323,7 @@ class BuildContext(Base.Context):
 			if Runner.TaskConsumer.consumers:
 				self.save()
 
-		if self.generator.error:
+		if self.task_manager.error:
 			raise BuildError(self, self.task_manager.tasks_done)
 
 	def install(self):
