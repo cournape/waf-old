@@ -30,6 +30,7 @@ SRCDIR  = 'top'
 BLDDIR  = 'out'
 
 class WafError(Exception):
+	"""Base for all waf errors"""
 	def __init__(self, *args):
 		self.args = args
 		try:
@@ -41,6 +42,7 @@ class WafError(Exception):
 		return str(len(self.args) == 1 and self.args[0] or self.args)
 
 class WscriptError(WafError):
+	"""Waf errors that come from python code"""
 	def __init__(self, message, pyfile=None):
 		if pyfile:
 			self.pyfile = pyfile
@@ -80,7 +82,7 @@ def create_context(cmd_name, *k, **kw):
 	return ctx
 
 class store_context(type):
-	"""metaclass, store the command classes into a global list"""
+	"""metaclass: store the command classes into a global list"""
 	def __init__(cls, name, bases, dict):
 		super(store_context, cls).__init__(name, bases, dict)
 		name = cls.__name__
@@ -113,10 +115,10 @@ class Context(ctx):
 			start = Options.run_dir
 		self.curdir = start
 
-	def pre_recurse(self, obj, f, d):
+	def pre_recurse(self, name_or_mod, path, nexdir):
 		pass
 
-	def post_recurse(self, obj, f, d):
+	def post_recurse(self, name_or_mod, path, nextdir):
 		pass
 
 	def recurse(self, dirs, name=None):

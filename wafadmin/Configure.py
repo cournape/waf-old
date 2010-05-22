@@ -194,6 +194,7 @@ class ConfigurationContext(Base.Context):
 		self.recurse(k)
 
 	def post_recurse(self, name_or_mod, path, nexdir):
+		"""records the path and a hash of the scripts visited, see Context.post_recurse"""
 		self.hash = hash((self.hash, getattr(name_or_mod, 'waf_hash_val', name_or_mod)))
 		self.files.append(path)
 
