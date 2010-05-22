@@ -173,6 +173,7 @@ class ConfigurationContext(Utils.Context):
 				continue
 			self.tool_cache.append(mag)
 
+			module = None
 			try:
 				module = Utils.load_tool(tool, tooldir)
 			except Exception, e:
@@ -188,7 +189,7 @@ class ConfigurationContext(Utils.Context):
 								web = urlopen(url)
 								if web.getcode() != 200:
 									continue
-							except Exception, e:
+							except Exception, ex:
 								# on python3 urlopen throws an exception
 								continue
 							else:
@@ -211,10 +212,13 @@ class ConfigurationContext(Utils.Context):
 										pass
 									continue
 						else:
-								break
-					else:
+							break
+
+					if not module:
+						Logs.error('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
 						raise e
 				else:
+					Logs.error('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
 					raise e
 
 			if funs is not None:

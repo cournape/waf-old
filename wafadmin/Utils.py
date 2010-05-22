@@ -551,11 +551,7 @@ def load_tool(tool, tooldir=None):
 	else:
 		tooldir = []
 	try:
-		try:
-			return __import__(tool)
-		except ImportError, e:
-			Logs.error('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
-			raise
+		return __import__(tool)
 	finally:
 		for dt in tooldir:
 			sys.path.remove(dt)
