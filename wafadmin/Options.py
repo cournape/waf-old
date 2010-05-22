@@ -63,8 +63,12 @@ class opt_parser(optparse.OptionParser):
 
 		default_prefix = os.environ.get('PREFIX')
 		if not default_prefix:
-			if platform == 'win32': default_prefix = tempfile.gettempdir()
-			else: default_prefix = '/usr/local/'
+			if platform == 'win32':
+				d = tempfile.gettempdir()
+				default_prefix = d[0].upper() + d[1:]
+				# win32 preserves the case, but gettempdir does not
+			else:
+				default_prefix = '/usr/local/'
 		gr.add_option('--prefix', dest='prefix', default=default_prefix, help='installation prefix (configuration) [default: %r]' % default_prefix)
 
 		default_destdir = os.environ.get('DESTDIR', '')
