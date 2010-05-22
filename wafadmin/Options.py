@@ -160,6 +160,12 @@ def create_parser(module=None):
 		default = default_prefix,
 		dest    = 'prefix')
 
+	gr.add_option('--download',
+		action  = 'store_true',
+		default = False,
+		help    = 'try to download the tools if missing',
+		dest    = 'download')
+
 	gr = optparse.OptionGroup(parser, 'installation options')
 	parser.add_option_group(gr)
 	gr.add_option('--destdir',

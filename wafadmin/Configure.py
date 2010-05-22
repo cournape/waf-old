@@ -176,11 +176,11 @@ class ConfigurationContext(Utils.Context):
 			try:
 				module = Utils.load_tool(tool, tooldir)
 			except Exception, e:
-				if 1:
-					raise e
+				if Options.options.download:
+					_3rdparty = os.path.normpath(Options.tooldir[0] + os.sep + '..' + os.sep + '3rdparty')
 
-				else:
 					# try to download the tool from the repository then
+					# the default is set to false
 					for x in Utils.to_list(Options.remote_repo):
 						for sub in ['branches/waf-%s/wafadmin/3rdparty' % WAFVERSION, 'trunk/wafadmin/3rdparty']:
 							url = '/'.join((x, sub, tool + '.py'))
@@ -192,17 +192,30 @@ class ConfigurationContext(Utils.Context):
 								# on python3 urlopen throws an exception
 								continue
 							else:
+								loc = None
 								try:
 									loc = open(_3rdparty + os.sep + tool + '.py', 'wb')
 									loc.write(web.read())
 									web.close()
 								finally:
-									loc.close()
+									if loc:
+										loc.close()
 								Logs.warn('downloaded %s from %s' % (tool, url))
+								try:
+									module = Utils.load_tool(tool, tooldir)
+								except:
+									Logs.warn('module %s from %s is unusable' % (tool, url))
+									try:
+										os.unlink(_3rdparty + os.sep + tool + '.py')
+									except:
+										pass
+									continue
 						else:
 								break
 					else:
-						break
+						raise e
+				else:
+					raise e
 
 			if funs is not None:
 				self.eval_rules(funs)

@@ -554,7 +554,7 @@ def load_tool(tool, tooldir=None):
 		try:
 			return __import__(tool)
 		except ImportError, e:
-			Logs.error('Could not load the tool %r in %r:\n%s' % (tool, sys.path, e))
+			Logs.error('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
 			raise
 	finally:
 		for dt in tooldir:
