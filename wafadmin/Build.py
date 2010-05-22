@@ -210,7 +210,7 @@ class BuildContext(Base.Context):
 		self.src2bld = {id(self.srcnode): self.bldnode}
 
 	def prepare(self):
-		"""Stupid proxy, TODO remove?"""
+		"""see Context.prepare"""
 		self.is_install = 0
 
 		self.load()

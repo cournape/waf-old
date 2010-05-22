@@ -11,6 +11,9 @@ from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs, TaskGen, Base
 from Configure import conf
 
+WAF_CONFIG_H   = 'config.h'
+"""default name for the config.h file"""
+
 DEFINES = 'definez'
 UNDEFINED = ()
 

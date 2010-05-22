@@ -28,11 +28,13 @@ class ConfigSet(object):
 			self.load(filename)
 
 	def __contains__(self, key):
+		"""required to use foo in env"""
 		if key in self.table: return True
 		try: return self.parent.__contains__(key)
 		except AttributeError: return False # parent may not exist
 
 	def __str__(self):
+		"""for debugging"""
 		keys = set()
 		cur = self
 		while cur:
@@ -58,14 +60,37 @@ class ConfigSet(object):
 	def __delitem__(self, key, value):
 		del self.table[key]
 
+	def __getattr__(self, name):
+		"""
+		access the data by env.value instead of env['value']
+
+		waf was too fast so we had to slow i down a bit
+		"""
+		if name in self.__slots__:
+			return object.__getattr__(self, name)
+		else:
+			return self[name]
+
+	def __setattr__(self, name, value):
+		if name in self.__slots__:
+			object.__setattr__(self, name, value)
+		else:
+			self[name] = value
+
+	def __delattr__(self, name):
+		if name in self.__slots__:
+			object.__delattr__(self, name)
+		else:
+			del self[name]
+
 	def derive(self):
+		"""shallow copy"""
 		newenv = ConfigSet()
 		newenv.parent = self
 		return newenv
 
 	def detach(self):
-		"""TODO try it
-		modifying the original env will not change the copy"""
+		"""modifying the original env will not change the copy"""
 		tbl = self.get_merged_dict()
 		try:
 			delattr(self, 'parent')
@@ -78,6 +103,7 @@ class ConfigSet(object):
 			self.table = tbl
 
 	def get_flat(self, key):
+		"""obtain a value as a string"""
 		s = self[key]
 		if isinstance(s, str): return s
 		return ' '.join(s)
@@ -86,6 +112,8 @@ class ConfigSet(object):
 		"""Gets a value that must be a list for further modification.  The
 		list may be modified inplace and there is no need to
 		"self.table[var] = value" afterwards.
+
+		this is private btw
 		"""
 		try:
 			value = self.table[key]
@@ -103,6 +131,7 @@ class ConfigSet(object):
 		return value
 
 	def append_value(self, var, value):
+		"""The value must be a list or a tuple"""
 		current_value = self._get_list_value_for_modification(var)
 		try:
 			current_value.extend(value)
@@ -110,10 +139,15 @@ class ConfigSet(object):
 			current_value.append(value)
 
 	def prepend_value(self, var, value):
+		"""The value must be a list or a tuple"""
 		self.table[var] =  value + self._get_list_value_for_modification(var)
 
-	# prepend unique would be ambiguous
 	def append_unique(self, var, value):
+		"""
+		The value must be a list or a tuple
+
+		Note that there is no prepend_unique
+		"""
 		current_value = self._get_list_value_for_modification(var)
 
 		for value_item in value:
@@ -152,24 +186,7 @@ class ConfigSet(object):
 		Logs.debug('env: %s' % str(self.table))
 
 	def update(self, d):
+		"""like dict.update, replace values from another dict"""
 		for k, v in d.items():
 			self[k] = v
-
-	def __getattr__(self, name):
-		if name in self.__slots__:
-			return object.__getattr__(self, name)
-		else:
-			return self[name]
-
-	def __setattr__(self, name, value):
-		if name in self.__slots__:
-			object.__setattr__(self, name, value)
-		else:
-			self[name] = value
-
-	def __delattr__(self, name):
-		if name in self.__slots__:
-			object.__delattr__(self, name)
-		else:
-			del self[name]
 

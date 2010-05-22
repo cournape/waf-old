@@ -116,9 +116,11 @@ class Context(ctx):
 		self.curdir = start
 
 	def pre_recurse(self, name_or_mod, path, nexdir):
+		"""executes immediately before a script is read"""
 		pass
 
 	def post_recurse(self, name_or_mod, path, nextdir):
+		"""executes immediately after a script is read"""
 		pass
 
 	def recurse(self, dirs, name=None):
@@ -180,12 +182,18 @@ class Context(ctx):
 			else:
 				raise WscriptError('No wscript file in directory %s' % d)
 
+	def execute(self):
+		"""Runs the command represented by this context"""
+		self.prepare()
+		self.run_user_code()
+		self.finalize()
+
 	def prepare(self):
-		"""Executed before the context is passed to the user function."""
+		"""Executed before the context is passed to the user function"""
 		pass
 
 	def run_user_code(self):
-		"""Call the user function to which this context is bound."""
+		"""Calls the user function to which this context is bound"""
 		f = getattr(g_module, self.fun, None)
 		if f is None:
 			raise WscriptError('Undefined command: %s' % self.fun)
@@ -193,20 +201,15 @@ class Context(ctx):
 		f(self)
 
 	def finalize(self):
-		"""Executed after the user function finishes."""
+		"""Executed after the user function finishes"""
 		pass
-
-	def execute(self):
-		"""Run the command represented by this context."""
-		self.prepare()
-		self.run_user_code()
-		self.finalize()
 
 g_loaded_modules = {}
 """
 Dictionary holding already loaded modules, keyed by their absolute path.
 private cache
 """
+
 def load_module(file_path):
 	"""
 	Load a Python source file containing user code.

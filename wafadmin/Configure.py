@@ -23,15 +23,19 @@ import os, shlex, sys, time
 import ConfigSet, Utils, Options, Logs, Base
 
 BREAK    = 'break'
+"""in case of error, break"""
+
 CONTINUE = 'continue'
+"""in case of error, continue"""
 
 CACHE_DIR = 'c4che'
 """location of the cache files"""
 
 CACHE_SUFFIX = '.cache.py'
+"""suffix for the cache files"""
 
-WAF_CONFIG_LOG     = 'config.log'
-WAF_CONFIG_H       = 'config.h'
+WAF_CONFIG_LOG = 'config.log'
+"""name of the configuration log file"""
 
 try:
 	from urllib import request
@@ -47,9 +51,11 @@ conf_template = '''# project %(app)s configured on %(now)s by
 '''
 
 class ConfigurationError(Base.WscriptError):
+	"""configuration exception"""
 	pass
 
 def download_tool(tool, force=False):
+	"""downloads a tool from the waf repository"""
 	for x in Utils.to_list(Options.remote_repo):
 		for sub in ['branches/waf-%s/wafadmin/3rdparty' % Base.WAFVERSION, 'trunk/wafadmin/3rdparty']:
 			url = '/'.join((x, sub, tool + '.py'))
@@ -80,6 +86,7 @@ class ConfigurationContext(Base.Context):
 	tests = {}
 	error_handlers = []
 	def __init__(self, start_dir=None, blddir='', srcdir=''):
+
 		super(self.__class__, self).__init__(start_dir)
 		self.env = None
 		self.envname = ''
@@ -144,10 +151,11 @@ class ConfigurationContext(Base.Context):
 			self.log.close()
 
 	def fatal(self, msg):
+		"""raise a configuration error"""
 		raise ConfigurationError(msg)
 
 	def check_tool(self, input, tooldir=None, funs=None, download=True):
-		"load a waf tool"
+		"loads a waf tool"
 
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
@@ -178,7 +186,7 @@ class ConfigurationContext(Base.Context):
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
 	def find_file(self, filename, path_list):
-		"""find a file in a list of paths
+		"""finds a file in a list of paths
 		@param filename: name of the file to search for
 		@param path_list: list of directories to search
 		@return: the first occurrence filename or '' if filename could not be found
@@ -188,18 +196,13 @@ class ConfigurationContext(Base.Context):
 				return directory
 		return ''
 
-	# deprecated - use recurse()
-	def sub_config(self, k):
-		"executes the configure function of a wscript module"
-		self.recurse(k)
-
 	def post_recurse(self, name_or_mod, path, nexdir):
 		"""records the path and a hash of the scripts visited, see Context.post_recurse"""
 		self.hash = hash((self.hash, getattr(name_or_mod, 'waf_hash_val', name_or_mod)))
 		self.files.append(path)
 
 	def set_env_name(self, name, env):
-		"add a new environment called name"
+		"adds a new environment called name"
 		self.all_envs[name] = env
 		return env
 
@@ -216,16 +219,18 @@ class ConfigurationContext(Base.Context):
 		return env
 
 	def setenv(self, name):
-		"enable the environment called name"
+		"""Sets the environment called name"""
 		self.env = self.retrieve(name)
 		self.envname = name
 
 	def add_os_flags(self, var, dest=None):
+		"""Imports operating system environment values into an env dict"""
 		# do not use 'get' to make certain the variable is not defined
 		try: self.env.append_value(dest or var, Utils.to_list(self.environ[var]))
 		except KeyError: pass
 
 	def msg(self, msg, result, color=None):
+		"""Prints a configuration message 'Checking for xxx: ok'"""
 		self.start_msg('Checking for ' + msg)
 
 		if not isinstance(color, str):
@@ -234,6 +239,7 @@ class ConfigurationContext(Base.Context):
 		self.end_msg(result, color)
 
 	def start_msg(self, msg):
+		"""Prints the beginning of a 'Checking for xxx' message"""
 		try:
 			if self.in_msg:
 				return
@@ -247,6 +253,7 @@ class ConfigurationContext(Base.Context):
 		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
 	def end_msg(self, result, color=None):
+		"""Prints the end of a 'Checking for' message"""
 		self.in_msg -= 1
 		if self.in_msg:
 			return
@@ -266,7 +273,7 @@ class ConfigurationContext(Base.Context):
 		Logs.pprint(color, msg)
 
 	def find_program(self, filename, path_list=[], var=None, mandatory=True, environ=None, exts=''):
-		"wrapper that adds a configuration message"
+		"""Search for a program on the operating system"""
 
 		if not environ:
 			environ = os.environ
@@ -316,7 +323,7 @@ class ConfigurationContext(Base.Context):
 		return ret
 
 	def cmd_to_list(self, cmd):
-		"commands may be written in pseudo shell like 'ccache g++'"
+		"""Detects if a command is written in pseudo shell like 'ccache g++'"""
 		if isinstance(cmd, str) and cmd.find(' '):
 			try:
 				os.stat(cmd)
@@ -326,24 +333,8 @@ class ConfigurationContext(Base.Context):
 				return [cmd]
 		return cmd
 
-	def __getattr__(self, name):
-		r = self.__class__.__dict__.get(name, None)
-		if r: return r
-		if name and name.startswith('require_'):
-
-			for k in ['check_', 'find_']:
-				n = name.replace('require_', k)
-				ret = self.__class__.__dict__.get(n, None)
-				if ret:
-					def run(*k, **kw):
-						r = ret(self, *k, **kw)
-						if not r:
-							self.fatal('requirement failure')
-						return r
-					return run
-		self.fatal('No such method %r' % name)
-
 	def eval_rules(self, rules):
+		"""Executes the configuration tests"""
 		self.rules = Utils.to_list(rules)
 		for x in self.rules:
 			f = getattr(self, x)
@@ -360,9 +351,11 @@ class ConfigurationContext(Base.Context):
 					self.fatal(e)
 
 	def err_handler(self, fun, error):
+		"""error handler for the configuration tests, the default is to let the exceptions rise"""
 		pass
 
 	def prepare(self):
+		"""See Context.prepare"""
 		src = getattr(Options.options, Base.SRCDIR, None)
 		if not src: src = getattr(Base.g_module, Base.SRCDIR, None)
 		if not src:
@@ -398,7 +391,7 @@ class ConfigurationContext(Base.Context):
 			self.end_msg(bld)
 
 	def store(self, file=''):
-		"save the config results into the cache file"
+		"""Saves the config results into the cache file"""
 		try:
 			os.makedirs(self.cachedir)
 		except:
