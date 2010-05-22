@@ -25,13 +25,13 @@ SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 """Build class members to save"""
 
 CFG_FILES = 'cfg_files'
-"""files from the build direcotry to hash before starting the build"""
+"""files from the build directory to hash before starting the build"""
 
 class BuildError(Base.WafError):
+	"""error raised during the build"""
 	def __init__(self, b=None, t=[]):
 		self.bld = b
 		self.tasks = t
-		self.ret = 1
 		Base.WafError.__init__(self, self.format_error())
 
 	def format_error(self):
@@ -53,7 +53,7 @@ def check_dir(dir):
 		try:
 			os.makedirs(dir)
 		except OSError as e:
-			raise Base.WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
+			raise Base.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
 
 def group_method(fun):
 	"""
@@ -161,10 +161,11 @@ class BuildContext(Base.Context):
 		return TaskGen.task_gen(*k, **kw)
 
 	def __copy__(self):
-		"""no build context copies"""
+		"""Build context copies are not allowed"""
 		raise Base.WafError('build contexts are not supposed to be copied')
 
 	def load_envs(self):
+		"""load the data from the project directory into self.allenvs"""
 		try:
 			lst = Utils.listdir(self.cache_dir)
 		except OSError as e:
@@ -185,17 +186,19 @@ class BuildContext(Base.Context):
 				for f in env[CFG_FILES]:
 					newnode = self.path.find_or_declare(f)
 					try:
-						hash = Utils.h_file(newnode.abspath(env))
+						hash = Utils.h_file(newnode.abspath())
 					except (IOError, AttributeError):
-						Logs.error("cannot find %r" % f)
+						Logs.error('cannot find %r' % f)
 						hash = Utils.SIG_NIL
 					newnode.sig = hash
 
 	def make_root(self):
+		"""Creates a node representing the filesystem root"""
 		Node.Nod3 = self.node_class
 		self.root = Node.Nod3('', None)
 
 	def init_dirs(self, src, bld):
+		"""Initializes the project directory and the build directory"""
 		if not self.root:
 			self.make_root()
 		self.path = self.srcnode = self.root.find_dir(src)
@@ -207,6 +210,7 @@ class BuildContext(Base.Context):
 		self.src2bld = {id(self.srcnode): self.bldnode}
 
 	def prepare(self):
+		"""Stupid proxy, TODO remove?"""
 		self.is_install = 0
 
 		self.load()
@@ -217,10 +221,11 @@ class BuildContext(Base.Context):
 			self.load_envs()
 
 	def run_user_code(self):
+		"""Overridden from Base.Context"""
 		self.execute_build()
 
 	def execute_build(self):
-		"""shared by install and uninstall"""
+		"""Executes the build, it is shared by install and uninstall"""
 
 		self.recurse(self.curdir)
 		self.pre_build()
@@ -233,7 +238,7 @@ class BuildContext(Base.Context):
 		self.post_build()
 
 	def load(self):
-		"load the cache from the disk"
+		"Loads the cache from the disk (pickle)"
 		try:
 			env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, 'build.config.py'))
 		except (IOError, OSError):
@@ -268,7 +273,7 @@ class BuildContext(Base.Context):
 			gc.enable()
 
 	def save(self):
-		"store the cache on disk, see self.load"
+		"Stores the cache on disk (pickle), see self.load"
 		gc.disable()
 		self.root.__class__.bld = None
 
@@ -324,7 +329,7 @@ class BuildContext(Base.Context):
 			raise BuildError(self, self.task_manager.tasks_done)
 
 	def install(self):
-		"this function is called for both install and uninstall"
+		"""Called for both install and uninstall"""
 		Logs.debug('build: install called')
 
 		self.flush()
@@ -352,18 +357,13 @@ class BuildContext(Base.Context):
 				except OSError: pass
 
 	def setup(self, tool, tooldir=None, funs=None):
-		"setup tools for build process"
+		"""Loads the waf tools used during the build (task classes, etc)"""
 		if isinstance(tool, list):
 			for i in tool: self.setup(i, tooldir)
 			return
 
 		module = Base.load_tool(tool, tooldir)
 		if hasattr(module, "setup"): module.setup(self)
-
-	# ======================================= #
-	# node and folder handling
-
-	# ======================================= #
 
 	def get_env(self):
 		return self.env_of_name('default')
@@ -372,7 +372,17 @@ class BuildContext(Base.Context):
 
 	env = property(get_env, set_env)
 
+	def env_of_name(self, name):
+		"""Configuration data access"""
+		try:
+			return self.all_envs[name]
+		except KeyError:
+			Logs.error('no such environment: '+name)
+			return None
+
+
 	def add_manual_dependency(self, path, value):
+		"""Adds a dependency from a node object to a path (string or node)"""
 		if isinstance(path, Node.Node):
 			node = path
 		elif os.path.isabs(path):
@@ -382,9 +392,9 @@ class BuildContext(Base.Context):
 		self.deps_man[id(node)].append(value)
 
 	def launch_node(self):
-		"""return the launch directory as a node"""
-		# p_ln is kind of private, but public in case if
+		"""returns the launch directory as a node object"""
 		try:
+			# private cache
 			return self.p_ln
 		except AttributeError:
 			self.p_ln = self.root.find_dir(Options.launch_dir)
@@ -393,9 +403,11 @@ class BuildContext(Base.Context):
 	## the following methods are candidates for the stable apis ##
 
 	def add_group(self, *k):
+		"""Adds a new build group"""
 		self.task_manager.add_group(*k)
 
 	def set_group(self, *k, **kw):
+		"""Changes the current build group"""
 		self.task_manager.set_group(*k, **kw)
 
 	def hash_env_vars(self, env, vars_lst):
@@ -433,8 +445,8 @@ class BuildContext(Base.Context):
 		return ret
 
 	def name_to_obj(self, name):
-		"""retrieve a task generator from its name or its target name
-		remember that names must be unique"""
+		"""Retrieves a task generator from its name or its target name
+		the name must be unique"""
 		cache = self.task_gen_cache_names
 		if not cache:
 			# create the index lazily
@@ -453,7 +465,9 @@ class BuildContext(Base.Context):
 	def flush(self):
 		"""tell the task generators to create the tasks"""
 
+		# setting the timer here looks weird
 		self.timer = Utils.Timer()
+
 		# force the initialization of the mapping name->object in flush
 		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
@@ -507,21 +521,15 @@ class BuildContext(Base.Context):
 					# TODO limit the task generators to the one below the folder of ... (ita)
 					tg.post()
 
-	def env_of_name(self, name):
-		try:
-			return self.all_envs[name]
-		except KeyError:
-			Logs.error('no such environment: '+name)
-			return None
-
 	def progress_line(self, state, total, col1, col2):
+		"""Compute the progress bar"""
 		n = len(str(total))
 
 		Utils.rot_idx += 1
 		ind = Utils.rot_chr[Utils.rot_idx % 4]
 
 		pc = (100.*state)/total
-		eta = str(self.timer) #Utils.get_elapsed_time(ini)
+		eta = str(self.timer)
 		fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
 		left = fs % (state, total, col1, pc, col2)
 		right = '][%s%s%s]' % (col1, eta, col2)
@@ -720,7 +728,7 @@ class BuildContext(Base.Context):
 				return 1
 
 	def exec_command(self, cmd, **kw):
-		# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
+		"""'runner' zone is printed out for waf -v, see wafadmin/Options.py"""
 		Logs.debug('runner: system command -> %s' % cmd)
 		if self.log:
 			self.log.write('%s\n' % cmd)
@@ -736,12 +744,13 @@ class BuildContext(Base.Context):
 		return Utils.exec_command(cmd, **kw)
 
 	def printout(self, s):
+		"""for printing stuff TODO remove?"""
 		f = self.log or sys.stderr
 		f.write(s)
 		#f.flush()
 
-
 	def pre_recurse(self, name_or_mod, path, nexdir):
+		"""from the context class"""
 		if not hasattr(self, 'oldpath'):
 			self.oldpath = []
 		self.oldpath.append(self.path)
@@ -749,25 +758,28 @@ class BuildContext(Base.Context):
 		return {'bld': self, 'ctx': self}
 
 	def post_recurse(self, name_or_mod, path, nexdir):
+		"""from the context path"""
 		self.path = self.oldpath.pop()
 
-	###### user-defined behaviour
-
 	def pre_build(self):
+		"""executes the user-defined methods before the build starts"""
 		if hasattr(self, 'pre_funs'):
 			for m in self.pre_funs:
 				m(self)
 
 	def post_build(self):
+		"""executes the user-defined methods after the build is complete"""
 		if hasattr(self, 'post_funs'):
 			for m in self.post_funs:
 				m(self)
 
 	def add_pre_fun(self, meth):
+		"""binds a method to be executed after the scripts are read and before the build starts"""
 		try: self.pre_funs.append(meth)
 		except AttributeError: self.pre_funs = [meth]
 
 	def add_post_fun(self, meth):
+		"""binds a method to be executed immediately after the build is complete"""
 		try: self.post_funs.append(meth)
 		except AttributeError: self.post_funs = [meth]
 
@@ -782,6 +794,7 @@ class InstallContext(BuildContext):
 	"""installs the targets on the system"""
 	cmd = 'install'
 	def run_user_code(self):
+		"""see Context.run_user_code"""
 		self.is_install = INSTALL
 		self.execute_build()
 		self.install()
@@ -790,6 +803,7 @@ class UninstallContext(InstallContext):
 	"""removes the targets installed"""
 	cmd = 'uninstall'
 	def run_user_code(self):
+		"""see Context.run_user_code"""
 		self.is_install = UNINSTALL
 
 		try:
@@ -807,6 +821,7 @@ class CleanContext(BuildContext):
 	"""cleans the project"""
 	cmd = 'clean'
 	def run_user_code(self):
+		"""see Context.run_user_code"""
 		self.recurse(self.curdir)
 		try:
 			self.clean()
@@ -829,6 +844,7 @@ class ListContext(BuildContext):
 
 	cmd = 'list'
 	def run_user_code(self):
+		"""see Context.run_user_code"""
 		self.recurse(self.curdir)
 		self.pre_build()
 		self.flush()
