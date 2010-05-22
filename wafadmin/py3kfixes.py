@@ -116,6 +116,11 @@ def r10(code):
 	code = code.replace('err=str(err)','err=err.decode("utf-8")')
 	return code
 
+@subst('Tools/d.py')
+def r11(code):
+	code = code.replace('ret.strip()', 'ret.strip.decode("utf-8")')
+	return code
+
 def fixdir(dir):
 	global all_modifs
 	for k in all_modifs:
