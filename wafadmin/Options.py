@@ -33,9 +33,9 @@ remote_repo = ['http://waf.googlecode.com/svn/']
 default_prefix = os.environ.get('PREFIX')
 if not default_prefix:
 	if platform == 'win32':
-		default_prefix = tempfile.gettempdir()
-		if default_prefix.starswith('c:'): # python sux
-			default_prefix = 'C' + default_prefix[1:]
+		d = tempfile.gettempdir()
+		default_prefix = d[0].upper() + d[1:]
+		# win32 preserves the case, but gettempdir does not
 	else: default_prefix = '/usr/local/'
 
 default_jobs = os.environ.get('JOBS', -1)
