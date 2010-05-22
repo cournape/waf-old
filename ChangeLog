@@ -5,6 +5,7 @@ NEW IN WAF 1.5.17
 * Fixed a problem in the use of pkg-config with Python 3.x (#680)
 * Fixed a bug in the library detection with execute=True (#679)
 * Fixed a bug in the "Python.h" detection
+* Latex/bibtex processing improvements
 * d library detection (phobos 1, 2 or tango)
 * When "--targets" is given, post the task generators from previous build groups
 * New example for Cython
