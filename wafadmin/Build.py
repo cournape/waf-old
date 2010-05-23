@@ -153,7 +153,10 @@ class BuildContext(Base.Context):
 	def __call__(self, *k, **kw):
 		"""Creates a task generator"""
 		kw['bld'] = self
-		return TaskGen.task_gen(*k, **kw)
+		ret = TaskGen.task_gen(*k, **kw)
+		self.task_manager.add_task_gen(ret)
+		self.all_task_gen.append(ret)
+		return ret
 
 	def __copy__(self):
 		"""Build context copies are not allowed"""

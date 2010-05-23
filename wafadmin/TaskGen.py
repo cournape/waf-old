@@ -77,9 +77,6 @@ class task_gen(object):
 		for key, val in kwargs.items():
 			setattr(self, key, val)
 
-		self.bld.task_manager.add_task_gen(self)
-		self.bld.all_task_gen.append(self)
-
 	def __str__(self):
 		return ("<task_gen '%s' declared in %s>" % (self.name or self.target, self.path))
 
@@ -190,7 +187,7 @@ class task_gen(object):
 
 	def clone(self, env):
 		""
-		newobj = task_gen(bld=self.bld)
+		newobj = self.bld()
 		for x in self.__dict__:
 			if x in ['env', 'bld']:
 				continue
