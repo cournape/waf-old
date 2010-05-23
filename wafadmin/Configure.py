@@ -177,6 +177,7 @@ class ConfigurationContext(Utils.Context):
 			try:
 				module = Utils.load_tool(tool, tooldir)
 			except Exception, e:
+				ex = e
 				if Options.options.download:
 					_3rdparty = os.path.normpath(Options.tooldir[0] + os.sep + '..' + os.sep + '3rdparty')
 
@@ -189,7 +190,7 @@ class ConfigurationContext(Utils.Context):
 								web = urlopen(url)
 								if web.getcode() != 200:
 									continue
-							except Exception, ex:
+							except Exception, e:
 								# on python3 urlopen throws an exception
 								continue
 							else:
@@ -216,10 +217,10 @@ class ConfigurationContext(Utils.Context):
 
 					if not module:
 						Logs.error('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
-						raise e
+						raise ex
 				else:
 					Logs.error('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
-					raise e
+					raise ex
 
 			if funs is not None:
 				self.eval_rules(funs)
