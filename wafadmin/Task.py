@@ -101,9 +101,6 @@ class TaskBase(evil):
 		except KeyError:
 			self.generator = self
 
-		if kw.get('normal', 1):
-			self.generator.bld.task_manager.add_task(self)
-
 	def __repr__(self):
 		"used for debugging"
 		return '\n\t{task: %s %s}' % (self.__class__.__name__, str(getattr(self, "fun", "")))

@@ -155,10 +155,11 @@ class task_gen(object):
 
 		if getattr(self, 'posted', None):
 			#error("OBJECT ALREADY POSTED" + str( self))
-			return
+			return False
 		self.posted = True
 		self.apply()
 		Logs.debug('task_gen: posted %s' % self.name)
+		return True
 
 	def get_hook(self, node):
 		"""
