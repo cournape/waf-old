@@ -474,15 +474,11 @@ class BuildContext(Base.Context):
 				Logs.debug('group: Forcing group %s', mana.group_name(g))
 				for tg in g.tasks_gen:
 					Logs.debug('group: Posting %s', t.name or t.target)
-					if tg.post():
-						for tsk in tg.tasks:
-							self.task_manager.add_task(tsk)
+					tg.post()
 
 			# then post the task generators listed in compile_targets in the last group
 			for tg in to_post:
-				if tg.post():
-					for tsk in tg.tasks:
-						self.task_manager.add_task(tsk)
+				tg.post()
 
 		else:
 			Logs.debug('task_gen: posting task generators (normal)')
@@ -491,9 +487,7 @@ class BuildContext(Base.Context):
 				self.task_manager.current_group = i
 				for tg in g.tasks_gen:
 					# TODO limit the task generators to the one below the folder of ... (ita)
-					if tg.post():
-						for tsk in tg.tasks:
-							self.task_manager.add_task(tsk)
+					tg.post()
 
 	def progress_line(self, state, total, col1, col2):
 		"""Compute the progress bar"""
