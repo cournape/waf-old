@@ -291,7 +291,8 @@ class TaskManager(object):
 	def total(self):
 		total = 0
 		for group in self.groups:
-			total += len(group.tasks)
+			for tg in group.tasks_gen:
+				total += len(tg.tasks)
 		return total
 
 	def add_finished(self, tsk):
