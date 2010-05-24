@@ -22,7 +22,7 @@ class valadoc_task(Task.Task):
   package_name = ''
   package_version = ''
   files = []
-  protected = False
+  protected = True
   private = False
   inherit = False
   deps = False
@@ -49,8 +49,8 @@ class valadoc_task(Task.Task):
       if getattr(self, 'vapi_dirs', None):
         for vapi_dir in self.vapi_dirs:
           cmd.append ('--vapidir %s' % vapi_dir)
-      if getattr(self, 'protected', None):
-        cmd.append ('--protected')
+      if not getattr(self, 'protected', None):
+        cmd.append ('--no-protected')
       if getattr(self, 'private', None):
         cmd.append ('--private')
       if getattr(self, 'inherit', None):
