@@ -404,6 +404,10 @@ class TaskGroup(object):
 			#
 			# if the tasks have only files, set_file_constraints is required but extract_constraints is not necessary
 			#
+			for tg in self.tasks_gen:
+				# insert the task objects
+				self.tasks.extend(tg.tasks)
+
 			self.set_file_constraints(self.tasks)
 			self.make_cstr_groups()
 			self.extract_constraints()
