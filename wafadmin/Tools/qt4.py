@@ -267,10 +267,7 @@ def process_qm2rcc(task):
 	f = open(outfile, 'w')
 	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
 	for k in task.inputs:
-		f.write(' <file>')
-		#f.write(k.name)
-		f.write(k.path_from(task.path))
-		f.write('</file>\n')
+		f.write(' <file>%s</file>\n' % k.path_from(task.path))
 	f.write('</qresource>\n</RCC>')
 	f.close()
 

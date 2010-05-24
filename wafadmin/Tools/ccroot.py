@@ -474,7 +474,11 @@ def apply_obj_vars(self):
 
 @taskgen_method
 def create_compiled_task(self, name, node):
-	# create the compilation task: cc, cxx, asm, ...
+	"""
+	creates the compilation task: cc, cxx, asm, ...
+	the task is appended to the list 'compiled_tasks' which is used by
+	'apply_link'
+	"""
 	out = '%s.%d.o' % (node.name, self.idx)
 	task = self.create_task(name, node, node.parent.find_or_declare(out))
 	try:
