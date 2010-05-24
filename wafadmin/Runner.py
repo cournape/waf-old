@@ -308,8 +308,8 @@ class TaskManager(object):
 				tsk.install()
 
 	def start(self):
-		generator = Parallel(self)
-		generator.start() # vroom
+		self.generator = Parallel(self)
+		self.generator.start() # vroom
 
 class TaskGroup(object):
 	"""all the tasks from one group must be done before going to the next group"""
