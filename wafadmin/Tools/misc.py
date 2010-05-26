@@ -170,9 +170,9 @@ class output_file(cmd_arg):
 
 	def get_path(self, env, absolute):
 		if absolute:
-			return self.template % self.node.abspath(env)
+			return self.template % self.node.abspath()
 		else:
-			return self.template % self.node.bldpath(env)
+			return self.template % self.node.bldpath()
 
 class cmd_dir_arg(cmd_arg):
 	def find_node(self, base_path):
@@ -193,7 +193,7 @@ class output_dir(cmd_dir_arg):
 class command_output(Task.Task):
 	color = "BLUE"
 	def __init__(self, env, command, command_node, command_args, stdin, stdout, cwd, os_env, stderr):
-		Task.Task.__init__(self, env, normal=1)
+		Task.Task.__init__(self, env=env)
 		assert isinstance(command, (str, Node.Node))
 		self.command = command
 		self.command_args = command_args
@@ -212,13 +212,13 @@ class command_output(Task.Task):
 
 		def input_path(node, template):
 			if task.cwd is None:
-				return template % node.bldpath(task.env)
+				return template % node.bldpath()
 			else:
 				return template % node.abspath()
 		def output_path(node, template):
 			fun = node.abspath
 			if task.cwd is None: fun = node.bldpath
-			return template % fun(task.env)
+			return template % fun()
 
 		if isinstance(task.command, Node.Node):
 			argv = [input_path(task.command, '%s')]
@@ -379,6 +379,7 @@ use command_is_external=True''') % (self.command,)
 		raise Utils.WafError('command-output objects must have at least one output file or give self.no_outputs')
 
 	task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env, stderr)
+	task.generator = self
 	Utils.copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)
 	self.tasks.append(task)
 

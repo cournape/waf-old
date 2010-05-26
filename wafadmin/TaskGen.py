@@ -245,7 +245,7 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 		elif isinstance(act.ext_out, str):
 			ext = act.ext_out
 
-		out_source = [node.change_ext(x) for x in ext]
+		out_source = [node.change_ext(x) for x in act.ext_out]
 		if reentrant:
 			for i in range(reentrant):
 				self.source.append(out_source[i])
