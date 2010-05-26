@@ -218,7 +218,7 @@ class Parallel(object):
 				tsk.master = self
 				self.processed += 1
 
-				if Options.options.jobs == 1:
+				if self.numjobs == 1:
 					process_task(tsk)
 				else:
 					TaskConsumer.ready.put(tsk)
