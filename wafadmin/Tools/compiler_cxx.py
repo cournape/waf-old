@@ -29,21 +29,25 @@ def __list_possible_compiler(platform):
 def configure(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: raise Configure.ConfigurationError("Add options(opt): opt.tool_options('compiler_cxx')")
+
+	orig = conf.env
 	for compiler in test_for_compiler.split():
 		try:
+			conf.env = orig.copy()
 			conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 			conf.check_tool(compiler)
 		except Configure.ConfigurationError as e:
 			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:
+				orig.table = conf.env.get_merged_dict()
+				conf.env = orig
 				conf.end_msg(True)
 				conf.env['COMPILER_CXX'] = compiler
 				break
 			conf.end_msg(False)
-			break
 	else:
-		conf.fatal('could not configure a cxx compiler!')
+		conf.fatal('could not configure a c++ compiler!')
 
 def options(opt):
 	build_platform = Utils.unversioned_sys_platform()
