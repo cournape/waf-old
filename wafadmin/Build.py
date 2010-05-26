@@ -273,8 +273,8 @@ class BuildContext(Utils.Context):
 				self.generator.start()
 			except KeyboardInterrupt:
 				dw()
-				if self.generator.processed != 1:
-					self.save()
+				# if self.generator.processed != 1: TODO
+				self.save()
 				raise
 			except Exception:
 				dw()
@@ -282,8 +282,8 @@ class BuildContext(Utils.Context):
 				raise
 			else:
 				dw()
-				if self.generator.processed != 1:
-					self.save()
+				#if self.generator.processed != 1: TODO
+				self.save()
 
 			if self.generator.error:
 				raise BuildError(self, self.task_manager.tasks_done)
