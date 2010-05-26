@@ -311,6 +311,7 @@ class ConfigurationContext(Base.Context):
 						if os.path.isfile(x):
 							ret = x
 
+		filename = Utils.to_list(filename)
 		self.start_msg('Checking for program ' + ','.join(filename))
 		self.end_msg(ret)
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
