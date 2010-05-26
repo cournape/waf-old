@@ -254,8 +254,8 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 		if node.__class__.bld.is_install:
 			tsk.install = install
 
-	for x in Utils.to_list(var):
-		task_gen.mappings[act.ext_in] = x_file
+	for x in Utils.to_list(act.ext_in):
+		task_gen.mappings[x] = x_file
 	return x_file
 
 def taskgen_method(func):

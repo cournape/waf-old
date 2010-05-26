@@ -168,12 +168,12 @@ class ConfigurationContext(Base.Context):
 				continue
 			self.tool_cache.append(mag)
 
-			try:
-				module = Base.load_tool(tool, tooldir)
-			except Exception as e:
-				if 1:
-					raise ConfigurationError(e)
-				module = download_tool(tool)
+			#try:
+			module = Base.load_tool(tool, tooldir)
+			#except Exception as e:
+			#	if 1:
+			#		raise ConfigurationError(e)
+			#	module = download_tool(tool)
 
 			if funs is not None:
 				self.eval_rules(funs)
