@@ -16,8 +16,8 @@ from Logs import debug
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
 	env = tsk.env
-	infile = tsk.inputs[0].abspath(env)
-	outfile = tsk.outputs[0].abspath(env)
+	infile = tsk.inputs[0].abspath()
+	outfile = tsk.outputs[0].abspath()
 	try:
 		shutil.copy2(infile, outfile)
 	except (OSError, IOError):
@@ -74,8 +74,8 @@ def subst_func(tsk):
 	m4_re = re.compile('@(\w+)@', re.M)
 
 	env = tsk.env
-	infile = tsk.inputs[0].abspath(env)
-	outfile = tsk.outputs[0].abspath(env)
+	infile = tsk.inputs[0].abspath()
+	outfile = tsk.outputs[0].abspath()
 
 	code = Utils.readf(infile)
 
@@ -157,9 +157,9 @@ class input_file(cmd_arg):
 
 	def get_path(self, env, absolute):
 		if absolute:
-			return self.template % self.node.abspath(env)
+			return self.template % self.node.abspath()
 		else:
-			return self.template % self.node.srcpath(env)
+			return self.template % self.node.srcpath()
 
 class output_file(cmd_arg):
 	def find_node(self, base_path):
@@ -187,7 +187,7 @@ class input_dir(cmd_dir_arg):
 
 class output_dir(cmd_dir_arg):
 	def get_path(self, env, dummy_absolute):
-		return self.template % self.node.abspath(env)
+		return self.template % self.node.abspath()
 
 
 class command_output(Task.Task):
@@ -378,6 +378,7 @@ use command_is_external=True''') % (self.command,)
 	if not (outputs or getattr(self, 'no_outputs', None)):
 		raise Utils.WafError('command-output objects must have at least one output file or give self.no_outputs')
 
+	cwd = self.bld.variant_dir
 	task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env, stderr)
 	task.generator = self
 	Utils.copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)
@@ -402,7 +403,7 @@ use command_is_external=True''') % (self.command,)
 
 def post_run(self):
 	for x in self.outputs:
-		x.sig = Utils.h_file(x.abspath(self.env))
+		x.sig = Utils.h_file(x.abspath())
 
 def runnable_status(self):
 	return self.RUN_ME

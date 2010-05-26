@@ -505,8 +505,6 @@ def run_c_code(self, *k, **kw):
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = env
 
-	os.chdir(dir)
-
 	if not 'features' in kw:
 		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram cc"
 	o = bld(features=kw['features'], source=test_f_name, target='testprog')
@@ -524,9 +522,6 @@ def run_c_code(self, *k, **kw):
 		ret = Utils.ex_stack()
 	else:
 		ret = 0
-
-	# chdir before returning
-	os.chdir(back)
 
 	self.log.write('config test compiles\n')
 	if ret:
