@@ -312,8 +312,9 @@ class BuildContext(Base.Context):
 			self.task_manager.start()
 		except KeyboardInterrupt:
 			dw()
-			if Runner.TaskConsumer.consumers:
-				self.save()
+			#if Runner.TaskConsumer.consumers:
+			# TODO optimize
+			self.save()
 			raise
 		except Exception:
 			dw()
