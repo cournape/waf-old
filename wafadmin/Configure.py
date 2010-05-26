@@ -242,6 +242,7 @@ class ConfigurationContext(Base.Context):
 		"""Prints the beginning of a 'Checking for xxx' message"""
 		try:
 			if self.in_msg:
+				self.in_msg += 1
 				return
 		except:
 			self.in_msg = 0
