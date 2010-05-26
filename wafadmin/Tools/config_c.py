@@ -528,6 +528,7 @@ def run_c_code(self, *k, **kw):
 	# chdir before returning
 	os.chdir(back)
 
+	self.log.write('config test compiles\n')
 	if ret:
 		self.log.write('command returned %r' % ret)
 		self.fatal(str(ret))

@@ -87,27 +87,27 @@ class BuildContext(Base.Context):
 	cmd = 'build'
 	variant = ''
 
-	def __init__(self, start=None):
-		super(BuildContext, self).__init__(start)
+	def __init__(self, *k, **kw):
+		super(BuildContext, self).__init__(kw.get('start', None))
 
-		if not getattr(self, 'top_dir', None):
-			self.top_dir = Options.top_dir
+		self.top_dir = kw.get('top_dir', Options.top_dir)
 
 		# output directory - may be set until the nodes are considered
-		if not getattr(self, 'out_dir', None):
-			self.out_dir = Options.out_dir
+		self.out_dir = kw.get('out_dir', Options.out_dir)
 
-		if not getattr(self, 'variant_dir', None):
-			self.variant_dir = self.out_dir
+		self.variant_dir = kw.get('variant_dir', self.out_dir)
 
+		self.variant = kw.get('variant', None)
 		if self.variant:
 			self.variant_dir = os.path.join(self.out_dir, self.variant)
 
-		if not getattr(self, 'cache_dir', None):
+		self.cache_dir = kw.get('cache_dir', None)
+		if not self.cache_dir:
 			self.cache_dir = self.out_dir + os.sep + Configure.CACHE_DIR
 
 		# the manager will hold the tasks
 		self.task_manager = Runner.TaskManager()
+		self.task_manager.bld = self
 
 		# bind the build context to the nodes in use
 		# this means better encapsulation and no build context singleton
@@ -202,6 +202,9 @@ class BuildContext(Base.Context):
 		self.path = self.srcnode = self.root.find_dir(src)
 		self.bldnode = self.root.make_node(bld)
 		self.bldnode.mkdir()
+		self.variant_dir = self.bldnode.abspath()
+		if self.variant:
+			self.variant_dir += os.sep + self.variant
 
 		# TODO to cache or not to cache?
 		self.bld2src = {id(self.bldnode): self.srcnode}
@@ -318,8 +321,8 @@ class BuildContext(Base.Context):
 			raise
 		else:
 			dw()
-			if Runner.TaskConsumer.consumers:
-				self.save()
+			#if self.task_manager.: TODO speed up the no-op build here
+			self.save()
 
 		if self.task_manager.error:
 			raise BuildError(self, self.task_manager.tasks_done)
