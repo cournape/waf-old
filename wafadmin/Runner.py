@@ -48,7 +48,7 @@ def process_task(tsk):
 	m = tsk.master
 	if m.stop:
 		m.out.put(tsk)
-		continue
+		return
 
 	try:
 		tsk.generator.bld.printout(tsk.display())
@@ -62,7 +62,7 @@ def process_task(tsk):
 		# TODO cleanup
 		m.error_handler(tsk)
 		m.out.put(tsk)
-		continue
+		return
 
 	if ret:
 		tsk.err_code = ret
