@@ -318,10 +318,7 @@ class TaskManager(object):
 	def start(self):
 		self.generator = Parallel(self)
 		self.generator.start() # vroom
-
-		if self.generator.error:
-			import Build
-			raise Build.BuildError(self.bld, self.tasks_done)
+		self.error = self.generator.error
 
 class TaskGroup(object):
 	"""all the tasks from one group must be done before going to the next group"""
