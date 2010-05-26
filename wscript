@@ -183,7 +183,7 @@ def sfilter(path):
 
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 
-def create_waf():
+def create_waf(*k, **kw):
 	print ("-> preparing waf")
 	mw = 'tmp-waf-'+VERSION
 
@@ -290,41 +290,8 @@ def configure(conf):
 
 
 def build(bld):
-
-	import shutil, re
-
-	if 'install' in Options.commands:
-		if sys.platform == 'win32':
-			print ("Installing Waf on Windows is not possible.")
-			sys.exit(0)
-
-	if Options.current_command in ['install', 'uninstall']:
-		compute_revision()
-
-	if 'install' in Options.commands:
-		val = Options.options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
-		if val != True and val != "y": sys.exit(1)
-		create_waf()
-
-	dir = os.path.join('lib', 'waf-%s-%s' % (VERSION, REVISION), 'wafadmin')
-
-	bld(
-		features     = 'py',
-		source       = bld.path.ant_glob('wafadmin/*.py'),
-		install_path = '${PREFIX}/%s/' % dir,
-	)
-
-	bld(
-		features     = 'py',
-		source       = bld.path.ant_glob('wafadmin/Tools/*.py'),
-		install_path = '${PREFIX}/%s/Tools/' % dir,
-	)
-
-	bld.install_files('${PREFIX}/bin', 'waf', chmod=Utils.O755)
-
-	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
-	#print "make sure the PATH contains %s/bin:$PATH" % prefix
-
+	waf = bld.path.make_node('waf') # create the node right here
+	bld(name='create_waf', rule=create_waf, target=waf, always=True)
 
 #def dist():
 #	import Scripting

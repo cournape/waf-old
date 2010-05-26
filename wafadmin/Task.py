@@ -356,7 +356,7 @@ class Task(TaskBase):
 			except OSError:
 				self.hasrun = MISSING
 				self.err_msg = '-> missing file: %r' % node.abspath()
-				raise Base.WafError
+				raise Base.WafError()
 
 			# important, store the signature for the next run
 			node.sig = sig

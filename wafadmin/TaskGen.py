@@ -391,7 +391,10 @@ def process_rule(self):
 
 	if getattr(self, 'target', None):
 		cls.quiet = True
-		tsk.outputs = [self.path.find_or_declare(x) for x in self.to_list(self.target)]
+
+		if not isinstance(self.target, list):
+			self.target = [self.target]
+		tsk.outputs = [isinstance(x, str) and self.path.find_or_declare(x) or x for x in self.target]
 
 	if getattr(self, 'source', None):
 		cls.quiet = True

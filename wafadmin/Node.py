@@ -22,6 +22,7 @@ Its Node class is referenced here as self.__class__
 
 import os, shutil, re
 import Utils
+import Base
 
 # These fnmatch expressions are used by default to prune the directory tree
 # while doing the recursive traversal in the find_iter method of the Node class.
@@ -73,7 +74,7 @@ class Node(object):
 
 		if parent:
 			if name in parent.children:
-				raise WafError('node %s exists in the parent files %r already' % (name, parent))
+				raise Base.WafError('node %s exists in the parent files %r already' % (name, parent))
 			parent.children[name] = self
 
 	def __setstate__(self, data):
@@ -95,14 +96,14 @@ class Node(object):
 
 	def __hash__(self):
 		"expensive, make certain it is not used"
-		raise WafError('nodes, you are doing it wrong')
+		raise Base.WafError('nodes, you are doing it wrong')
 
 	def __eq__(self, node):
 		return id(self) == id(node)
 
 	def __copy__(self):
 		"nodes are not supposed to be copied"
-		raise WafError('nodes are not supposed to be copied')
+		raise Base.WafError('nodes are not supposed to be copied')
 
 	def read(self, flags='r'):
 		"get the contents, assuming the node is a file"
@@ -181,7 +182,7 @@ class Node(object):
 				pass
 
 			if not os.path.isdir(self.abspath()):
-				raise WafError('%s is not a directory' % self)
+				raise Base.WafError('%s is not a directory' % self)
 
 			try:
 				self.children
@@ -428,8 +429,9 @@ class Node(object):
 				node.compute_sig()
 				return node
 			except IOError:
-				if not os.path.isdir(node.abspath()):
-					raise Base.WafError('could not read %r' % node.abspath())
+				pass
+				#if not os.path.isdir(node.abspath()):
+				#	raise Base.WafError('could not read %r' % node.abspath())
 		node = self.get_bld().make_node(lst)
 		node.parent.mkdir()
 		return node
