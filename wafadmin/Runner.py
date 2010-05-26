@@ -305,6 +305,7 @@ class TaskManager(object):
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
 		bld = tsk.generator.bld
+		return # TODO
 		if bld.is_install:
 			f = None
 			if 'install' in tsk.__dict__:

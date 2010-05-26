@@ -172,7 +172,7 @@ class ConfigurationContext(Base.Context):
 				module = Base.load_tool(tool, tooldir)
 			except Exception as e:
 				if 1:
-					raise e
+					raise ConfigurationError(e)
 				module = download_tool(tool)
 
 			if funs is not None:
