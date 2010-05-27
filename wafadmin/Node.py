@@ -425,13 +425,7 @@ class Node(object):
 		self = self.get_src()
 		node = self.find_node(lst)
 		if node:
-			try:
-				node.compute_sig()
-				return node
-			except IOError:
-				pass
-				#if not os.path.isdir(node.abspath()):
-				#	raise Base.WafError('could not read %r' % node.abspath())
+			return node
 		node = self.get_bld().make_node(lst)
 		node.parent.mkdir()
 		return node
