@@ -87,15 +87,15 @@ class Parallel(object):
 	keep the consumer threads busy, and avoid consuming cpu cycles
 	when no more tasks can be added (end of the build, etc)
 	"""
-	def __init__(self, manager):
+	def __init__(self, bld):
 
 		# number of consumers
 		self.numjobs = Options.options.jobs
 
-		self.manager = manager
-		self.manager.current_group = 0
+		self.bld = bld # build context
+		self.bld.current_group = 0
 
-		self.total = self.manager.total()
+		self.total = self.bld.total()
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
@@ -142,13 +142,13 @@ class Parallel(object):
 				self.outstanding += self.frozen
 				self.frozen = []
 			elif not self.count:
-				self.outstanding += self.manager.get_next_set()
+				self.outstanding += self.bld.get_next_set()
 				break
 
 	def get_out(self):
 		"the tasks that are put to execute are all collected using get_out"
 		ret = self.out.get()
-		self.manager.add_finished(ret)
+		self.bld.add_finished(ret)
 		if not self.stop and getattr(ret, 'more_tasks', None):
 			self.outstanding += ret.more_tasks
 			self.total += len(ret.more_tasks)
@@ -180,7 +180,7 @@ class Parallel(object):
 			if tsk.hasrun:
 				# if the task is marked as "run", just skip it
 				self.processed += 1
-				self.manager.add_finished(tsk)
+				self.bld.add_finished(tsk)
 				continue
 
 			try:
@@ -190,7 +190,7 @@ class Parallel(object):
 				tsk.hasrun = Task.EXCEPTION
 				self.processed += 1
 				self.error_handler(tsk)
-				self.manager.add_finished(tsk)
+				self.bld.add_finished(tsk)
 				continue
 
 			if st == Task.ASK_LATER:
@@ -198,7 +198,7 @@ class Parallel(object):
 			elif st == Task.SKIP_ME:
 				self.processed += 1
 				tsk.hasrun = Task.SKIPPED
-				self.manager.add_finished(tsk)
+				self.bld.add_finished(tsk)
 			else:
 				# run me: put the task in ready queue
 				tsk.position = (self.processed, self.total)
