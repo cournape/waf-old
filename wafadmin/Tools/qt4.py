@@ -124,9 +124,9 @@ class qxx(Task.Task):
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
-			generator = tree.task_manager.generator
-			generator.outstanding.insert(0, task)
-			generator.total += 1
+			gen = tree.generator
+			gen.outstanding.insert(0, task)
+			gen.total += 1
 
 			moctasks.append(task)
 
@@ -142,9 +142,9 @@ class qxx(Task.Task):
 				task.set_inputs(tree.node_deps[(self.inputs[0].parent.abspath(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
-				generator = tree.task_manager.generator
-				generator.outstanding.insert(0, task)
-				generator.total += 1
+				gen = tree.generator
+				gen.outstanding.insert(0, task)
+				gen.total += 1
 
 				moctasks.append(task)
 

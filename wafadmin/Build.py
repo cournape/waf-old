@@ -71,11 +71,9 @@ def group_method(fun):
 			postpone = kw['postpone']
 			del kw['postpone']
 
-		# TODO waf 1.6 in theory there should be no reference to the TaskManager internals here
 		if postpone:
-			m = k[0].task_manager
-			if not m.groups: m.add_group()
-			m.groups[m.current_group].post_funs.append((fun, k, kw))
+			if not self.groups: self.add_group()
+			self.groups[self.current_group].post_funs.append((fun, k, kw))
 			kw['cwd'] = k[0].path
 		else:
 			fun(*k, **kw)
@@ -104,10 +102,6 @@ class BuildContext(Base.Context):
 		self.cache_dir = kw.get('cache_dir', None)
 		if not self.cache_dir:
 			self.cache_dir = self.out_dir + os.sep + Configure.CACHE_DIR
-
-		# the manager will hold the tasks
-		self.task_manager = Runner.TaskManager()
-		self.task_manager.bld = self
 
 		# bind the build context to the nodes in use
 		# this means better encapsulation and no build context singleton
@@ -150,11 +144,18 @@ class BuildContext(Base.Context):
 		# Manual dependencies.
 		self.deps_man = Utils.defaultdict(list)
 
+		self.groups = []
+		self.tasks_done = []
+		self.current_group = 0
+		self.groups_names = {}
+		self.error = False
+
+
 	def __call__(self, *k, **kw):
 		"""Creates a task generator"""
 		kw['bld'] = self
 		ret = TaskGen.task_gen(*k, **kw)
-		self.task_manager.add_task_gen(ret)
+		self.add_task_gen(ret)
 		self.all_task_gen.append(ret)
 		return ret
 
@@ -309,7 +310,7 @@ class BuildContext(Base.Context):
 
 		try:
 			dw(on=False)
-			self.task_manager.start()
+			self.start()
 		except KeyboardInterrupt:
 			dw()
 			#if Runner.TaskConsumer.consumers:
@@ -322,11 +323,11 @@ class BuildContext(Base.Context):
 			raise
 		else:
 			dw()
-			#if self.task_manager.: TODO speed up the no-op build here
+			#if self.: TODO speed up the no-op build here
 			self.save()
 
-		if self.task_manager.error:
-			raise BuildError(self, self.task_manager.tasks_done)
+		if self.error:
+			raise BuildError(self, self.tasks_done)
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"""Loads the waf tools used during the build (task classes, etc)"""
@@ -373,14 +374,6 @@ class BuildContext(Base.Context):
 			return self.p_ln
 
 	## the following methods are candidates for the stable apis ##
-
-	def add_group(self, *k):
-		"""Adds a new build group"""
-		self.task_manager.add_group(*k)
-
-	def set_group(self, *k, **kw):
-		"""Changes the current build group"""
-		self.task_manager.set_group(*k, **kw)
 
 	def hash_env_vars(self, env, vars_lst):
 		"""hash environment variables
@@ -450,8 +443,6 @@ class BuildContext(Base.Context):
 		if Options.options.compile_targets:
 			Logs.debug('task_gen: posting task generators %r', Options.options.compile_targets)
 
-			mana = self.task_manager
-
 			to_post = []
 			min_grp = 0
 			for name in Options.options.compile_targets.split(','):
@@ -460,22 +451,22 @@ class BuildContext(Base.Context):
 				if not tg:
 					raise Base.WafError('target %r does not exist' % name)
 
-				m = mana.group_idx(tg)
+				m = self.group_idx(tg)
 				if m > min_grp:
 					min_grp = m
 					to_post = [tg]
 				elif m == min_grp:
 					to_post.append(tg)
 
-			Logs.debug('group: Forcing up to group %s for target %s', mana.group_name(min_grp), Options.options.compile_targets)
+			Logs.debug('group: Forcing up to group %s for target %s', self.group_name(min_grp), Options.options.compile_targets)
 
 			# post all the task generators in previous groups
-			for i in xrange(len(mana.groups)):
-				mana.current_group = i
+			for i in xrange(len(self.groups)):
+				self.current_group = i
 				if i == min_grp:
 					break
-				g = mana.groups[i]
-				Logs.debug('group: Forcing group %s', mana.group_name(g))
+				g = self.groups[i]
+				Logs.debug('group: Forcing group %s', self.group_name(g))
 				for tg in g.tasks_gen:
 					Logs.debug('group: Posting %s', t.name or t.target)
 					tg.post()
@@ -486,9 +477,9 @@ class BuildContext(Base.Context):
 
 		else:
 			Logs.debug('task_gen: posting task generators (normal)')
-			for i in range(len(self.task_manager.groups)):
-				g = self.task_manager.groups[i]
-				self.task_manager.current_group = i
+			for i in range(len(self.groups)):
+				g = self.groups[i]
+				self.current_group = i
 				for tg in g.tasks_gen:
 					# TODO limit the task generators to the one below the folder of ... (ita)
 					tg.post()
@@ -571,6 +562,98 @@ class BuildContext(Base.Context):
 		"""binds a method to be executed immediately after the build is complete"""
 		try: self.post_funs.append(meth)
 		except AttributeError: self.post_funs = [meth]
+
+
+	def group_name(self, g):
+		"""name for the group g (utility)"""
+		if not isinstance(g, Runner.TaskGroup):
+			g = self.groups[g]
+		for x in self.groups_names:
+			if id(self.groups_names[x]) == id(g):
+				return x
+		return ''
+
+	def group_idx(self, tg):
+		"""group the task generator tg is in"""
+		se = id(tg)
+		for i in range(len(self.groups)):
+			g = self.groups[i]
+			for t in g.tasks_gen:
+				if id(t) == se:
+					return i
+		return None
+
+	def get_next_set(self):
+		"""return the next set of tasks to execute
+		the first parameter is the maximum amount of parallelization that may occur"""
+
+		while self.current_group < len(self.groups):
+			ret = self.groups[self.current_group].get_next_set()
+			if ret:
+				return ret
+			else:
+				self.groups[self.current_group].process_install()
+				self.current_group += 1
+		return []
+
+	def add_group(self, name=None, set=True):
+		#if self.groups and not self.groups[0].tasks:
+		#	error('add_group: an empty group is already present')
+		g = Runner.TaskGroup()
+
+		if name and name in self.groups_names:
+			Logs.error('add_group: name %s already present' % name)
+		self.groups_names[name] = g
+		self.groups.append(g)
+		if set:
+			self.current_group = len(self.groups) - 1
+
+	def set_group(self, idx):
+		if isinstance(idx, str):
+			g = self.groups_names[idx]
+			for x in range(len(self.groups)):
+				if id(g) == id(self.groups[x]):
+					self.current_group = x
+		else:
+			self.current_group = idx
+
+	def add_task_gen(self, tgen):
+		if not self.groups:
+			self.add_group()
+		self.groups[self.current_group].tasks_gen.append(tgen)
+
+	def add_task(self, task):
+		if not self.groups:
+			self.add_group()
+		self.groups[self.current_group].tasks.append(task)
+
+	def total(self):
+		total = 0
+		for group in self.groups:
+			for tg in group.tasks_gen:
+				total += len(tg.tasks)
+		return total
+
+	def add_finished(self, tsk):
+		self.tasks_done.append(tsk)
+		bld = tsk.generator.bld
+		return # TODO
+		if bld.is_install:
+			f = None
+			if 'install' in tsk.__dict__:
+				f = tsk.__dict__['install']
+				# install=0 to prevent installation
+				if f: f(tsk)
+			else:
+				tsk.install()
+
+	def start(self):
+		self.generator = Runner.Parallel(self)
+		self.generator.start() # vroom
+		self.error = self.generator.error
+
+
+
 
 	def install_files(self, *k, **kw):
 		pass
