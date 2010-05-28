@@ -24,6 +24,56 @@ def run(*args, **kwargs):
 		sys.excepthook(*sys.exc_info())
 threading.Thread.run = run
 
+def compare_exts(t1, t2):
+	"extension production"
+	x = "ext_in"
+	y = "ext_out"
+	in_ = t1.attr(x, ())
+	out_ = t2.attr(y, ())
+	for k in in_:
+		if k in out_:
+			return -1
+	in_ = t2.attr(x, ())
+	out_ = t1.attr(y, ())
+	for k in in_:
+		if k in out_:
+			return 1
+	return 0
+
+def compare_partial(t1, t2):
+	"partial relations after/before"
+	m = "after"
+	n = "before"
+	name = t2.__class__.__name__
+	if name in Utils.to_list(t1.attr(m, ())): return -1
+	elif name in Utils.to_list(t1.attr(n, ())): return 1
+	name = t1.__class__.__name__
+	if name in Utils.to_list(t2.attr(m, ())): return 1
+	elif name in Utils.to_list(t2.attr(n, ())): return -1
+	return 0
+
+def set_file_constraints(tasks):
+	"will set the run_after constraints on all tasks (may cause a slowdown with lots of tasks)"
+	ins = {}
+	outs = {}
+	for x in tasks:
+		for a in getattr(x, 'inputs', []):
+			try:
+				ins[id(a)].append(x)
+			except KeyError:
+				ins[id(a)] = [x]
+		for a in getattr(x, 'outputs', []):
+			try:
+				outs[id(a)].append(x)
+			except KeyError:
+				outs[id(a)] = [x]
+
+	links = set(ins.keys()).intersection(outs.keys())
+	for k in links:
+		for a in ins[k]:
+			for b in outs[k]:
+				a.set_run_after(b)
+
 class TaskConsumer(threading.Thread):
 	ready = Queue(0)
 	consumers = []
@@ -162,6 +212,7 @@ class Parallel(object):
 	def start(self):
 		"execute the tasks"
 		self.cur = 0
+		self.iter_cache = {}
 
 		while not self.stop:
 
@@ -227,12 +278,83 @@ class Parallel(object):
 		"""return the next set of tasks to execute"""
 
 		while self.cur < len(self.bld.groups):
-			ret = self.bld.groups[self.cur].get_next_set()
-			if ret:
-				return ret
-			else:
-				self.bld.groups[self.cur].process_install()
+			if not self.cur in self.iter_cache:
+				self.iter_cache[self.cur] = self.sorted_tasks(self.cur)
+
+			try:
+				ret = self.iter_cache[self.cur].next()
+			except StopIteration:
 				self.cur += 1
 		return []
 
+	def sorted_tasks(self, idg):
+		tasks = []
+		for tg in self.bld.groups[idg]:
+			# TODO a try-except might be more efficient
+			if isinstance(tg, Task.TaskBase):
+				tasks.append(tg)
+			else:
+				tasks.extend(tg.tasks)
+
+		# if the constraints are set properly (ext_in/ext_out, before/after)
+		# the method set_file_constraints is not necessary (can be 15% penalty on no-op rebuilds)
+		#
+		# the constraint extraction thing is splitting the tasks by groups of independent tasks that may be parallelized
+		# this is slightly redundant with the task manager groups
+		#
+		# if the tasks have only files, set_file_constraints is required but extract_constraints is not necessary
+		#
+		set_file_constraints(tasks)
+
+		# use the after/before + ext_out/ext_in to perform a topological sort
+		cstr_groups = Utils.defaultdict(list)
+		cstr_order = Utils.defaultdict(set)
+		for x in tasks:
+			h = x.hash_constraints()
+			cstr_groups[h].append(x)
+
+		keys = list(cstr_groups.keys())
+		maxi = len(keys)
+
+		# this list should be short
+		for i in range(maxi):
+			t1 = cstr_groups[keys[i]][0]
+			for j in range(i + 1, maxi):
+				t2 = cstr_groups[keys[j]][0]
+
+				# add the constraints based on the comparisons
+				val = (compare_exts(t1, t2) or compare_partial(t1, t2))
+				if val > 0:
+					cstr_order[keys[i]].add(keys[j])
+				elif val < 0:
+					cstr_order[keys[j]].add(keys[i])
+
+		while 1:
+			unconnected = []
+			remainder = []
+
+			for u in keys:
+				for k in cstr_order.values():
+					if u in k:
+						remainder.append(u)
+						break
+				else:
+					unconnected.append(u)
+
+			toreturn = []
+			for y in unconnected:
+				toreturn.extend(cstr_groups[y])
+
+			# remove stuff only after
+			for y in unconnected:
+				try: cstr_order.__delitem__(y)
+				except KeyError: pass
+				cstr_groups.__delitem__(y)
+
+			if not toreturn:
+				if remainder:
+					raise Base.WafError("Circular order constraint detected %r" % remainder)
+				raise StopIteration
+
+			yield toreturn
 
