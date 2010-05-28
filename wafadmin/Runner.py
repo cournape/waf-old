@@ -283,6 +283,7 @@ class Parallel(object):
 
 			try:
 				ret = self.iter_cache[self.cur].next()
+				return ret
 			except StopIteration:
 				self.cur += 1
 		return []
