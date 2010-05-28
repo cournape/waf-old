@@ -652,8 +652,6 @@ class BuildContext(Base.Context):
 		self.error = self.generator.error
 
 
-
-
 	def install_files(self, *k, **kw):
 		pass
 
