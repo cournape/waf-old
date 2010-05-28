@@ -93,7 +93,6 @@ class Parallel(object):
 		self.numjobs = Options.options.jobs
 
 		self.bld = bld # build context
-		self.bld.current_group = 0
 
 		self.total = self.bld.total()
 
@@ -113,6 +112,18 @@ class Parallel(object):
 
 		self.stop = False # error condition to stop the build
 		self.error = False # error flag
+
+	def get_next_set(self):
+		"""return the next set of tasks to execute"""
+
+		while self.bld.current_group < len(self.bld.groups):
+			ret = self.bld.groups[self.bld.current_group].get_next_set()
+			if ret:
+				return ret
+			else:
+				self.bld.groups[self.bld.current_group].process_install()
+				self.bld.current_group += 1
+		return []
 
 	def get_next(self):
 		"override this method to schedule the tasks in a particular order"
@@ -142,7 +153,7 @@ class Parallel(object):
 				self.outstanding += self.frozen
 				self.frozen = []
 			elif not self.count:
-				self.outstanding += self.bld.get_next_set()
+				self.outstanding += self.get_next_set()
 				break
 
 	def get_out(self):
@@ -162,6 +173,7 @@ class Parallel(object):
 
 	def start(self):
 		"execute the tasks"
+		self.bld.current_group = 0
 
 		while not self.stop:
 

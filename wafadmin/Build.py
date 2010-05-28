@@ -583,19 +583,6 @@ class BuildContext(Base.Context):
 					return i
 		return None
 
-	def get_next_set(self):
-		"""return the next set of tasks to execute
-		the first parameter is the maximum amount of parallelization that may occur"""
-
-		while self.current_group < len(self.groups):
-			ret = self.groups[self.current_group].get_next_set()
-			if ret:
-				return ret
-			else:
-				self.groups[self.current_group].process_install()
-				self.current_group += 1
-		return []
-
 	def add_group(self, name=None, move=True):
 		#if self.groups and not self.groups[0].tasks:
 		#	error('add_group: an empty group is already present')
