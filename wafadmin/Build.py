@@ -596,16 +596,15 @@ class BuildContext(Base.Context):
 				self.current_group += 1
 		return []
 
-	def add_group(self, name=None, set=True):
+	def add_group(self, name=None, move=True):
 		#if self.groups and not self.groups[0].tasks:
 		#	error('add_group: an empty group is already present')
-		g = BuildGroup()
-
 		if name and name in self.groups_names:
 			Logs.error('add_group: name %s already present' % name)
+		g = BuildGroup()
 		self.groups_names[name] = g
 		self.groups.append(g)
-		if set:
+		if move:
 			self.current_group = len(self.groups) - 1
 
 	def set_group(self, idx):
