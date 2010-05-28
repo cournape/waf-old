@@ -135,7 +135,7 @@ class BuildContext(Base.Context):
 		# so that we do not need to stat them one more time
 		self.cache_dir_contents = {}
 
-		self.all_task_gen = []
+		self.all_task_gen = [] # TODO remove
 		self.task_gen_cache_names = {}
 		self.log = None
 
@@ -144,18 +144,20 @@ class BuildContext(Base.Context):
 		# Manual dependencies.
 		self.deps_man = Utils.defaultdict(list)
 
-		self.groups = []
 		self.tasks_done = []
-		self.current_group = 0
-		self.groups_names = {}
 		self.error = False
+
+		# just the structure here
+		self.current_group = 0
+		self.groups = []
+		self.group_names = {}
 
 
 	def __call__(self, *k, **kw):
 		"""Creates a task generator"""
 		kw['bld'] = self
 		ret = TaskGen.task_gen(*k, **kw)
-		self.add_task_gen(ret)
+		self.add_task_gen(ret, group=kw.get('group', None))
 		self.all_task_gen.append(ret)
 		return ret
 
@@ -451,25 +453,25 @@ class BuildContext(Base.Context):
 				if not tg:
 					raise Base.WafError('target %r does not exist' % name)
 
-				m = self.group_idx(tg)
+				m = self.get_group_idx(tg)
 				if m > min_grp:
 					min_grp = m
 					to_post = [tg]
 				elif m == min_grp:
 					to_post.append(tg)
 
-			Logs.debug('group: Forcing up to group %s for target %s', self.group_name(min_grp), Options.options.compile_targets)
+			Logs.debug('group: Forcing up to group %s for target %s', self.get_group_name(min_grp), Options.options.compile_targets)
 
 			# post all the task generators in previous groups
 			for i in xrange(len(self.groups)):
-				self.current_group = i
 				if i == min_grp:
 					break
 				g = self.groups[i]
-				Logs.debug('group: Forcing group %s', self.group_name(g))
-				for tg in g.tasks_gen:
-					Logs.debug('group: Posting %s', t.name or t.target)
-					tg.post()
+				Logs.debug('group: Forcing group %s', self.get_group_name(g))
+				for tg in g:
+					if isinstance(tg, TaskGen.task_gen):
+						Logs.debug('group: Posting %s', t.name or t.target)
+						tg.post()
 
 			# then post the task generators listed in compile_targets in the last group
 			for tg in to_post:
@@ -477,12 +479,11 @@ class BuildContext(Base.Context):
 
 		else:
 			Logs.debug('task_gen: posting task generators (normal)')
-			for i in range(len(self.groups)):
-				g = self.groups[i]
-				self.current_group = i
-				for tg in g.tasks_gen:
-					# TODO limit the task generators to the one below the folder of ... (ita)
-					tg.post()
+			for g in self.groups:
+				for tg in g:
+					if isinstance(tg, TaskGen.task_gen):
+						Logs.debug('group: Posting %s', t.name or t.target)
+						tg.post()
 
 	def progress_line(self, state, total, col1, col2):
 		"""Compute the progress bar"""
@@ -563,61 +564,70 @@ class BuildContext(Base.Context):
 		try: self.post_funs.append(meth)
 		except AttributeError: self.post_funs = [meth]
 
+	def get_group(self, x):
+		"""get the group x (nam or number), or the current group"""
+		if not self.groups:
+			self.add_group()
+		if x is None:
+			return self.groups[self.current_group]
+		if x in self.group_names:
+			return self.group_names[x]
+		return self.groups[x]
 
-	def group_name(self, g):
+	def add_to_group(self, tgen, group=None):
+		"""add a task or a task generator for the build"""
+		assert(isinstance(tgen, TaskGen.task_gen) or isinstance(tgen, Task.TaskBase))
+		self.get_group(group).append(tgen)
+
+	def get_group_name(self, g):
 		"""name for the group g (utility)"""
 		if not isinstance(g, BuildGroup):
 			g = self.groups[g]
-		for x in self.groups_names:
-			if id(self.groups_names[x]) == id(g):
+		for x in self.group_names:
+			if id(self.group_names[x]) == id(g):
 				return x
 		return ''
 
-	def group_idx(self, tg):
-		"""group the task generator tg is in"""
+	def get_group_idx(self, tg):
+		"""group the task generator tg belongs to, used by flush() for --target=xyz"""
 		se = id(tg)
 		for i in range(len(self.groups)):
-			g = self.groups[i]
-			for t in g.tasks_gen:
+			for t in self.groups[i]:
 				if id(t) == se:
 					return i
 		return None
 
 	def add_group(self, name=None, move=True):
+		"""add a new group of tasks/task generators"""
 		#if self.groups and not self.groups[0].tasks:
 		#	error('add_group: an empty group is already present')
-		if name and name in self.groups_names:
+		if name and name in self.group_names:
 			Logs.error('add_group: name %s already present' % name)
-		g = BuildGroup()
-		self.groups_names[name] = g
+		g = []
+		self.group_names[name] = g
 		self.groups.append(g)
 		if move:
 			self.current_group = len(self.groups) - 1
 
 	def set_group(self, idx):
+		"""set the current group to be idx: now new task generators will be added to this group by default"""
 		if isinstance(idx, str):
 			g = self.groups_names[idx]
-			for x in range(len(self.groups)):
-				if id(g) == id(self.groups[x]):
-					self.current_group = x
+			for i in range(len(self.groups)):
+				if id(g) == id(self.groups[i]):
+					self.current_group = i
 		else:
 			self.current_group = idx
 
-	def add_task_gen(self, tgen):
-		if not self.groups:
-			self.add_group()
-		self.groups[self.current_group].tasks_gen.append(tgen)
-
-	def add_task(self, task):
-		if not self.groups:
-			self.add_group()
-		self.groups[self.current_group].tasks.append(task)
-
 	def total(self):
+		"""total of tasks"""
 		total = 0
 		for group in self.groups:
-			for tg in group.tasks_gen:
-				total += len(tg.tasks)
+			for tg in group:
+				if isinstance(tg, Task.TaskBase):
+					total += 1
+				else:
+					total += len(tg.tasks)
 		return total
 
 	def add_finished(self, tsk):
@@ -637,7 +647,6 @@ class BuildContext(Base.Context):
 		self.generator = Runner.Parallel(self)
 		self.generator.start() # vroom
 		self.error = self.generator.error
-
 
 	def install_files(self, *k, **kw):
 		pass
