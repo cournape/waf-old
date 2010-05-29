@@ -191,7 +191,7 @@ class Parallel(object):
 				self.outstanding += self.frozen
 				self.frozen = []
 			elif not self.count:
-				self.outstanding += self.get_next_set()
+				self.outstanding.extend(self.iter_obj.next())
 				break
 
 	def get_out(self):
@@ -211,8 +211,7 @@ class Parallel(object):
 
 	def start(self):
 		"execute the tasks"
-		self.cur = 0
-		self.iter_cache = {}
+		self.iter_obj = self.get_iter_obj()
 
 		while not self.stop:
 
@@ -274,88 +273,80 @@ class Parallel(object):
 		#print loop
 		assert (self.count == 0 or self.stop)
 
-	def get_next_set(self):
-		"""return the next set of tasks to execute"""
-
+	def get_iter_obj(self):
+		"""creates a generator object that returns tasks executable in parallel"""
+		self.cur = 0
 		while self.cur < len(self.bld.groups):
-			if not self.cur in self.iter_cache:
-				self.iter_cache[self.cur] = self.sorted_tasks(self.cur)
-
-			try:
-				ret = self.iter_cache[self.cur].next()
-				return ret
-			except StopIteration:
-				self.cur += 1
-		return []
-
-	def sorted_tasks(self, idg):
-		tasks = []
-		for tg in self.bld.groups[idg]:
-			# TODO a try-except might be more efficient
-			if isinstance(tg, Task.TaskBase):
-				tasks.append(tg)
-			else:
-				tasks.extend(tg.tasks)
-
-		# if the constraints are set properly (ext_in/ext_out, before/after)
-		# the method set_file_constraints is not necessary (can be 15% penalty on no-op rebuilds)
-		#
-		# the constraint extraction thing is splitting the tasks by groups of independent tasks that may be parallelized
-		# this is slightly redundant with the task manager groups
-		#
-		# if the tasks have only files, set_file_constraints is required but extract_constraints is not necessary
-		#
-		set_file_constraints(tasks)
-
-		# use the after/before + ext_out/ext_in to perform a topological sort
-		cstr_groups = Utils.defaultdict(list)
-		cstr_order = Utils.defaultdict(set)
-		for x in tasks:
-			h = x.hash_constraints()
-			cstr_groups[h].append(x)
-
-		keys = list(cstr_groups.keys())
-		maxi = len(keys)
-
-		# this list should be short
-		for i in range(maxi):
-			t1 = cstr_groups[keys[i]][0]
-			for j in range(i + 1, maxi):
-				t2 = cstr_groups[keys[j]][0]
-
-				# add the constraints based on the comparisons
-				val = (compare_exts(t1, t2) or compare_partial(t1, t2))
-				if val > 0:
-					cstr_order[keys[i]].add(keys[j])
-				elif val < 0:
-					cstr_order[keys[j]].add(keys[i])
-
-		while 1:
-			unconnected = []
-			remainder = []
-
-			for u in keys:
-				for k in cstr_order.values():
-					if u in k:
-						remainder.append(u)
-						break
+			tasks = []
+			for tg in self.bld.groups[self.cur]:
+				# TODO a try-except might be more efficient
+				if isinstance(tg, Task.TaskBase):
+					tasks.append(tg)
 				else:
-					unconnected.append(u)
+					tasks.extend(tg.tasks)
 
-			toreturn = []
-			for y in unconnected:
-				toreturn.extend(cstr_groups[y])
+			# if the constraints are set properly (ext_in/ext_out, before/after)
+			# the call to set_file_constraints may be removed (can be a 15% penalty on no-op rebuilds)
+			#
+			# the tasks are split into groups of independent tasks that may be parallelized
+			# and a topological sort is performed
+			#
+			# if the tasks have only files, set_file_constraints is required but extract_constraints is not necessary
+			#
+			set_file_constraints(tasks)
 
-			# remove stuff only after
-			for y in unconnected:
-				try: cstr_order.__delitem__(y)
-				except KeyError: pass
-				cstr_groups.__delitem__(y)
+			# use the after/before + ext_out/ext_in to perform a topological sort
+			cstr_groups = Utils.defaultdict(list)
+			cstr_order = Utils.defaultdict(set)
+			for x in tasks:
+				h = x.hash_constraints()
+				cstr_groups[h].append(x)
 
-			if not toreturn:
-				if remainder:
-					raise Base.WafError("Circular order constraint detected %r" % remainder)
-				raise StopIteration
+			keys = list(cstr_groups.keys())
+			maxi = len(keys)
 
-			yield toreturn
+			# this list should be short
+			for i in range(maxi):
+				t1 = cstr_groups[keys[i]][0]
+				for j in range(i + 1, maxi):
+					t2 = cstr_groups[keys[j]][0]
+
+					# add the constraints based on the comparisons
+					val = (compare_exts(t1, t2) or compare_partial(t1, t2))
+					if val > 0:
+						cstr_order[keys[i]].add(keys[j])
+					elif val < 0:
+						cstr_order[keys[j]].add(keys[i])
+
+			while 1:
+				unconnected = []
+				remainder = []
+
+				for u in keys:
+					for k in cstr_order.values():
+						if u in k:
+							remainder.append(u)
+							break
+					else:
+						unconnected.append(u)
+
+				toreturn = []
+				for y in unconnected:
+					toreturn.extend(cstr_groups[y])
+
+				# remove stuff only after
+				for y in unconnected:
+					try: cstr_order.__delitem__(y)
+					except KeyError: pass
+					cstr_groups.__delitem__(y)
+
+				if not toreturn:
+					if remainder:
+						raise Base.WafError("Circular order constraint detected %r" % remainder)
+					self.cur += 1
+					break
+
+				yield toreturn
+		while 1:
+			yield []
 
