@@ -421,10 +421,22 @@ class Node(object):
 
 		node = self.get_bld().search(lst)
 		if node:
+			if not os.path.isfile(node.abspath()):
+				node.sig = None
+				try:
+					node.parent.mkdir()
+				except:
+					pass
 			return node
 		self = self.get_src()
 		node = self.find_node(lst)
 		if node:
+			if not os.path.isfile(node.abspath()):
+				node.sig = None
+				try:
+					node.parent.mkdir()
+				except:
+					pass
 			return node
 		node = self.get_bld().make_node(lst)
 		node.parent.mkdir()
