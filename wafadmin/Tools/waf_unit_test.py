@@ -43,10 +43,11 @@ def exec_test(self):
 			self.generator.bld.all_test_paths = fu
 
 			lst = []
-			for obj in self.generator.bld.all_task_gen:
-				link_task = getattr(obj, 'link_task', None)
-				if link_task:
-					lst.append(link_task.outputs[0].parent.abspath(obj.env))
+			for g in self.generator.bld.groups:
+				for tg in g:
+					link_task = getattr(tg, 'link_task', None)
+					if link_task:
+						lst.append(link_task.outputs[0].parent.abspath())
 
 			def add_path(dct, path, var):
 				dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])

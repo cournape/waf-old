@@ -297,8 +297,6 @@ def apply_d_libs(self):
 			continue
 
 		y = get(lib_name)
-		if not y:
-			raise Utils.WafError('object %r was not found in uselib_local (required by %r)' % (lib_name, self.name))
 		y.post()
 		seen.add(lib_name)
 

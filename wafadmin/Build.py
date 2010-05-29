@@ -135,7 +135,6 @@ class BuildContext(Base.Context):
 		# so that we do not need to stat them one more time
 		self.cache_dir_contents = {}
 
-		self.all_task_gen = [] # TODO remove
 		self.task_gen_cache_names = {}
 		self.log = None
 
@@ -157,8 +156,8 @@ class BuildContext(Base.Context):
 		"""Creates a task generator"""
 		kw['bld'] = self
 		ret = TaskGen.task_gen(*k, **kw)
+		self.task_gen_cache_names = {} # reset the cache, each time
 		self.add_to_group(ret, group=kw.get('group', None))
-		self.all_task_gen.append(ret)
 		return ret
 
 	def __copy__(self):
@@ -416,18 +415,24 @@ class BuildContext(Base.Context):
 		the name must be unique"""
 		cache = self.task_gen_cache_names
 		if not cache:
+
 			# create the index lazily
-			for x in self.all_task_gen:
-				if x.name:
-					cache[x.name] = x
-				else:
-					if isinstance(x.target, str):
-						target = x.target
+			for g in self.groups:
+				for x in g:
+					# TODO only task generators for now
+					if x.name:
+						cache[x.name] = x
 					else:
-						target = ' '.join(x.target)
-					if not cache.get(target, None):
-						cache[target] = x
-		return cache.get(name, None)
+						if isinstance(x.target, str):
+							target = x.target
+						else:
+							target = ' '.join(x.target)
+						if not cache.get(target, None):
+							cache[target] = x
+		try:
+			return cache[name]
+		except KeyError:
+			raise Base.WafError('Could not find a task generator for the name %r' % name)
 
 	def flush(self):
 		"""tell the task generators to create the tasks"""
@@ -438,7 +443,6 @@ class BuildContext(Base.Context):
 		# force the initialization of the mapping name->object in flush
 		# get_tgen_by_name can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
-		self.get_tgen_by_name('')
 
 		Logs.debug('build: delayed operation TaskGen.flush() called')
 
@@ -940,7 +944,11 @@ class ListContext(BuildContext):
 		self.recurse(self.curdir)
 		self.pre_build()
 		self.flush()
-		self.get_tgen_by_name('')
+		try:
+			# force the cache initialization
+			self.get_tgen_by_name('')
+		except:
+			pass
 		lst = list(self.task_gen_cache_names.keys())
 		lst.sort()
 		for k in lst:

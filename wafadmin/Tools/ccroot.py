@@ -343,8 +343,6 @@ def apply_lib_vars(self):
 			continue
 
 		y = get(lib_name)
-		if not y:
-			raise Utils.WafError('object %r was not found in uselib_local (required by %r)' % (lib_name, self.name))
 		y.post()
 		seen.add(lib_name)
 
@@ -416,8 +414,6 @@ def apply_objdeps(self):
 
 		# object does not exist ?
 		y = get(x)
-		if not y:
-			raise Utils.WafError('object %r was not found in uselib_local (required by add_objects %r)' % (x, self.name))
 
 		# object has ancestors to process first ? update the list of names
 		if getattr(y, 'add_objects', None):
