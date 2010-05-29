@@ -187,28 +187,6 @@ class TaskBase(evil):
 		else:
 			return ''
 
-	def install(self):
-		"""
-		installation is performed by looking at the task attributes:
-		* install_path: installation path like "${PREFIX}/bin"
-		* filename: install the first node in the outputs as a file with a particular name, be certain to give os.sep
-		* chmod: permissions
-		"""
-		bld = self.generator.bld
-		d = self.attr('install')
-
-		if self.attr('install_path'):
-			lst = [a.path_from(bld.bldnode) for a in self.outputs]
-			perm = self.attr('chmod', Utils.O644)
-			if self.attr('src'):
-				# if src is given, install the sources too
-				lst += [a.path_from(bld.bldnode) for a in self.inputs]
-			if self.attr('filename'):
-				dir = self.install_path.rstrip(os.sep) + os.sep + self.attr('filename')
-				bld.install_as(dir, lst[0], self.env, perm)
-			else:
-				bld.install_files(self.install_path, lst, self.env, perm)
-
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:
 	* file system interaction: input and output nodes
@@ -637,10 +615,38 @@ def update_outputs(cls):
 
 
 
+# ---------------------------------------------------
 
+def cache_outputs(cls):
+	"""
+	Task class decorator
+
+	If Options.cache_global is defined and if the task instances produces output nodes,
+	the files will be copied into a folder in the cache directory
+
+	the files may also be retrieved from that folder, if it exists
+	"""
+	if not Options.cache_global or Options.options.nocache or not self.outputs:
+		return None
+
+	old = cls.run
+	def run(self):
+		return can_retrieve_cache(self) or old(self)
+	cls.run = run
+
+	old = cls.post_run
+	def post_run(self):
+		ret = old(self)
+		put_files_cache(self)
+		return ret
+	cls.post_run = post_run
+
+	return cls
 
 def can_retrieve_cache(self):
 	"""
+	used by cache_outputs, see above
+
 	Retrieve build nodes from the cache
 	update the file timestamps to help cleaning the least used entries from the cache
 	additionally, set an attribute 'cached' to avoid re-creating the same cache files
@@ -691,6 +697,7 @@ def can_retrieve_cache(self):
 	return True
 
 def put_files_cache(self):
+	"""used by cache_outputs, see above"""
 
 	# file caching, if possible
 	# try to avoid data corruption as much as possible
@@ -727,31 +734,4 @@ def put_files_cache(self):
 				os.chmod(dname, Utils.O755)
 			except:
 				pass
-
-def cache_outputs(cls):
-	"""
-	Task class decorator
-
-	If Options.cache_global is defined and if the task instances produces output nodes,
-	the files will be copied into a folder in the cache directory
-
-	the files may also be retrieved from that folder, if it exists
-	"""
-	if not Options.cache_global or Options.options.nocache or not self.outputs:
-		return None
-
-	old = cls.run
-	def run(self):
-		return can_retrieve_cache(self) or old(self)
-	cls.run = run
-
-	old = cls.post_run
-	def post_run(self):
-		ret = old(self)
-		put_files_cache(self)
-		return ret
-	cls.post_run = post_run
-
-	return cls
-
 

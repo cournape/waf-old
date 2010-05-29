@@ -214,8 +214,6 @@ class BuildContext(Base.Context):
 
 	def prepare(self):
 		"""see Context.prepare"""
-		self.is_install = 0
-
 		self.load()
 
 		self.init_dirs(self.top_dir, self.variant_dir)
