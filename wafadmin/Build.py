@@ -411,7 +411,7 @@ class BuildContext(Base.Context):
 
 		return ret
 
-	def name_to_obj(self, name):
+	def get_tgen_by_name(self, name):
 		"""Retrieves a task generator from its name or its target name
 		the name must be unique"""
 		cache = self.task_gen_cache_names
@@ -436,9 +436,9 @@ class BuildContext(Base.Context):
 		self.timer = Utils.Timer()
 
 		# force the initialization of the mapping name->object in flush
-		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
+		# get_tgen_by_name can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
-		self.name_to_obj('')
+		self.get_tgen_by_name('')
 
 		Logs.debug('build: delayed operation TaskGen.flush() called')
 
@@ -448,7 +448,7 @@ class BuildContext(Base.Context):
 			to_post = []
 			min_grp = 0
 			for name in Options.options.compile_targets.split(','):
-				tg = self.name_to_obj(name)
+				tg = self.get_tgen_by_name(name)
 
 				if not tg:
 					raise Base.WafError('target %r does not exist' % name)
@@ -940,7 +940,7 @@ class ListContext(BuildContext):
 		self.recurse(self.curdir)
 		self.pre_build()
 		self.flush()
-		self.name_to_obj('')
+		self.get_tgen_by_name('')
 		lst = list(self.task_gen_cache_names.keys())
 		lst.sort()
 		for k in lst:

@@ -183,9 +183,6 @@ class task_gen(object):
 		self.tasks.append(task)
 		return task
 
-	def name_to_obj(self, name):
-		return self.bld.name_to_obj(name)
-
 	def clone(self, env):
 		""
 		newobj = self.bld()

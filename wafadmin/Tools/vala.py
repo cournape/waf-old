@@ -154,7 +154,7 @@ def vala_file(self, node):
 				seen.append(package)
 
 				# check if the package exists
-				package_obj = self.name_to_obj(package)
+				package_obj = self.bld.get_tgen_by_name(package)
 				if not package_obj:
 					raise Utils.WafError("object '%s' was not found in uselib_local (required by '%s')" % (package, self.name))
 

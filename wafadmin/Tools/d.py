@@ -286,6 +286,7 @@ def apply_d_libs(self):
 	# the ancestors external libraries (uselib) will be prepended
 	self.uselib = self.to_list(self.uselib)
 	names = self.to_list(self.uselib_local)
+	get = self.bld.get_tgen_by_name
 
 	seen = set([])
 	tmp = deque(names) # consume a copy of the list of names
@@ -295,7 +296,7 @@ def apply_d_libs(self):
 		if lib_name in seen:
 			continue
 
-		y = self.name_to_obj(lib_name)
+		y = get(lib_name)
 		if not y:
 			raise Utils.WafError('object %r was not found in uselib_local (required by %r)' % (lib_name, self.name))
 		y.post()
@@ -305,7 +306,7 @@ def apply_d_libs(self):
 		if getattr(y, 'uselib_local', None):
 			lst = y.to_list(y.uselib_local)
 			if 'dshlib' in y.features or 'cprogram' in y.features:
-				lst = [x for x in lst if not 'cstlib' in self.name_to_obj(x).features]
+				lst = [x for x in lst if not 'cstlib' in get(x).features]
 			tmp.extend(lst)
 
 		# link task and flags

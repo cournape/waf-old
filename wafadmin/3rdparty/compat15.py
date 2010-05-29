@@ -7,6 +7,7 @@ ConfigSet.ConfigSet.set_variant = Utils.nada
 
 import Build
 Build.BuildContext.add_subdirs = Build.BuildContext.recurse
+Build.BuildContext.name_to_obj = Build.BuildContext.get_tgen_by_name
 
 import Configure
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
