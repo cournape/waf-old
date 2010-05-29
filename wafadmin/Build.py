@@ -418,17 +418,20 @@ class BuildContext(Base.Context):
 
 			# create the index lazily
 			for g in self.groups:
-				for x in g:
-					# TODO only task generators for now
-					if x.name:
-						cache[x.name] = x
-					else:
-						if isinstance(x.target, str):
-							target = x.target
+				for tg in g:
+					try:
+						if tg.name:
+							cache[tg.name] = tg
 						else:
-							target = ' '.join(x.target)
-						if not cache.get(target, None):
-							cache[target] = x
+							if isinstance(tg.target, str):
+								target = tg.target
+							else:
+								target = ' '.join(tg.target)
+							if not cache.get(target, None):
+								cache[target] = tg
+					except AttributeError:
+						# raised if not a task generator, which should be uncommon
+						pass
 		try:
 			return cache[name]
 		except KeyError:
@@ -569,7 +572,7 @@ class BuildContext(Base.Context):
 		except AttributeError: self.post_funs = [meth]
 
 	def get_group(self, x):
-		"""get the group x (nam or number), or the current group"""
+		"""get the group x (name or number), or the current group"""
 		if not self.groups:
 			self.add_group()
 		if x is None:
