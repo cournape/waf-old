@@ -637,19 +637,6 @@ class BuildContext(Base.Context):
 					total += len(tg.tasks)
 		return total
 
-	def add_finished(self, tsk):
-		self.tasks_done.append(tsk)
-		bld = tsk.generator.bld
-		return # TODO
-		if bld.is_install:
-			f = None
-			if 'install' in tsk.__dict__:
-				f = tsk.__dict__['install']
-				# install=0 to prevent installation
-				if f: f(tsk)
-			else:
-				tsk.install()
-
 	def start(self):
 		self.generator = Runner.Parallel(self)
 		self.generator.start() # vroom

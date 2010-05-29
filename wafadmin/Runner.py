@@ -197,7 +197,6 @@ class Parallel(object):
 	def get_out(self):
 		"the tasks that are put to execute are all collected using get_out"
 		ret = self.out.get()
-		self.bld.add_finished(ret)
 		if not self.stop and getattr(ret, 'more_tasks', None):
 			self.outstanding += ret.more_tasks
 			self.total += len(ret.more_tasks)
@@ -230,7 +229,6 @@ class Parallel(object):
 			if tsk.hasrun:
 				# if the task is marked as "run", just skip it
 				self.processed += 1
-				self.bld.add_finished(tsk)
 				continue
 
 			try:
@@ -240,7 +238,6 @@ class Parallel(object):
 				tsk.hasrun = Task.EXCEPTION
 				self.processed += 1
 				self.error_handler(tsk)
-				self.bld.add_finished(tsk)
 				continue
 
 			if st == Task.ASK_LATER:
@@ -248,7 +245,6 @@ class Parallel(object):
 			elif st == Task.SKIP_ME:
 				self.processed += 1
 				tsk.hasrun = Task.SKIPPED
-				self.bld.add_finished(tsk)
 			else:
 				# run me: put the task in ready queue
 				tsk.position = (self.processed, self.total)
