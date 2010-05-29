@@ -11,7 +11,6 @@ from Configure import conf
 
 ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o')
-cls.install = Utils.nada
 
 # remove the output in case it already exists
 old = cls.run

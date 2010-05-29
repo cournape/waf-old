@@ -58,9 +58,6 @@ class task_gen(object):
 		# not always a good idea
 		self.tasks = []
 
-		self.default_chmod = Utils.O644
-		self.default_install_path = None
-
 		self.bld = kwargs['bld']
 		self.env = self.bld.env.derive()
 
@@ -202,24 +199,8 @@ class task_gen(object):
 
 		return newobj
 
-	def get_inst_path(self):
-		return getattr(self, '_install_path', getattr(self, 'default_install_path', ''))
-
-	def set_inst_path(self, val):
-		self._install_path = val
-
-	install_path = property(get_inst_path, set_inst_path)
-
-	def get_chmod(self):
-		return getattr(self, '_chmod', getattr(self, 'default_chmod', Utils.O644))
-
-	def set_chmod(self, val):
-		self._chmod = val
-
-	chmod = property(get_chmod, set_chmod)
-
 def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
-	ext_in=[], ext_out=[], before=[], after=[], decider=None, install=False, scan=None):
+	ext_in=[], ext_out=[], before=[], after=[], decider=None, scan=None):
 	"""
 	see Tools/flex.py for an example
 	while i do not like such wrappers, some people really do
@@ -247,9 +228,6 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 			for i in range(reentrant):
 				self.source.append(out_source[i])
 		tsk = self.create_task(name, node, out_source)
-
-		if node.__class__.bld.is_install:
-			tsk.install = install
 
 	for x in Utils.to_list(act.ext_in):
 		task_gen.mappings[x] = x_file
@@ -407,9 +385,6 @@ def process_rule(self):
 
 	if getattr(self, 'scan', None):
 		cls.scan = self.scan
-
-	if getattr(self, 'install_path', None):
-		tsk.install_path = self.install_path
 
 	if getattr(self, 'cwd', None):
 		tsk.cwd = self.cwd

@@ -193,32 +193,6 @@ def default_cc(self):
 	if not self.env.BINDIR: self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
 	if not self.env.LIBDIR: self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
 
-@feature('cprogram', 'dprogram')
-@after('default_cc')
-@before('process_source')
-def vars_target_cprogram(self):
-	self.default_install_path = self.env.BINDIR
-	self.default_chmod = Utils.O755
-
-@after('default_cc')
-@feature('cshlib', 'dshlib')
-@before('process_source')
-def vars_target_lib(self):
-	if self.env.DEST_BINFMT == 'pe':
-		#   set execute bit on libs to avoid 'permission denied' (issue 283)
-		self.default_chmod = Utils.O755
-		self.default_install_path = self.env.BINDIR
-	else:
-		self.default_install_path = self.env.LIBDIR
-
-@feature('cprogram', 'dprogram', 'cstlib', 'dstlib', 'cshlib', 'dshlib')
-@after('apply_link', 'vars_target_cprogram', 'vars_target_lib')
-def default_link_install(self):
-	"""you may kill this method to inject your own installation for the first element
-	any other install should only process its own nodes and not those from the others"""
-	if self.install_path:
-		self.bld.install_files(self.install_path, self.link_task.outputs[0], env=self.env, chmod=self.chmod)
-
 @feature('cc', 'cxx')
 @after('apply_lib_vars')
 def apply_defines(self):
@@ -533,15 +507,13 @@ def add_extra_flags(self):
 
 @feature('cshlib')
 @after('apply_link', 'default_cc')
-@before('apply_lib_vars', 'apply_objdeps', 'default_link_install')
+@before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
 	"""
 	if not self.env.DEST_BINFMT == 'pe':
 		return
-
-	self.meths.remove('default_link_install')
 
 	bindir = self.install_path
 	if not bindir: return
@@ -563,15 +535,13 @@ def apply_implib(self):
 
 @feature('cshlib', 'dshlib')
 @after('apply_link')
-@before('apply_lib_vars', 'default_link_install')
+@before('apply_lib_vars')
 def apply_vnum(self):
 	"""
 	libfoo.so is installed as libfoo.so.1.2.3
 	"""
 	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
 		return
-
-	self.meths.remove('default_link_install')
 
 	link = self.link_task
 	nums = self.vnum.split('.')
