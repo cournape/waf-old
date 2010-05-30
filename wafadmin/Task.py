@@ -166,12 +166,12 @@ class TaskBase(evil):
 	def hash_constraints(self):
 		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
 		a = self.attr
-		sum = hash((self.__class__.__name__,
+		h = hash((self.__class__.__name__,
 			str(a('before', '')),
 			str(a('after', '')),
 			str(a('ext_in', '')),
 			str(a('ext_out', ''))))
-		return sum
+		return h
 
 	def format_error(self):
 		"error message to display to the user (when a build fails)"

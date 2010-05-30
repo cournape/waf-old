@@ -30,7 +30,6 @@ CFG_FILES = 'cfg_files'
 class BuildError(Base.WafError):
 	"""error raised during the build"""
 	def __init__(self, b=None, t=[]):
-		self.bld = b
 		self.tasks = t
 		Base.WafError.__init__(self, self.format_error())
 
@@ -262,23 +261,17 @@ class BuildContext(Base.Context):
 
 	def compile(self):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
-		Logs.debug('build: compile called')
-
-		def dw(on):
-			if Options.options.progress_bar:
-				if on: sys.stderr.write(Logs.colors.cursor_on)
-				else: sys.stderr.write(Logs.colors.cursor_off)
-
-		Logs.debug('build: executor starting')
+		Logs.debug('build: compile()')
 
 		# use another object to perform the producer-consumer logic (reduce the complexity)
-		self.generator = Runner.Parallel(self)
-		self.generator.biter = self.get_build_iterator()
-		dw(False)
+		self.parallel = Runner.Parallel(self)
+		self.parallel.biter = self.get_build_iterator()
+		if Options.options.progress_bar:
+			sys.stderr.write(Logs.colors.cursor_off)
 
 		try:
 			try:
-				self.generator.start() # vroom
+				self.parallel.start() # vroom
 			except KeyboardInterrupt:
 				self.save()
 				raise
@@ -286,10 +279,11 @@ class BuildContext(Base.Context):
 				self.save()
 		finally:
 			# do not save anything if a general exception occured
-			dw(True)
+			if Options.options.progress_bar:
+				sys.stderr.write(Logs.colors.cursor_on)
 
-		if self.generator.error:
-			raise BuildError(self, self.generator.error)
+		if self.parallel.error:
+			raise BuildError(self, self.parallel.error)
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"""Loads the waf tools used during the build (task classes, etc)"""
