@@ -264,7 +264,7 @@ class BuildContext(Base.Context):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
 		Logs.debug('build: compile called')
 
-		def dw(on=True):
+		def dw(on):
 			if Options.options.progress_bar:
 				if on: sys.stderr.write(Logs.colors.cursor_on)
 				else: sys.stderr.write(Logs.colors.cursor_off)
@@ -274,24 +274,19 @@ class BuildContext(Base.Context):
 		# use another object to perform the producer-consumer logic (reduce the complexity)
 		self.generator = Runner.Parallel(self)
 		self.generator.biter = self.get_build_iterator()
-		dw(on=False)
+		dw(False)
 
 		try:
-			self.generator.start() # vroom
-		except KeyboardInterrupt:
-			dw()
-			#if Runner.TaskConsumer.consumers:
-			# TODO optimize
-			self.save()
-			raise
-		except Exception:
-			dw()
-			# do not store anything, for something bad happened
-			raise
-		else:
-			dw()
-			#if self.: TODO speed up the no-op build here
-			self.save()
+			try:
+				self.generator.start() # vroom
+			except KeyboardInterrupt:
+				self.save()
+				raise
+			else:
+				self.save()
+		finally:
+			# do not save anything if a general exception occured
+			dw(True)
 
 		if self.generator.error:
 			raise BuildError(self, self.generator.error)
