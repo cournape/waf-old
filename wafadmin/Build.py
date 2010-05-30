@@ -28,9 +28,9 @@ CFG_FILES = 'cfg_files'
 """files from the build directory to hash before starting the build"""
 
 class BuildError(Base.WafError):
-	"""error raised during the build"""
-	def __init__(self, b=None, t=[]):
-		self.tasks = t
+	"""Error raised during the build and install phases"""
+	def __init__(self, error_tasks=[]):
+		self.tasks = error_tasks
 		Base.WafError.__init__(self, self.format_error())
 
 	def format_error(self):
