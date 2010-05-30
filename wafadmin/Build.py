@@ -112,7 +112,6 @@ class BuildContext(Base.Context):
 		self.groups = []
 		self.group_names = {}
 
-
 	def __call__(self, *k, **kw):
 		"""Creates a task generator"""
 		kw['bld'] = self
@@ -368,20 +367,11 @@ class BuildContext(Base.Context):
 		the name must be unique"""
 		cache = self.task_gen_cache_names
 		if not cache:
-
 			# create the index lazily
 			for g in self.groups:
 				for tg in g:
 					try:
-						if tg.name:
-							cache[tg.name] = tg
-						else:
-							if isinstance(tg.target, str):
-								target = tg.target
-							else:
-								target = ' '.join(tg.target)
-							if not cache.get(target, None):
-								cache[target] = tg
+						cache[tg.name] = tg
 					except AttributeError:
 						# raised if not a task generator, which should be uncommon
 						pass

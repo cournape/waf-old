@@ -89,7 +89,7 @@ class Node(object):
 		return (self.name, self.parent, getattr(self, 'children', None), getattr(self, 'sig', None))
 
 	def __str__(self):
-		return self.abspath()
+		return self.name
 
 	def __repr__(self):
 		return self.abspath()

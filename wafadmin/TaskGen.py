@@ -58,24 +58,44 @@ class task_gen(object):
 		# not always a good idea
 		self.tasks = []
 
-		self.bld = kwargs['bld']
-		self.env = self.bld.env.derive()
-
-		self.path = self.bld.path # emulate chdir when reading scripts
-		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
-
-		# provide a unique id
-		try:
-			self.idx = self.bld.idx[id(self.path)] = self.bld.idx.get(id(self.path), 0) + 1
-		except AttributeError:
-			self.bld.idx = {}
-			self.idx = self.bld.idx[id(self.path)] = 0
-
 		for key, val in kwargs.items():
 			setattr(self, key, val)
 
+		try:
+			bld = self.bld
+		except AttributeError:
+			self.env = ConfigSet.ConfigSet()
+			self.idx = 0
+			self.path = None
+		else:
+			self.env = self.bld.env.derive()
+
+			self.path = self.bld.path # emulate chdir when reading scripts
+
+			# provide a unique id
+			try:
+				self.idx = self.bld.idx[id(self.path)] = self.bld.idx.get(id(self.path), 0) + 1
+			except AttributeError:
+				self.bld.idx = {}
+				self.idx = self.bld.idx[id(self.path)] = 0
+
+
 	def __str__(self):
-		return ("<task_gen '%s' declared in %s>" % (self.name or self.target, self.path))
+		return "<task_gen '%s' declared in %s>" % (self.name, self.path)
+
+	def get_name(self):
+		try:
+			return self._name
+		except AttributeError:
+			if isinstance(self.target, list):
+				name = self._name = ','.join(self.target)
+			else:
+				name = self._name = str(self.target)
+			return name
+	def set_name(self, name):
+		self._name = name
+
+	name = property(get_name, set_name)
 
 	def to_list(self, value):
 		"helper: returns a list"
@@ -144,12 +164,6 @@ class task_gen(object):
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
-		if not self.name:
-			if isinstance(self.target, list):
-				self.name = ' '.join(self.target)
-			else:
-				self.name = self.target
-
 		if getattr(self, 'posted', None):
 			#error("OBJECT ALREADY POSTED" + str( self))
 			return False
