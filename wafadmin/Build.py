@@ -180,20 +180,20 @@ class BuildContext(Base.Context):
 		if not lst:
 			raise Base.WafError('The cache directory is empty: reconfigure the project')
 
-		for file in lst:
-			if file.endswith(Configure.CACHE_SUFFIX):
-				env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, file))
-				name = file[:-len(Configure.CACHE_SUFFIX)]
+		for fname in lst:
+			if fname.endswith(Configure.CACHE_SUFFIX):
+				env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, fname))
+				name = fname[:-len(Configure.CACHE_SUFFIX)]
 				self.all_envs[name] = env
 
 				for f in env[CFG_FILES]:
 					newnode = self.path.find_or_declare(f)
 					try:
-						hash = Utils.h_file(newnode.abspath())
+						h = Utils.h_file(newnode.abspath())
 					except (IOError, AttributeError):
 						Logs.error('cannot find %r' % f)
-						hash = Utils.SIG_NIL
-					newnode.sig = hash
+						h = Utils.SIG_NIL
+					newnode.sig = h
 
 	def make_root(self):
 		"""Creates a node representing the filesystem root"""
@@ -547,7 +547,7 @@ class BuildContext(Base.Context):
 		return {'bld': self, 'ctx': self}
 
 	def post_recurse(self, name_or_mod, path, nexdir):
-		"""from the context path"""
+		"""from the context class"""
 		self.path = self.oldpath.pop()
 
 	def pre_build(self):
@@ -557,7 +557,7 @@ class BuildContext(Base.Context):
 				m(self)
 
 	def post_build(self):
-		"""executes the user-defined methods after the build is complete"""
+		"""executes the user-defined methods after the build is complete (no execution when the build fails)"""
 		if hasattr(self, 'post_funs'):
 			for m in self.post_funs:
 				m(self)
@@ -584,6 +584,7 @@ class BuildContext(Base.Context):
 
 	def add_to_group(self, tgen, group=None):
 		"""add a task or a task generator for the build"""
+		# paranoid
 		assert(isinstance(tgen, TaskGen.task_gen) or isinstance(tgen, Task.TaskBase))
 		self.get_group(group).append(tgen)
 
@@ -632,10 +633,10 @@ class BuildContext(Base.Context):
 		total = 0
 		for group in self.groups:
 			for tg in group:
-				if isinstance(tg, Task.TaskBase):
-					total += 1
-				else:
+				try:
 					total += len(tg.tasks)
+				except AttributeError:
+					total += 1
 		return total
 
 	def start(self):
@@ -643,15 +644,6 @@ class BuildContext(Base.Context):
 		self.generator.biter = self.get_build_iterator()
 		self.generator.start() # vroom
 		self.error = self.generator.error
-
-	def install_files(self, *k, **kw):
-		pass
-
-	def install_as(self, *k, **kw):
-		pass
-
-	def symlink_as(self, *k, **kw):
-		pass
 
 	def get_build_iterator(self):
 		"""creates a generator object that returns tasks executable in parallel"""
@@ -729,6 +721,15 @@ class BuildContext(Base.Context):
 				yield toreturn
 		while 1:
 			yield []
+
+	def install_files(self, *k, **kw):
+		pass
+
+	def install_as(self, *k, **kw):
+		pass
+
+	def symlink_as(self, *k, **kw):
+		pass
 
 class InstallContext(BuildContext):
 	"""installs the targets on the system"""
