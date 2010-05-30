@@ -325,6 +325,15 @@ class Node(object):
 		self.cache_abspath = val
 		return val
 
+	def is_child_of(self, node):
+		"does this node belong to the subtree node"
+		p = self
+		diff = self.height() - node.height()
+		while diff > 0:
+			diff -= 1
+			p = p.parent
+		return id(p) == id(node)
+
 	# the following methods require the source/build folders (bld.srcnode/bld.bldnode)
 
 	def is_src(self):

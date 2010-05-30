@@ -392,7 +392,14 @@ class BuildContext(Base.Context):
 
 		Logs.debug('build: delayed operation TaskGen.flush() called')
 
-		if self.targets:
+		if self.targets == '*':
+			Logs.debug('task_gen: posting task generators (normal)')
+			for g in self.groups:
+				for tg in g:
+					if isinstance(tg, TaskGen.task_gen):
+						Logs.debug('group: Posting %s', tg.name or tg.target)
+						tg.post()
+		elif self.targets:
 			Logs.debug('task_gen: posting task generators %r', self.targets)
 
 			to_post = []
@@ -426,14 +433,17 @@ class BuildContext(Base.Context):
 			# then post the task generators listed in options.targets in the last group
 			for tg in to_post:
 				tg.post()
-
 		else:
-			Logs.debug('task_gen: posting task generators (normal)')
+			Logs.debug('task_gen: posting task generators (launch directory)')
+			ln = self.root.find_dir(Options.launch_dir)
 			for g in self.groups:
 				for tg in g:
 					if isinstance(tg, TaskGen.task_gen):
+						if not tg.path.is_child_of(ln):
+							continue
 						Logs.debug('group: Posting %s', tg.name or tg.target)
 						tg.post()
+
 
 	def progress_line(self, state, total, col1, col2):
 		"""Compute the progress bar"""
@@ -532,7 +542,7 @@ class BuildContext(Base.Context):
 
 	def get_group_name(self, g):
 		"""name for the group g (utility)"""
-		if not isinstance(g, BuildGroup):
+		if not isinstance(g, list):
 			g = self.groups[g]
 		for x in self.group_names:
 			if id(self.group_names[x]) == id(g):
