@@ -138,6 +138,9 @@ class BuildContext(Base.Context):
 		self.task_gen_cache_names = {}
 		self.log = None
 
+		self.targets = Options.options.targets
+		self.files = Options.options.files
+
 		############ stuff below has not been reviewed
 
 		# Manual dependencies.
@@ -447,12 +450,12 @@ class BuildContext(Base.Context):
 
 		Logs.debug('build: delayed operation TaskGen.flush() called')
 
-		if Options.options.compile_targets:
-			Logs.debug('task_gen: posting task generators %r', Options.options.compile_targets)
+		if self.targets:
+			Logs.debug('task_gen: posting task generators %r', self.targets)
 
 			to_post = []
 			min_grp = 0
-			for name in Options.options.compile_targets.split(','):
+			for name in self.targets.split(','):
 				tg = self.get_tgen_by_name(name)
 
 				if not tg:
@@ -465,7 +468,7 @@ class BuildContext(Base.Context):
 				elif m == min_grp:
 					to_post.append(tg)
 
-			Logs.debug('group: Forcing up to group %s for target %s', self.get_group_name(min_grp), Options.options.compile_targets)
+			Logs.debug('group: Forcing up to group %s for target %s', self.get_group_name(min_grp), self.targets)
 
 			# post all the task generators in previous groups
 			for i in xrange(len(self.groups)):
@@ -478,7 +481,7 @@ class BuildContext(Base.Context):
 						Logs.debug('group: Posting %s', tg.name or tg.target)
 						tg.post()
 
-			# then post the task generators listed in compile_targets in the last group
+			# then post the task generators listed in options.targets in the last group
 			for tg in to_post:
 				tg.post()
 

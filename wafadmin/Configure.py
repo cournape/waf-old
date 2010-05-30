@@ -378,8 +378,8 @@ class ConfigurationContext(Base.Context):
 
 		# It is not possible to compile specific targets in the configuration
 		# this may cause configuration errors if autoconfig is set
-		self.targets = Options.options.compile_targets
-		Options.options.compile_targets = None
+		self.targets = Options.options.targets
+		Options.options.targets = None
 
 		self.srcdir = src
 		self.blddir = bld
@@ -420,7 +420,7 @@ class ConfigurationContext(Base.Context):
 
 		Options.top_dir = self.srcdir
 		Options.out_dir = self.blddir
-		Options.options.compile_targets = self.targets
+		Options.options.targets = self.targets
 
 		# this will write a configure lock so that subsequent builds will
 		# consider the current path as the root directory (see prepare_impl).
