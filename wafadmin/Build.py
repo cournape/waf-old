@@ -41,44 +41,6 @@ class BuildError(Base.WafError):
 			if txt: lst.append(txt)
 		return '\n'.join(lst)
 
-def check_dir(dir):
-	"""
-	Ensure that a directory exists. Equivalent to mkdir -p.
-	@type  dir: string
-	@param dir: Path to directory
-	"""
-	try:
-		os.stat(dir)
-	except OSError:
-		try:
-			os.makedirs(dir)
-		except OSError as e:
-			raise Base.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
-
-def group_method(fun):
-	"""
-	sets a build context method to execute after the current group has finished executing
-	this is useful for installing build files:
-	* calling install_files/install_as will fail if called too early
-	* people do not want to define install method in their task classes
-	"""
-	def f(*k, **kw):
-		if not k[0].is_install:
-			return False
-
-		postpone = True
-		if 'postpone' in kw:
-			postpone = kw['postpone']
-			del kw['postpone']
-
-		if postpone:
-			if not self.groups: self.add_group()
-			self.groups[self.current_group].post_funs.append((fun, k, kw))
-			kw['cwd'] = k[0].path
-		else:
-			fun(*k, **kw)
-	return f
-
 class BuildContext(Base.Context):
 	"""executes the build"""
 
@@ -147,7 +109,6 @@ class BuildContext(Base.Context):
 		self.deps_man = Utils.defaultdict(list)
 
 		self.tasks_done = []
-		self.error = False
 
 		# just the structure here
 		self.current_group = 0
@@ -310,9 +271,13 @@ class BuildContext(Base.Context):
 
 		Logs.debug('build: executor starting')
 
+		# use another object to perform the producer-consumer logic (reduce the complexity)
+		self.generator = Runner.Parallel(self)
+		self.generator.biter = self.get_build_iterator()
+		dw(on=False)
+
 		try:
-			dw(on=False)
-			self.start()
+			self.generator.start() # vroom
 		except KeyboardInterrupt:
 			dw()
 			#if Runner.TaskConsumer.consumers:
@@ -328,8 +293,8 @@ class BuildContext(Base.Context):
 			#if self.: TODO speed up the no-op build here
 			self.save()
 
-		if self.error:
-			raise BuildError(self, self.tasks_done)
+		if self.generator.error:
+			raise BuildError(self, self.generator.error)
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"""Loads the waf tools used during the build (task classes, etc)"""
@@ -639,12 +604,6 @@ class BuildContext(Base.Context):
 					total += 1
 		return total
 
-	def start(self):
-		self.generator = Runner.Parallel(self)
-		self.generator.biter = self.get_build_iterator()
-		self.generator.start() # vroom
-		self.error = self.generator.error
-
 	def get_build_iterator(self):
 		"""creates a generator object that returns tasks executable in parallel"""
 		self.cur = 0
@@ -730,6 +689,44 @@ class BuildContext(Base.Context):
 
 	def symlink_as(self, *k, **kw):
 		pass
+
+def check_dir(dir):
+	"""
+	Ensure that a directory exists. Equivalent to mkdir -p.
+	@type  dir: string
+	@param dir: Path to directory
+	"""
+	try:
+		os.stat(dir)
+	except OSError:
+		try:
+			os.makedirs(dir)
+		except OSError as e:
+			raise Base.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
+
+def group_method(fun):
+	"""
+	sets a build context method to execute after the current group has finished executing
+	this is useful for installing build files:
+	* calling install_files/install_as will fail if called too early
+	* people do not want to define install method in their task classes
+	"""
+	def f(*k, **kw):
+		if not k[0].is_install:
+			return False
+
+		postpone = True
+		if 'postpone' in kw:
+			postpone = kw['postpone']
+			del kw['postpone']
+
+		if postpone:
+			if not self.groups: self.add_group()
+			self.groups[self.current_group].post_funs.append((fun, k, kw))
+			kw['cwd'] = k[0].path
+		else:
+			fun(*k, **kw)
+	return f
 
 class InstallContext(BuildContext):
 	"""installs the targets on the system"""

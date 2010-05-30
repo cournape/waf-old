@@ -111,7 +111,7 @@ class Parallel(object):
 		self.processed = 1 # progress indicator
 
 		self.stop = False # error condition to stop the build
-		self.error = False # error flag
+		self.error = [] # tasks in error
 		self.biter = None # build iterator, must give groups of parallelizable tasks on next()
 
 	def get_next_task(self):
@@ -157,7 +157,7 @@ class Parallel(object):
 		"by default, errors make the build stop (not thread safe so be careful)"
 		if not Options.options.keep:
 			self.stop = True
-		self.error = True
+		self.error.append(tsk)
 
 	def start(self):
 		"execute the tasks"
