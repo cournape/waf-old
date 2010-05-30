@@ -640,6 +640,7 @@ class BuildContext(Base.Context):
 
 	def start(self):
 		self.generator = Runner.Parallel(self)
+		self.generator.biter = self.get_build_iterator()
 		self.generator.start() # vroom
 		self.error = self.generator.error
 
@@ -651,6 +652,83 @@ class BuildContext(Base.Context):
 
 	def symlink_as(self, *k, **kw):
 		pass
+
+	def get_build_iterator(self):
+		"""creates a generator object that returns tasks executable in parallel"""
+		self.cur = 0
+		while self.cur < len(self.groups):
+			tasks = []
+			for tg in self.groups[self.cur]:
+				# TODO a try-except might be more efficient
+				if isinstance(tg, Task.TaskBase):
+					tasks.append(tg)
+				else:
+					tasks.extend(tg.tasks)
+
+			# if the constraints are set properly (ext_in/ext_out, before/after)
+			# the call to set_file_constraints may be removed (can be a 15% penalty on no-op rebuilds)
+			#
+			# the tasks are split into groups of independent tasks that may be parallelized
+			# and a topological sort is performed
+			#
+			# if the tasks have only files, set_file_constraints is required but extract_constraints is not necessary
+			#
+			Task.set_file_constraints(tasks)
+
+			# use the after/before + ext_out/ext_in to perform a topological sort
+			cstr_groups = Utils.defaultdict(list)
+			cstr_order = Utils.defaultdict(set)
+			for x in tasks:
+				h = x.hash_constraints()
+				cstr_groups[h].append(x)
+
+			keys = list(cstr_groups.keys())
+			maxi = len(keys)
+
+			# this list should be short
+			for i in range(maxi):
+				t1 = cstr_groups[keys[i]][0]
+				for j in range(i + 1, maxi):
+					t2 = cstr_groups[keys[j]][0]
+
+					# add the constraints based on the comparisons
+					val = (Task.compare_exts(t1, t2) or Task.compare_partial(t1, t2))
+					if val > 0:
+						cstr_order[keys[i]].add(keys[j])
+					elif val < 0:
+						cstr_order[keys[j]].add(keys[i])
+
+			while 1:
+				unconnected = []
+				remainder = []
+
+				for u in keys:
+					for k in cstr_order.values():
+						if u in k:
+							remainder.append(u)
+							break
+					else:
+						unconnected.append(u)
+
+				toreturn = []
+				for y in unconnected:
+					toreturn.extend(cstr_groups[y])
+
+				# remove stuff only after
+				for y in unconnected:
+					try: cstr_order.__delitem__(y)
+					except KeyError: pass
+					cstr_groups.__delitem__(y)
+
+				if not toreturn:
+					if remainder:
+						raise Base.WafError("Circular order constraint detected %r" % remainder)
+					self.cur += 1
+					break
+
+				yield toreturn
+		while 1:
+			yield []
 
 class InstallContext(BuildContext):
 	"""installs the targets on the system"""
