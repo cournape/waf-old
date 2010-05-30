@@ -107,8 +107,6 @@ class BuildContext(Base.Context):
 		# Manual dependencies.
 		self.deps_man = Utils.defaultdict(list)
 
-		self.tasks_done = []
-
 		# just the structure here
 		self.current_group = 0
 		self.groups = []
