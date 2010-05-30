@@ -376,11 +376,6 @@ class ConfigurationContext(Base.Context):
 		try: os.makedirs(bld)
 		except OSError: pass
 
-		# It is not possible to compile specific targets in the configuration
-		# this may cause configuration errors if autoconfig is set
-		self.targets = Options.options.targets
-		Options.options.targets = None
-
 		self.srcdir = src
 		self.blddir = bld
 		self.post_init()
@@ -392,19 +387,17 @@ class ConfigurationContext(Base.Context):
 			self.start_msg('Setting blddir to')
 			self.end_msg(bld)
 
-	def store(self, file=''):
+	def store(self):
 		"""Saves the config results into the cache file"""
 		try:
 			os.makedirs(self.cachedir)
 		except:
 			pass
 
-		if not file:
-			file = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
-
-		file.write('version = 0x%x\n' % Base.HEXVERSION)
-		file.write('tools = %r\n' % self.tools)
-		file.close()
+		f = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
+		f.write('version = 0x%x\n' % Base.HEXVERSION)
+		f.write('tools = %r\n' % self.tools)
+		f.close()
 
 		if not self.all_envs:
 			self.fatal('nothing to store in the configuration context!')
@@ -420,7 +413,6 @@ class ConfigurationContext(Base.Context):
 
 		Options.top_dir = self.srcdir
 		Options.out_dir = self.blddir
-		Options.options.targets = self.targets
 
 		# this will write a configure lock so that subsequent builds will
 		# consider the current path as the root directory (see prepare_impl).
@@ -429,7 +421,6 @@ class ConfigurationContext(Base.Context):
 		env['argv'] = sys.argv
 		env['options'] = Options.options.__dict__
 
-		env.launch_dir = Options.launch_dir
 		env.run_dir = Options.run_dir
 		env.top_dir = Options.top_dir
 		env.out_dir = Options.out_dir

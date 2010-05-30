@@ -500,6 +500,7 @@ def run_c_code(self, *k, **kw):
 	bld.make_root()
 	bld.init_dirs(dir, bdir)
 	bld.out_dir = bdir
+	bld.targets = '*'
 
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)

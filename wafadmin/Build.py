@@ -100,6 +100,7 @@ class BuildContext(Base.Context):
 		self.log = None
 
 		self.targets = Options.options.targets
+		self.launch_dir = Options.launch_dir
 		self.files = Options.options.files
 
 		############ stuff below has not been reviewed
@@ -280,7 +281,7 @@ class BuildContext(Base.Context):
 				sys.stderr.write(Logs.colors.cursor_on)
 
 		if self.parallel.error:
-			raise BuildError(self, self.parallel.error)
+			raise BuildError(self.parallel.error)
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"""Loads the waf tools used during the build (task classes, etc)"""
@@ -323,7 +324,7 @@ class BuildContext(Base.Context):
 			# private cache
 			return self.p_ln
 		except AttributeError:
-			self.p_ln = self.root.find_dir(Options.launch_dir)
+			self.p_ln = self.root.find_dir(self.launch_dir)
 			return self.p_ln
 
 	## the following methods are candidates for the stable apis ##
@@ -435,7 +436,7 @@ class BuildContext(Base.Context):
 				tg.post()
 		else:
 			Logs.debug('task_gen: posting task generators (launch directory)')
-			ln = self.root.find_dir(Options.launch_dir)
+			ln = self.launch_node()
 			for g in self.groups:
 				for tg in g:
 					if isinstance(tg, TaskGen.task_gen):
