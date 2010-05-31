@@ -45,7 +45,7 @@ class foo_task(Task.Task):
 	def run(self):
 		print("running foo")
 
-print("classes", Task.TaskBase.classes)
+print("classes", Task.classes)
 
 #-----------------------------------------------
 # variant example below
@@ -53,13 +53,13 @@ print("classes", Task.TaskBase.classes)
 #
 
 import os
-import Build, Constants, Options
+import Build, Options
 
 class debug_context(Build.BuildContext):
 	cmd = 'debug'
 	fun = 'build'
 	def __init__(self, start=None):
-		self.cache_dir = Options.out_dir + os.sep + Constants.CACHE_DIR
+		self.cache_dir = Options.out_dir + os.sep + Build.CACHE_DIR
 		self.out_dir = Options.out_dir + os.sep + 'test'
 		Build.BuildContext.__init__(self, start=start)
 
