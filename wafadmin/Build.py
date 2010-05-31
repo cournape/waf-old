@@ -1018,5 +1018,39 @@ class StepContext(BuildContext):
 			Logs.warn('Add a pattern for the debug build, for example "waf step --files=main.c,app"')
 			BuildContext.compile(self)
 			return
-		print("not finixd")
+
+		for pat in self.files.split(','):
+			inn = True
+			out = True
+			if pat.startswith('in:'):
+				out = False
+				pat = pat.replace('in:', '')
+			elif pat.startswith('out:'):
+				inn = False
+				pat = pat.replace('out:', '')
+
+			pat = re.compile(pat, re.M)
+
+			for g in self.groups:
+				for tg in g:
+					if isinstance(tg, Task.TaskBase):
+						lst = [tg]
+					else:
+						lst = tg.tasks
+					for tsk in lst:
+						do_exec = False
+						if inn:
+							for node in getattr(tsk, 'inputs', []):
+								if pat.search(node.abspath()):
+									do_exec = True
+									break
+						if out and not do_exec:
+							for node in getattr(tsk, 'outputs', []):
+								if pat.search(node.abspath()):
+									do_exec = True
+									break
+
+						if do_exec:
+							ret = tsk.run()
+							Logs.info('%s -> %r' % (str(tsk), ret))
 
