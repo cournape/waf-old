@@ -537,7 +537,7 @@ class Node(object):
 				if getattr(node, 'cache_isdir', None) or os.path.isdir(node.abspath()):
 					node.cache_isdir = True
 					if maxdepth:
-						for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
+						for k in node.ant_iter(maxdepth=maxdepth - 1, pats=npats):
 							yield k
 		raise StopIteration
 
@@ -592,7 +592,7 @@ class Node(object):
 				nacc = []
 			return [nacc, nrej]
 
-		ret = [x for x in ant_iter(self, accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25)]
+		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25)]
 
 		if kw.get('flat', False):
 			return " ".join([x.path_from(self) for x in ret])
