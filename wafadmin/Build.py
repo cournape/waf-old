@@ -1005,7 +1005,7 @@ class ListContext(BuildContext):
 			Logs.pprint('GREEN', k)
 
 class StepContext(BuildContext):
-	"""Executes tasks in a step-by-step fashion, for debugging"""
+	"""executes tasks in a step-by-step fashion, for debugging"""
 	cmd = 'step'
 
 	def __init__(self, *k, **kw):
@@ -1016,6 +1016,7 @@ class StepContext(BuildContext):
 	def compile(self):
 		if not self.files:
 			Logs.warn('Add a pattern for the debug build, for example "waf step --files=main.c,app"')
+			BuildContext.compile(self)
 			return
 		print("not finixd")
 

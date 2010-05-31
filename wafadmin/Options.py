@@ -51,14 +51,6 @@ class opt_parser(optparse.OptionParser):
 		p('--nocache',        dest='nocache', default=False, action='store_true', help='ignore the WAFCACHE (if set)')
 		p('--zones',          dest='zones',   default='',    action='store', help='debugging zones (task_gen, deps, tasks, etc)')
 
-
-		gr = optparse.OptionGroup(self, 'build options')
-		self.add_option_group(gr)
-
-		gr.add_option('-p', '--progress', dest='progress_bar', default=0, action='count', help= '-p: progress bar; -pp: ide output')
-		gr.add_option('--targets',        dest='targets', default='', action='store', help='task generators, e.g. "target1,target2"')
-		gr.add_option('--files',          dest='files', default='', action='store', help='files to process, by regexp, e.g. "*/main.c,*/test/main.o"')
-
 		gr = optparse.OptionGroup(self, 'configuration options')
 		self.add_option_group(gr)
 
@@ -75,6 +67,17 @@ class opt_parser(optparse.OptionParser):
 				default_prefix = '/usr/local/'
 		gr.add_option('--prefix', dest='prefix', default=default_prefix, help='installation prefix (configuration) [default: %r]' % default_prefix)
 		gr.add_option('-d', '--download', dest='dl_tools', default='', action='store', help='download a plugin, e.g. "swig"')
+
+
+		gr = optparse.OptionGroup(self, 'build and install options')
+		self.add_option_group(gr)
+
+		gr.add_option('-p', '--progress', dest='progress_bar', default=0, action='count', help= '-p: progress bar; -pp: ide output')
+		gr.add_option('--targets',        dest='targets', default='', action='store', help='task generators, e.g. "target1,target2"')
+
+		gr = optparse.OptionGroup(self, 'step options')
+		self.add_option_group(gr)
+		gr.add_option('--files',          dest='files', default='', action='store', help='files to process, by regexp, e.g. "*/main.c,*/test/main.o"')
 
 		default_destdir = os.environ.get('DESTDIR', '')
 		gr = optparse.OptionGroup(self, 'installation options')
