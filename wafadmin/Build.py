@@ -388,7 +388,7 @@ class BuildContext(Base.Context):
 
 		Logs.debug('build: delayed operation TaskGen.flush() called')
 
-		if self.targets == '*' or self.files:
+		if self.targets == '*':
 			Logs.debug('task_gen: posting task generators (normal)')
 			for g in self.groups:
 				for tg in g:

@@ -512,7 +512,7 @@ class Node(object):
 
 	# complicated stuff below
 
-	def ant_iter(self, maxdepth=25, pats=[]):
+	def ant_iter(self, accept=None, maxdepth=25, pats=[]):
 
 		dircont = self.listdir()
 
@@ -592,7 +592,7 @@ class Node(object):
 				nacc = []
 			return [nacc, nrej]
 
-		ret = [x for x in ant_iter(self, pats=[to_pat(incl), to_pat(excl)], maxdepth=25)]
+		ret = [x for x in ant_iter(self, accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25)]
 
 		if kw.get('flat', False):
 			return " ".join([x.path_from(self) for x in ret])
