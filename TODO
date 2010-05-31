@@ -5,11 +5,15 @@ The points listed with a '+' indicate potential sub-projects (contributions will
 
 General
 
+
+- cannot configure a project in a subdirectory
+- fix the target installation system → create one installation task like the link_task? store several installation targets in it?
+- autoconfig for any kind of command
+- nodes for any kind of command
 - give the pkg-config binary path
 - global module repository to avoid re-doing "import"
 - refactor the environment thing
-- debug builds (step-by-step execution + scheduler changes)
-- cc_root.py rewrite to reduce the amount of methods (header processing, flags processing, os fixes)
+- cc_root.py rewrite to reduce the amount of methods (flags processing, os fixes)
 - unification uselib / uselib_local / objects -> attribute 'uses'?
 - new global variable uselib_vars and generalization of uselib for all kinds of task generators
 - cache the configuration test results for multiple calls
@@ -23,7 +27,6 @@ Ideas
 - bind declare chain to the build context and to individual functions
 - build context generalization to tasks and task generators?
 - Post the task generators by groups or as a whole (delegate to the task manager)
-- autoconfig for any kind of command
 - support for // configurations
 - better apis for the shell compilation in Task.py
 
