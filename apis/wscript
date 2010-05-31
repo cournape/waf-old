@@ -46,8 +46,8 @@ def test(ctx):
 	pp = dd.parent
 
 
-	tt('dir printed', str(dd), os.getcwd())
-	tt('parent', str(pp), os.path.split(os.getcwd())[0])
+	tt('dir printed', repr(dd), os.getcwd())
+	tt('parent', repr(pp), os.path.split(os.getcwd())[0])
 	tt('path_from', dd.path_from(pp), os.path.split(os.getcwd())[1])
 	tt('path_from (reverse)', pp.path_from(dd), '..')
 	tt('same path', pp.path_from(pp), '.')
@@ -89,7 +89,7 @@ def test(ctx):
 	remove('1234')
 	create('/'.join(rama))
 	rr = dd.find_node(rama)
-	tt('find a node', str(rr), '/'.join([os.getcwd()]+rama))
+	tt('find a node', repr(rr), '/'.join([os.getcwd()]+rama))
 
 	remove('src/build')
 	create('src/build')
@@ -116,6 +116,7 @@ def test(ctx):
 	tt('bld.get_src()', bld.bldnode.get_src(), bld.srcnode)
 
 	stupid_build = bld.bldnode.make_node(['abc'])
+	stupid_build.write("heheh")
 	tt('find_or_declare src/abc', bld.srcnode.find_or_declare(['abc']), stupid_build)
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), stupid_build)
 
@@ -126,5 +127,5 @@ def test(ctx):
 	create('src/a.txt')
 	create('src/b.txt')
 	tt("ant_glob ->", len(bld.srcnode.ant_glob('*.txt', flat=False)), 2)
-	print("ant_glob src ->", bld.srcnode.ant_glob('*.txt'))
+	#print("ant_glob src ->", bld.srcnode.ant_glob('*.txt'))
 
