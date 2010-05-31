@@ -394,20 +394,15 @@ class Node(object):
 		if isinstance(lst, str):
 			lst = [x for x in lst.split('/') if x and x != '.']
 
-		if self.is_bld():
-			node = self.search(lst)
-			if node:
-				return node
-			self = self.get_src() # !!!
+		node = self.get_bld().search(lst)
+		if node:
+			return node
 
+		self = self.get_src()
 		node = self.search(lst)
 		if node:
 			# compute the signature only once
 			node.compute_sig()
-			return node
-
-		node = self.get_bld().search(lst)
-		if node:
 			return node
 
 		node = self.find_node(lst)
