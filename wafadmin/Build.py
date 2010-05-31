@@ -101,7 +101,6 @@ class BuildContext(Base.Context):
 
 		self.targets = Options.options.targets
 		self.launch_dir = Options.launch_dir
-		self.files = Options.options.files
 
 		############ stuff below has not been reviewed
 
@@ -192,10 +191,14 @@ class BuildContext(Base.Context):
 		self.recurse(self.curdir)
 		self.pre_build()
 		self.flush()
+		if Options.options.progress_bar:
+			sys.stderr.write(Logs.colors.cursor_off)
 		try:
 			self.compile()
 		finally:
-			if Options.options.progress_bar: print('')
+			if Options.options.progress_bar:
+				sys.stderr.write(Logs.colors.cursor_on)
+				print('')
 			Logs.info("Waf: Leaving directory `%s'" % self.out_dir)
 		self.post_build()
 
@@ -264,21 +267,13 @@ class BuildContext(Base.Context):
 		# use another object to perform the producer-consumer logic (reduce the complexity)
 		self.parallel = Runner.Parallel(self)
 		self.parallel.biter = self.get_build_iterator()
-		if Options.options.progress_bar:
-			sys.stderr.write(Logs.colors.cursor_off)
-
 		try:
-			try:
-				self.parallel.start() # vroom
-			except KeyboardInterrupt:
-				self.save()
-				raise
-			else:
-				self.save()
-		finally:
-			# do not save anything if a general exception occured
-			if Options.options.progress_bar:
-				sys.stderr.write(Logs.colors.cursor_on)
+			self.parallel.start() # vroom
+		except KeyboardInterrupt:
+			self.save()
+			raise
+		else:
+			self.save()
 
 		if self.parallel.error:
 			raise BuildError(self.parallel.error)
@@ -1008,4 +1003,19 @@ class ListContext(BuildContext):
 		lst.sort()
 		for k in lst:
 			Logs.pprint('GREEN', k)
+
+class StepContext(BuildContext):
+	"""Executes tasks in a step-by-step fashion, for debugging"""
+	cmd = 'step'
+
+	def __init__(self, *k, **kw):
+		super(StepContext, self).__init__(*k, **kw)
+		self.target = '*' # post all task generators
+		self.files = Options.options.files
+
+	def compile(self):
+		if not self.files:
+			Logs.warn('Add a pattern for the debug build, for example "waf step --files=main.c,app"')
+			return
+		print("not finixd")
 
