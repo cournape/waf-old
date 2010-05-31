@@ -512,11 +512,40 @@ class Node(object):
 
 	# complicated stuff below
 
+	def ant_iter(self, maxdepth=25, pats=[]):
+
+		dircont = self.listdir()
+
+		try:
+			lst = set(self.children.keys())
+			for x in lst - set(dircont):
+				del self.children[x]
+		except:
+			self.children = {}
+
+		for name in dircont:
+
+			npats = accept(name, pats)
+			if npats and npats[0]:
+				accepted = [] in npats[0]
+				#print accepted, self, name
+
+				node = self.make_node([name])
+				if accepted:
+					yield node
+
+				if getattr(node, 'cache_isdir', None) or os.path.isdir(node.abspath()):
+					node.cache_isdir = True
+					if maxdepth:
+						for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
+							yield k
+		raise StopIteration
+
 	def ant_glob(self, *k, **kw):
 
-		src=kw.get('src', 1)
-		bld=kw.get('bld', 1)
-		dir=kw.get('dir', 0)
+		src = kw.get('src', 1)
+		dir = kw.get('dir', 0)
+
 		excl = kw.get('excl', exclude_regs)
 		incl = k and k[0] or kw.get('incl', '**')
 
@@ -563,38 +592,9 @@ class Node(object):
 				nacc = []
 			return [nacc, nrej]
 
-		def ant_iter(nodi, maxdepth=25, pats=[]):
+		ret = [x for x in ant_iter(self, pats=[to_pat(incl), to_pat(excl)], maxdepth=25)]
 
-			dircont = nodi.listdir()
-
-			try:
-				lst = set(nodi.children.keys())
-				for x in lst - set(dircont):
-					del nodi.children[x]
-			except:
-				nodi.children = {}
-
-			for name in dircont:
-
-				npats = accept(name, pats)
-				if npats and npats[0]:
-					accepted = [] in npats[0]
-					#print accepted, nodi, name
-
-					node = nodi.make_node([name])
-					if accepted:
-						yield node
-
-					if getattr(node, 'cache_isdir', None) or os.path.isdir(node.abspath()):
-						node.cache_isdir = True
-						if maxdepth:
-							for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
-								yield k
-			raise StopIteration
-
-		ret = [x for x in ant_iter(self, pats=[to_pat(incl), to_pat(excl)])]
-
-		if kw.get('flat', True):
+		if kw.get('flat', False):
 			return " ".join([x.path_from(self) for x in ret])
 
 		return ret
