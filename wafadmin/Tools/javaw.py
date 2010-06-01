@@ -99,7 +99,7 @@ def apply_java(self):
 
 	srcdir_node = self.path.find_dir(self.srcdir)
 	if not srcdir_node:
-		raise Utils.WafError('could not find srcdir %r' % self.srcdir)
+		raise Errors.WafError('could not find srcdir %r' % self.srcdir)
 
 	src_nodes = [x for x in srcdir_node.ant_glob(self.source_re, flat=False)]
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]

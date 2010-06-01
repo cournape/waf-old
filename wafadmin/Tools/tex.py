@@ -169,7 +169,7 @@ def apply_tex(self):
 		base, ext = os.path.splitext(filename)
 
 		node = self.path.find_resource(filename)
-		if not node: raise Utils.WafError('cannot find %s' % filename)
+		if not node: raise Errors.WafError('cannot find %s' % filename)
 
 		if self.type == 'latex':
 			task = self.create_task('latex', node, node.change_ext('.dvi'))

@@ -6,7 +6,7 @@
 import os, sys, re
 from collections import deque
 import ccroot # <- leave this
-import TaskGen, Utils, Task, Logs
+import TaskGen, Utils, Task, Logs, Errors
 from Logs import debug, error
 from TaskGen import taskgen_method, feature, after, before, extension
 from Configure import conf
@@ -333,7 +333,7 @@ def apply_d_libs(self):
 			for x in self.to_list(y.export_incdirs):
 				node = y.path.find_dir(x)
 				if not node:
-					raise Utils.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
+					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
 				self.env.append_unique('INC_PATHS', [node])
 
 @feature('dprogram', 'dshlib', 'dstlib')
@@ -465,7 +465,7 @@ def process_header(self):
 		node = self.path.find_resource(i[0])
 
 		if not node:
-			raise Utils.WafError('file not found on d obj '+i[0])
+			raise Errors.WafError('file not found on d obj '+i[0])
 
 		task = self.create_task('d_header')
 		task.set_inputs(node)

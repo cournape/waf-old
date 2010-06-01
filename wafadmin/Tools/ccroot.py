@@ -6,7 +6,7 @@
 
 import os, sys, re, subprocess
 from collections import deque
-import TaskGen, Task, Utils, preproc, Logs, Build, Options, Node
+import TaskGen, Task, Utils, preproc, Logs, Build, Options, Node, Errors
 from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import after, before, feature, taskgen_method
@@ -360,7 +360,7 @@ def apply_lib_vars(self):
 			for x in self.to_list(y.export_incdirs):
 				node = y.path.find_dir(x)
 				if not node:
-					raise Utils.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
+					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
 				self.includes.append(node)
 
 	# 2. the case of the libs defined outside

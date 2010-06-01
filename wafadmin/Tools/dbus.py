@@ -19,7 +19,7 @@ def process_dbus(self):
 		node = self.path.find_resource(filename)
 
 		if not node:
-			raise Utils.WafError('file not found ' + filename)
+			raise Errors.WafError('file not found ' + filename)
 
 		tsk = self.create_task('dbus_binding_tool', node, node.change_ext('.h'))
 

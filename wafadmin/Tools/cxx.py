@@ -30,7 +30,7 @@ def init_cxx(self):
 	self.p_type_vars = set(self.p_type_vars).union(g_cxx_type_vars)
 
 	if not self.env['CXX_NAME']:
-		raise Utils.WafError("At least one compiler (g++, ..) must be selected")
+		raise Errors.WafError("At least one compiler (g++, ..) must be selected")
 
 @extension(*EXT_CXX)
 def cxx_hook(self, node):

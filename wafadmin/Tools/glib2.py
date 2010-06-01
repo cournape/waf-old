@@ -24,7 +24,7 @@ def process_marshal(self):
 		node = self.path.find_resource(f)
 
 		if not node:
-			raise Utils.WafError('file not found %r' % f)
+			raise Errors.WafError('file not found %r' % f)
 
 		h_node = node.change_ext('.h')
 		c_node = node.change_ext('.c')
@@ -114,14 +114,14 @@ def process_enums(self):
 		# process the source
 		source_list = self.to_list(enum['source'])
 		if not source_list:
-			raise Utils.WafError('missing source ' + str(enum))
+			raise Errors.WafError('missing source ' + str(enum))
 		source_list = [self.path.find_resource(k) for k in source_list]
 		inputs += source_list
 		env['GLIB_MKENUMS_SOURCE'] = [k.srcpath(env) for k in source_list]
 
 		# find the target
 		if not enum['target']:
-			raise Utils.WafError('missing target ' + str(enum))
+			raise Errors.WafError('missing target ' + str(enum))
 		tgt_node = self.path.find_or_declare(enum['target'])
 		if tgt_node.name.endswith('.c'):
 			self.source.append(tgt_node)

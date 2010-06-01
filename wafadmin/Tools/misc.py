@@ -28,13 +28,13 @@ def copy_func(tsk):
 
 def action_process_file_func(tsk):
 	"Ask the function attached to the task to process it"
-	if not tsk.fun: raise Utils.WafError('task must have a function attached to it for copy_func to work!')
+	if not tsk.fun: raise Errors.WafError('task must have a function attached to it for copy_func to work!')
 	return tsk.fun(tsk)
 
 @feature('cmd')
 def apply_cmd(self):
 	"call a command everytime"
-	if not self.fun: raise Utils.WafError('cmdobj needs a function!')
+	if not self.fun: raise Errors.WafError('cmdobj needs a function!')
 	tsk = Task.TaskBase()
 	tsk.fun = self.fun
 	tsk.env = self.env
@@ -52,7 +52,7 @@ def apply_copy(self):
 
 	for filename in lst:
 		node = self.path.find_resource(filename)
-		if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
+		if not node: raise Errors.WafError('cannot find input file %s for processing' % filename)
 
 		target = self.target
 		if not target or len(lst)>1: target = node.name
@@ -66,7 +66,7 @@ def apply_copy(self):
 
 		if not tsk.env:
 			tsk.debug()
-			raise Utils.WafError('task without an environment')
+			raise Errors.WafError('task without an environment')
 
 def subst_func(tsk):
 	"Substitutes variables in a .in file"
@@ -107,7 +107,7 @@ def apply_subst(self):
 
 	for filename in lst:
 		node = self.path.find_resource(filename)
-		if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
+		if not node: raise Errors.WafError('cannot find input file %s for processing' % filename)
 
 		if self.target:
 			newnode = self.path.find_or_declare(self.target)
@@ -135,7 +135,7 @@ def apply_subst(self):
 
 		if not tsk.env:
 			tsk.debug()
-			raise Utils.WafError('task without an environment')
+			raise Errors.WafError('task without an environment')
 
 ####################
 ## command-output ####
@@ -153,7 +153,7 @@ class input_file(cmd_arg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_resource(self.name)
 		if self.node is None:
-			raise Utils.WafError("Input file %s not found in " % (self.name, base_path))
+			raise Errors.WafError("Input file %s not found in " % (self.name, base_path))
 
 	def get_path(self, env, absolute):
 		if absolute:
@@ -166,7 +166,7 @@ class output_file(cmd_arg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_or_declare(self.name)
 		if self.node is None:
-			raise Utils.WafError("Output file %s not found in " % (self.name, base_path))
+			raise Errors.WafError("Output file %s not found in " % (self.name, base_path))
 
 	def get_path(self, env, absolute):
 		if absolute:
@@ -179,7 +179,7 @@ class cmd_dir_arg(cmd_arg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_dir(self.name)
 		if self.node is None:
-			raise Utils.WafError("Directory %s not found in " % (self.name, base_path))
+			raise Errors.WafError("Directory %s not found in " % (self.name, base_path))
 
 class input_dir(cmd_dir_arg):
 	def get_path(self, dummy_env, dummy_absolute):
@@ -305,7 +305,7 @@ def init_cmd_output(self):
 @after('init_cmd_output')
 def apply_cmd_output(self):
 	if self.command is None:
-		raise Utils.WafError("command-output missing command")
+		raise Errors.WafError("command-output missing command")
 	if self.command_is_external:
 		cmd = self.command
 		cmd_node = None
@@ -340,7 +340,7 @@ use command_is_external=True''') % (self.command,)
 		assert isinstance(self.stdout, str)
 		stdout = self.path.find_or_declare(self.stdout)
 		if stdout is None:
-			raise Utils.WafError("File %s not found" % (self.stdout,))
+			raise Errors.WafError("File %s not found" % (self.stdout,))
 		outputs.append(stdout)
 
 	if self.stderr is None:
@@ -349,7 +349,7 @@ use command_is_external=True''') % (self.command,)
 		assert isinstance(self.stderr, str)
 		stderr = self.path.find_or_declare(self.stderr)
 		if stderr is None:
-			raise Utils.WafError("File %s not found" % (self.stderr,))
+			raise Errors.WafError("File %s not found" % (self.stderr,))
 		outputs.append(stderr)
 
 	if self.stdin is None:
@@ -358,25 +358,25 @@ use command_is_external=True''') % (self.command,)
 		assert isinstance(self.stdin, str)
 		stdin = self.path.find_resource(self.stdin)
 		if stdin is None:
-			raise Utils.WafError("File %s not found" % (self.stdin,))
+			raise Errors.WafError("File %s not found" % (self.stdin,))
 		inputs.append(stdin)
 
 	for hidden_input in self.to_list(self.hidden_inputs):
 		node = self.path.find_resource(hidden_input)
 		if node is None:
-			raise Utils.WafError("File %s not found in dir %s" % (hidden_input, self.path))
+			raise Errors.WafError("File %s not found in dir %s" % (hidden_input, self.path))
 		inputs.append(node)
 
 	for hidden_output in self.to_list(self.hidden_outputs):
 		node = self.path.find_or_declare(hidden_output)
 		if node is None:
-			raise Utils.WafError("File %s not found in dir %s" % (hidden_output, self.path))
+			raise Errors.WafError("File %s not found in dir %s" % (hidden_output, self.path))
 		outputs.append(node)
 
 	if not (inputs or getattr(self, 'no_inputs', None)):
-		raise Utils.WafError('command-output objects must have at least one input file or give self.no_inputs')
+		raise Errors.WafError('command-output objects must have at least one input file or give self.no_inputs')
 	if not (outputs or getattr(self, 'no_outputs', None)):
-		raise Utils.WafError('command-output objects must have at least one output file or give self.no_outputs')
+		raise Errors.WafError('command-output objects must have at least one output file or give self.no_outputs')
 
 	cwd = self.bld.variant_dir
 	task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env, stderr)

@@ -85,7 +85,7 @@ for pyfile in sys.argv[1:]:
 			argv = [self.env['PYTHON'], '-c', program, path]
 			ret = subprocess.Popen(argv).wait()
 			if ret:
-				raise Utils.WafError('bytecode compilation failed %r' % path)
+				raise Errors.WafError('bytecode compilation failed %r' % path)
 
 		if self.env['PYO']:
 			program = ("""
@@ -96,7 +96,7 @@ for pyfile in sys.argv[1:]:
 			argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], '-c', program, path]
 			ret = subprocess.Popen(argv).wait()
 			if ret:
-				raise Utils.WafError('bytecode compilation failed %r' % path)
+				raise Errors.WafError('bytecode compilation failed %r' % path)
 
 @before('process_source')
 @after('vars_target_cprogram', 'vars_target_lib')
