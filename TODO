@@ -5,11 +5,9 @@ The points listed with a '+' indicate potential sub-projects (contributions will
 
 General
 
-
 - cannot configure a project in a subdirectory
 - fix the target installation system → create one installation task like the link_task? store several installation targets in it?
 - autoconfig for any kind of command
-- nodes for any kind of command
 - give the pkg-config binary path
 - global module repository to avoid re-doing "import"
 - refactor the environment thing
@@ -30,13 +28,8 @@ Ideas
 - support for // configurations
 - better apis for the shell compilation in Task.py
 
-API/Syntax
-- use foo.env.VAR instead of foo.env["VAR"]?
-- conf.env -> conf.cfg
-
 Configuration
 - use configuration names to avoid [env.copy(), conf.setenv, ...]
-- make optional parameters really optional (source dir, build dir, ...)
 + autoconf-like configuration library?
 
 Docs

@@ -7,7 +7,7 @@ Base classes (mostly abstract)
 """
 
 import traceback, os, imp, sys
-import Utils, Node
+import Utils, Node, Errors
 
 g_module = None
 """
@@ -68,6 +68,9 @@ class Context(ctx):
 	Base class for command contexts. Those objects are passed as the arguments
 	of user functions (commands) defined in Waf scripts.
 	"""
+
+	errors = Errors
+
 	def __init__(self, start=None):
 		if not start:
 			import Options
