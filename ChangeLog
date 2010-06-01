@@ -15,13 +15,15 @@ NEW IN WAF 1.6.0
 * plugin updates
 * accept node objects in the source and includes attributes
 * remove task_gen.allnodes: modify self.source directly
-* fuse the include system for c, c++, d, gas and nasm
+* merge the include system for c, c++, d, gas and nasm
 * allow top == out (no build directory)
-* fuse the Tool/wscript system (detect->configure, set_options->options)
+* merge the Tool/wscript system (detect->configure, set_options->options)
 * new command "waf list" to list the x for "waf build --targets=x"
 * rename apply_core -> process_source
 * rename apply_rule -> process_rule
 * rename Task.TaskBase.classes -> Task.classes
 * the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
+* remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
 
+* let the commands access node objects
 
