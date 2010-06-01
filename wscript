@@ -199,10 +199,10 @@ def create_waf(*k, **kw):
 
 	files = []
 	add3rdparty = [x + '.py' for x in Options.options.add3rdparty.split(',')]
-	for d in '. Tools 3rdparty'.split():
+	for d in '. Tools extras'.split():
 		dd = os.path.join('wafadmin', d)
 		for k in os.listdir(dd):
-			if d == '3rdparty':
+			if d == 'extras':
 				if not k in add3rdparty:
 					continue
 			if k.endswith('.py'):
