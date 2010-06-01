@@ -96,7 +96,7 @@ class Context(ctx):
 		"""executes the command represented by this context"""
 		f = getattr(g_module, self.fun, None)
 		if f is None:
-			raise WscriptError('Undefined command: %s' % self.fun)
+			raise Errors.WscriptError('Undefined command: %s' % self.fun)
 
 		f(self)
 
@@ -122,7 +122,7 @@ class Context(ctx):
 		@type  name: string
 		@param name: Name of function to invoke from the wscript
 		"""
-
+		print "recurse has", self
 		for d in Utils.to_list(dirs):
 
 			if not os.path.isabs(d):
@@ -136,21 +136,23 @@ class Context(ctx):
 			if node:
 				self.pre_recurse(node)
 				function_code = node.read('rU')
+
+				#print function_code, self.exec_dict
 				try:
 					exec(function_code, self.exec_dict)
 				except Exception:
-					raise WscriptError(traceback.format_exc(), d)
+					raise Errors.WscriptError(traceback.format_exc(), d)
 				self.post_recurse(node)
 
 			else:
 				node = self.root.find_node(WSCRIPT)
 				if not node:
-					raise WscriptError('No wscript file in directory %s' % d)
+					raise Errors.WscriptError('No wscript file in directory %s' % d)
 				self.pre_recurse(node)
 				wscript_module = load_module(node.abspath())
 				user_function = getattr(wscript_module, self.fun, None)
 				if not user_function:
-					raise WscriptError('No function %s defined in %s' % (self.fun, wscript_file))
+					raise Errors.WscriptError('No function %s defined in %s' % (self.fun, wscript_file))
 				user_function(self)
 				self.post_recurse(node)
 
@@ -179,7 +181,7 @@ def load_module(file_path):
 	try:
 		code = Utils.readf(file_path, m='rU')
 	except (IOError, OSError):
-		raise WscriptError('Could not read the file %r' % file_path)
+		raise Errors.WscriptError('Could not read the file %r' % file_path)
 
 	module.waf_hash_val = code
 

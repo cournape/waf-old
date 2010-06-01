@@ -170,7 +170,7 @@ def gather_wsdk_versions(conf, versions):
 			for target,arch in all_msvc_platforms:
 				try:
 					targets.append((target, (arch, conf.get_msvc_version('wsdk', version, '/'+target, os.path.join(path, 'bin', 'SetEnv.cmd')))))
-				except Configure.ConfigurationError:
+				except conf.errors.ConfigurationError:
 					pass
 			versions.append(('wsdk ' + version[1:], targets))
 
@@ -251,7 +251,7 @@ def gather_msvc_versions(conf, versions):
 				elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
 					try:
 						targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
-					except Configure.ConfigurationError:
+					except conf.errors.ConfigurationError:
 						pass
 				versions.append(('msvc '+version, targets))
 
@@ -285,7 +285,7 @@ def gather_icl_versions(conf, versions):
 				if os.path.isfile(os.path.join(path, 'bin', 'iclvars.bat')):
 					try:
 						targets.append((target, (arch, conf.get_msvc_version('intel', version, target, os.path.join(path, 'bin', 'iclvars.bat')))))
-					except Configure.ConfigurationError:
+					except conf.errors.ConfigurationError:
 						pass
 			except WindowsError:
 				continue

@@ -145,7 +145,7 @@ class ConfigurationContext(Base.Context):
 
 	def fatal(self, msg):
 		"""raise a configuration error"""
-		raise ConfigurationError(msg)
+		raise self.errors.ConfigurationError(msg)
 
 	def check_tool(self, input, tooldir=None, funs=None, download=True):
 		"loads a waf tool"
@@ -165,7 +165,7 @@ class ConfigurationContext(Base.Context):
 			module = Base.load_tool(tool, tooldir)
 			#except Exception as e:
 			#	if 1:
-			#		raise ConfigurationError(e)
+			#		raise self.errors.ConfigurationError(e)
 			#	module = download_tool(tool)
 
 			if funs is not None:

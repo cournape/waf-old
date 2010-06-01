@@ -213,7 +213,7 @@ def check_cfg(self, *k, **kw):
 	ret = None
 	try:
 		ret = self.exec_cfg(kw)
-	except Configure.ConfigurationError as e:
+	except self.errors.ConfigurationError as e:
 		if 'errmsg' in kw:
 			self.end_msg(kw['errmsg'], 'YELLOW')
 		if 'mandatory' in kw and kw['mandatory']:
@@ -435,7 +435,7 @@ def check(self, *k, **kw):
 	ret = None
 	try:
 		ret = self.run_c_code(*k, **kw)
-	except Configure.ConfigurationError as e:
+	except self.errors.ConfigurationError as e:
 		self.end_msg(kw['errmsg'], 'YELLOW')
 		if 'mandatory' in kw and kw['mandatory']:
 			if Logs.verbose > 1:

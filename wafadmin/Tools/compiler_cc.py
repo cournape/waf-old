@@ -40,7 +40,7 @@ def configure(conf):
 			conf.start_msg('Checking for %r (c compiler)' % compiler)
 			conf.env = orig.copy()
 			conf.check_tool(compiler)
-		except Configure.ConfigurationError as e:
+		except conf.errors.ConfigurationError as e:
 			debug('compiler_cc: %r' % e)
 		else:
 			if conf.env['CC']:
