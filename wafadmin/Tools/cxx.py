@@ -4,10 +4,10 @@
 
 "Base for c++ programs and libraries"
 
-import TaskGen, Task, Utils
-from Logs import debug
-import ccroot # <- do not remove
-from TaskGen import feature, before, extension, after
+from wafadmin import TaskGen, Task, Utils
+from wafadmin.Logs import debug
+import wafadmin.Tools.ccroot # <- do not remove
+from wafadmin.TaskGen import feature, before, extension, after
 
 g_cxx_flag_vars = [
 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',

@@ -6,9 +6,8 @@
 # Michael Kuhn, 2009
 
 import os, sys
-import Configure, Options, Utils
-import ccroot, ar
-from Configure import conf
+from wafadmin import ccroot, ar
+from wafadmin.Configure import conf
 
 @conf
 def find_xlcxx(conf):

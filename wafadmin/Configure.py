@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, shlex, sys, time
-import ConfigSet, Utils, Options, Logs, Base
+from wafadmin import ConfigSet, Utils, Options, Logs, Base
 
 BREAK    = 'break'
 """in case of error, break"""

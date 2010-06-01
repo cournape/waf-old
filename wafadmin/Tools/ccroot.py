@@ -6,11 +6,13 @@
 
 import os, sys, re, subprocess
 from collections import deque
-import TaskGen, Task, Utils, preproc, Logs, Build, Options, Node, Errors
-from Logs import error, debug, warn
-from Utils import md5
-from TaskGen import after, before, feature, taskgen_method
-from Configure import conf
+from wafadmin import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
+from wafadmin.Logs import error, debug, warn
+from wafadmin.Utils import md5
+from wafadmin.TaskGen import after, before, feature, taskgen_method
+from wafadmin.Configure import conf
+from wafadmin.Tools import preproc
+
 try:
 	from cStringIO import StringIO
 except ImportError:

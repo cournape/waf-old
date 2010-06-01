@@ -5,12 +5,12 @@
 "as and gas"
 
 import os, sys
-import ccroot
-import Task
-from TaskGen import extension
+import wafadmin.Tools.ccroot # - leave this
+import wafadmin.Task
+from wafadmin.TaskGen import extension
 
 as_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
-Task.simple_task_type('asm', as_str, 'PINK', ext_out='.o')
+wafadmin.Task.simple_task_type('asm', as_str, 'PINK', ext_out='.o')
 
 @extension('.s', '.S', '.asm', '.ASM', '.spp', '.SPP')
 def asm_hook(self, node):

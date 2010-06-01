@@ -2,10 +2,10 @@
 # encoding: utf-8
 # Matthias Jahn jahn dôt matthias ât freenet dôt de, 2007 (pmarat)
 
-import os, sys, imp, types, ccroot
-import optparse
-import Utils, Configure, Options
-from Logs import debug
+import os, sys, imp, types
+from wafadmin.Tools import ccroot
+from wafadmin import Utils, Configure, Options
+from wafadmin.Logs import debug
 
 c_compiler = {
 'win32':  ['msvc', 'gcc'],

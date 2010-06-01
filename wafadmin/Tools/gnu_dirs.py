@@ -35,7 +35,7 @@ installation variables:
  * PSDIR : ps documentation [DOCDIR]
 """
 
-import Utils, Options
+from wafadmin import Utils, Options
 
 _options = [x.split(', ') for x in '''
 bindir, user executables, ${EXEC_PREFIX}/bin

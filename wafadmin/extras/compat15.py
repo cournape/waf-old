@@ -1,22 +1,22 @@
 #! /usr/bin/env python
 
-import Utils
-import ConfigSet
+from wafadmin import Utils
+from wafadmin import ConfigSet
 ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive
 ConfigSet.ConfigSet.set_variant = Utils.nada
 
-import Build
+from wafadmin import Build
 Build.BuildContext.add_subdirs = Build.BuildContext.recurse
 Build.BuildContext.name_to_obj = Build.BuildContext.get_tgen_by_name
 
-import Configure
+from wafadmin import Configure
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
 Configure.conftest = Configure.conf
 
-import Options
+from wafadmin import Options
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
 
-from TaskGen import before, feature
+from wafadmin.TaskGen import before, feature
 
 @feature('d')
 @before('apply_incpaths')
@@ -24,7 +24,7 @@ def old_importpaths(self):
 	if getattr(self, 'importpaths', []):
 		self.includes = self.importpaths
 
-import Base
+from wafadmin import Base
 eld = Base.load_tool
 def load_tool(*k, **kw):
 	ret = eld(*k, **kw)
@@ -43,7 +43,7 @@ def load_module(file_path):
 	return ret
 Base.load_module = load_module
 
-import Scripting
+from wafadmin import Scripting
 old = Scripting.set_main_module
 def set_main_module(f):
 	old(f)
@@ -51,7 +51,7 @@ def set_main_module(f):
 		Base.g_module.options = Base.g_module.set_options
 Scripting.set_main_module = set_main_module
 
-import TaskGen
+from wafadmin import TaskGen
 old_apply = TaskGen.task_gen.apply
 def apply(self):
 	self.features = self.to_list(self.features)

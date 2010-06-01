@@ -2,8 +2,8 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-import Task, Utils
-from TaskGen import taskgen_method, before
+from wafadmin import Task, Utils
+from wafadmin.TaskGen import taskgen_method, before
 
 @taskgen_method
 def add_dbus_file(self, filename, prefix, mode):

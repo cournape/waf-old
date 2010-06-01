@@ -6,7 +6,7 @@
 "Custom command-line options"
 
 import os, types, tempfile, optparse
-import Logs, Utils, Base
+from wafadmin import Logs, Utils, Base
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 

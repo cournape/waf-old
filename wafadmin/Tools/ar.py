@@ -6,8 +6,8 @@
 "Create static libraries with ar"
 
 import os, sys
-import Task, Utils
-from Configure import conf
+from wafadmin import Task, Utils
+from wafadmin.Configure import conf
 
 ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o')

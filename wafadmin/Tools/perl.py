@@ -3,9 +3,9 @@
 # andersg at 0x63.nu 2007
 
 import os, subprocess
-import Task, Options, Utils
-from Configure import conf
-from TaskGen import extension, taskgen, feature, before
+from wafadmin import Task, Options, Utils
+from wafadmin.Configure import conf
+from wafadmin.TaskGen import extension, taskgen, feature, before
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 

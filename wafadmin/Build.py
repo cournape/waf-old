@@ -13,7 +13,8 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Utils, ConfigSet, Task, Logs, Options, Base, Configure
+from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Base, Configure
+import wafadmin.Node
 
 INSTALL = 1337
 """positive value '->' install"""
@@ -123,8 +124,8 @@ class BuildContext(Base.Context):
 	def init_dirs(self, src, bld):
 		"""Initializes the project directory and the build directory"""
 		if not self.root:
-			Node.Nod3 = self.node_class
-			self.root = Node.Nod3('', None)
+			wafadmin.Node.Nod3 = self.node_class
+			self.root = wafadmin.Node.Nod3('', None)
 		self.path = self.srcnode = self.root.find_dir(src)
 		self.bldnode = self.root.make_node(bld)
 		self.bldnode.mkdir()
@@ -178,7 +179,7 @@ class BuildContext(Base.Context):
 			gc.disable()
 			f = data = None
 
-			Node.Nod3 = self.node_class
+			wafadmin.Node.Nod3 = self.node_class
 
 			try:
 				f = open(os.path.join(self.variant_dir, Base.DBFILE), 'rb')
@@ -203,7 +204,7 @@ class BuildContext(Base.Context):
 		self.root.__class__.bld = None
 
 		# some people are very nervous with ctrl+c so we have to make a temporary file
-		Node.Nod3 = self.node_class
+		wafadmin.Node.Nod3 = self.node_class
 		db = os.path.join(self.variant_dir, Base.DBFILE)
 		file = open(db + '.tmp', 'wb')
 		data = {}
@@ -265,7 +266,7 @@ class BuildContext(Base.Context):
 
 	def add_manual_dependency(self, path, value):
 		"""Adds a dependency from a node object to a path (string or node)"""
-		if isinstance(path, Node.Node):
+		if isinstance(path, wafadmin.Node.Node):
 			node = path
 		elif os.path.isabs(path):
 			node = self.root.find_resource(path)
@@ -799,7 +800,7 @@ class InstallContext(BuildContext):
 				alst = Utils.split_path(filename)
 				destfile = os.path.join(destpath, alst[-1])
 			else:
-				if isinstance(filename, Node.Node):
+				if isinstance(filename, wafadmin.Node.Node):
 					nd = filename
 				else:
 					nd = cwd.find_resource(filename)

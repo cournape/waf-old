@@ -2,8 +2,8 @@
 # encoding: utf-8
 
 import os, sys, subprocess
-import Build, TaskGen, Utils, Options, Logs, Task
-from TaskGen import before, after, feature
+from wafadmin import Build, TaskGen, Utils, Options, Logs, Task
+from wafadmin.TaskGen import before, after, feature
 
 """
 New unit test system

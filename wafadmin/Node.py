@@ -21,7 +21,7 @@ Its Node class is referenced here as self.__class__
 """
 
 import os, shutil, re
-import Utils, Errors
+from wafadmin import Utils, Errors
 
 # These fnmatch expressions are used by default to prune the directory tree
 # while doing the recursive traversal in the find_iter method of the Node class.

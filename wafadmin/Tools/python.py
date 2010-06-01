@@ -6,10 +6,10 @@
 "Python support"
 
 import os, sys, subprocess
-import TaskGen, Utils, Utils, Runner, Options, Build
-from Logs import debug, warn, info
-from TaskGen import extension, taskgen_method, before, after, feature
-from Configure import conf
+from wafadmin import TaskGen, Utils, Utils, Runner, Options, Build
+from wafadmin.Logs import debug, warn, info
+from wafadmin.TaskGen import extension, taskgen_method, before, after, feature
+from wafadmin.Configure import conf
 
 FRAG_2 = '''
 #ifdef __cplusplus

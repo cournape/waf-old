@@ -9,7 +9,7 @@ if sys.hexversion<0x206000f:
 	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
-import Utils, Configure, Logs, Options, ConfigSet, Base, Errors
+from wafadmin import Utils, Configure, Logs, Options, ConfigSet, Base, Errors
 
 g_gz = 'bz2'
 

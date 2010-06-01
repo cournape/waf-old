@@ -22,7 +22,7 @@ Custom task clases may be created by subclassing or factories (TODO)
 """
 
 import os, shutil, re
-import Utils, Node, Logs, Options, Errors
+from wafadmin import Utils, Node, Logs, Options, Errors
 
 # task state
 NOT_RUN = 0

@@ -5,10 +5,10 @@
 "Base for c programs/libraries"
 
 import os
-import TaskGen, Build, Utils, Task
-from Logs import debug
-import ccroot
-from TaskGen import feature, before, extension, after
+from wafadmin import TaskGen, Build, Utils, Task
+from wafadmin.Logs import debug
+from wafadmin.Tools import ccroot
+from wafadmin.TaskGen import feature, before, extension, after
 
 g_cc_flag_vars = [
 'CCDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',

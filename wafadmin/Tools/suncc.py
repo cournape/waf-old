@@ -3,10 +3,10 @@
 # Thomas Nagy, 2006-2010 (ita)
 # Ralf Habacker, 2006 (rh)
 
-import os, optparse
-import Utils, Options, Configure
-import ccroot, ar
-from Configure import conf
+import os
+from wafadmin import Utils
+from wafadmin.Tools import ccroot, ar
+from wafadmin.Configure import conf
 
 @conf
 def find_scc(conf):

@@ -5,14 +5,14 @@
 
 "Flex processing"
 
-import TaskGen
+import wafadmin.TaskGen
 
 def decide_ext(self, node):
 	if 'cxx' in self.features:
 		return '.lex.cc'
 	return '.lex.c'
 
-TaskGen.declare_chain(
+wafadmin.TaskGen.declare_chain(
 	name = 'flex',
 	rule = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
 	ext_in = '.l',

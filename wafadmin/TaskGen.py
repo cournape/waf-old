@@ -22,7 +22,7 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import traceback, copy
-import Task, Utils, Logs, Errors
+from wafadmin import Task, Utils, Logs, Errors
 
 feats = Utils.defaultdict(set)
 """remember the methods declaring features"""

@@ -7,8 +7,8 @@ Nasm processing
 """
 
 import os
-import TaskGen, Task, Utils
-from TaskGen import taskgen, before, extension
+from wafadmin import TaskGen, Task, Utils
+from wafadmin.TaskGen import before, extension
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 

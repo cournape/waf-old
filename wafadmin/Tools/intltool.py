@@ -5,9 +5,10 @@
 "intltool support"
 
 import os, re
-import Configure, TaskGen, Task, Utils, Runner, Options, Build, config_c
-from TaskGen import feature, before
-from Logs import error
+from wafadmin import Configure, TaskGen, Task, Utils, Runner, Options, Build
+import wafadmin.Tools.config_c
+from wafadmin.TaskGen import feature, before
+from wafadmin.Logs import error
 
 """
 Usage:

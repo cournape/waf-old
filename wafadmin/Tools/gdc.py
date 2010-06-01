@@ -3,8 +3,8 @@
 # Carlos Rafael Giani, 2007 (dv)
 
 import sys
-import Utils, ar
-from Configure import conf
+import wafadmin.Tools.ar
+from wafadmin.Configure import conf
 
 @conf
 def find_gdc(conf):

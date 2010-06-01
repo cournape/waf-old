@@ -7,9 +7,9 @@ c/c++ configuration routines
 """
 
 import os, imp, sys, shlex, shutil, subprocess
-from Utils import md5
-import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
-from Configure import conf
+from wafadmin.Utils import md5
+from wafadmin import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
+from wafadmin.Configure import conf
 
 WAF_CONFIG_H   = 'config.h'
 """default name for the config.h file"""

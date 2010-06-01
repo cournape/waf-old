@@ -29,15 +29,16 @@
 #  PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
 
 
-import os, sys, re, string, optparse, subprocess
-import Utils, TaskGen, Runner, Configure, Task, Options
-from Logs import debug, info, warn, error
-from TaskGen import after, before, feature
-
-from Configure import conf
-import ccroot, cc, cxx, ar, winres
-
+import os, sys, re, string, subprocess
 import _winreg
+
+from wafadmin import Utils, TaskGen, Runner, Configure, Task, Options
+from wafadmin.Logs import debug, info, warn, error
+from wafadmin.TaskGen import after, before, feature
+
+from wafadmin.Configure import conf
+from wafadmin.Tools import ccroot, cc, cxx, ar, winres
+
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
 g_msvc_systemlibs = """

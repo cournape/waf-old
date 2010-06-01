@@ -9,9 +9,9 @@ Custom objects:
 """
 
 import shutil, re, os, subprocess
-import TaskGen, Node, Task, Utils, Build
-from TaskGen import feature, after, before
-from Logs import debug
+from wafadmin import TaskGen, Node, Task, Utils, Build
+from wafadmin.TaskGen import feature, after, before
+from wafadmin.Logs import debug
 
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"

@@ -3,8 +3,8 @@
 # Thomas Nagy, 2006-2010 (ita)
 
 import os, sys, re
-import Options, TaskGen, Task, Utils
-from TaskGen import feature, after
+from wafadmin import Options, TaskGen, Task, Utils
+from wafadmin.TaskGen import feature, after
 
 @feature('msgfmt')
 def init_msgfmt(self):

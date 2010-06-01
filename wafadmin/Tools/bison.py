@@ -5,8 +5,8 @@
 
 "Bison processing"
 
-import Task
-from TaskGen import extension
+from wafadmin import Task
+from wafadmin.TaskGen import extension
 
 bison = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
 cls = Task.simple_task_type('bison', bison, 'GREEN', ext_in='.yc .y .yy', ext_out='.c .cxx .h .l', before='cxx')

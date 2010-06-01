@@ -138,13 +138,10 @@ def find_lib():
 	return dir
 
 wafdir = find_lib()
-w = join(wafdir, 'wafadmin')
-t = join(w, 'Tools')
-f = join(w, 'extras')
-sys.path = [w, t, f] + sys.path
+sys.path.insert(0, wafdir)
 
 if __name__ == '__main__':
-	import Scripting
-	import wafadmin.extras.compat15 # will be removed in waf 1.5.16
+	from wafadmin import Scripting
+	import wafadmin.extras.compat15 # will be removed in waf 1.6.10
 	Scripting.waf_entry_point(cwd, VERSION, wafdir)
 

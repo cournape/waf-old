@@ -7,7 +7,8 @@ Base classes (mostly abstract)
 """
 
 import traceback, os, imp, sys
-import Utils, Node, Errors
+from wafadmin import Utils, Errors
+import wafadmin.Node
 
 g_module = None
 """
@@ -73,19 +74,19 @@ class Context(ctx):
 
 	def __init__(self, start=None):
 		if not start:
-			import Options
+			from wafadmin import Options
 			start = Options.run_dir
 
 		# bind the build context to the nodes in use
 		# this means better encapsulation and no context singleton
-		class node_class(Node.Node):
+		class node_class(wafadmin.Node.Node):
 			pass
-		self.node_class = Node.Nod3 = node_class
-		self.node_class.__module__ = "Node"
+		self.node_class = wafadmin.Node.Nod3 = node_class
+		self.node_class.__module__ = "wafadmin.Node"
 		self.node_class.__name__ = "Nod3"
 		self.node_class.bld = self
 
-		self.root = Node.Nod3('', None)
+		self.root = wafadmin.Node.Nod3('', None)
 		self.cur_script = None
 		self.path = self.root.find_dir(start)
 
@@ -215,9 +216,13 @@ def load_tool(tool, tooldir=None):
 	if tooldir:
 		assert isinstance(tooldir, list)
 		sys.path = tooldir + sys.path
+	else:
+		tool = "wafadmin.Tools." + tool
+
 	try:
 		try:
-			return __import__(tool)
+			__import__(tool)
+			return sys.modules[tool]
 		except ImportError as e:
 			raise Errors.WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
 	finally:

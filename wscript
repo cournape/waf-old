@@ -16,10 +16,10 @@ zip_types = ['bz2', 'gz']
 import tokenize
 
 import os, sys, base64, shutil, re, random, io, optparse, tempfile
-import Utils, Options, Build
+from wafadmin import Utils, Options, Build
 from hashlib import md5
 
-import Configure
+from wafadmin import Configure
 Configure.autoconfig = 1
 
 def sub_file(fname, lst):

@@ -5,8 +5,8 @@
 "This hook is called when the class cpp/cc task generator encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
 import os, sys, re
-import TaskGen, Task
-from TaskGen import extension
+from wafadmin import TaskGen, Task
+from wafadmin.TaskGen import extension
 
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
 

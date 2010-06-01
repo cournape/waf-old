@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-import TaskGen
+from wafadmin import TaskGen
 
 TaskGen.declare_chain(
 	name = 'gob2',

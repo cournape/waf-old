@@ -3,9 +3,8 @@
 # Thomas Nagy 2009-2010 (ita)
 
 import os, sys
-import Configure, Options, Utils
-import ccroot, ar, gxx
-from Configure import conf
+from wafadmin.Tools import ccroot, ar, gxx
+from wafadmin.Configure import conf
 
 @conf
 def find_icpc(conf):

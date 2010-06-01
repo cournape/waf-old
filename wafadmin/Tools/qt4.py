@@ -20,10 +20,10 @@ else:
 	has_xml = True
 
 import os, sys
-import ccroot, cxx
-import TaskGen, Task, Utils, Runner, Options, Node, Errors
-from TaskGen import feature, after, extension
-from Logs import error
+from wafadmin.Tools import ccroot, cxx
+from wafadmin import TaskGen, Task, Utils, Runner, Options, Node, Errors
+from wafadmin.TaskGen import feature, after, extension
+from wafadmin.Logs import error
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']
