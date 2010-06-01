@@ -39,7 +39,6 @@ def configure(ctx):
 
 def test(ctx):
 	bld = Build.BuildContext()
-	bld.make_root()
 
 	absdir = os.getcwd().split('/')[1:]
 	dd = bld.root.make_node(absdir)
@@ -121,7 +120,6 @@ def test(ctx):
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), stupid_build)
 
 	bld = Build.BuildContext()
-	bld.make_root()
 	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
 
 	create('src/a.txt')

@@ -80,7 +80,7 @@ class Context(ctx):
 		# this means better encapsulation and no context singleton
 		class node_class(Node.Node):
 			pass
-		self.node_class = node_class
+		self.node_class = Node.Nod3 = node_class
 		self.node_class.__module__ = "Node"
 		self.node_class.__name__ = "Nod3"
 		self.node_class.bld = self
