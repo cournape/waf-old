@@ -18,7 +18,7 @@ def fixdir(dir):
 def modif(dir, name, fun):
 	if name == '*':
 		lst = []
-		for y in '. Tools 3rdparty'.split():
+		for y in '. Tools extras'.split():
 			for x in os.listdir(os.path.join(dir, y)):
 				if x.endswith('.py'):
 					lst.append(y + os.sep + x)

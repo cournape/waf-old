@@ -70,7 +70,7 @@ def unpack_wafdir(dir):
 	try: shutil.rmtree(dir)
 	except OSError: pass
 	try:
-		for x in ['Tools', '3rdparty']:
+		for x in ['Tools', 'extras']:
 			os.makedirs(join(dir, 'wafadmin', x))
 	except OSError:
 		err("Cannot unpack waf lib into %s\nMove waf into a writeable directory" % dir)
@@ -91,7 +91,7 @@ def unpack_wafdir(dir):
 		except OSError: pass
 		err("Waf cannot be unpacked, check that bzip2 support is present")
 
-	for x in ['Tools', '3rdparty']:
+	for x in ['Tools', 'extras']:
 		os.chmod(join('wafadmin',x), 493)
 
 	if sys.hexversion<0x300000f:
@@ -140,7 +140,7 @@ def find_lib():
 wafdir = find_lib()
 w = join(wafdir, 'wafadmin')
 t = join(w, 'Tools')
-f = join(w, '3rdparty')
+f = join(w, 'extras')
 sys.path = [w, t, f] + sys.path
 
 if __name__ == '__main__':

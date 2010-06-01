@@ -53,7 +53,7 @@ conf_template = '''# project %(app)s configured on %(now)s by
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
 	for x in Utils.to_list(Options.remote_repo):
-		for sub in ['branches/waf-%s/wafadmin/3rdparty' % Base.WAFVERSION, 'trunk/wafadmin/3rdparty']:
+		for sub in ['branches/waf-%s/wafadmin/extras' % Base.WAFVERSION, 'trunk/wafadmin/extras']:
 			url = '/'.join((x, sub, tool + '.py'))
 			try:
 				web = urlopen(url)
@@ -63,7 +63,8 @@ def download_tool(tool, force=False):
 				continue
 			else:
 				try:
-					loc = open(_3rdparty + os.sep + tool + '.py', 'wb')
+					tmp = os.sep.join((Options.waf_dir, 'wafadmin', 'extras', tool + '.py'))
+					loc = open(tmp, 'wb')
 					loc.write(web.read())
 					web.close()
 				finally:
