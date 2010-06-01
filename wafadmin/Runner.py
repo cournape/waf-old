@@ -9,7 +9,7 @@ try:
 	from queue import Queue
 except:
 	from Queue import Queue
-import Utils, Logs, Options, Task, Base, Errors
+import Utils, Logs, Options, Task, Errors
 
 GAP = 15
 MAXJOBS = 999
