@@ -22,7 +22,7 @@ Custom task clases may be created by subclassing or factories (TODO)
 """
 
 import os, shutil, re
-import Utils, Node, Logs, Options, Base
+import Utils, Node, Logs, Options, Errors
 
 # task state
 NOT_RUN = 0
@@ -334,7 +334,7 @@ class Task(TaskBase):
 			except OSError:
 				self.hasrun = MISSING
 				self.err_msg = '-> missing file: %r' % node.abspath()
-				raise Base.WafError()
+				raise Errors.WafError()
 
 			# important, store the signature for the next run
 			node.sig = sig
@@ -350,7 +350,7 @@ class Task(TaskBase):
 			try:
 				upd(x.sig)
 			except AttributeError:
-				raise Base.WafError('Missing node signature for %r (required by %r)' % (x, self))
+				raise Errors.WafError('Missing node signature for %r (required by %r)' % (x, self))
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
@@ -366,7 +366,7 @@ class Task(TaskBase):
 						try:
 							v = v.sig
 						except AttributeError:
-							raise Base.WafError('Missing node signature for %r (required by %r)' % (v, self))
+							raise Errors.WafError('Missing node signature for %r (required by %r)' % (v, self))
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
 					upd(v)
@@ -452,7 +452,7 @@ class Task(TaskBase):
 					k.sig
 				except AttributeError:
 					nodes.append(k)
-			raise Base.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
+			raise Errors.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
 
 		return self.m.digest()
 

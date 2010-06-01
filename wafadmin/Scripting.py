@@ -9,7 +9,7 @@ if sys.hexversion<0x206000f:
 	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
-import Utils, Configure, Logs, Options, ConfigSet, Base
+import Utils, Configure, Logs, Options, ConfigSet, Base, Errors
 
 g_gz = 'bz2'
 
@@ -71,7 +71,7 @@ def waf_entry_point(current_directory, version, wafdir):
 
 	try:
 		set_main_module(Options.run_dir + os.sep + Base.WSCRIPT_FILE)
-	except Base.WscriptError as e:
+	except Errors.WscriptError as e:
 		Logs.error(str(e))
 		sys.exit(1)
 	except Exception as e:
@@ -93,7 +93,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		traceback.print_exc(file=sys.stdout)
 		print(e)
 		sys.exit(2)
-	except Base.WafError as e:
+	except Errors.WafError as e:
 		traceback.print_exc(file=sys.stdout)
 		Logs.error(str(e))
 		sys.exit(1)
@@ -335,10 +335,10 @@ def distcheck(ctx):
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	ret = subprocess.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
 	if ret:
-		raise Base.WafError('distcheck failed with code %i' % ret)
+		raise Errors.WafError('distcheck failed with code %i' % ret)
 
 	if os.path.exists(instdir):
-		raise Base.WafError('distcheck succeeded, but files were left in %s' % instdir)
+		raise Errors.WafError('distcheck succeeded, but files were left in %s' % instdir)
 
 	shutil.rmtree(path)
 
@@ -378,14 +378,14 @@ def update(ctx):
 				bld = Utils.create_context('build', self.curdir)
 				bld.load_dirs(proj[Base.SRCDIR], proj[Base.BLDDIR])
 				bld.load_envs()
-			except Base.WafError:
+			except Errors.WafError:
 				reconf(proj)
 				return
 
 		try:
 			proj = ConfigSet.ConfigSet(Options.lockfile)
 		except IOError:
-			raise Base.WafError('Auto-config: project does not configure (bug)')
+			raise Errors.WafError('Auto-config: project does not configure (bug)')
 
 		h = 0
 		try:

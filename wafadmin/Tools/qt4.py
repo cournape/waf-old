@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import TaskGen, Task, Utils, Runner, Options, Node, Base
+import TaskGen, Task, Utils, Runner, Options, Node, Errors
 from TaskGen import feature, after, extension
 from Logs import error
 
@@ -110,7 +110,7 @@ class qxx(Task.Task):
 					if k:
 						break
 				else:
-					raise Base.WafError("no header found for %s which is a moc file" % str(d))
+					raise Errors.WafError("no header found for %s which is a moc file" % str(d))
 					#TODO
 
 			# next time we will not search for the extension (look at the 'for' loop below)

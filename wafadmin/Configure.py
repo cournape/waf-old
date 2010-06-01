@@ -50,10 +50,6 @@ conf_template = '''# project %(app)s configured on %(now)s by
 #
 '''
 
-class ConfigurationError(Base.WscriptError):
-	"""configuration exception"""
-	pass
-
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
 	for x in Utils.to_list(Options.remote_repo):
@@ -76,7 +72,7 @@ def download_tool(tool, force=False):
 				return Base.load_tool(tool)
 		else:
 				break
-		raise Base.WafError('Could not load the tool')
+		raise Errors.WafError('Could not load the tool')
 
 class ConfigurationContext(Base.Context):
 	"""configures the project"""

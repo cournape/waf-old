@@ -22,7 +22,7 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import traceback, copy
-import Task, Utils, Logs, Base
+import Task, Utils, Logs, Errors
 
 feats = Utils.defaultdict(set)
 """remember the methods declaring features"""
@@ -148,7 +148,7 @@ class task_gen(object):
 						tmp.append(x)
 
 		if prec:
-			raise Base.WafError("graph has a cycle %s" % str(prec))
+			raise Errors.WafError("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
 
@@ -158,7 +158,7 @@ class task_gen(object):
 			try:
 				v = getattr(self, x)
 			except AttributeError:
-				raise Base.WafError("tried to retrieve %s which is not a valid method" % x)
+				raise Errors.WafError("tried to retrieve %s which is not a valid method" % x)
 			Logs.debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 
@@ -324,7 +324,7 @@ def process_source(self):
 		if isinstance(el, str):
 			node = find(el)
 			if not node:
-				raise Base.WafError("source not found: '%s' in '%s'" % (el, self.path))
+				raise Errors.WafError("source not found: '%s' in '%s'" % (el, self.path))
 		else:
 			node = el
 		lst.append(node)
@@ -334,7 +334,7 @@ def process_source(self):
 		# self.mappings or task_gen.mappings map the file extension to a function
 		x = self.get_hook(node)
 		if not x:
-			raise Base.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, self.__class__.mappings.keys()))
+			raise Errors.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, self.__class__.mappings.keys()))
 		x(self, node)
 
 @feature('*')
@@ -391,7 +391,7 @@ def process_rule(self):
 		for x in self.to_list(self.source):
 			y = self.path.find_resource(x)
 			if not y:
-				raise Base.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
+				raise Errors.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
 			tsk.inputs.append(y)
 
 	if getattr(self, 'always', None):

@@ -27,19 +27,6 @@ SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 CFG_FILES = 'cfg_files'
 """files from the build directory to hash before starting the build"""
 
-class BuildError(Base.WafError):
-	"""Error raised during the build and install phases"""
-	def __init__(self, error_tasks=[]):
-		self.tasks = error_tasks
-		Base.WafError.__init__(self, self.format_error())
-
-	def format_error(self):
-		lst = ['Build failed']
-		for tsk in self.tasks:
-			txt = tsk.format_error()
-			if txt: lst.append(txt)
-		return '\n'.join(lst)
-
 class BuildContext(Base.Context):
 	"""executes the build"""
 
@@ -122,7 +109,7 @@ class BuildContext(Base.Context):
 
 	def __copy__(self):
 		"""Build context copies are not allowed"""
-		raise Base.WafError('build contexts are not supposed to be copied')
+		raise Errors.WafError('build contexts are not supposed to be copied')
 
 	def load_envs(self):
 		"""load the data from the project directory into self.allenvs"""
@@ -130,12 +117,12 @@ class BuildContext(Base.Context):
 			lst = Utils.listdir(self.cache_dir)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
-				raise Base.WafError('The project was not configured: run "waf configure" first!')
+				raise Errors.WafError('The project was not configured: run "waf configure" first!')
 			else:
 				raise
 
 		if not lst:
-			raise Base.WafError('The cache directory is empty: reconfigure the project')
+			raise Errors.WafError('The cache directory is empty: reconfigure the project')
 
 		for fname in lst:
 			if fname.endswith(Configure.CACHE_SUFFIX):
@@ -202,7 +189,7 @@ class BuildContext(Base.Context):
 			pass
 		else:
 			if env['version'] < Base.HEXVERSION:
-				raise Base.WafError('Version mismatch! reconfigure the project')
+				raise Errors.WafError('Version mismatch! reconfigure the project')
 			for t in env['tools']:
 				self.setup(**t)
 
@@ -366,7 +353,7 @@ class BuildContext(Base.Context):
 		try:
 			return cache[name]
 		except KeyError:
-			raise Base.WafError('Could not find a task generator for the name %r' % name)
+			raise Errors.WafError('Could not find a task generator for the name %r' % name)
 
 	def flush(self):
 		"""tell the task generators to create the tasks"""
@@ -396,7 +383,7 @@ class BuildContext(Base.Context):
 				tg = self.get_tgen_by_name(name)
 
 				if not tg:
-					raise Base.WafError('target %r does not exist' % name)
+					raise Errors.WafError('target %r does not exist' % name)
 
 				m = self.get_group_idx(tg)
 				if m > min_grp:
@@ -636,7 +623,7 @@ class BuildContext(Base.Context):
 
 				if not toreturn:
 					if remainder:
-						raise Base.WafError("Circular order constraint detected %r" % remainder)
+						raise Errors.WafError("Circular order constraint detected %r" % remainder)
 					self.cur += 1
 					break
 
@@ -665,7 +652,7 @@ def check_dir(dir):
 		try:
 			os.makedirs(dir)
 		except OSError as e:
-			raise Base.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
+			raise Errors.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
 
 def group_method(fun):
 	"""
@@ -741,7 +728,7 @@ class InstallContext(BuildContext):
 					os.stat(src)
 				except (OSError, IOError):
 					Logs.error('File %r does not exist' % src)
-				raise Base.WafError('Could not install the file %r' % tgt)
+				raise Errors.WafError('Could not install the file %r' % tgt)
 			return True
 
 		elif self.is_install < 0:
@@ -836,7 +823,7 @@ class InstallContext(BuildContext):
 				else:
 					nd = cwd.find_resource(filename)
 				if not nd:
-					raise Base.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
+					raise Errors.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
 
 				if relative_trick:
 					destfile = os.path.join(destpath, filename)
@@ -862,7 +849,7 @@ class InstallContext(BuildContext):
 			env = self.env
 
 		if not path:
-			raise Base.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
+			raise Errors.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
 
 		if not cwd:
 			cwd = self.path
@@ -880,7 +867,7 @@ class InstallContext(BuildContext):
 			if not os.path.isabs(srcfile):
 				node = cwd.find_resource(srcfile)
 				if not node:
-					raise Base.WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
+					raise Errors.WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
 				src = node.abspath()
 
 		return self.do_install(src, destpath, chmod)
@@ -893,7 +880,7 @@ class InstallContext(BuildContext):
 			return
 
 		if not path:
-			raise Base.WafError("where do you want to install %r? (%r?)" % (src, path))
+			raise Errors.WafError("where do you want to install %r? (%r?)" % (src, path))
 
 		tgt = self.get_install_path(path, env)
 

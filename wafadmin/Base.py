@@ -29,47 +29,6 @@ VERSION = 'VERSION'
 SRCDIR  = 'top'
 BLDDIR  = 'out'
 
-class WafError(Exception):
-	"""Base for all waf errors"""
-	def __init__(self, *args):
-		self.args = args
-		try:
-			self.stack = traceback.extract_stack()
-		except:
-			pass
-		Exception.__init__(self, *args)
-	def __str__(self):
-		return str(len(self.args) == 1 and self.args[0] or self.args)
-
-class WscriptError(WafError):
-	"""Waf errors that come from python code"""
-	def __init__(self, message, pyfile=None):
-		if pyfile:
-			self.pyfile = pyfile
-			self.pyline = None
-		else:
-			try:
-				(self.pyfile, self.pyline) = self.locate_error()
-			except:
-				(self.pyfile, self.pyline) = (None, None)
-
-		msg_file_line = ''
-		if self.pyfile:
-			msg_file_line = "%s:" % self.pyfile
-			if self.pyline:
-				msg_file_line += "%s:" % self.pyline
-		err_message = "%s error: %s" % (msg_file_line, message)
-		WafError.__init__(self, err_message)
-
-	def locate_error(self):
-		stack = traceback.extract_stack()
-		stack.reverse()
-		for frame in stack:
-			file_name = os.path.basename(frame[0])
-			if file_name.find(WSCRIPT_FILE) > -1:
-				return (frame[0], frame[1])
-		return (None, None)
-
 classes = []
 def create_context(cmd_name, *k, **kw):
 	"""TODO warn if more than one context is provided for a given command?"""
@@ -93,7 +52,7 @@ class store_context(type):
 		try:
 			cls.cmd
 		except AttributeError:
-			raise WafError('Missing command for the context class %r (cmd)' % name)
+			raise Errors.WafError('Missing command for the context class %r (cmd)' % name)
 
 		if not getattr(cls, 'fun', None):
 			cls.fun = cls.cmd
@@ -227,7 +186,7 @@ def load_module(file_path):
 		exec(code, module.__dict__)
 	except Exception as e:
 		try:
-			ex = WscriptError(traceback.format_exc(), file_path)
+			ex = Errors.WscriptError(traceback.format_exc(), file_path)
 		except:
 			raise e
 		else:
@@ -257,7 +216,7 @@ def load_tool(tool, tooldir=None):
 		try:
 			return __import__(tool)
 		except ImportError as e:
-			raise WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
+			raise Errors.WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
 	finally:
 		if tooldir:
 			for d in tooldir:

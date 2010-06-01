@@ -8,7 +8,7 @@ c/c++ configuration routines
 
 import os, imp, sys, shlex, shutil, subprocess
 from Utils import md5
-import Build, Utils, Configure, Task, Options, Logs, TaskGen, Base
+import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
 from Configure import conf
 
 WAF_CONFIG_H   = 'config.h'
@@ -519,7 +519,7 @@ def run_c_code(self, *k, **kw):
 	bld.flush()
 	try:
 		bld.compile()
-	except Base.WafError:
+	except Errors.WafError:
 		ret = Utils.ex_stack()
 	else:
 		ret = 0

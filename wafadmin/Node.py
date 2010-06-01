@@ -21,8 +21,7 @@ Its Node class is referenced here as self.__class__
 """
 
 import os, shutil, re
-import Utils
-import Base
+import Utils, Errors
 
 # These fnmatch expressions are used by default to prune the directory tree
 # while doing the recursive traversal in the find_iter method of the Node class.
@@ -74,7 +73,7 @@ class Node(object):
 
 		if parent:
 			if name in parent.children:
-				raise Base.WafError('node %s exists in the parent files %r already' % (name, parent))
+				raise Errors.WafError('node %s exists in the parent files %r already' % (name, parent))
 			parent.children[name] = self
 
 	def __setstate__(self, data):
@@ -96,14 +95,14 @@ class Node(object):
 
 	def __hash__(self):
 		"expensive, make certain it is not used"
-		raise Base.WafError('nodes, you are doing it wrong')
+		raise Errors.WafError('nodes, you are doing it wrong')
 
 	def __eq__(self, node):
 		return id(self) == id(node)
 
 	def __copy__(self):
 		"nodes are not supposed to be copied"
-		raise Base.WafError('nodes are not supposed to be copied')
+		raise Errors.WafError('nodes are not supposed to be copied')
 
 	def read(self, flags='r'):
 		"get the contents, assuming the node is a file"
@@ -182,7 +181,7 @@ class Node(object):
 				pass
 
 			if not os.path.isdir(self.abspath()):
-				raise Base.WafError('%s is not a directory' % self)
+				raise Errors.WafError('%s is not a directory' % self)
 
 			try:
 				self.children

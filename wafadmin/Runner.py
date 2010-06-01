@@ -9,7 +9,7 @@ try:
 	from queue import Queue
 except:
 	from Queue import Queue
-import Utils, Logs, Options, Task, Base
+import Utils, Logs, Options, Task, Base, Errors
 
 GAP = 15
 MAXJOBS = 999
@@ -70,7 +70,7 @@ def process_task(tsk):
 	else:
 		try:
 			tsk.post_run()
-		except Base.WafError:
+		except Errors.WafError:
 			pass
 		except Exception:
 			tsk.err_msg = Utils.ex_stack()

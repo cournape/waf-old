@@ -26,11 +26,11 @@ file scanner will be added in the future, so we will have most bahaviours.
 # TODO: dumb file scanner tracking all includes
 
 import re, sys, os, string
-import Logs, Build, Utils, Base
+import Logs, Build, Utils, Errors
 from Logs import debug, error
 import traceback
 
-class PreprocError(Base.WafError):
+class PreprocError(Errors.WafError):
 	pass
 
 POPFILE = '-'
