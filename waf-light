@@ -145,5 +145,6 @@ sys.path = [w, t, f] + sys.path
 
 if __name__ == '__main__':
 	import Scripting
+	import wafadmin.extras.compat15 # will be removed in waf 1.5.16
 	Scripting.waf_entry_point(cwd, VERSION, wafdir)
 
