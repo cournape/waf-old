@@ -155,7 +155,8 @@ class BuildContext(Base.Context):
 	def init_dirs(self, src, bld):
 		"""Initializes the project directory and the build directory"""
 		if not self.root:
-			self.make_root()
+			Node.Nod3 = self.node_class
+			self.root = Node.Nod3('', None)
 		self.path = self.srcnode = self.root.find_dir(src)
 		self.bldnode = self.root.make_node(bld)
 		self.bldnode.mkdir()
@@ -179,7 +180,7 @@ class BuildContext(Base.Context):
 	def execute_build(self):
 		"""Executes the build, it is shared by install and uninstall"""
 
-		self.recurse(self.curdir)
+		self.recurse(self.path.abspath())
 		self.pre_build()
 		self.flush()
 		if Options.options.progress_bar:
@@ -957,7 +958,7 @@ class CleanContext(BuildContext):
 		if not self.all_envs:
 			self.load_envs()
 
-		self.recurse(self.curdir)
+		self.recurse(self.path.abspath())
 		try:
 			self.clean()
 		finally:
@@ -985,7 +986,7 @@ class ListContext(BuildContext):
 		if not self.all_envs:
 			self.load_envs()
 
-		self.recurse(self.curdir)
+		self.recurse(self.path.abspath())
 		self.pre_build()
 		self.flush()
 		try:

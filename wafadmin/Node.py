@@ -334,7 +334,10 @@ class Node(object):
 			p = p.parent
 		return id(p) == id(node)
 
+	# --------------------------------------------------------------------------------
 	# the following methods require the source/build folders (bld.srcnode/bld.bldnode)
+	# using a subclass is a possibility, but is that really necessary?
+	# --------------------------------------------------------------------------------
 
 	def is_src(self):
 		cur = self

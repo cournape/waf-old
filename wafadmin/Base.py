@@ -113,7 +113,22 @@ class Context(ctx):
 		if not start:
 			import Options
 			start = Options.run_dir
-		self.curdir = start
+
+		# bind the build context to the nodes in use
+		# this means better encapsulation and no context singleton
+		class node_class(Node.Node):
+			pass
+		self.node_class = node_class
+		self.node_class.__module__ = "Node"
+		self.node_class.__name__ = "Nod3"
+		self.node_class.bld = self
+
+		self.root = Node.Nod3('', None)
+		self.cur_script = None
+		self.path = self.root.find_dir(start)
+
+		self.stack_path = []
+		self.exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
 
 	def execute(self):
 		"""executes the command represented by this context"""
@@ -123,22 +138,18 @@ class Context(ctx):
 
 		f(self)
 
-	def make_root(self):
-		"""Creates a node representing the filesystem root"""
-		Node.Nod3 = self.node_class
-		self.root = Node.Nod3('', None)
-
-	def pre_recurse(self, name_or_mod, path, nexdir):
+	def pre_recurse(self, node):
 		"""from the context class"""
-		if not hasattr(self, 'oldpath'):
-			self.oldpath = []
-		self.oldpath.append(self.path)
-		self.path = self.root.find_dir(nexdir)
-		return {'bld': self, 'ctx': self}
+		self.stack_path.append(self.cur_script)
 
-	def post_recurse(self, name_or_mod, path, nexdir):
+		self.cur_script = node
+		self.path = node.parent
+
+	def post_recurse(self, node):
 		"""from the context class"""
-		self.path = self.oldpath.pop()
+		self.cur_script = self.stack_path.pop()
+		if self.cur_script:
+			self.path = self.cur_script.parent
 
 	def recurse(self, dirs, name=None):
 		"""
@@ -149,55 +160,37 @@ class Context(ctx):
 		@type  name: string
 		@param name: Name of function to invoke from the wscript
 		"""
-		function_name = self.fun
 
-		# convert to absolute paths
-		dirs = Utils.to_list(dirs)
-		dirs = [x if os.path.isabs(x) else os.path.join(self.curdir, x) for x in dirs]
+		for d in Utils.to_list(dirs):
 
-		for d in dirs:
-			wscript_file = os.path.join(d, WSCRIPT_FILE)
-			partial_wscript_file = wscript_file + '_' + function_name
+			if not os.path.isabs(d):
+				# absolute paths only
+				d = os.path.join(self.path.abspath(), d)
 
-			# if there is a partial wscript with the body of the user function,
-			# use it in preference
-			if os.path.exists(partial_wscript_file):
-				exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
-				function_code = Utils.readf(partial_wscript_file, m='rU')
+			WSCRIPT     = os.path.join(d, WSCRIPT_FILE)
+			WSCRIPT_FUN = WSCRIPT + '_' + self.fun
 
-				self.pre_recurse(function_code, partial_wscript_file, d)
-				old_dir = self.curdir
-				self.curdir = d
+			node = self.root.find_node(WSCRIPT_FUN)
+			if node:
+				self.pre_recurse(node)
+				function_code = node.read('rU')
 				try:
-					exec(function_code, exec_dict)
+					exec(function_code, self.exec_dict)
 				except Exception:
 					raise WscriptError(traceback.format_exc(), d)
-				finally:
-					self.curdir = old_dir
-				self.post_recurse(function_code, partial_wscript_file, d)
+				self.post_recurse(node)
 
-			# if there is only a full wscript file, use a suitably named
-			# function from it
-			elif os.path.exists(wscript_file):
-				# do not catch any exceptions here
-				wscript_module = load_module(wscript_file)
-				user_function = getattr(wscript_module, function_name, None)
-				if not user_function:
-					raise WscriptError('No function %s defined in %s'
-						% (function_name, wscript_file))
-				self.pre_recurse(user_function, wscript_file, d)
-				old_dir = self.curdir
-				self.curdir = d
-
-				try:
-					user_function(self)
-				finally:
-					self.curdir = old_dir
-				self.post_recurse(user_function, wscript_file, d)
-
-			# no wscript file - raise an exception
 			else:
-				raise WscriptError('No wscript file in directory %s' % d)
+				node = self.root.find_node(WSCRIPT)
+				if not node:
+					raise WscriptError('No wscript file in directory %s' % d)
+				self.pre_recurse(node)
+				wscript_module = load_module(node.abspath())
+				user_function = getattr(wscript_module, self.fun, None)
+				if not user_function:
+					raise WscriptError('No function %s defined in %s' % (self.fun, wscript_file))
+				user_function(self)
+				self.post_recurse(node)
 
 g_loaded_modules = {}
 """
