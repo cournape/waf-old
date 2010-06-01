@@ -122,7 +122,6 @@ class Context(ctx):
 		@type  name: string
 		@param name: Name of function to invoke from the wscript
 		"""
-		print "recurse has", self
 		for d in Utils.to_list(dirs):
 
 			if not os.path.isabs(d):
@@ -137,7 +136,6 @@ class Context(ctx):
 				self.pre_recurse(node)
 				function_code = node.read('rU')
 
-				#print function_code, self.exec_dict
 				try:
 					exec(function_code, self.exec_dict)
 				except Exception:

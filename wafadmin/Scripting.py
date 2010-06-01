@@ -91,7 +91,6 @@ def waf_entry_point(current_directory, version, wafdir):
 		run_commands()
 	except Exception as e:
 		traceback.print_exc(file=sys.stdout)
-		print(e)
 		sys.exit(2)
 	except Errors.WafError as e:
 		traceback.print_exc(file=sys.stdout)
