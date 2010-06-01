@@ -163,6 +163,7 @@ class OptionsContext(Base.Context):
 		if options.destdir:
 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
 
-	def finalize(self):
+	def execute(self):
+		super(OptionsContext, self).execute()
 		self.parse_args()
 

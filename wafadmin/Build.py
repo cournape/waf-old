@@ -152,11 +152,6 @@ class BuildContext(Base.Context):
 						h = Utils.SIG_NIL
 					newnode.sig = h
 
-	def make_root(self):
-		"""Creates a node representing the filesystem root"""
-		Node.Nod3 = self.node_class
-		self.root = Node.Nod3('', None)
-
 	def init_dirs(self, src, bld):
 		"""Initializes the project directory and the build directory"""
 		if not self.root:
@@ -172,17 +167,13 @@ class BuildContext(Base.Context):
 		self.bld2src = {id(self.bldnode): self.srcnode}
 		self.src2bld = {id(self.srcnode): self.bldnode}
 
-	def prepare(self):
-		"""see Context.prepare"""
+	def execute(self):
+		"""see Context.execute"""
 		self.load()
-
 		self.init_dirs(self.top_dir, self.variant_dir)
-
 		if not self.all_envs:
 			self.load_envs()
 
-	def run_user_code(self):
-		"""Overridden from Base.Context"""
 		self.execute_build()
 
 	def execute_build(self):
@@ -486,18 +477,6 @@ class BuildContext(Base.Context):
 		f.write(s)
 		#f.flush()
 
-	def pre_recurse(self, name_or_mod, path, nexdir):
-		"""from the context class"""
-		if not hasattr(self, 'oldpath'):
-			self.oldpath = []
-		self.oldpath.append(self.path)
-		self.path = self.root.find_dir(nexdir)
-		return {'bld': self, 'ctx': self}
-
-	def post_recurse(self, name_or_mod, path, nexdir):
-		"""from the context class"""
-		self.path = self.oldpath.pop()
-
 	def pre_build(self):
 		"""executes the user-defined methods before the build starts"""
 		if hasattr(self, 'pre_funs'):
@@ -720,14 +699,16 @@ class InstallContext(BuildContext):
 
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
-
 		self.is_install = INSTALL
 
-	def run_user_code(self):
-		"""see Context.run_user_code"""
-		self.is_install = INSTALL
+	def execute(self):
+		"""see Context.execute"""
+		self.load()
+		self.init_dirs(self.top_dir, self.variant_dir)
+		if not self.all_envs:
+			self.load_envs()
+
 		self.execute_build()
-		self.install()
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""returns true if the file was effectively installed or uninstalled, false otherwise"""
@@ -948,26 +929,34 @@ class InstallContext(BuildContext):
 class UninstallContext(InstallContext):
 	"""removes the targets installed"""
 	cmd = 'uninstall'
-	def run_user_code(self):
-		"""see Context.run_user_code"""
+
+	def __init__(self, start=None):
+		super(UninstallContext, self).__init__(start)
 		self.is_install = UNINSTALL
 
+	def execute(self):
+		"""see Context.execute"""
 		try:
 			# do not execute any tasks
 			def runnable_status(self):
 				return SKIP_ME
 			setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
 			setattr(Task.Task, 'runnable_status', runnable_status)
-			self.execute_build()
-			self.install()
+
+			super(UninstallContext, self).execute()
 		finally:
 			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
 class CleanContext(BuildContext):
 	"""cleans the project"""
 	cmd = 'clean'
-	def run_user_code(self):
-		"""see Context.run_user_code"""
+	def execute(self):
+		"""see Context.execute"""
+		self.load()
+		self.init_dirs(self.top_dir, self.variant_dir)
+		if not self.all_envs:
+			self.load_envs()
+
 		self.recurse(self.curdir)
 		try:
 			self.clean()
@@ -989,8 +978,13 @@ class ListContext(BuildContext):
 	"""lists the targets to execute"""
 
 	cmd = 'list'
-	def run_user_code(self):
-		"""see Context.run_user_code"""
+	def execute(self):
+		"""see Context.execute"""
+		self.load()
+		self.init_dirs(self.top_dir, self.variant_dir)
+		if not self.all_envs:
+			self.load_envs()
+
 		self.recurse(self.curdir)
 		self.pre_build()
 		self.flush()
@@ -1010,7 +1004,7 @@ class StepContext(BuildContext):
 
 	def __init__(self, *k, **kw):
 		super(StepContext, self).__init__(*k, **kw)
-		self.target = '*' # post all task generators
+		self.targets = '*' # post all task generators
 		self.files = Options.options.files
 
 	def compile(self):

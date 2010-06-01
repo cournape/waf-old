@@ -7,7 +7,7 @@ Base classes (mostly abstract)
 """
 
 import traceback, os, imp, sys
-import Utils
+import Utils, Node
 
 g_module = None
 """
@@ -115,13 +115,30 @@ class Context(ctx):
 			start = Options.run_dir
 		self.curdir = start
 
-	def pre_recurse(self, name_or_mod, path, nexdir):
-		"""executes immediately before a script is read"""
-		pass
+	def execute(self):
+		"""executes the command represented by this context"""
+		f = getattr(g_module, self.fun, None)
+		if f is None:
+			raise WscriptError('Undefined command: %s' % self.fun)
 
-	def post_recurse(self, name_or_mod, path, nextdir):
-		"""executes immediately after a script is read"""
-		pass
+		f(self)
+
+	def make_root(self):
+		"""Creates a node representing the filesystem root"""
+		Node.Nod3 = self.node_class
+		self.root = Node.Nod3('', None)
+
+	def pre_recurse(self, name_or_mod, path, nexdir):
+		"""from the context class"""
+		if not hasattr(self, 'oldpath'):
+			self.oldpath = []
+		self.oldpath.append(self.path)
+		self.path = self.root.find_dir(nexdir)
+		return {'bld': self, 'ctx': self}
+
+	def post_recurse(self, name_or_mod, path, nexdir):
+		"""from the context class"""
+		self.path = self.oldpath.pop()
 
 	def recurse(self, dirs, name=None):
 		"""
@@ -181,28 +198,6 @@ class Context(ctx):
 			# no wscript file - raise an exception
 			else:
 				raise WscriptError('No wscript file in directory %s' % d)
-
-	def execute(self):
-		"""Runs the command represented by this context"""
-		self.prepare()
-		self.run_user_code()
-		self.finalize()
-
-	def prepare(self):
-		"""Executed before the context is passed to the user function"""
-		pass
-
-	def run_user_code(self):
-		"""Calls the user function to which this context is bound"""
-		f = getattr(g_module, self.fun, None)
-		if f is None:
-			raise WscriptError('Undefined command: %s' % self.fun)
-
-		f(self)
-
-	def finalize(self):
-		"""Executed after the user function finishes"""
-		pass
 
 g_loaded_modules = {}
 """

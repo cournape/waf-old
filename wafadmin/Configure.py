@@ -198,6 +198,7 @@ class ConfigurationContext(Base.Context):
 
 	def post_recurse(self, name_or_mod, path, nexdir):
 		"""records the path and a hash of the scripts visited, see Context.post_recurse"""
+		super(ConfigurationContext, self).post_recurse(self, name_or_mod, path, nexdir)
 		self.hash = hash((self.hash, getattr(name_or_mod, 'waf_hash_val', name_or_mod)))
 		self.files.append(path)
 
@@ -356,7 +357,25 @@ class ConfigurationContext(Base.Context):
 		"""error handler for the configuration tests, the default is to let the exceptions rise"""
 		pass
 
-	def prepare(self):
+	def store(self):
+		"""Saves the config results into the cache file"""
+		try:
+			os.makedirs(self.cachedir)
+		except:
+			pass
+
+		f = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
+		f.write('version = 0x%x\n' % Base.HEXVERSION)
+		f.write('tools = %r\n' % self.tools)
+		f.close()
+
+		if not self.all_envs:
+			self.fatal('nothing to store in the configuration context!')
+		for key in self.all_envs:
+			tmpenv = self.all_envs[key]
+			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
+
+	def execute(self):
 		"""See Context.prepare"""
 		src = getattr(Options.options, Base.SRCDIR, None)
 		if not src: src = getattr(Base.g_module, Base.SRCDIR, None)
@@ -387,27 +406,7 @@ class ConfigurationContext(Base.Context):
 			self.start_msg('Setting blddir to')
 			self.end_msg(bld)
 
-	def store(self):
-		"""Saves the config results into the cache file"""
-		try:
-			os.makedirs(self.cachedir)
-		except:
-			pass
-
-		f = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
-		f.write('version = 0x%x\n' % Base.HEXVERSION)
-		f.write('tools = %r\n' % self.tools)
-		f.close()
-
-		if not self.all_envs:
-			self.fatal('nothing to store in the configuration context!')
-		for key in self.all_envs:
-			tmpenv = self.all_envs[key]
-			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
-
-	def finalize(self):
-
-		# why the duplication?
+		super(ConfigurationContext, self).execute()
 
 		self.store()
 
