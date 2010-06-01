@@ -51,27 +51,8 @@ class BuildContext(Base.Context):
 		if not self.cache_dir:
 			self.cache_dir = self.out_dir + os.sep + Configure.CACHE_DIR
 
-		# bind the build context to the nodes in use
-		# this means better encapsulation and no build context singleton
-		class node_class(Node.Node):
-			pass
-		self.node_class = node_class
-		self.node_class.__module__ = "Node"
-		self.node_class.__name__ = "Nod3"
-		self.node_class.bld = self
-
 		# map names to environments, the 'default' must be defined
 		self.all_envs = {}
-
-		# ======================================= #
-		# code for reading the scripts
-
-		# the current directory from which the code is run
-		# the folder changes everytime a wscript is read
-		self.path = None
-
-		# nodes
-		self.root = None
 
 		# ======================================= #
 		# cache variables
