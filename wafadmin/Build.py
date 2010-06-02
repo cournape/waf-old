@@ -639,25 +639,6 @@ def check_dir(dir):
 		except OSError as e:
 			raise Errors.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
 
-def exec_install_files(task):
-	destpath = task.get_install_path()
-	check_dir(destpath)
-	for x in task.inputs:
-		task.generator.bld.do_install(x.abspath(), destpath, task.chmod)
-
-def exec_install_as(task):
-	destfile = task.get_install_path()
-	destpath, _ = os.path.split(destfile)
-	check_dir(destpath)
-	task.generator.bld.do_install(task.inputs[0].abspath(), destfile, task.chmod)
-
-def exec_symlink_as(task):
-	destfile = task.get_install_path()
-	destpath, _ = os.path.split(destfile)
-	check_dir(destpath)
-
-	task.generator.bld.do_link(task.link, destfile)
-
 class inst_task(Task.Task):
 	color = 'CYAN'
 	def runnable_status(self):
@@ -674,7 +655,7 @@ class inst_task(Task.Task):
 		return self.generator.bld.install_msg
 
 	def run(self):
-		return self.generator.exec_task(self)
+		return self.generator.exec_task()
 
 	def get_install_path(self):
 		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
@@ -683,6 +664,25 @@ class inst_task(Task.Task):
 		if Options.options.destdir:
 			dest = os.path.join(Options.options.destdir, dest.lstrip(os.sep))
 		return dest
+
+	def exec_install_files(self):
+		destpath = self.get_install_path()
+		check_dir(destpath)
+		for x in self.inputs:
+			self.generator.bld.do_install(x.abspath(), destpath, self.chmod)
+
+	def exec_install_as(self):
+		destfile = self.get_install_path()
+		destpath, _ = os.path.split(destfile)
+		check_dir(destpath)
+		self.generator.bld.do_install(self.inputs[0].abspath(), destfile, self.chmod)
+
+	def exec_symlink_as(self):
+		destfile = self.get_install_path()
+		destpath, _ = os.path.split(destfile)
+		check_dir(destpath)
+
+		self.generator.bld.do_link(self.link, destfile)
 
 class InstallContext(BuildContext):
 	"""installs the targets on the system"""
@@ -755,7 +755,7 @@ class InstallContext(BuildContext):
 		tsk.chmod = chmod
 		tsk.source = files
 		tsk.dest = dest
-		tsk.exec_task = exec_install_files
+		tsk.exec_task = tsk.exec_install_files
 		self.add_to_group(tsk)
 		return tsk
 
@@ -793,7 +793,7 @@ class InstallContext(BuildContext):
 		tsk.chmod = chmod
 		tsk.source = srcfile
 		tsk.dest = dest
-		tsk.exec_task = exec_install_as
+		tsk.exec_task = tsk.exec_install_as
 		self.add_to_group(tsk)
 		return tsk
 
@@ -810,7 +810,7 @@ class InstallContext(BuildContext):
 		tsk.path = cwd or self.path
 		tsk.source = []
 		tsk.link = src
-		tsk.exec_task = exec_symlink_as
+		tsk.exec_task = tsk.exec_symlink_as
 		self.add_to_group(tsk)
 		return tsk
 
