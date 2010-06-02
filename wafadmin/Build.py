@@ -644,7 +644,6 @@ def exec_install_files(task):
 	check_dir(destpath)
 	for x in task.inputs:
 		task.generator.bld.do_install(x.abspath(), destpath, task.chmod)
-	print "install_files", destpath
 
 def exec_install_as(task):
 	destfile = task.get_install_path()
@@ -684,7 +683,6 @@ class inst_task(Task.Task):
 		if Options.options.destdir:
 			dest = os.path.join(Options.options.destdir, dest.lstrip(os.sep))
 		return dest
-
 
 class InstallContext(BuildContext):
 	"""installs the targets on the system"""
@@ -759,7 +757,7 @@ class InstallContext(BuildContext):
 		tsk.dest = dest
 		tsk.exec_task = exec_install_files
 		self.add_to_group(tsk)
-		return
+		return tsk
 
 
 		installed_files = []
@@ -816,36 +814,6 @@ class InstallContext(BuildContext):
 		self.add_to_group(tsk)
 		return tsk
 
-	def install(self): # TODO remove
-		"""Called for both install and uninstall"""
-		Logs.debug('build: install called')
-		return # not called
-
-		self.flush()
-
-		# remove empty folders after uninstalling
-		if self.is_install < 0:
-			lst = []
-			for x in self.uninstall:
-				dir = os.path.dirname(x)
-				if not dir in lst: lst.append(dir)
-			lst.sort()
-			lst.reverse()
-
-			nlst = []
-			for y in lst:
-				x = y
-				while len(x) > 4:
-					if not x in nlst: nlst.append(x)
-					x = os.path.dirname(x)
-
-			nlst.sort()
-			nlst.reverse()
-			for x in nlst:
-				try: os.rmdir(x)
-				except OSError: pass
-
-
 class UninstallContext(InstallContext):
 	"""removes the targets installed"""
 	cmd = 'uninstall'
@@ -869,13 +837,28 @@ class UninstallContext(InstallContext):
 				if Logs.verbose > 1:
 					Logs.warn('could not remove %s (error code %r)' % (e.filename, e.errno))
 
+
+		while tgt:
+			tgt = os.path.dirname(tgt)
+			try:
+				os.rmdir(tgt)
+			except OSError:
+				break
+
 	def do_link(self, src, tgt):
 		try:
 			Logs.info('* removing %s' % (tgt))
 			os.remove(tgt)
-			return 0
 		except OSError:
-			return 1
+			pass
+
+		# TODO ita refactor this into a post build action to uninstall the folders (optimization)
+		while tgt:
+			tgt = os.path.dirname(tgt)
+			try:
+				os.rmdir(tgt)
+			except OSError:
+				break
 
 	def execute(self):
 		"""see Context.execute"""
