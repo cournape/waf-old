@@ -657,6 +657,8 @@ def exec_symlink_as(task):
 	destpath, _ = os.path.split(destfile)
 	check_dir(destpath)
 
+	task.generator.bld.do_link(task.link, destfile)
+
 class inst_task(Task.Task):
 	color = 'CYAN'
 	def runnable_status(self):
@@ -735,6 +737,19 @@ class InstallContext(BuildContext):
 				Logs.error('File %r does not exist' % src)
 			raise Errors.WafError('Could not install the file %r' % tgt)
 
+	def do_link(self, src, tgt):
+		link = False
+		if not os.path.islink(tgt):
+			link = True
+		elif os.readlink(tgt) != src:
+			link = True
+
+		if link:
+			try: os.remove(tgt)
+			except OSError: pass
+			Logs.info('* symlink %s (-> %s)' % (tgt, src))
+			os.symlink(src, tgt)
+
 	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None):
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -773,6 +788,7 @@ class InstallContext(BuildContext):
 		return installed_files
 
 	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None):
+		"""example: bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
 		tsk.path = cwd or self.path
@@ -794,34 +810,13 @@ class InstallContext(BuildContext):
 		tsk.bld = self
 		tsk.dest = dest
 		tsk.path = cwd or self.path
+		tsk.source = []
+		tsk.link = src
 		tsk.exec_task = exec_symlink_as
 		self.add_to_group(tsk)
-		return
+		return tsk
 
-
-		if self.is_install > 0:
-			link = False
-			if not os.path.islink(tgt):
-				link = True
-			elif os.readlink(tgt) != src:
-				link = True
-
-			if link:
-				try: os.remove(tgt)
-				except OSError: pass
-				Logs.info('* symlink %s (-> %s)' % (tgt, src))
-				os.symlink(src, tgt)
-			return 0
-
-		else: # UNINSTALL
-			try:
-				Logs.info('* removing %s' % (tgt))
-				os.remove(tgt)
-				return 0
-			except OSError:
-				return 1
-
-	def install(self):
+	def install(self): # TODO remove
 		"""Called for both install and uninstall"""
 		Logs.debug('build: install called')
 		return # not called
@@ -873,6 +868,14 @@ class UninstallContext(InstallContext):
 					Logs.warn('build: some files could not be uninstalled (retry with -vv to list them)')
 				if Logs.verbose > 1:
 					Logs.warn('could not remove %s (error code %r)' % (e.filename, e.errno))
+
+	def do_link(self, src, tgt):
+		try:
+			Logs.info('* removing %s' % (tgt))
+			os.remove(tgt)
+			return 0
+		except OSError:
+			return 1
 
 	def execute(self):
 		"""see Context.execute"""
