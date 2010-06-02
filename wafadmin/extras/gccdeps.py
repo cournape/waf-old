@@ -8,7 +8,8 @@ and prepare the dependency calculation for the next run
 """
 
 import os, re, threading
-from wafadmin import Task, Logs, Utils, preproc
+from wafadmin import Task, Logs, Utils, Errors
+from wafadmin.Tools import preproc
 from wafadmin.TaskGen import before, after, feature
 
 lock = threading.Lock()
@@ -109,11 +110,10 @@ def post_run(self):
 
 	Task.Task.post_run(self)
 
-import Base
 def sig_implicit_deps(self):
 	try:
 		return Task.Task.sig_implicit_deps(self)
-	except Base.WafError:
+	except Errors.WafError:
 		return Utils.SIG_NIL
 
 for name in 'cc cxx'.split():

@@ -216,17 +216,22 @@ def load_tool(tool, tooldir=None):
 	if tooldir:
 		assert isinstance(tooldir, list)
 		sys.path = tooldir + sys.path
-	else:
-		tool = "wafadmin.Tools." + tool
-
-	try:
 		try:
 			__import__(tool)
 			return sys.modules[tool]
-		except ImportError as e:
+		except ImportError:
 			raise Errors.WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
-	finally:
-		if tooldir:
-			for d in tooldir:
-				sys.path.remove(d)
+		for d in tooldir:
+			sys.path.remove(d)
+	else:
+		for x in ['Tools', 'extras']:
+			imp = 'wafadmin.%s.%s' % (x, tool)
+			try:
+				__import__(imp)
+			except:
+				pass
+			else:
+				return sys.modules[imp]
+		else:
+			raise Errors.WscriptError('Could not load the waf tool %r' % tool)
 
