@@ -66,7 +66,6 @@ def scc_common_flags(conf):
 
 detect = '''
 find_scc
-find_cpp
 find_ar
 scc_common_flags
 cc_load_tools

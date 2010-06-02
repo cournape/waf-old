@@ -60,7 +60,6 @@ def sxx_common_flags(conf):
 
 detect = '''
 find_sxx
-find_cpp
 find_ar
 sxx_common_flags
 cxx_load_tools

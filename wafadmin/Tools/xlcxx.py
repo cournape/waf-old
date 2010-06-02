@@ -17,15 +17,6 @@ def find_xlcxx(conf):
 	conf.env.CXX      = cxx
 
 @conf
-def find_cpp(conf):
-	v = conf.env
-	cpp = None
-	if v['CPP']: cpp = v['CPP']
-	elif 'CPP' in conf.environ: cpp = conf.environ['CPP']
-	if not cpp: cpp = v['CXX']
-	v['CPP'] = cpp
-
-@conf
 def xlcxx_common_flags(conf):
 	v = conf.env
 
@@ -69,7 +60,6 @@ def xlcxx_common_flags(conf):
 
 def configure(conf):
 	conf.find_xlcxx()
-	conf.find_cpp()
 	conf.find_ar()
 	conf.xlcxx_common_flags()
 	conf.cxx_load_tools()

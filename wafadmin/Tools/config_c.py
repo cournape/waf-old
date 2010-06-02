@@ -679,17 +679,6 @@ def get_config_header(self):
 	return "\n".join(config_header)
 
 @conf
-def find_cpp(conf):
-	v = conf.env
-	cpp = None
-	if v['CPP']: cpp = v['CPP']
-	elif 'CPP' in conf.environ: cpp = conf.environ['CPP']
-	if not cpp: cpp = conf.find_program('cpp', var='CPP')
-	if not cpp: cpp = v['CC']
-	if not cpp: cpp = v['CXX']
-	v['CPP'] = cpp
-
-@conf
 def cc_add_flags(conf):
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')
 	conf.add_os_flags('CPPFLAGS')

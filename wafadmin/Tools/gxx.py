@@ -123,7 +123,6 @@ def gxx_modifier_platform(conf):
 
 def configure(conf):
 	conf.find_gxx()
-	conf.find_cpp()
 	conf.find_ar()
 	conf.gxx_common_flags()
 	conf.gxx_modifier_platform()

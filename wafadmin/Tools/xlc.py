@@ -17,15 +17,6 @@ def find_xlc(conf):
 	conf.env.CC      = cc
 
 @conf
-def find_cpp(conf):
-	v = conf.env
-	cpp = None
-	if v['CPP']: cpp = v['CPP']
-	elif 'CPP' in conf.environ: cpp = conf.environ['CPP']
-	if not cpp: cpp = v['CC']
-	v['CPP'] = cpp
-
-@conf
 def xlc_common_flags(conf):
 	v = conf.env
 
@@ -69,7 +60,6 @@ def xlc_common_flags(conf):
 
 def configure(conf):
 	conf.find_xlc()
-	conf.find_cpp()
 	conf.find_ar()
 	conf.xlc_common_flags()
 	conf.cc_load_tools()

@@ -125,7 +125,6 @@ def gcc_modifier_platform(conf):
 
 def configure(conf):
 	conf.find_gcc()
-	conf.find_cpp()
 	conf.find_ar()
 	conf.gcc_common_flags()
 	conf.gcc_modifier_platform()
