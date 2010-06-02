@@ -24,8 +24,8 @@ def old_importpaths(self):
 	if getattr(self, 'importpaths', []):
 		self.includes = self.importpaths
 
-from wafadmin import Base
-eld = Base.load_tool
+from wafadmin import Context
+eld = Context.load_tool
 def load_tool(*k, **kw):
 	ret = eld(*k, **kw)
 	return ret
@@ -33,22 +33,22 @@ def load_tool(*k, **kw):
 		ret.options = ret.set_options
 	if 'detect' in ret.__dict__ and not 'configure' in ret.__dict__:
 		ret.configure = ret.detect
-Base.load_tool = load_tool
+Context.load_tool = load_tool
 
-rev = Base.load_module
+rev = Context.load_module
 def load_module(file_path):
 	ret = rev(file_path)
 	if 'set_options' in ret.__dict__:
 		ret.options = ret.set_options
 	return ret
-Base.load_module = load_module
+Context.load_module = load_module
 
 from wafadmin import Scripting
 old = Scripting.set_main_module
 def set_main_module(f):
 	old(f)
-	if 'set_options' in Base.g_module.__dict__:
-		Base.g_module.options = Base.g_module.set_options
+	if 'set_options' in Context.g_module.__dict__:
+		Context.g_module.options = Context.g_module.set_options
 Scripting.set_main_module = set_main_module
 
 from wafadmin import TaskGen

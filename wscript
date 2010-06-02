@@ -55,7 +55,7 @@ def init(*k, **kw):
 		except:
 			pass
 
-		sub_file('wafadmin/Base.py', pats)
+		sub_file('wafadmin/Context.py', pats)
 
 		sys.exit(0)
 	elif Options.options.waf:

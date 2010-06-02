@@ -13,7 +13,7 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Base, Configure
+from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Configure
 import wafadmin.Node
 
 INSTALL = 1337
@@ -28,7 +28,7 @@ SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 CFG_FILES = 'cfg_files'
 """files from the build directory to hash before starting the build"""
 
-class BuildContext(Base.Context):
+class BuildContext(Context.Context):
 	"""executes the build"""
 
 	cmd = 'build'
@@ -170,7 +170,7 @@ class BuildContext(Base.Context):
 		except (IOError, OSError):
 			pass
 		else:
-			if env['version'] < Base.HEXVERSION:
+			if env['version'] < Context.HEXVERSION:
 				raise Errors.WafError('Version mismatch! reconfigure the project')
 			for t in env['tools']:
 				self.setup(**t)
@@ -182,7 +182,7 @@ class BuildContext(Base.Context):
 			wafadmin.Node.Nod3 = self.node_class
 
 			try:
-				f = open(os.path.join(self.variant_dir, Base.DBFILE), 'rb')
+				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
 				pass
@@ -205,7 +205,7 @@ class BuildContext(Base.Context):
 
 		# some people are very nervous with ctrl+c so we have to make a temporary file
 		wafadmin.Node.Nod3 = self.node_class
-		db = os.path.join(self.variant_dir, Base.DBFILE)
+		db = os.path.join(self.variant_dir, Context.DBFILE)
 		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
@@ -245,7 +245,7 @@ class BuildContext(Base.Context):
 			for i in tool: self.setup(i, tooldir)
 			return
 
-		module = Base.load_tool(tool, tooldir)
+		module = Context.load_tool(tool, tooldir)
 		if hasattr(module, "setup"): module.setup(self)
 
 	def get_env(self):

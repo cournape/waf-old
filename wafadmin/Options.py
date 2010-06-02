@@ -6,7 +6,7 @@
 "Custom command-line options"
 
 import os, types, tempfile, optparse
-from wafadmin import Logs, Utils, Base
+from wafadmin import Logs, Utils, Context
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 
@@ -39,7 +39,7 @@ platform = Utils.unversioned_sys_platform()
 
 class opt_parser(optparse.OptionParser):
 	def __init__(self):
-		optparse.OptionParser.__init__(self, conflict_handler="resolve", version = 'waf %s (%s)' % (Base.WAFVERSION, Base.WAFREVISION))
+		optparse.OptionParser.__init__(self, conflict_handler="resolve", version = 'waf %s (%s)' % (Context.WAFVERSION, Context.WAFREVISION))
 
 		self.formatter.width = Logs.get_term_cols()
 		p = self.add_option
@@ -87,19 +87,19 @@ class opt_parser(optparse.OptionParser):
 
 	def get_usage(self):
 		cmds_str = {}
-		for cls in Base.classes:
+		for cls in Context.classes:
 			if not cls.cmd:
 				continue
 
 			s = cls.__doc__ or ''
 			cmds_str[cls.cmd] = s
 
-		if Base.g_module:
-			for (k, v) in Base.g_module.__dict__.items():
+		if Context.g_module:
+			for (k, v) in Context.g_module.__dict__.items():
 				if k in ['options', 'init', 'shutdown']:
 					continue
 
-				if type(v) is type(Base.create_context):
+				if type(v) is type(Context.create_context):
 					if v.__doc__ and not k.startswith('_'):
 						cmds_str[k] = v.__doc__
 
@@ -118,7 +118,7 @@ Main commands (example: ./waf build -j4)
 ''' % ret
 
 
-class OptionsContext(Base.Context):
+class OptionsContext(Context.Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
 
@@ -145,7 +145,7 @@ class OptionsContext(Base.Context):
 		path = Utils.to_list(kw.get('tooldir', ''))
 
 		for tool in tools:
-			module = Base.load_tool(tool, path)
+			module = Context.load_tool(tool, path)
 			try:
 				fun = module.options
 			except AttributeError:

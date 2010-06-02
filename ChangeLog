@@ -5,7 +5,7 @@ NEW IN WAF 1.6.0
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
 * Better Node apis
-* Utils.load_tool -> Base.load_tool
+* Utils.load_tool -> Context.load_tool
 * set_options becomes options
 * only the build-related commands require a configured project
 * new variant system + build context commands
@@ -26,4 +26,5 @@ NEW IN WAF 1.6.0
 * remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
 
 * let the commands access node objects
+* infer the build directory from the lock filename
 

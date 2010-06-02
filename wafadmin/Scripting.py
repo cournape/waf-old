@@ -9,7 +9,7 @@ if sys.hexversion<0x206000f:
 	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
-from wafadmin import Utils, Configure, Logs, Options, ConfigSet, Base, Errors
+from wafadmin import Utils, Configure, Logs, Options, ConfigSet, Context, Errors
 
 g_gz = 'bz2'
 
@@ -20,7 +20,7 @@ def waf_entry_point(current_directory, version, wafdir):
 
 	Logs.init_log()
 
-	if Base.WAFVERSION != version:
+	if Context.WAFVERSION != version:
 		Logs.error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
 		sys.exit(1)
 
@@ -49,7 +49,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			break
 
 		if not Options.run_dir:
-			if Base.WSCRIPT_FILE in lst:
+			if Context.WSCRIPT_FILE in lst:
 				Options.run_dir = cur
 
 		cur = os.path.dirname(cur)
@@ -60,7 +60,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			opt_obj.curdir = current_directory
 			opt_obj.parse_args()
 			sys.exit(0)
-		Logs.error('Waf: Run from a directory containing a file named %r' % Base.WSCRIPT_FILE)
+		Logs.error('Waf: Run from a directory containing a file named %r' % Context.WSCRIPT_FILE)
 		sys.exit(1)
 
 	try:
@@ -70,7 +70,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		sys.exit(1)
 
 	try:
-		set_main_module(Options.run_dir + os.sep + Base.WSCRIPT_FILE)
+		set_main_module(Options.run_dir + os.sep + Context.WSCRIPT_FILE)
 	except Errors.WscriptError as e:
 		Logs.error(str(e))
 		sys.exit(1)
@@ -103,25 +103,25 @@ def waf_entry_point(current_directory, version, wafdir):
 
 def set_main_module(file_path):
 	"Load custom options, if defined"
-	Base.g_module = Base.load_module(file_path)
-	Base.g_module.root_path = file_path
+	Context.g_module = Context.load_module(file_path)
+	Context.g_module.root_path = file_path
 
 	# note: to register the module globally, use the following:
 	# sys.modules['wscript_main'] = g_module
 
 	def set_def(obj):
 		name = obj.__name__
-		if not name in Base.g_module.__dict__:
-			setattr(Base.g_module, name, obj)
+		if not name in Context.g_module.__dict__:
+			setattr(Context.g_module, name, obj)
 	for k in [update, dist, distclean, distcheck]:
 		set_def(k)
 	# add dummy init and shutdown functions if they're not defined
-	if not 'init' in Base.g_module.__dict__:
-		Base.g_module.init = Utils.nada
-	if not 'shutdown' in Base.g_module.__dict__:
-		Base.g_module.shutdown = Utils.nada
-	if not 'options' in Base.g_module.__dict__:
-		Base.g_module.options = Utils.nada
+	if not 'init' in Context.g_module.__dict__:
+		Context.g_module.init = Utils.nada
+	if not 'shutdown' in Context.g_module.__dict__:
+		Context.g_module.shutdown = Utils.nada
+	if not 'options' in Context.g_module.__dict__:
+		Context.g_module.options = Utils.nada
 
 def parse_options():
 	opt = Options.OptionsContext().execute()
@@ -145,7 +145,7 @@ def parse_options():
 
 def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
-	ctx = Base.create_context(cmd_name)
+	ctx = Context.create_context(cmd_name)
 	ctx.cmd = cmd_name
 	ctx.execute()
 
@@ -251,7 +251,7 @@ def distclean(ctx):
 					pass
 				except OSError as e:
 					if e.errno != errno.ENOENT:
-						Logs.warn('project %r cannot be removed' % proj[Base.BLDDIR])
+						Logs.warn('project %r cannot be removed' % proj[Context.BLDDIR])
 			else:
 				distclean_dir(proj['out_dir'])
 
@@ -269,8 +269,8 @@ def dist(ctx):
 	'''makes a tarball for redistributing the sources'''
 	import tarfile
 
-	appname = getattr(Base.g_module, Base.APPNAME, 'noname')
-	version = getattr(Base.g_module, Base.VERSION, '1.0')
+	appname = getattr(Context.g_module, Context.APPNAME, 'noname')
+	version = getattr(Context.g_module, Context.VERSION, '1.0')
 
 	tmp_folder = appname + '-' + version
 	arch_name = tmp_folder+'.tar.'+g_gz
@@ -288,10 +288,10 @@ def dist(ctx):
 		pass
 
 	# copy the files into the temporary folder
-	copytree('.', tmp_folder, getattr(Base.g_module, Base.BLDDIR, None))
+	copytree('.', tmp_folder, getattr(Context.g_module, Context.BLDDIR, None))
 
 	# undocumented hook for additional cleanup
-	dist_hook = getattr(Base.g_module, 'dist_hook', None)
+	dist_hook = getattr(Context.g_module, 'dist_hook', None)
 	if dist_hook:
 		back = os.getcwd()
 		os.chdir(tmp_folder)
@@ -320,11 +320,11 @@ def distcheck(ctx):
 	'''checks if the project compiles (tarball from 'dist')'''
 	import tempfile, tarfile
 
-	appname = getattr(Base.g_module, Base.APPNAME, 'noname')
-	version = getattr(Base.g_module, Base.VERSION, '1.0')
+	appname = getattr(Context.g_module, Context.APPNAME, 'noname')
+	version = getattr(Context.g_module, Context.VERSION, '1.0')
 
 	waf = os.path.abspath(sys.argv[0])
-	tarball = Base.g_module.dist(ctx)
+	tarball = Context.g_module.dist(ctx)
 	t = tarfile.open(tarball)
 	for x in t: t.extract(x)
 	t.close()
@@ -375,7 +375,7 @@ def update(ctx):
 		else:
 			try:
 				bld = Utils.create_context('build', self.curdir)
-				bld.load_dirs(proj[Base.SRCDIR], proj[Base.BLDDIR])
+				bld.load_dirs(proj[Context.SRCDIR], proj[Context.BLDDIR])
 				bld.load_envs()
 			except Errors.WafError:
 				reconf(proj)
@@ -392,7 +392,7 @@ def update(ctx):
 				if file.endswith('configure'):
 					h = hash((h, Utils.readf(file)))
 				else:
-					mod = Base.load_module(file)
+					mod = Context.load_module(file)
 					h = hash((h, mod.waf_hash_val))
 		except (OSError, IOError):
 			Logs.warn('Reconfiguring the project: a file is unavailable')

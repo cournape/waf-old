@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, shlex, sys, time
-from wafadmin import ConfigSet, Utils, Options, Logs, Base
+from wafadmin import ConfigSet, Utils, Options, Logs, Context
 
 BREAK    = 'break'
 """in case of error, break"""
@@ -53,7 +53,7 @@ conf_template = '''# project %(app)s configured on %(now)s by
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
 	for x in Utils.to_list(Options.remote_repo):
-		for sub in ['branches/waf-%s/wafadmin/extras' % Base.WAFVERSION, 'trunk/wafadmin/extras']:
+		for sub in ['branches/waf-%s/wafadmin/extras' % Context.WAFVERSION, 'trunk/wafadmin/extras']:
 			url = '/'.join((x, sub, tool + '.py'))
 			try:
 				web = urlopen(url)
@@ -70,12 +70,12 @@ def download_tool(tool, force=False):
 				finally:
 					loc.close()
 				Logs.warn('downloaded %s from %s' % (tool, url))
-				return Base.load_tool(tool)
+				return Context.load_tool(tool)
 		else:
 				break
 		raise Errors.WafError('Could not load the tool')
 
-class ConfigurationContext(Base.Context):
+class ConfigurationContext(Context.Context):
 	"""configures the project"""
 
 	cmd = 'configure'
@@ -123,9 +123,9 @@ class ConfigurationContext(Base.Context):
 		except (OSError, IOError):
 			self.fatal('could not open %r for writing' % path)
 
-		app = getattr(Base.g_module, 'APPNAME', '')
+		app = getattr(Context.g_module, 'APPNAME', '')
 		if app:
-			ver = getattr(Base.g_module, 'VERSION', '')
+			ver = getattr(Context.g_module, 'VERSION', '')
 			if ver:
 				app = "%s (%s)" % (app, ver)
 
@@ -133,8 +133,8 @@ class ConfigurationContext(Base.Context):
 		pyver = sys.hexversion
 		systype = sys.platform
 		args = " ".join(sys.argv)
-		wafver = Base.WAFVERSION
-		abi = Base.ABI
+		wafver = Context.WAFVERSION
+		abi = Context.ABI
 		self.log.write(conf_template % vars())
 
 	def __del__(self):
@@ -163,7 +163,7 @@ class ConfigurationContext(Base.Context):
 			self.tool_cache.append(mag)
 
 			#try:
-			module = Base.load_tool(tool, tooldir)
+			module = Context.load_tool(tool, tooldir)
 			#except Exception as e:
 			#	if 1:
 			#		raise self.errors.ConfigurationError(e)
@@ -359,7 +359,7 @@ class ConfigurationContext(Base.Context):
 			pass
 
 		f = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
-		f.write('version = 0x%x\n' % Base.HEXVERSION)
+		f.write('version = 0x%x\n' % Context.HEXVERSION)
 		f.write('tools = %r\n' % self.tools)
 		f.close()
 
@@ -371,16 +371,16 @@ class ConfigurationContext(Base.Context):
 
 	def execute(self):
 		"""See Context.prepare"""
-		src = getattr(Options.options, Base.SRCDIR, None)
-		if not src: src = getattr(Base.g_module, Base.SRCDIR, None)
+		src = getattr(Options.options, Context.SRCDIR, None)
+		if not src: src = getattr(Context.g_module, Context.SRCDIR, None)
 		if not src:
 			src = '.'
 			incomplete_src = 1
 		src = os.path.abspath(src)
 
-		bld = getattr(Options.options, Base.BLDDIR, None)
+		bld = getattr(Options.options, Context.BLDDIR, None)
 		if not bld:
-			bld = getattr(Base.g_module, Base.BLDDIR, None)
+			bld = getattr(Context.g_module, Context.BLDDIR, None)
 		if not bld:
 			bld = Options.lockfile.replace('.lock-waf', '')
 			incomplete_bld = 1
@@ -447,7 +447,7 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 	@type  maxi: number, tuple or string
 	@param maxi: Maximum allowed version
 	"""
-	ver = Base.HEXVERSION
+	ver = Context.HEXVERSION
 	if num2ver(min_val) > ver:
 		conf.fatal('waf version should be at least %r (%r found)' % (mini, ver))
 
