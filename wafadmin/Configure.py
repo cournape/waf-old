@@ -382,7 +382,7 @@ class ConfigurationContext(Base.Context):
 		if not bld:
 			bld = getattr(Base.g_module, Base.BLDDIR, None)
 		if not bld:
-			bld = 'build'
+			bld = Options.lockfile.replace('.lock-waf', '')
 			incomplete_bld = 1
 		bld = os.path.abspath(bld)
 

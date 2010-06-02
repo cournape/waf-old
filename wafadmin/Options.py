@@ -31,7 +31,7 @@ local_repo = ''
 remote_repo = 'http://waf.googlecode.com/svn/'
 """remote directory for the plugins"""
 
-lockfile = os.environ.get('WAFLOCK', '.lock-waf')
+lockfile = os.environ.get('WAFLOCK', '.lock-wafbuild')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
 platform = Utils.unversioned_sys_platform()
