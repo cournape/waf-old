@@ -639,14 +639,50 @@ def check_dir(dir):
 		except OSError as e:
 			raise Errors.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
 
+def exec_install_files(task):
+	destpath = task.get_install_path()
+	check_dir(destpath)
+	for x in task.inputs:
+		task.generator.bld.do_install(x.abspath(), destpath, task.chmod)
+	print "install_files", destpath
+
+def exec_install_as(task):
+	destfile = task.get_install_path()
+	destpath, _ = os.path.split(destfile)
+	check_dir(destpath)
+	task.generator.bld.do_install(task.inputs[0].abspath(), destfile, task.chmod)
+
+def exec_symlink_as(task):
+	destfile = task.get_install_path()
+	destpath, _ = os.path.split(destfile)
+	check_dir(destpath)
+
 class inst_task(Task.Task):
 	color = 'CYAN'
+	def runnable_status(self):
+		buf = []
+		for x in Utils.to_list(self.source):
+			y = self.path.find_resource(x)
+			if not y:
+				raise Errors.WafError('could not find %r in %r' % (x, self.path))
+			buf.append(y)
+		self.set_inputs(buf)
+		return Task.RUN_ME
+
 	def __str__(self):
 		return self.generator.bld.install_msg
-	def run(self):
-		pass
 
-Task.always_run(inst_task)
+	def run(self):
+		return self.generator.exec_task(self)
+
+	def get_install_path(self):
+		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
+		dest = self.dest.replace('/', os.sep)
+		dest = Utils.subst_vars(self.dest, self.env)
+		if Options.options.destdir:
+			dest = os.path.join(Options.options.destdir, dest.lstrip(os.sep))
+		return dest
+
 
 class InstallContext(BuildContext):
 	"""installs the targets on the system"""
@@ -699,15 +735,91 @@ class InstallContext(BuildContext):
 				Logs.error('File %r does not exist' % src)
 			raise Errors.WafError('Could not install the file %r' % tgt)
 
-	def get_install_path(self, path, env=None):
-		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
-		if not env: env = self.env
-		destdir = Options.options.destdir
-		path = path.replace('/', os.sep)
-		destpath = Utils.subst_vars(path, env)
-		if destdir:
-			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
-		return destpath
+	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None):
+		tsk = inst_task(env=env or self.env)
+		tsk.bld = self
+		tsk.path = cwd or self.path
+		tsk.chmod = chmod
+		tsk.source = files
+		tsk.dest = dest
+		tsk.exec_task = exec_install_files
+		self.add_to_group(tsk)
+		return
+
+
+		installed_files = []
+		for filename in lst:
+			if isinstance(filename, str) and os.path.isabs(filename):
+				alst = Utils.split_path(filename)
+				destfile = os.path.join(destpath, alst[-1])
+			else:
+				if isinstance(filename, wafadmin.Node.Node):
+					nd = filename
+				else:
+					nd = cwd.find_resource(filename)
+				if not nd:
+					raise Errors.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
+
+				if relative_trick:
+					destfile = os.path.join(destpath, filename)
+					check_dir(os.path.dirname(destfile))
+				else:
+					destfile = os.path.join(destpath, nd.name)
+
+				filename = nd.abspath()
+
+			if self.do_install(filename, destfile, chmod):
+				installed_files.append(destfile)
+		return installed_files
+
+	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None):
+		tsk = inst_task(env=env or self.env)
+		tsk.bld = self
+		tsk.path = cwd or self.path
+		tsk.chmod = chmod
+		tsk.source = srcfile
+		tsk.dest = dest
+		tsk.exec_task = exec_install_as
+		self.add_to_group(tsk)
+		return tsk
+
+	def symlink_as(self, dest, src, env=None, cwd=None):
+		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
+
+		if sys.platform == 'win32':
+			# symlinks *cannot* work on that platform
+			return
+
+		tsk = inst_task(env=env or self.env)
+		tsk.bld = self
+		tsk.dest = dest
+		tsk.path = cwd or self.path
+		tsk.exec_task = exec_symlink_as
+		self.add_to_group(tsk)
+		return
+
+
+		if self.is_install > 0:
+			link = False
+			if not os.path.islink(tgt):
+				link = True
+			elif os.readlink(tgt) != src:
+				link = True
+
+			if link:
+				try: os.remove(tgt)
+				except OSError: pass
+				Logs.info('* symlink %s (-> %s)' % (tgt, src))
+				os.symlink(src, tgt)
+			return 0
+
+		else: # UNINSTALL
+			try:
+				Logs.info('* removing %s' % (tgt))
+				os.remove(tgt)
+				return 0
+			except OSError:
+				return 1
 
 	def install(self):
 		"""Called for both install and uninstall"""
@@ -738,135 +850,6 @@ class InstallContext(BuildContext):
 				try: os.rmdir(x)
 				except OSError: pass
 
-	def install_files(self, path, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None):
-		tsk = inst_task(env=self.env)
-		tsk.bld = self
-		tsk.fun = "hey!!"
-		self.add_to_group(tsk)
-		return
-
-		if env:
-			assert isinstance(env, ConfigSet.ConfigSet), "invalid parameter"
-		else:
-			env = self.env
-
-		if not path: return []
-
-		if not cwd:
-			cwd = self.path
-
-		lst = Utils.to_list(files)
-
-		if not getattr(lst, '__iter__', False):
-			lst = [lst]
-
-		destpath = self.get_install_path(path, env)
-
-		check_dir(destpath)
-
-		installed_files = []
-		for filename in lst:
-			if isinstance(filename, str) and os.path.isabs(filename):
-				alst = Utils.split_path(filename)
-				destfile = os.path.join(destpath, alst[-1])
-			else:
-				if isinstance(filename, wafadmin.Node.Node):
-					nd = filename
-				else:
-					nd = cwd.find_resource(filename)
-				if not nd:
-					raise Errors.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
-
-				if relative_trick:
-					destfile = os.path.join(destpath, filename)
-					check_dir(os.path.dirname(destfile))
-				else:
-					destfile = os.path.join(destpath, nd.name)
-
-				filename = nd.abspath()
-
-			if self.do_install(filename, destfile, chmod):
-				installed_files.append(destfile)
-		return installed_files
-
-	def install_as(self, path, srcfile, env=None, chmod=Utils.O644, cwd=None):
-		tsk = inst_task(env=self.env)
-		tsk.bld = self
-		tsk.fun = "hey!!"
-		self.add_to_group(tsk)
-		return
-
-		if env:
-			assert isinstance(env, ConfigSet.ConfigSet), "invalid parameter"
-		else:
-			env = self.env
-
-		if not path:
-			raise Errors.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
-
-		if not cwd:
-			cwd = self.path
-
-		destpath = self.get_install_path(path, env)
-
-		dir, name = os.path.split(destpath)
-		check_dir(dir)
-
-		# the source path
-		if isinstance(srcfile, Node.Node):
-			src = srcfile.abspath()
-		else:
-			src = srcfile
-			if not os.path.isabs(srcfile):
-				node = cwd.find_resource(srcfile)
-				if not node:
-					raise Errors.WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
-				src = node.abspath()
-
-		return self.do_install(src, destpath, chmod)
-
-	def symlink_as(self, path, src, env=None, cwd=None):
-		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
-
-		if sys.platform == 'win32':
-			# well, this *cannot* work
-			return
-
-		tsk = inst_task(env=self.env)
-		tsk.bld = self
-		tsk.fun = "hey!!"
-		self.add_to_group(tsk)
-		return
-
-		if not path:
-			raise Errors.WafError("where do you want to install %r? (%r?)" % (src, path))
-
-		tgt = self.get_install_path(path, env)
-
-		dir, name = os.path.split(tgt)
-		check_dir(dir)
-
-		if self.is_install > 0:
-			link = False
-			if not os.path.islink(tgt):
-				link = True
-			elif os.readlink(tgt) != src:
-				link = True
-
-			if link:
-				try: os.remove(tgt)
-				except OSError: pass
-				Logs.info('* symlink %s (-> %s)' % (tgt, src))
-				os.symlink(src, tgt)
-			return 0
-
-		else: # UNINSTALL
-			try:
-				Logs.info('* removing %s' % (tgt))
-				os.remove(tgt)
-				return 0
-			except OSError:
-				return 1
 
 class UninstallContext(InstallContext):
 	"""removes the targets installed"""
