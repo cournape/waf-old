@@ -13,7 +13,7 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Configure
+from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Configure, Errors
 import wafadmin.Node
 
 INSTALL = 1337
@@ -237,7 +237,7 @@ class BuildContext(Context.Context):
 			self.save()
 
 		if self.parallel.error:
-			raise BuildError(self.parallel.error)
+			raise Errors.BuildError(self.parallel.error)
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"""Loads the waf tools used during the build (task classes, etc)"""
@@ -614,12 +614,15 @@ class BuildContext(Context.Context):
 			yield []
 
 	def install_files(self, *k, **kw):
+		"""Actual implementation provided by InstallContext and UninstallContext"""
 		pass
 
 	def install_as(self, *k, **kw):
+		"""Actual implementation provided by InstallContext and UninstallContext"""
 		pass
 
 	def symlink_as(self, *k, **kw):
+		"""Actual implementation provided by InstallContext and UninstallContext"""
 		pass
 
 def check_dir(dir):
@@ -636,29 +639,14 @@ def check_dir(dir):
 		except OSError as e:
 			raise Errors.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
 
-def group_method(fun):
-	"""
-	sets a build context method to execute after the current group has finished executing
-	this is useful for installing build files:
-	* calling install_files/install_as will fail if called too early
-	* people do not want to define install method in their task classes
-	"""
-	def f(*k, **kw):
-		if not k[0].is_install:
-			return False
+class inst_task(Task.Task):
+	color = 'CYAN'
+	def __str__(self):
+		return self.generator.bld.install_msg
+	def run(self):
+		pass
 
-		postpone = True
-		if 'postpone' in kw:
-			postpone = kw['postpone']
-			del kw['postpone']
-
-		if postpone:
-			if not self.groups: self.add_group()
-			self.groups[self.current_group].post_funs.append((fun, k, kw))
-			kw['cwd'] = k[0].path
-		else:
-			fun(*k, **kw)
-	return f
+Task.always_run(inst_task)
 
 class InstallContext(BuildContext):
 	"""installs the targets on the system"""
@@ -670,6 +658,7 @@ class InstallContext(BuildContext):
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
 		self.is_install = INSTALL
+		self.install_msg = 'installing...\n'
 
 	def execute(self):
 		"""see Context.execute"""
@@ -681,53 +670,34 @@ class InstallContext(BuildContext):
 		self.execute_build()
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
-		"""returns true if the file was effectively installed or uninstalled, false otherwise"""
-		if self.is_install > 0:
-			if not Options.options.force:
-				# check if the file is already there to avoid a copy
-				try:
-					st1 = os.stat(tgt)
-					st2 = os.stat(src)
-				except OSError:
-					pass
-				else:
-					# same size and identical timestamps -> make no copy
-					if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
-						return False
-
-			srclbl = src.replace(self.srcnode.abspath()+os.sep, '')
-			Logs.info("* installing %s as %s" % (srclbl, tgt))
-
-			# following is for shared libs and stale inodes (-_-)
-			try: os.remove(tgt)
-			except OSError: pass
-
+		if not Options.options.force:
+			# check if the file is already there to avoid a copy
 			try:
-				shutil.copy2(src, tgt)
-				os.chmod(tgt, chmod)
-			except IOError:
-				try:
-					os.stat(src)
-				except (OSError, IOError):
-					Logs.error('File %r does not exist' % src)
-				raise Errors.WafError('Could not install the file %r' % tgt)
-			return True
+				st1 = os.stat(tgt)
+				st2 = os.stat(src)
+			except OSError:
+				pass
+			else:
+				# same size and identical timestamps -> make no copy
+				if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
+					return False
 
-		elif self.is_install < 0:
-			Logs.info("* uninstalling %s" % tgt)
+		srclbl = src.replace(self.srcnode.abspath()+os.sep, '')
+		Logs.info("* installing %s as %s" % (srclbl, tgt))
 
-			self.uninstall.append(tgt)
+		# following is for shared libs and stale inodes (-_-)
+		try: os.remove(tgt)
+		except OSError: pass
 
+		try:
+			shutil.copy2(src, tgt)
+			os.chmod(tgt, chmod)
+		except IOError:
 			try:
-				os.remove(tgt)
-			except OSError as e:
-				if e.errno != errno.ENOENT:
-					if not getattr(self, 'uninstall_error', None):
-						self.uninstall_error = True
-						Logs.warn('build: some files could not be uninstalled (retry with -vv to list them)')
-					if Logs.verbose > 1:
-						Logs.warn('could not remove %s (error code %r)' % (e.filename, e.errno))
-			return True
+				os.stat(src)
+			except (OSError, IOError):
+				Logs.error('File %r does not exist' % src)
+			raise Errors.WafError('Could not install the file %r' % tgt)
 
 	def get_install_path(self, path, env=None):
 		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
@@ -742,6 +712,7 @@ class InstallContext(BuildContext):
 	def install(self):
 		"""Called for both install and uninstall"""
 		Logs.debug('build: install called')
+		return # not called
 
 		self.flush()
 
@@ -768,13 +739,12 @@ class InstallContext(BuildContext):
 				except OSError: pass
 
 	def install_files(self, path, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None):
-		"""To install files only after they have been built, put the calls in a method named
-		post_build on the top-level wscript
+		tsk = inst_task(env=self.env)
+		tsk.bld = self
+		tsk.fun = "hey!!"
+		self.add_to_group(tsk)
+		return
 
-		The files must be a list and contain paths as strings or as Nodes
-
-		The relative_trick flag can be set to install folders, use bld.path.ant_glob() with it
-		"""
 		if env:
 			assert isinstance(env, ConfigSet.ConfigSet), "invalid parameter"
 		else:
@@ -820,11 +790,12 @@ class InstallContext(BuildContext):
 		return installed_files
 
 	def install_as(self, path, srcfile, env=None, chmod=Utils.O644, cwd=None):
-		"""
-		srcfile may be a string or a Node representing the file to install
+		tsk = inst_task(env=self.env)
+		tsk.bld = self
+		tsk.fun = "hey!!"
+		self.add_to_group(tsk)
+		return
 
-		returns True if the file was effectively installed, False otherwise
-		"""
 		if env:
 			assert isinstance(env, ConfigSet.ConfigSet), "invalid parameter"
 		else:
@@ -861,6 +832,12 @@ class InstallContext(BuildContext):
 			# well, this *cannot* work
 			return
 
+		tsk = inst_task(env=self.env)
+		tsk.bld = self
+		tsk.fun = "hey!!"
+		self.add_to_group(tsk)
+		return
+
 		if not path:
 			raise Errors.WafError("where do you want to install %r? (%r?)" % (src, path))
 
@@ -891,11 +868,6 @@ class InstallContext(BuildContext):
 			except OSError:
 				return 1
 
-	install_as = group_method(install_as)
-	install_files = group_method(install_files)
-	symlink_as = group_method(symlink_as)
-
-
 class UninstallContext(InstallContext):
 	"""removes the targets installed"""
 	cmd = 'uninstall'
@@ -903,13 +875,28 @@ class UninstallContext(InstallContext):
 	def __init__(self, start=None):
 		super(UninstallContext, self).__init__(start)
 		self.is_install = UNINSTALL
+		self.install_msg = 'removing...\n'
+
+	def do_install(self, src, tgt, chmod=Utils.O644):
+		Logs.info("* uninstalling %s" % tgt)
+
+		self.uninstall.append(tgt)
+		try:
+			os.remove(tgt)
+		except OSError as e:
+			if e.errno != errno.ENOENT:
+				if not getattr(self, 'uninstall_error', None):
+					self.uninstall_error = True
+					Logs.warn('build: some files could not be uninstalled (retry with -vv to list them)')
+				if Logs.verbose > 1:
+					Logs.warn('could not remove %s (error code %r)' % (e.filename, e.errno))
 
 	def execute(self):
 		"""see Context.execute"""
 		try:
 			# do not execute any tasks
 			def runnable_status(self):
-				return SKIP_ME
+				return Task.SKIP_ME
 			setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
 			setattr(Task.Task, 'runnable_status', runnable_status)
 
