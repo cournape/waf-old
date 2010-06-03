@@ -54,8 +54,8 @@ class opt_parser(optparse.OptionParser):
 		gr = optparse.OptionGroup(self, 'configuration options')
 		self.add_option_group(gr)
 
-		gr.add_option('-o', '--out', action='store', default='', help='build dir for the project (configuration)', dest='out')
-		gr.add_option('-t', '--top', action='store', default='', help='src dir for the project (configuration)', dest='top')
+		gr.add_option('-o', '--out', action='store', default='', help='build dir for the project', dest='out')
+		gr.add_option('-t', '--top', action='store', default='', help='src dir for the project', dest='top')
 
 		default_prefix = os.environ.get('PREFIX')
 		if not default_prefix:
@@ -65,7 +65,7 @@ class opt_parser(optparse.OptionParser):
 				# win32 preserves the case, but gettempdir does not
 			else:
 				default_prefix = '/usr/local/'
-		gr.add_option('--prefix', dest='prefix', default=default_prefix, help='installation prefix (configuration) [default: %r]' % default_prefix)
+		gr.add_option('--prefix', dest='prefix', default=default_prefix, help='installation prefix [default: %r]' % default_prefix)
 		gr.add_option('-d', '--download', dest='dl_tools', default='', action='store', help='download a plugin, e.g. "swig"')
 
 
