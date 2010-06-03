@@ -81,7 +81,7 @@ class ConfigurationContext(Context.Context):
 	cmd = 'configure'
 
 	error_handlers = []
-	def __init__(self, start_dir=None, blddir='', srcdir=''):
+	def __init__(self, start_dir=None):
 
 		super(self.__class__, self).__init__(start_dir)
 		self.env = None
@@ -89,28 +89,82 @@ class ConfigurationContext(Context.Context):
 
 		self.environ = dict(os.environ)
 
-		self.line_just = 40
-
-		self.blddir = blddir
-		self.srcdir = srcdir
 		self.all_envs = {}
 
 		self.tools = [] # tools loaded in the configuration, and that will be loaded when building
 
 		self.setenv('default')
 
-		self.lastprog = ''
-
 		self.hash = 0
 		self.files = []
 
 		self.tool_cache = []
 
+	def execute(self):
+		"""See Context.prepare"""
+		top = Options.options.top
+		if not top:
+			top = getattr(Context.g_module, Context.SRCDIR, None)
+		if not top:
+			top = os.path.abspath('.')
+			self.start_msg('Setting top to')
+			self.end_msg(top)
+		top = os.path.abspath(top)
+
+		out = Options.options.out
+		if not out:
+			out = getattr(Context.g_module, Context.BLDDIR, None)
+		if not out:
+			out = Options.lockfile.replace('.lock-waf', '')
+			out = os.path.abspath(out)
+			self.start_msg('Setting out to')
+			self.end_msg(out)
+		out = os.path.abspath(out)
+
+		try:
+			os.makedirs(out)
+		except OSError:
+			if not os.path.isdir(out):
+				conf.fatal('could not create the build directory %s' % out)
+
+		self.srcnode = self.root.find_dir(top)
+		self.bldnode = self.root.find_dir(out)
+
+		self.post_init()
+
+		super(ConfigurationContext, self).execute()
+
+		self.store()
+
+		Options.top_dir = self.srcnode.abspath()
+		Options.out_dir = self.bldnode.abspath()
+
+		# this will write a configure lock so that subsequent builds will
+		# consider the current path as the root directory (see prepare_impl).
+		# to remove: use 'waf distclean'
+		env = ConfigSet.ConfigSet()
+		env['argv'] = sys.argv
+		env['options'] = Options.options.__dict__
+
+		env.run_dir = Options.run_dir
+		env.top_dir = Options.top_dir
+		env.out_dir = Options.out_dir
+
+		# conf.hash & conf.files hold wscript files paths and hash
+		# (used only by Configure.autoconfig)
+		env['hash'] = self.hash
+		env['files'] = self.files
+		env['environ'] = dict(self.environ)
+
+		env.store(Options.run_dir + os.sep + Options.lockfile)
+		env.store(Options.top_dir + os.sep + Options.lockfile)
+		env.store(Options.out_dir + os.sep + Options.lockfile)
+
 	def post_init(self):
 
-		self.cachedir = os.path.join(self.blddir, CACHE_DIR)
+		self.cachedir = os.path.join(self.bldnode.abspath(), CACHE_DIR)
 
-		path = os.path.join(self.blddir, WAF_CONFIG_LOG)
+		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
 		try: os.unlink(path)
 		except (OSError, IOError): pass
 
@@ -132,6 +186,24 @@ class ConfigurationContext(Context.Context):
 		wafver = Context.WAFVERSION
 		abi = Context.ABI
 		self.log.write(conf_template % vars())
+
+	def store(self):
+		"""Saves the config results into the cache file"""
+		try:
+			os.makedirs(self.cachedir)
+		except:
+			pass
+
+		f = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
+		f.write('version = 0x%x\n' % Context.HEXVERSION)
+		f.write('tools = %r\n' % self.tools)
+		f.close()
+
+		if not self.all_envs:
+			self.fatal('nothing to store in the configuration context!')
+		for key in self.all_envs:
+			tmpenv = self.all_envs[key]
+			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
 
 	def __del__(self):
 		"""cleanup function: close config.log"""
@@ -239,7 +311,10 @@ class ConfigurationContext(Context.Context):
 			self.in_msg = 0
 		self.in_msg += 1
 
-		self.line_just = max(self.line_just, len(msg))
+		try:
+			self.line_just = max(self.line_just, len(msg))
+		except AttributeError:
+			self.line_just = max(40, len(msg))
 		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
 			self.log.write(x)
 		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
@@ -346,83 +421,6 @@ class ConfigurationContext(Context.Context):
 	def err_handler(self, fun, error):
 		"""error handler for the configuration tests, the default is to let the exceptions rise"""
 		pass
-
-	def store(self):
-		"""Saves the config results into the cache file"""
-		try:
-			os.makedirs(self.cachedir)
-		except:
-			pass
-
-		f = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
-		f.write('version = 0x%x\n' % Context.HEXVERSION)
-		f.write('tools = %r\n' % self.tools)
-		f.close()
-
-		if not self.all_envs:
-			self.fatal('nothing to store in the configuration context!')
-		for key in self.all_envs:
-			tmpenv = self.all_envs[key]
-			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
-
-	def execute(self):
-		"""See Context.prepare"""
-		top = Options.options.top
-		if not top:
-			top = getattr(Context.g_module, Context.SRCDIR, None)
-		if not top:
-			top = os.path.abspath('.')
-			self.start_msg('Setting top to')
-			self.end_msg(top)
-		top = os.path.abspath(top)
-
-		out = Options.options.out
-		if not out:
-			out = getattr(Context.g_module, Context.BLDDIR, None)
-		if not out:
-			out = Options.lockfile.replace('.lock-waf', '')
-			out = os.path.abspath(out)
-			self.start_msg('Setting out to')
-			self.end_msg(out)
-		out = os.path.abspath(out)
-
-		try:
-			os.makedirs(out)
-		except OSError:
-			if not os.path.isdir(out):
-				conf.fatal('could not create the build directory %s' % out)
-
-		self.srcdir = top
-		self.blddir = out
-		self.post_init()
-
-		super(ConfigurationContext, self).execute()
-
-		self.store()
-
-		Options.top_dir = self.srcdir
-		Options.out_dir = self.blddir
-
-		# this will write a configure lock so that subsequent builds will
-		# consider the current path as the root directory (see prepare_impl).
-		# to remove: use 'waf distclean'
-		env = ConfigSet.ConfigSet()
-		env['argv'] = sys.argv
-		env['options'] = Options.options.__dict__
-
-		env.run_dir = Options.run_dir
-		env.top_dir = Options.top_dir
-		env.out_dir = Options.out_dir
-
-		# conf.hash & conf.files hold wscript files paths and hash
-		# (used only by Configure.autoconfig)
-		env['hash'] = self.hash
-		env['files'] = self.files
-		env['environ'] = dict(self.environ)
-
-		env.store(Options.run_dir + os.sep + Options.lockfile)
-		env.store(Options.top_dir + os.sep + Options.lockfile)
-		env.store(Options.out_dir + os.sep + Options.lockfile)
 
 def conf(f):
 	"decorator: attach new configuration functions"
