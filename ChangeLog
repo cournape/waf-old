@@ -24,6 +24,7 @@ NEW IN WAF 1.6.0
 * rename Task.TaskBase.classes -> Task.classes
 * the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
 * remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
+* use tasks for target installation
 
 * let the commands access node objects
 * infer the build directory from the lock filename

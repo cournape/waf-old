@@ -643,7 +643,7 @@ class inst_task(Task.Task):
 	color = 'CYAN'
 	def runnable_status(self):
 		buf = []
-		for x in Utils.to_list(self.source):
+		for x in self.source:
 			y = self.path.find_resource(x)
 			if not y:
 				raise Errors.WafError('could not find %r in %r' % (x, self.path))
@@ -668,8 +668,13 @@ class inst_task(Task.Task):
 	def exec_install_files(self):
 		destpath = self.get_install_path()
 		check_dir(destpath)
-		for x in self.inputs:
-			self.generator.bld.do_install(x.abspath(), destpath, self.chmod)
+		for x, y in zip(self.source, self.inputs):
+			if self.relative_trick:
+				destfile = os.path.join(destpath, x)
+				check_dir(os.path.dirname(destfile))
+			else:
+				destfile = os.path.join(destpath, y.name)
+			self.generator.bld.do_install(y.abspath(), destfile, self.chmod)
 
 	def exec_install_as(self):
 		destfile = self.get_install_path()
@@ -753,37 +758,12 @@ class InstallContext(BuildContext):
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
-		tsk.source = files
+		tsk.source = Utils.to_list(files)
 		tsk.dest = dest
 		tsk.exec_task = tsk.exec_install_files
+		tsk.relative_trick = relative_trick
 		self.add_to_group(tsk)
 		return tsk
-
-
-		installed_files = []
-		for filename in lst:
-			if isinstance(filename, str) and os.path.isabs(filename):
-				alst = Utils.split_path(filename)
-				destfile = os.path.join(destpath, alst[-1])
-			else:
-				if isinstance(filename, wafadmin.Node.Node):
-					nd = filename
-				else:
-					nd = cwd.find_resource(filename)
-				if not nd:
-					raise Errors.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
-
-				if relative_trick:
-					destfile = os.path.join(destpath, filename)
-					check_dir(os.path.dirname(destfile))
-				else:
-					destfile = os.path.join(destpath, nd.name)
-
-				filename = nd.abspath()
-
-			if self.do_install(filename, destfile, chmod):
-				installed_files.append(destfile)
-		return installed_files
 
 	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None):
 		"""example: bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)"""
@@ -791,7 +771,7 @@ class InstallContext(BuildContext):
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
-		tsk.source = srcfile
+		tsk.source = [srcfile]
 		tsk.dest = dest
 		tsk.exec_task = tsk.exec_install_as
 		self.add_to_group(tsk)

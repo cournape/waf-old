@@ -8,7 +8,6 @@ General
 - add the import symbols in compat15 (Environment, etc) - in sys.modules
 
 - cannot configure a project in a subdirectory
-- fix the target installation system → create one installation task like the link_task? store several installation targets in it?
 - autoconfig for any kind of command
 
 - give the pkg-config binary path
