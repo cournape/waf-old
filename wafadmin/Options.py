@@ -54,8 +54,8 @@ class opt_parser(optparse.OptionParser):
 		gr = optparse.OptionGroup(self, 'configuration options')
 		self.add_option_group(gr)
 
-		#gr.add_option('-b', '--blddir', action  = 'store', default = '', help    = 'build dir for the project (configuration)', dest    = 'blddir')
-		#gr.add_option('-s', '--srcdir', action  = 'store', default = '', help    = 'src dir for the project (configuration)', dest    = 'srcdir')
+		gr.add_option('-o', '--out', action='store', default='', help='build dir for the project (configuration)', dest='out')
+		gr.add_option('-t', '--top', action='store', default='', help='src dir for the project (configuration)', dest='top')
 
 		default_prefix = os.environ.get('PREFIX')
 		if not default_prefix:

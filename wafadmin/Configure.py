@@ -80,7 +80,6 @@ class ConfigurationContext(Context.Context):
 
 	cmd = 'configure'
 
-	tests = {}
 	error_handlers = []
 	def __init__(self, start_dir=None, blddir='', srcdir=''):
 
@@ -106,9 +105,6 @@ class ConfigurationContext(Context.Context):
 		self.files = []
 
 		self.tool_cache = []
-
-		if self.blddir:
-			self.post_init()
 
 	def post_init(self):
 
@@ -371,34 +367,34 @@ class ConfigurationContext(Context.Context):
 
 	def execute(self):
 		"""See Context.prepare"""
-		src = getattr(Options.options, Context.SRCDIR, None)
-		if not src: src = getattr(Context.g_module, Context.SRCDIR, None)
-		if not src:
-			src = '.'
-			incomplete_src = 1
-		src = os.path.abspath(src)
+		top = Options.options.top
+		if not top:
+			top = getattr(Context.g_module, Context.SRCDIR, None)
+		if not top:
+			top = os.path.abspath('.')
+			self.start_msg('Setting top to')
+			self.end_msg(top)
+		top = os.path.abspath(top)
 
-		bld = getattr(Options.options, Context.BLDDIR, None)
-		if not bld:
-			bld = getattr(Context.g_module, Context.BLDDIR, None)
-		if not bld:
-			bld = Options.lockfile.replace('.lock-waf', '')
-			incomplete_bld = 1
-		bld = os.path.abspath(bld)
+		out = Options.options.out
+		if not out:
+			out = getattr(Context.g_module, Context.BLDDIR, None)
+		if not out:
+			out = Options.lockfile.replace('.lock-waf', '')
+			out = os.path.abspath(out)
+			self.start_msg('Setting out to')
+			self.end_msg(out)
+		out = os.path.abspath(out)
 
-		try: os.makedirs(bld)
-		except OSError: pass
+		try:
+			os.makedirs(out)
+		except OSError:
+			if not os.path.isdir(out):
+				conf.fatal('could not create the build directory %s' % out)
 
-		self.srcdir = src
-		self.blddir = bld
+		self.srcdir = top
+		self.blddir = out
 		self.post_init()
-
-		if 'incomplete_src' in vars():
-			self.start_msg('Setting srcdir to')
-			self.end_msg(src)
-		if 'incomplete_bld' in vars():
-			self.start_msg('Setting blddir to')
-			self.end_msg(bld)
 
 		super(ConfigurationContext, self).execute()
 
@@ -430,7 +426,6 @@ class ConfigurationContext(Context.Context):
 
 def conf(f):
 	"decorator: attach new configuration functions"
-	ConfigurationContext.tests[f.__name__] = f
 	setattr(ConfigurationContext, f.__name__, f)
 	return f
 
