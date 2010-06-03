@@ -31,7 +31,7 @@ def waf_entry_point(current_directory, version, wafdir):
 	# at the same time, store the first wscript file seen
 	cur = current_directory
 	while cur:
-		if len(cur) <= 3:
+		if cur == '/' or not cur:
 			break # root or c:
 
 		lst = os.listdir(cur)
