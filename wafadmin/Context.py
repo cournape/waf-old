@@ -95,11 +95,8 @@ class Context(ctx):
 
 	def execute(self):
 		"""executes the command represented by this context"""
-		f = getattr(g_module, self.fun, None)
-		if f is None:
-			raise Errors.WscriptError('Undefined command: %s' % self.fun)
-
-		f(self)
+		global g_module
+		self.recurse(os.path.dirname(g_module.root_path))
 
 	def pre_recurse(self, node):
 		"""from the context class"""
@@ -151,7 +148,7 @@ class Context(ctx):
 				wscript_module = load_module(node.abspath())
 				user_function = getattr(wscript_module, self.fun, None)
 				if not user_function:
-					raise Errors.WscriptError('No function %s defined in %s' % (self.fun, wscript_file))
+					raise Errors.WscriptError('No function %s defined in %s' % (self.fun, node.abspath()))
 				user_function(self)
 				self.post_recurse(node)
 
@@ -181,8 +178,6 @@ def load_module(file_path):
 		code = Utils.readf(file_path, m='rU')
 	except (IOError, OSError):
 		raise Errors.WscriptError('Could not read the file %r' % file_path)
-
-	module.waf_hash_val = code
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)

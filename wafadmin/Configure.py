@@ -258,11 +258,11 @@ class ConfigurationContext(Context.Context):
 				return directory
 		return ''
 
-	def post_recurse(self, name_or_mod, path, nexdir):
+	def post_recurse(self, node):
 		"""records the path and a hash of the scripts visited, see Context.post_recurse"""
-		super(ConfigurationContext, self).post_recurse(self, name_or_mod, path, nexdir)
-		self.hash = hash((self.hash, getattr(name_or_mod, 'waf_hash_val', name_or_mod)))
-		self.files.append(path)
+		super(ConfigurationContext, self).post_recurse(node)
+		self.hash = hash((self.hash, node.read()))
+		self.files.append(node.abspath())
 
 	def set_env_name(self, name, env):
 		"adds a new environment called name"
