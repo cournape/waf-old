@@ -5,10 +5,10 @@ The points listed with a '+' indicate potential sub-projects (contributions will
 
 General
 
-- add the import symbols in compat15 (Environment, etc) - in sys.modules
-
-- cannot configure a project in a subdirectory
 - autoconfig for any kind of command
+- provide Program, Shlib, Staticlib functions?
+- add the import symbols in compat15 (Environment, etc) - in sys.modules
+- post the build groups one by one
 
 - give the pkg-config binary path
 - global module repository to avoid re-doing "import"
@@ -24,7 +24,6 @@ General
 Ideas
 
 - how to enable different scripting systems?
-- provide Program, Shlib, Staticlib functions?
 - bind declare chain to the build context and to individual functions
 - build context generalization to tasks and task generators?
 - Post the task generators by groups or as a whole (delegate to the task manager)

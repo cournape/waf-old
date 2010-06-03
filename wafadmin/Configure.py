@@ -22,6 +22,13 @@ Note: the c/c++ related code is in the module config_c
 import os, shlex, sys, time
 from wafadmin import ConfigSet, Utils, Options, Logs, Context
 
+try:
+	from urllib import request
+except:
+	from urllib import urlopen
+else:
+	urlopen = request.urlopen
+
 BREAK    = 'break'
 """in case of error, break"""
 
@@ -37,12 +44,8 @@ CACHE_SUFFIX = '.cache.py'
 WAF_CONFIG_LOG = 'config.log'
 """name of the configuration log file"""
 
-try:
-	from urllib import request
-except:
-	from urllib import urlopen
-else:
-	urlopen = request.urlopen
+autoconfig = False
+"""execute the configuration automatically"""
 
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
