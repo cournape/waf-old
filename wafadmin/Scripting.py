@@ -15,6 +15,8 @@ g_gz = 'bz2'
 
 build_dir_override = None
 
+no_climb_commands = ['configure']
+
 def waf_entry_point(current_directory, version, wafdir):
 	"""This is the main entry point, all Waf execution starts here."""
 
@@ -53,6 +55,15 @@ def waf_entry_point(current_directory, version, wafdir):
 				Options.run_dir = cur
 
 		cur = os.path.dirname(cur)
+
+		# if 'configure' is in the commands, do not search any further
+		for k in no_climb_commands:
+			if k in sys.argv:
+				break
+		else:
+			continue
+		break
+
 
 	if not Options.run_dir:
 		if '--version' in sys.argv:
