@@ -18,19 +18,25 @@ from wafadmin.Tools import preproc
 
 def Program(bld, *k, **kw):
 	if not 'features' in kw:
-		kw['features'] = 'cc cprogram'
+		kw['features'] = ['cc', 'cprogram']
+		if bld.env.CXX:
+			kw['features'].append('cxx')
 	return bld(*k, **kw)
 Build.BuildContext.Program = Program
 
-def Shlib(*k, **kw):
+def Shlib(bld, *k, **kw):
 	if not 'features' in kw:
-		kw['features'] = 'cc cshlib'
+		kw['features'] = ['cc', 'cshlib']
+		if bld.env.CXX:
+			kw['features'].append('cxx')
 	return bld(*k, **kw)
 Build.BuildContext.Shlib = Shlib
 
-def Stlib(*k, **kw):
+def Stlib(bld, *k, **kw):
 	if not 'features' in kw:
-		kw['features'] = 'cc cstlib'
+		kw['features'] = ['cc', 'cstlib']
+		if bld.env.CXX:
+			kw['features'].append('cxx')
 	return bld(*k, **kw)
 Build.BuildContext.Stlib = Stlib
 
