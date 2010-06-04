@@ -98,6 +98,7 @@ class ConfigurationContext(Context.Context):
 
 		self.setenv('default')
 
+		self.log = None
 		self.hash = 0
 		self.files = []
 
@@ -319,7 +320,8 @@ class ConfigurationContext(Context.Context):
 		except AttributeError:
 			self.line_just = max(40, len(msg))
 		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
-			self.log.write(x)
+			if self.log:
+				self.log.write(x)
 		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
 	def end_msg(self, result, color=None):
@@ -338,8 +340,9 @@ class ConfigurationContext(Context.Context):
 			msg = str(result)
 
 		color = color or defcolor
-		self.log.write(msg)
-		self.log.write('\n')
+		if self.log:
+			self.log.write(msg)
+			self.log.write('\n')
 		Logs.pprint(color, msg)
 
 	def find_program(self, filename, path_list=[], var=None, mandatory=True, environ=None, exts=''):
