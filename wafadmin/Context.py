@@ -223,7 +223,7 @@ def load_tool(tool, tooldir=None):
 			imp = 'wafadmin.%s.%s' % (x, tool)
 			try:
 				__import__(imp)
-			except:
+			except ImportError:
 				pass
 			else:
 				return sys.modules[imp]
