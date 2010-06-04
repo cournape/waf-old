@@ -411,7 +411,7 @@ def h_fun(fun):
 			pass
 		return h
 
-def pprint(col, str, label='', sep=os.linesep):
+def pprint(col, str, label='', sep='\n'):
 	"print messages in color"
 	sys.stderr.write("%s%s%s %s%s" % (Logs.colors(col), str, Logs.colors.NORMAL, label, sep))
 
