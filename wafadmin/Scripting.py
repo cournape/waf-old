@@ -9,7 +9,7 @@ if sys.hexversion<0x206000f:
 	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
-from wafadmin import Utils, Configure, Logs, Options, ConfigSet, Context, Errors
+from wafadmin import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build
 
 g_gz = 'bz2'
 
@@ -361,42 +361,32 @@ def update(ctx):
 		tool = x.replace('.py', '')
 		Configure.download_tool(tool, force=True)
 
-# TODO autoconfig not part of build nor part of the config .. just a command trick
-"""
-	def autoconfigure(self):
-		# FIXME ita
+def autoconfigure(execute_method):
+	"""decorator, sets the commands that can be autoconfigured automatically"""
 
-		if not Configure.autoconfig:
-			return
-		config_context = Utils.context_dict['configure']
-
-		def reconf(proj):
-			back = (Options.options.__dict__, Logs.zones, Logs.verbose)
-			Options.options.__dict__ = proj['options']
-			conf = config_context(self.curdir)
-			conf.environ = proj['environ']
-			conf.execute()
-			(Options.options.__dict__, Logs.zones, Logs.verbose) = back
-
+	def execute(self):
+		env = ConfigSet.ConfigSet()
+		do_config = False
 		try:
-			proj = ConfigSet.ConfigSet(Options.lockfile)
-		except IOError:
-			conf = config_context(self.curdir)
-			conf.execute()
+			env.load(os.path.join(Options.top_dir, Options.lockfile))
+		except Exception as e:
+			Logs.warn('Configuring the project')
+			do_config = True
 		else:
-			try:
-				bld = Utils.create_context('build', self.curdir)
-				bld.load_dirs(proj[Context.SRCDIR], proj[Context.BLDDIR])
-				bld.load_envs()
-			except Errors.WafError:
-				reconf(proj)
-				return
+			pass
+			#print env.hash
 
-		try:
-			proj = ConfigSet.ConfigSet(Options.lockfile)
-		except IOError:
-			raise Errors.WafError('Auto-config: project does not configure (bug)')
+		if do_config:
+			Options.commands.insert(0, self.cmd)
+			Options.commands.insert(0, 'configure')
+			return
 
+		return execute_method(self)
+	return execute
+
+Build.BuildContext.execute = autoconfigure(Build.BuildContext.execute)
+
+"""
 		h = 0
 		try:
 			for file in proj['files']:
