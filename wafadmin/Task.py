@@ -603,13 +603,13 @@ def compile_fun(name, line, shell=False):
 	else:
 		return compile_fun_noshell(name, line)
 
-def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[], shell=False):
+def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line, shell)
 	fun.code = line
-	return task_type_from_func(name, fun, vars or dvars, color, ext_in, ext_out, before, after)
+	return task_type_from_func(name, fun, vars or dvars, color, ext_in, ext_out, before, after, quiet, scan)
 
-def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[]):
+def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], quiet=False, scan=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	params = {
 		'run': func,
@@ -620,6 +620,8 @@ def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[
 		'ext_out': Utils.to_list(ext_out),
 		'before': Utils.to_list(before),
 		'after': Utils.to_list(after),
+		'quiet': quiet,
+		'scan': scan,
 	}
 
 	cls = type(Task)(name, (Task,), params)
