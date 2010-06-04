@@ -160,7 +160,7 @@ def init_log():
 	log.addFilter(log_filter())
 	log.setLevel(logging.DEBUG)
 
-def pprint(col, str, label='', sep=os.linesep):
+def pprint(col, str, label='', sep='\n'):
 	"print messages in color"
 	sys.stderr.write("%s%s%s %s%s" % (colors(col), str, colors.NORMAL, label, sep))
 
