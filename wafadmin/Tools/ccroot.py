@@ -13,6 +13,28 @@ from wafadmin.TaskGen import after, before, feature, taskgen_method
 from wafadmin.Configure import conf
 from wafadmin.Tools import preproc
 
+# stupid aliases, let's see how it works out
+# TODO c++
+
+def Program(bld, *k, **kw):
+	if not 'features' in kw:
+		kw['features'] = 'cc cprogram'
+	return bld(*k, **kw)
+Build.BuildContext.Program = Program
+
+def Shlib(*k, **kw):
+	if not 'features' in kw:
+		kw['features'] = 'cc cshlib'
+	return bld(*k, **kw)
+Build.BuildContext.Shlib = Shlib
+
+def Stlib(*k, **kw):
+	if not 'features' in kw:
+		kw['features'] = 'cc cstlib'
+	return bld(*k, **kw)
+Build.BuildContext.Stlib = Stlib
+
+
 try:
 	from cStringIO import StringIO
 except ImportError:
