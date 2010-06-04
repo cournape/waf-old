@@ -264,7 +264,7 @@ class ConfigurationContext(Context.Context):
 	def post_recurse(self, node):
 		"""records the path and a hash of the scripts visited, see Context.post_recurse"""
 		super(ConfigurationContext, self).post_recurse(node)
-		self.hash = hash((self.hash, node.read()))
+		self.hash = hash((self.hash, node.read('rb')))
 		self.files.append(node.abspath())
 
 	def set_env_name(self, name, env):

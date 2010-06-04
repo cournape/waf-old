@@ -363,8 +363,10 @@ def update(ctx):
 
 def autoconfigure(execute_method):
 	"""decorator, sets the commands that can be autoconfigured automatically"""
-
 	def execute(self):
+		if not Configure.autoconfig:
+			return execute_method(self)
+
 		env = ConfigSet.ConfigSet()
 		do_config = False
 		try:
@@ -373,8 +375,10 @@ def autoconfigure(execute_method):
 			Logs.warn('Configuring the project')
 			do_config = True
 		else:
-			pass
-			#print env.hash
+			h = 0
+			for f in env['files']:
+				h = hash((h, Utils.readf(f, 'rb')))
+			do_config = h != env.hash
 
 		if do_config:
 			Options.commands.insert(0, self.cmd)
@@ -385,22 +389,4 @@ def autoconfigure(execute_method):
 	return execute
 
 Build.BuildContext.execute = autoconfigure(Build.BuildContext.execute)
-
-"""
-		h = 0
-		try:
-			for file in proj['files']:
-				if file.endswith('configure'):
-					h = hash((h, Utils.readf(file)))
-				else:
-					mod = Context.load_module(file)
-					h = hash((h, mod.waf_hash_val))
-		except (OSError, IOError):
-			Logs.warn('Reconfiguring the project: a file is unavailable')
-			reconf(proj)
-		else:
-			if (h != proj['hash']):
-				Logs.warn('Reconfiguring the project: the configuration has changed')
-				reconf(proj)
-"""
 
