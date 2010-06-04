@@ -5,10 +5,11 @@ The points listed with a '+' indicate potential sub-projects (contributions will
 
 General
 
+- cc_root.py rewrite to reduce the amount of methods (flags processing, os fixes)
+
 - give the pkg-config binary path
 - global module repository to avoid re-doing "import"
 - refactor the environment thing
-- cc_root.py rewrite to reduce the amount of methods (flags processing, os fixes)
 - unification uselib / uselib_local / objects -> attribute 'uses'?
 - new global variable uselib_vars and generalization of uselib for all kinds of task generators
 - cache the configuration test results for multiple calls
@@ -21,9 +22,10 @@ Ideas
 - how to enable different scripting systems?
 - bind declare chain to the build context and to individual functions
 - build context generalization to tasks and task generators?
-- Post the task generators by groups or as a whole (delegate to the task manager)
 - support for // configurations
 - better apis for the shell compilation in Task.py
+
+* use the metaclass task to process run_str into the compilation line? then declare classes using class instead of fun+nparams
 
 Configuration
 - use configuration names to avoid [env.copy(), conf.setenv, ...]

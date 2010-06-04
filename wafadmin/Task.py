@@ -603,14 +603,15 @@ def compile_fun(name, line, shell=False):
 	else:
 		return compile_fun_noshell(name, line)
 
-def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
+def task_factory(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
-	(fun, dvars) = compile_fun(name, line, shell)
-	fun.code = line
-	return task_type_from_func(name, fun, vars or dvars, color, ext_in, ext_out, before, after, quiet, scan)
 
-def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], quiet=False, scan=None):
-	"""return a new Task subclass with the function run compiled from the line given"""
+	if isinstance(func, str):
+		(f, dvars) = compile_fun(name, func, shell)
+		f.code = func
+		func = f
+		vars = Utils.to_list(vars) + dvars
+
 	params = {
 		'run': func,
 		'vars': vars,
@@ -628,6 +629,8 @@ def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[
 	global classes
 	classes[name] = cls
 	return cls
+simple_task_type = task_type_from_func = task_factory
+
 
 def always_run(cls):
 	"""

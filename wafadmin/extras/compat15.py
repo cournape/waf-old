@@ -31,6 +31,8 @@ Configure.conftest = Configure.conf
 
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
 
+Task.simple_task_type = Task.task_type_from_func = Task.task_factory
+
 @TaskGen.feature('d')
 @TaskGen.before('apply_incpaths')
 def old_importpaths(self):
