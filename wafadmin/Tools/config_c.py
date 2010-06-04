@@ -458,7 +458,7 @@ def run_c_code(self, *k, **kw):
 	k = 0
 	while k < 10000:
 		# make certain to use a fresh folder - necessary for win32
-		dir = os.path.join(self.blddir, '.conf_check_%d' % k)
+		dir = os.path.join(self.bldnode.abspath(), '.conf_check_%d' % k)
 
 		# if the folder already exists, remove it
 		try:
@@ -497,7 +497,6 @@ def run_c_code(self, *k, **kw):
 	back = os.path.abspath('.')
 
 	bld = Build.BuildContext()
-	bld.make_root()
 	bld.init_dirs(dir, bdir)
 	bld.out_dir = bdir
 	bld.targets = '*'
@@ -516,7 +515,7 @@ def run_c_code(self, *k, **kw):
 	self.log.write("==>\n%s\n<==\n" % kw['code'])
 
 	# compile the program
-	bld.flush()
+	bld.targets = '*'
 	try:
 		bld.compile()
 	except Errors.WafError:
