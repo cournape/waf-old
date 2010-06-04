@@ -180,7 +180,6 @@ def default_cc(self):
 		uselib_local = '',
 		add_objects = '',
 		p_flag_vars = [],
-		p_type_vars = [],
 		compiled_tasks = [],
 		link_task = None)
 
@@ -220,66 +219,6 @@ def apply_defines(self):
 	y = self.env['DEFINES_ST']
 	self.env['_DEFFLAGS'] = [y%x for x in milst]
 
-@feature('cc', 'cxx', 'd', 'asm')
-@after('apply_type_vars', 'apply_lib_vars', 'process_source')
-def apply_incpaths(self):
-	"""used by the scanner
-	after processing the uselib for INCLUDES
-	after process_source because some processing may add include paths
-	"""
-
-	paths = self.to_list(getattr(self, 'includes', []))
-	for lib in self.to_list(self.uselib):
-		for path in self.env['INCLUDES_' + lib]:
-			paths.append(path)
-
-	lst = []
-	seen = set([])
-	for path in paths:
-
-		if path in seen:
-			continue
-		seen.add(path)
-
-		if isinstance(path, Node.Node):
-			lst.append(node)
-		else:
-			if os.path.isabs(path):
-				lst.append(self.bld.root.make_node(path))
-			else:
-				if path[0] == '#':
-					lst.append(self.bld.bldnode.make_node(path[1:]))
-					lst.append(self.bld.srcnode.make_node(path[1:]))
-				else:
-					lst.append(self.path.get_bld().make_node(path))
-					lst.append(self.path.make_node(path))
-
-	self.env.append_value('INC_PATHS', lst)
-	cpppath_st = self.env['CPPPATH_ST']
-	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
-
-@feature('cc', 'cxx')
-@after('init_cc', 'init_cxx')
-@before('apply_lib_vars')
-def apply_type_vars(self):
-	"""before apply_lib_vars because we modify uselib
-	after init_cc and init_cxx because web need p_type_vars
-	"""
-	for x in self.features:
-		if not x in ['cprogram', 'cstlib', 'cshlib']:
-			continue
-		x = x.lstrip('c')
-
-		# if the type defines uselib to add, add them
-		st = self.env[x + '_USELIB']
-		if st: self.uselib = self.uselib + ' ' + st
-
-		# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
-		# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
-		for var in self.p_type_vars:
-			compvar = '%s_%s' % (x, var)
-			self.env.append_value(var, self.env[compvar])
-
 @feature('cprogram', 'cshlib', 'cstlib')
 @after('process_source')
 def apply_link(self):
@@ -304,6 +243,17 @@ def apply_lib_vars(self):
 	"""after apply_link because of 'link_task'
 	after default_cc because of the attribute 'uselib'"""
 	env = self.env
+
+	# 0.
+	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
+	# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
+	for x in self.features:
+		if not x in ['cprogram', 'cstlib', 'cshlib']:
+			continue
+		x = x.lstrip('c')
+		for var in ['CCFLAGS', 'CXXFLAGS', 'LINKFLAGS']:
+			compvar = '%s_%s' % (x, var)
+			self.env.append_value(var, self.env[compvar])
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
@@ -504,6 +454,44 @@ def add_extra_flags(self):
 			y = y[:-1]
 		if c_attrs.get(y, None):
 			self.env.append_unique(c_attrs[y], getattr(self, x))
+
+@feature('cc', 'cxx', 'd', 'asm')
+@after('apply_lib_vars', 'process_source')
+def apply_incpaths(self):
+	"""used by the scanner
+	after processing the uselib for INCLUDES
+	after process_source because some processing may add include paths
+	"""
+
+	paths = self.to_list(getattr(self, 'includes', []))
+	for lib in self.to_list(self.uselib):
+		for path in self.env['INCLUDES_' + lib]:
+			paths.append(path)
+
+	lst = []
+	seen = set([])
+	for path in paths:
+
+		if path in seen:
+			continue
+		seen.add(path)
+
+		if isinstance(path, Node.Node):
+			lst.append(node)
+		else:
+			if os.path.isabs(path):
+				lst.append(self.bld.root.make_node(path))
+			else:
+				if path[0] == '#':
+					lst.append(self.bld.bldnode.make_node(path[1:]))
+					lst.append(self.bld.srcnode.make_node(path[1:]))
+				else:
+					lst.append(self.path.get_bld().make_node(path))
+					lst.append(self.path.make_node(path))
+
+	self.env.append_value('INC_PATHS', lst)
+	cpppath_st = self.env['CPPPATH_ST']
+	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
 
 # ============ the code above must not know anything about import libs ==========
 

@@ -9,7 +9,7 @@ from wafadmin.TaskGen import extension, taskgen, feature, before
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 
-@before('apply_incpaths', 'apply_type_vars', 'apply_lib_vars')
+@before('apply_incpaths', 'apply_lib_vars')
 @feature('perlext')
 def init_perlext(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))

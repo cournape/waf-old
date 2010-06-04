@@ -254,7 +254,7 @@ d_params = {
 }
 
 @feature('d')
-@before('apply_type_vars')
+@before('apply_lib_vars')
 def init_d(self):
 	for x in d_params:
 		setattr(self, x, getattr(self, x, d_params[x]))

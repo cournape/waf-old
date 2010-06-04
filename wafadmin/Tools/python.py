@@ -28,7 +28,7 @@ int main()
 }
 '''
 
-@before('apply_incpaths', 'apply_lib_vars', 'apply_type_vars')
+@before('apply_incpaths', 'apply_lib_vars')
 @feature('pyext')
 @before('apply_bundle')
 def init_pyext(self):
@@ -38,14 +38,14 @@ def init_pyext(self):
 		self.uselib.append('PYEXT')
 	self.env['MACBUNDLE'] = True
 
-@before('apply_link', 'apply_lib_vars', 'apply_type_vars')
+@before('apply_link', 'apply_lib_vars')
 @after('apply_bundle')
 @feature('pyext')
 def pyext_shlib_ext(self):
 	# override shlib_PATTERN set by the osx module
 	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
 
-@before('apply_incpaths', 'apply_lib_vars', 'apply_type_vars')
+@before('apply_incpaths', 'apply_lib_vars')
 @feature('pyembed')
 def init_pyembed(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))

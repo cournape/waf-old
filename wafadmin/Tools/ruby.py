@@ -8,7 +8,7 @@ from wafadmin.TaskGen import before, feature, after
 from wafadmin.Configure import conf
 
 @feature('rubyext')
-@before('apply_incpaths', 'apply_type_vars', 'apply_lib_vars', 'apply_bundle')
+@before('apply_incpaths', 'apply_lib_vars', 'apply_bundle')
 @after('default_cc', 'vars_target_cshlib')
 def init_rubyext(self):
 	self.default_install_path = '${ARCHDIR_RUBY}'
