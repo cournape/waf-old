@@ -28,4 +28,7 @@ NEW IN WAF 1.6.0
 
 * let the commands access node objects
 * infer the build directory from the lock filename
+* waf list to list the possible targets
+* waf step --file=main.c
+* post task generators in a lazy manner
 

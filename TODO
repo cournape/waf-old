@@ -6,7 +6,6 @@ The points listed with a '+' indicate potential sub-projects (contributions will
 General
 
 - provide Program, Shlib, Staticlib functions?
-- post the build groups one by one
 
 - give the pkg-config binary path
 - global module repository to avoid re-doing "import"
