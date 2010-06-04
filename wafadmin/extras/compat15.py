@@ -1,25 +1,38 @@
 #! /usr/bin/env python
 
-from wafadmin import Utils
-from wafadmin import ConfigSet
+import sys
+
+
+from wafadmin import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils
+
+# the following is to bring some compatibility with waf 1.5 "import wafadmin.Configure → import Configure"
+sys.modules['Environment'] = ConfigSet
+ConfigSet.Environment = ConfigSet.ConfigSet
+
+sys.modules['Logs'] = Logs
+sys.modules['Options'] = Options
+sys.modules['Scripting'] = Scripting
+sys.modules['Task'] = Task
+sys.modules['Build'] = Build
+sys.modules['Configure'] = Configure
+sys.modules['Node'] = Node
+sys.modules['Runner'] = Runner
+sys.modules['TaskGen'] = TaskGen
+sys.modules['Utils'] = Utils
+
 ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive
 ConfigSet.ConfigSet.set_variant = Utils.nada
 
-from wafadmin import Build
 Build.BuildContext.add_subdirs = Build.BuildContext.recurse
 Build.BuildContext.name_to_obj = Build.BuildContext.get_tgen_by_name
 
-from wafadmin import Configure
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
 Configure.conftest = Configure.conf
 
-from wafadmin import Options
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
 
-from wafadmin.TaskGen import before, feature
-
-@feature('d')
-@before('apply_incpaths')
+@TaskGen.feature('d')
+@TaskGen.before('apply_incpaths')
 def old_importpaths(self):
 	if getattr(self, 'importpaths', []):
 		self.includes = self.importpaths
@@ -43,7 +56,6 @@ def load_module(file_path):
 	return ret
 Context.load_module = load_module
 
-from wafadmin import Scripting
 old = Scripting.set_main_module
 def set_main_module(f):
 	old(f)
@@ -51,7 +63,6 @@ def set_main_module(f):
 		Context.g_module.options = Context.g_module.set_options
 Scripting.set_main_module = set_main_module
 
-from wafadmin import TaskGen
 old_apply = TaskGen.task_gen.apply
 def apply(self):
 	self.features = self.to_list(self.features)

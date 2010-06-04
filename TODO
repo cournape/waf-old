@@ -6,7 +6,6 @@ The points listed with a '+' indicate potential sub-projects (contributions will
 General
 
 - provide Program, Shlib, Staticlib functions?
-- add the import symbols in compat15 (Environment, etc) - in sys.modules
 - post the build groups one by one
 
 - give the pkg-config binary path
