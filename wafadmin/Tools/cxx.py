@@ -6,7 +6,7 @@
 
 from wafadmin import TaskGen, Task, Utils
 from wafadmin.Logs import debug
-import wafadmin.Tools.ccroot # <- do not remove
+from wafadmin.Tools import ccroot
 from wafadmin.TaskGen import feature, before, extension, after
 
 g_cxx_flag_vars = [
