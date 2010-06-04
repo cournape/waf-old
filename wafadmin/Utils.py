@@ -229,6 +229,20 @@ def copy_attrs(orig, dest, names, only_if_set=False):
 		if u or not only_if_set:
 			setattr(dest, a, u)
 
+def check_dir(path):
+	"""
+	Ensure that a directory exists. Equivalent to mkdir -p.
+	@type  dir: string
+	@param dir: Path to directory
+	"""
+	try:
+		os.stat(path)
+	except OSError:
+		try:
+			os.makedirs(path)
+		except OSError as e:
+			raise Errors.WafError('Cannot create folder %r (original error: %r)' % (path, e))
+
 def def_attrs(cls, **kw):
 	'''
 	set attributes for class.

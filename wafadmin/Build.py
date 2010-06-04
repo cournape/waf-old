@@ -307,9 +307,6 @@ class BuildContext(Context.Context):
 		cached by build context
 		"""
 
-		# ccroot objects use the same environment for building the .o at once
-		# the same environment and the same variables are used
-
 		if not env.table:
 			env = env.parent
 			if not env:
@@ -630,20 +627,6 @@ class BuildContext(Context.Context):
 		"""Actual implementation provided by InstallContext and UninstallContext"""
 		pass
 
-def check_dir(dir):
-	"""
-	Ensure that a directory exists. Equivalent to mkdir -p.
-	@type  dir: string
-	@param dir: Path to directory
-	"""
-	try:
-		os.stat(dir)
-	except OSError:
-		try:
-			os.makedirs(dir)
-		except OSError as e:
-			raise Errors.WafError('Cannot create folder %r (original error: %r)' % (dir, e))
-
 class inst_task(Task.Task):
 	color = 'CYAN'
 	def runnable_status(self):
@@ -672,11 +655,11 @@ class inst_task(Task.Task):
 
 	def exec_install_files(self):
 		destpath = self.get_install_path()
-		check_dir(destpath)
+		Utils.check_dir(destpath)
 		for x, y in zip(self.source, self.inputs):
 			if self.relative_trick:
 				destfile = os.path.join(destpath, x)
-				check_dir(os.path.dirname(destfile))
+				Utils.check_dir(os.path.dirname(destfile))
 			else:
 				destfile = os.path.join(destpath, y.name)
 			self.generator.bld.do_install(y.abspath(), destfile, self.chmod)
@@ -684,13 +667,13 @@ class inst_task(Task.Task):
 	def exec_install_as(self):
 		destfile = self.get_install_path()
 		destpath, _ = os.path.split(destfile)
-		check_dir(destpath)
+		Utils.check_dir(destpath)
 		self.generator.bld.do_install(self.inputs[0].abspath(), destfile, self.chmod)
 
 	def exec_symlink_as(self):
 		destfile = self.get_install_path()
 		destpath, _ = os.path.split(destfile)
-		check_dir(destpath)
+		Utils.check_dir(destpath)
 
 		self.generator.bld.do_link(self.link, destfile)
 
