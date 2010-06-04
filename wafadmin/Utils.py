@@ -188,6 +188,7 @@ if is_win32:
 			if 'stdout' not in kw:
 				kw['stdout'] = pproc.PIPE
 				kw['stderr'] = pproc.PIPE
+				kw['universal_newlines'] = True
 				proc = pproc.Popen(s,**kw)
 				(stdout, stderr) = proc.communicate()
 				Logs.info(stdout)
