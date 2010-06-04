@@ -28,6 +28,15 @@ SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
 CFG_FILES = 'cfg_files'
 """files from the build directory to hash before starting the build"""
 
+POST_AT_ONCE = 0
+"""post mode: all task generators are posted before the build really starts"""
+
+POST_LAZY = 1
+"""post mode: post the task generators group after group"""
+
+POST_BOTH = 2
+"""post mode: post the task generators at once, then re-check them for each group"""
+
 class BuildContext(Context.Context):
 	"""executes the build"""
 
@@ -38,6 +47,9 @@ class BuildContext(Context.Context):
 		super(BuildContext, self).__init__(kw.get('start', None))
 
 		self.top_dir = kw.get('top_dir', Options.top_dir)
+
+		self.post_mode = POST_AT_ONCE
+		"""post the task generators at once, group-by-group, or both"""
 
 		# output directory - may be set until the nodes are considered
 		self.out_dir = kw.get('out_dir', Options.out_dir)
@@ -491,34 +503,45 @@ class BuildContext(Context.Context):
 				to_post.append(tg)
 		return (min_grp, to_post)
 
+	def post_group(self):
+		"""post the task generators from a group indexed by self.cur"""
+		if self.targets == '*':
+			for tg in self.groups[self.cur]:
+				if isinstance(tg, TaskGen.task_gen):
+					tg.post()
+		elif self.targets:
+			if self.cur < self._min_grp:
+				for tg in self.groups[self.cur]:
+					if isinstance(tg, TaskGen.task_gen):
+						tg.post()
+			else:
+				for tg in self._exact_tg:
+					tg.post()
+		else:
+			ln = self.launch_node()
+			for tg in self.groups[self.cur]:
+				if isinstance(tg, TaskGen.task_gen):
+					if tg.path.is_child_of(ln):
+						tg.post()
+
 	def get_build_iterator(self):
 		"""creates a generator object that returns tasks executable in parallel (yield)"""
 		self.cur = 0
-		ln = self.launch_node()
 
 		if self.targets and self.targets != '*':
-			min_grp, exact_tg = self.get_targets()
+			(self._min_grp, self._exact_tg) = self.get_targets()
+
+		global lazy_post
+		if self.post_mode != POST_LAZY:
+			while self.cur < len(self.groups):
+				self.post_group()
+				self.cur += 1
+			self.cur = 0
 
 		while self.cur < len(self.groups):
-
 			# first post the task generators for the group
-			if self.targets == '*':
-				for tg in self.groups[self.cur]:
-					if isinstance(tg, TaskGen.task_gen):
-						tg.post()
-			elif self.targets:
-				if self.cur < min_grp:
-					for tg in self.groups[self.cur]:
-						if isinstance(tg, TaskGen.task_gen):
-							tg.post()
-				else:
-					for tg in exact_tg:
-						tg.post()
-			else:
-				for tg in self.groups[self.cur]:
-					if isinstance(tg, TaskGen.task_gen):
-						if tg.path.is_child_of(ln):
-							tg.post()
+			if self.post_mode != POST_AT_ONCE:
+				self.post_group()
 
 			# then extract the tasks
 			tasks = []
