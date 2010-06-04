@@ -1,7 +1,7 @@
 #! /usr/bin/env python
+# encoding: utf-8
 
 import sys
-
 
 from wafadmin import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils
 

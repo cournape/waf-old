@@ -340,6 +340,7 @@ class BuildContext(Context.Context):
 	def flush(self):
 		"""tell the task generators to create the tasks"""
 
+		# display the time elapsed in the progress bar
 		# setting the timer here looks weird
 		self.timer = Utils.Timer()
 
@@ -537,7 +538,7 @@ class BuildContext(Context.Context):
 		return total
 
 	def get_build_iterator(self):
-		"""creates a generator object that returns tasks executable in parallel"""
+		"""creates a generator object that returns tasks executable in parallel (yield)"""
 		self.cur = 0
 		while self.cur < len(self.groups):
 			tasks = []
@@ -753,7 +754,7 @@ class InstallContext(BuildContext):
 			Logs.info('* symlink %s (-> %s)' % (tgt, src))
 			os.symlink(src, tgt)
 
-	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None):
+	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True):
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
 		tsk.path = cwd or self.path
@@ -762,10 +763,10 @@ class InstallContext(BuildContext):
 		tsk.dest = dest
 		tsk.exec_task = tsk.exec_install_files
 		tsk.relative_trick = relative_trick
-		self.add_to_group(tsk)
+		if add: self.add_to_group(tsk)
 		return tsk
 
-	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None):
+	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None, add=True):
 		"""example: bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -774,10 +775,10 @@ class InstallContext(BuildContext):
 		tsk.source = [srcfile]
 		tsk.dest = dest
 		tsk.exec_task = tsk.exec_install_as
-		self.add_to_group(tsk)
+		if add: self.add_to_group(tsk)
 		return tsk
 
-	def symlink_as(self, dest, src, env=None, cwd=None):
+	def symlink_as(self, dest, src, env=None, cwd=None, add=True):
 		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
 
 		if sys.platform == 'win32':
@@ -791,7 +792,7 @@ class InstallContext(BuildContext):
 		tsk.source = []
 		tsk.link = src
 		tsk.exec_task = tsk.exec_symlink_as
-		self.add_to_group(tsk)
+		if add: self.add_to_group(tsk)
 		return tsk
 
 class UninstallContext(InstallContext):
