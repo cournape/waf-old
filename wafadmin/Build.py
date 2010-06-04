@@ -151,7 +151,10 @@ class BuildContext(Context.Context):
 
 		self.recurse(self.path.abspath())
 		self.pre_build()
-		self.flush()
+
+		# display the time elapsed in the progress bar
+		self.timer = Utils.Timer()
+
 		if Options.options.progress_bar:
 			sys.stderr.write(Logs.colors.cursor_off)
 		try:
@@ -337,72 +340,6 @@ class BuildContext(Context.Context):
 		except KeyError:
 			raise Errors.WafError('Could not find a task generator for the name %r' % name)
 
-	def flush(self):
-		"""tell the task generators to create the tasks"""
-
-		# display the time elapsed in the progress bar
-		# setting the timer here looks weird
-		self.timer = Utils.Timer()
-
-		# force the initialization of the mapping name->object in flush
-		# get_tgen_by_name can be used in userland scripts, in that case beware of incomplete mapping
-		self.task_gen_cache_names = {}
-
-		Logs.debug('build: delayed operation TaskGen.flush() called')
-
-		if self.targets == '*':
-			Logs.debug('task_gen: posting task generators (normal)')
-			for g in self.groups:
-				for tg in g:
-					if isinstance(tg, TaskGen.task_gen):
-						Logs.debug('group: Posting %s', tg.name or tg.target)
-						tg.post()
-		elif self.targets:
-			Logs.debug('task_gen: posting task generators %r', self.targets)
-
-			to_post = []
-			min_grp = 0
-			for name in self.targets.split(','):
-				tg = self.get_tgen_by_name(name)
-
-				if not tg:
-					raise Errors.WafError('target %r does not exist' % name)
-
-				m = self.get_group_idx(tg)
-				if m > min_grp:
-					min_grp = m
-					to_post = [tg]
-				elif m == min_grp:
-					to_post.append(tg)
-
-			Logs.debug('group: Forcing up to group %s for target %s', self.get_group_name(min_grp), self.targets)
-
-			# post all the task generators in previous groups
-			for i in xrange(len(self.groups)):
-				if i == min_grp:
-					break
-				g = self.groups[i]
-				Logs.debug('group: Forcing group %s', self.get_group_name(g))
-				for tg in g:
-					if isinstance(tg, TaskGen.task_gen):
-						Logs.debug('group: Posting %s', tg.name or tg.target)
-						tg.post()
-
-			# then post the task generators listed in options.targets in the last group
-			for tg in to_post:
-				tg.post()
-		else:
-			Logs.debug('task_gen: posting task generators (launch directory)')
-			ln = self.launch_node()
-			for g in self.groups:
-				for tg in g:
-					if isinstance(tg, TaskGen.task_gen):
-						if not tg.path.is_child_of(ln):
-							continue
-						Logs.debug('group: Posting %s', tg.name or tg.target)
-						tg.post()
-
-
 	def progress_line(self, state, total, col1, col2):
 		"""Compute the progress bar"""
 		n = len(str(total))
@@ -537,10 +474,53 @@ class BuildContext(Context.Context):
 					total += 1
 		return total
 
+	def get_targets(self):
+		to_post = []
+		min_grp = 0
+		for name in self.targets.split(','):
+			tg = self.get_tgen_by_name(name)
+
+			if not tg:
+				raise Errors.WafError('target %r does not exist' % name)
+
+			m = self.get_group_idx(tg)
+			if m > min_grp:
+				min_grp = m
+				to_post = [tg]
+			elif m == min_grp:
+				to_post.append(tg)
+		return (min_grp, to_post)
+
 	def get_build_iterator(self):
 		"""creates a generator object that returns tasks executable in parallel (yield)"""
 		self.cur = 0
+		ln = self.launch_node()
+
+		if self.targets and self.targets != '*':
+			min_grp, exact_tg = self.get_targets()
+
 		while self.cur < len(self.groups):
+
+			# first post the task generators for the group
+			if self.targets == '*':
+				for tg in self.groups[self.cur]:
+					if isinstance(tg, TaskGen.task_gen):
+						tg.post()
+			elif self.targets:
+				if self.cur < min_grp:
+					for tg in self.groups[self.cur]:
+						if isinstance(tg, TaskGen.task_gen):
+							tg.post()
+				else:
+					for tg in exact_tg:
+						tg.post()
+			else:
+				for tg in self.groups[self.cur]:
+					if isinstance(tg, TaskGen.task_gen):
+						if tg.path.is_child_of(ln):
+							tg.post()
+
+			# then extract the tasks
 			tasks = []
 			for tg in self.groups[self.cur]:
 				# TODO a try-except might be more efficient
@@ -551,6 +531,7 @@ class BuildContext(Context.Context):
 
 			# if the constraints are set properly (ext_in/ext_out, before/after)
 			# the call to set_file_constraints may be removed (can be a 15% penalty on no-op rebuilds)
+			# (but leave set_file_constraints for the installation step)
 			#
 			# the tasks are split into groups of independent tasks that may be parallelized
 			# and a topological sort is performed
@@ -894,7 +875,15 @@ class ListContext(BuildContext):
 
 		self.recurse(self.path.abspath())
 		self.pre_build()
-		self.flush()
+
+		# display the time elapsed in the progress bar
+		self.timer = Utils.Timer()
+
+		for g in self.groups:
+			for tg in g:
+				if isinstance(tg, TaskGen.task_gen):
+					tg.post()
+
 		try:
 			# force the cache initialization
 			self.get_tgen_by_name('')
@@ -911,7 +900,6 @@ class StepContext(BuildContext):
 
 	def __init__(self, *k, **kw):
 		super(StepContext, self).__init__(*k, **kw)
-		self.targets = '*' # post all task generators
 		self.files = Options.options.files
 
 	def compile(self):
@@ -919,6 +907,11 @@ class StepContext(BuildContext):
 			Logs.warn('Add a pattern for the debug build, for example "waf step --files=main.c,app"')
 			BuildContext.compile(self)
 			return
+
+		for g in self.groups:
+			for tg in g:
+				if isinstance(tg, TaskGen.task_gen):
+					tg.post()
 
 		for pat in self.files.split(','):
 			inn = True

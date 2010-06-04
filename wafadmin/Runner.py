@@ -143,6 +143,7 @@ class Parallel(object):
 				self.frozen = []
 			elif not self.count:
 				self.outstanding.extend(self.biter.next())
+				self.total = self.bld.total()
 				break
 
 	def get_out(self):
