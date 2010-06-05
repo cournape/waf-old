@@ -14,29 +14,38 @@ from wafadmin.Configure import conf
 from wafadmin.Tools import preproc
 
 # stupid aliases, let's see how it works out
-# TODO c++
+
+def feats(**kw):
+	has_c = False
+	has_cxx = False
+	s = Utils.to_list(kw['source'])
+	for name in s:
+		if name.endswith('.c'):
+			has_c = True
+		elif name.endswith('.cxx') or name.endswith('.cpp') or name.endswith('.c++'):
+			has_cxx = True
+	lst = []
+	if has_c:
+		lst.append('cc')
+	if has_cxx:
+		lst.append('cxx')
+	return lst
 
 def Program(bld, *k, **kw):
 	if not 'features' in kw:
-		kw['features'] = ['cc', 'cprogram']
-		if bld.env.CXX:
-			kw['features'].append('cxx')
+		kw['features'] = ['cprogram'] + feats(**kw)
 	return bld(*k, **kw)
 Build.BuildContext.Program = Program
 
 def Shlib(bld, *k, **kw):
 	if not 'features' in kw:
-		kw['features'] = ['cc', 'cshlib']
-		if bld.env.CXX:
-			kw['features'].append('cxx')
+		kw['features'] = ['cshlib'] + feats(**kw)
 	return bld(*k, **kw)
 Build.BuildContext.Shlib = Shlib
 
 def Stlib(bld, *k, **kw):
 	if not 'features' in kw:
-		kw['features'] = ['cc', 'cstlib']
-		if bld.env.CXX:
-			kw['features'].append('cxx')
+		kw['features'] = ['cstlib'] + feats(**kw)
 	return bld(*k, **kw)
 Build.BuildContext.Stlib = Stlib
 
