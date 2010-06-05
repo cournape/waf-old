@@ -5,7 +5,7 @@
 "Base for c programs/libraries"
 
 import os
-from wafadmin import TaskGen, Build, Utils, Task
+from wafadmin import TaskGen, Build, Utils, Task, Errors
 from wafadmin.Logs import debug
 from wafadmin.Tools import ccroot
 from wafadmin.TaskGen import feature, before, extension, after

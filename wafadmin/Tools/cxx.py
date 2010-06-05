@@ -4,7 +4,7 @@
 
 "Base for c++ programs and libraries"
 
-from wafadmin import TaskGen, Task, Utils
+from wafadmin import TaskGen, Task, Utils, Errors
 from wafadmin.Logs import debug
 from wafadmin.Tools import ccroot
 from wafadmin.TaskGen import feature, before, extension, after
