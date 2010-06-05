@@ -512,7 +512,8 @@ def run_c_code(self, *k, **kw):
 	for k, v in kw.items():
 		setattr(o, k, v)
 
-	self.log.write("==>\n%s\n<==\n" % kw['code'])
+	if self.log:
+		self.log.write("==>\n%s\n<==\n" % kw['code'])
 
 	# compile the program
 	bld.targets = '*'
@@ -523,10 +524,11 @@ def run_c_code(self, *k, **kw):
 	else:
 		ret = 0
 
-	self.log.write('config test compiles\n')
-	if ret:
-		self.log.write('command returned %r' % ret)
-		self.fatal(str(ret))
+	if self.log:
+		self.log.write('config test compiles\n')
+		if ret:
+			self.log.write('command returned %r' % ret)
+			self.fatal(str(ret))
 
 	# keep the name of the program to execute
 	if kw['execute']:

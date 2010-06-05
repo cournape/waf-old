@@ -7,7 +7,7 @@ Base classes (mostly abstract)
 """
 
 import traceback, os, imp, sys
-from wafadmin import Utils, Errors
+from wafadmin import Utils, Errors, Logs
 import wafadmin.Node
 
 g_module = None
@@ -152,7 +152,57 @@ class Context(ctx):
 				user_function(self)
 				self.post_recurse(node)
 
-g_loaded_modules = {}
+	def msg(self, msg, result, color=None):
+		"""Prints a configuration message 'Checking for xxx: ok'"""
+		self.start_msg('Checking for ' + msg)
+
+		if not isinstance(color, str):
+			color = color and 'GREEN' or 'YELLOW'
+
+		self.end_msg(result, color)
+
+	def start_msg(self, msg):
+		"""Prints the beginning of a 'Checking for xxx' message"""
+		try:
+			if self.in_msg:
+				self.in_msg += 1
+				return
+		except:
+			self.in_msg = 0
+		self.in_msg += 1
+
+		try:
+			self.line_just = max(self.line_just, len(msg))
+		except AttributeError:
+			self.line_just = max(40, len(msg))
+		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
+			if self.log:
+				self.log.write(x)
+		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
+
+	def end_msg(self, result, color=None):
+		"""Prints the end of a 'Checking for' message"""
+		self.in_msg -= 1
+		if self.in_msg:
+			return
+
+		defcolor = 'GREEN'
+		if result == True:
+			msg = 'ok'
+		elif result == False:
+			msg = 'not found'
+			defcolor = 'YELLOW'
+		else:
+			msg = str(result)
+
+		color = color or defcolor
+		if self.log:
+			self.log.write(msg)
+			self.log.write('\n')
+		Logs.pprint(color, msg)
+
+
+cache_modules = {}
 """
 Dictionary holding already loaded modules, keyed by their absolute path.
 private cache
@@ -169,7 +219,7 @@ def load_module(file_path):
 	@return: Loaded Python module
 	"""
 	try:
-		return g_loaded_modules[file_path]
+		return cache_modules[file_path]
 	except KeyError:
 		pass
 
@@ -192,7 +242,7 @@ def load_module(file_path):
 			raise ex
 	sys.path.remove(module_dir)
 
-	g_loaded_modules[file_path] = module
+	cache_modules[file_path] = module
 
 	return module
 

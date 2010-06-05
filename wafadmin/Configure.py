@@ -290,55 +290,6 @@ class ConfigurationContext(Context.Context):
 		try: self.env.append_value(dest or var, Utils.to_list(self.environ[var]))
 		except KeyError: pass
 
-	def msg(self, msg, result, color=None):
-		"""Prints a configuration message 'Checking for xxx: ok'"""
-		self.start_msg('Checking for ' + msg)
-
-		if not isinstance(color, str):
-			color = color and 'GREEN' or 'YELLOW'
-
-		self.end_msg(result, color)
-
-	def start_msg(self, msg):
-		"""Prints the beginning of a 'Checking for xxx' message"""
-		try:
-			if self.in_msg:
-				self.in_msg += 1
-				return
-		except:
-			self.in_msg = 0
-		self.in_msg += 1
-
-		try:
-			self.line_just = max(self.line_just, len(msg))
-		except AttributeError:
-			self.line_just = max(40, len(msg))
-		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
-			if self.log:
-				self.log.write(x)
-		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
-
-	def end_msg(self, result, color=None):
-		"""Prints the end of a 'Checking for' message"""
-		self.in_msg -= 1
-		if self.in_msg:
-			return
-
-		defcolor = 'GREEN'
-		if result == True:
-			msg = 'ok'
-		elif result == False:
-			msg = 'not found'
-			defcolor = 'YELLOW'
-		else:
-			msg = str(result)
-
-		color = color or defcolor
-		if self.log:
-			self.log.write(msg)
-			self.log.write('\n')
-		Logs.pprint(color, msg)
-
 	def find_program(self, filename, path_list=[], var=None, mandatory=True, environ=None, exts=''):
 		"""Search for a program on the operating system"""
 
