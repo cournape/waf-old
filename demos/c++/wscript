@@ -15,8 +15,11 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('compiler_cxx')
-	conf.check(header_name='timo.h', features='cxx cprogram')
+	conf.check(header_name='stdio.h', features='cxx cprogram')
 
 def build(bld):
-	bld(features='cxx cprogram', source='main.cpp', target='app')
+	bld.Program(source='main.cpp', target='app')
+	if bld.cmd != 'clean':
+		bld.log = open('test.log', 'w')
+		bld.check(header_name='stdio.h', features='cxx cprogram')
 

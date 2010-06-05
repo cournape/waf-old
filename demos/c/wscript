@@ -10,6 +10,9 @@ APPNAME='cc_test'
 top = '.'
 out = 'build'
 
+import Configure
+Configure.autoconfig = True
+
 def set_options(opt):
 	opt.tool_options('compiler_cc')
 
@@ -18,4 +21,9 @@ def configure(conf):
 
 def build(bld):
 	bld.recurse('program stlib shlib')
+	#bld.install_files('/tmp/foo', 'wscript')
+	bld.env.PREFIX='/tmp/foo'
+	bld.install_files('${PREFIX}/', 'program/a.h  program/main.c', relative_trick=False)
+	bld.install_as('${PREFIX}/gnigni.txt', 'wscript')
+	bld.symlink_as('${PREFIX}/libfoo.so', 'wscript')
 
