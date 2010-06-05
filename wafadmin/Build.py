@@ -13,8 +13,14 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Configure, Errors
+from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Errors
 import wafadmin.Node
+
+CACHE_DIR = 'c4che'
+"""location of the cache files"""
+
+CACHE_SUFFIX = '.cache.py'
+"""suffix for the cache files"""
 
 INSTALL = 1337
 """positive value '->' install"""
@@ -62,7 +68,7 @@ class BuildContext(Context.Context):
 
 		self.cache_dir = kw.get('cache_dir', None)
 		if not self.cache_dir:
-			self.cache_dir = self.out_dir + os.sep + Configure.CACHE_DIR
+			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
 
 		# map names to environments, the 'default' must be defined
 		self.all_envs = {}
@@ -119,9 +125,9 @@ class BuildContext(Context.Context):
 			raise Errors.WafError('The cache directory is empty: reconfigure the project')
 
 		for fname in lst:
-			if fname.endswith(Configure.CACHE_SUFFIX):
+			if fname.endswith(CACHE_SUFFIX):
 				env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, fname))
-				name = fname[:-len(Configure.CACHE_SUFFIX)]
+				name = fname[:-len(CACHE_SUFFIX)]
 				self.all_envs[name] = env
 
 				for f in env[CFG_FILES]:

@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, shlex, sys, time
-from wafadmin import ConfigSet, Utils, Options, Logs, Context
+from wafadmin import ConfigSet, Utils, Options, Logs, Context, Build
 
 try:
 	from urllib import request
@@ -34,12 +34,6 @@ BREAK    = 'break'
 
 CONTINUE = 'continue'
 """in case of error, continue"""
-
-CACHE_DIR = 'c4che'
-"""location of the cache files"""
-
-CACHE_SUFFIX = '.cache.py'
-"""suffix for the cache files"""
 
 WAF_CONFIG_LOG = 'config.log'
 """name of the configuration log file"""
@@ -166,7 +160,7 @@ class ConfigurationContext(Context.Context):
 
 	def post_init(self):
 
-		self.cachedir = os.path.join(self.bldnode.abspath(), CACHE_DIR)
+		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
 
 		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
 		try: os.unlink(path)
@@ -207,7 +201,7 @@ class ConfigurationContext(Context.Context):
 			self.fatal('nothing to store in the configuration context!')
 		for key in self.all_envs:
 			tmpenv = self.all_envs[key]
-			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
+			tmpenv.store(os.path.join(self.cachedir, key + Build.CACHE_SUFFIX))
 
 	def __del__(self):
 		"""cleanup function: close config.log"""
@@ -431,6 +425,7 @@ class ConfigurationContext(Context.Context):
 def conf(f):
 	"decorator: attach new configuration functions"
 	setattr(ConfigurationContext, f.__name__, f)
+	setattr(Build.BuildContext, f.__name__, f)
 	return f
 
 @conf
