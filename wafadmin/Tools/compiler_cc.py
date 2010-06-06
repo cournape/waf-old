@@ -65,10 +65,3 @@ def options(opt):
 	for c_compiler in test_for_compiler.split():
 		opt.tool_options('%s' % c_compiler, option_group=cc_compiler_opts)
 
-	"""opt.add_option('-d', '--debug-level',
-	action = 'store',
-	default = ccroot.DEBUG_LEVELS.RELEASE,
-	help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
-	choices = ccroot.DEBUG_LEVELS.ALL,
-	dest = 'debug_level')"""
-

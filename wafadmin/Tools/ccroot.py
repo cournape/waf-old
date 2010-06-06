@@ -149,16 +149,6 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
 
-class DEBUG_LEVELS:
-	"""Will disappear in waf 1.6"""
-	ULTRADEBUG = "ultradebug"
-	DEBUG = "debug"
-	RELEASE = "release"
-	OPTIMIZED = "optimized"
-	CUSTOM = "custom"
-
-	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED, CUSTOM]
-
 def scan(self):
 	"look for .h the .cpp need"
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
