@@ -196,12 +196,9 @@ def apply_link(self):
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 
-	tsk = self.create_task(link)
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	tsk.set_inputs(outputs)
-	tsk.set_outputs(self.path.find_or_declare(self.get_target_name()))
-
-	self.link_task = tsk
+	objs = [t.outputs[0] for t in self.compiled_tasks]
+	out = self.path.find_or_declare(self.get_target_name())
+	self.link_task = self.create_task(link, objs, out)
 
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')
@@ -412,7 +409,7 @@ c_attrs = {
 @before('apply_lib_vars', 'apply_obj_vars', 'apply_incpaths', 'init_cc')
 def add_extra_flags(self):
 	"""
-	process additional task generator attributes such as cflags → CFLAGS
+	process additional task generator attributes such as cflags → CFLAGS, see c_attrs above
 	case and plural insensitive
 	before apply_obj_vars for processing the library attributes
 	"""
