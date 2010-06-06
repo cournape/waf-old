@@ -163,30 +163,11 @@ def scan(self):
 	"look for .h the .cpp need"
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
 
-	# TODO waf 1.6 - assume the default input has exactly one file
-
-	if len(self.inputs) == 1:
-		node = self.inputs[0]
-		(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
-		if Logs.verbose:
-			debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
-		return (nodes, names)
-
-	all_nodes = []
-	all_names = []
-	seen = set()
-	for node in self.inputs:
-		(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
-		if Logs.verbose:
-			debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
-		for x in nodes:
-			if id(x) in seen: continue
-			seen.add(id(x))
-			all_nodes.append(x)
-		for x in names:
-			if not x in all_names:
-				all_names.append(x)
-	return (all_nodes, all_names)
+	node = self.inputs[0]
+	(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
+	if Logs.verbose:
+		debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+	return (nodes, names)
 
 def get_target_name(self):
 	tp = 'program'
