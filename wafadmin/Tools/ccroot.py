@@ -107,7 +107,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	return k
 
 def scan(self):
-	"look for .h the .cpp need"
+	"scanner for c and c++ tasks, uses the python-based preprocessor from the module preproc.py"
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
 
 	node = self.inputs[0]
@@ -116,6 +116,7 @@ def scan(self):
 		debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
 	return (nodes, names)
 
+@taskgen_method
 def get_target_name(self):
 	tp = 'program'
 	for x in self.features:
@@ -198,7 +199,7 @@ def apply_link(self):
 	tsk = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	tsk.set_inputs(outputs)
-	tsk.set_outputs(self.path.find_or_declare(get_target_name(self)))
+	tsk.set_outputs(self.path.find_or_declare(self.get_target_name()))
 
 	self.link_task = tsk
 
@@ -410,7 +411,9 @@ c_attrs = {
 @before('init_cxx', 'init_cc')
 @before('apply_lib_vars', 'apply_obj_vars', 'apply_incpaths', 'init_cc')
 def add_extra_flags(self):
-	"""case and plural insensitive
+	"""
+	process additional task generator attributes such as cflags → CFLAGS
+	case and plural insensitive
 	before apply_obj_vars for processing the library attributes
 	"""
 	for x in self.__dict__.keys():
