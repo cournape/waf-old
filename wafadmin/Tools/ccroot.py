@@ -5,7 +5,6 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re, subprocess
-from collections import deque
 from wafadmin import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from wafadmin.Logs import error, debug, warn
 from wafadmin.Utils import md5
@@ -227,7 +226,7 @@ def apply_lib_vars(self):
 	names = self.to_list(self.uselib_local)
 	get = self.bld.get_tgen_by_name
 	seen = set([])
-	tmp = deque(names) # consume a copy of the list of names
+	tmp = Utils.deque(names) # consume a copy of the list of names
 	while tmp:
 		lib_name = tmp.popleft()
 		# visit dependencies only once

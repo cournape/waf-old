@@ -7,6 +7,7 @@ Utilities and cross-platform fixes.
 """
 
 import os, sys, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
+from collections import deque
 
 try:
 	from collections import UserDict
