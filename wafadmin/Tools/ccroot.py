@@ -544,8 +544,7 @@ def exec_vnum_link(self):
 	except OSError:
 		return 1
 
-cls = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN')
-cls.quiet = 1
+vnum_task = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN', quiet=True)
 
 # ============ the --as-needed flag should added during the configuration, not at runtime =========
 
