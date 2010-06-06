@@ -72,6 +72,13 @@ class store_task_type(type):
 			global classes
 			classes[name] = cls
 
+			if getattr(cls, 'run_str', None):
+				# if a string is provided, convert it to a method
+				(f, dvars) = compile_fun(cls.run_str, cls.shell)
+				f.code = cls.run_str
+				cls.run = f
+				cls.vars.extend(dvars)
+
 # avoid a metaclass, code can run in python 2.6 and 3.x unmodified
 evil = store_task_type('evil', (object,), {})
 
@@ -198,6 +205,7 @@ class Task(TaskBase):
        environment variables, like the CXXFLAGS in self.env
 	"""
 	vars = []
+	shell = False
 	def __init__(self, *k, **kw):
 		TaskBase.__init__(self, *k, **kw)
 		self.env = kw['env']
@@ -513,7 +521,7 @@ def funex(c):
 	return dc['f']
 
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
-def compile_fun_shell(name, line):
+def compile_fun_shell(line):
 	"""Compiles a string (once) into a function, eg:
 	simple_task_type('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
 
@@ -555,7 +563,7 @@ def compile_fun_shell(name, line):
 	Logs.debug('action: %s' % c)
 	return (funex(c), dvars)
 
-def compile_fun_noshell(name, line):
+def compile_fun_noshell(line):
 
 	extr = []
 	def repl(match):
@@ -593,21 +601,21 @@ def compile_fun_noshell(name, line):
 	Logs.debug('action: %s' % fun)
 	return (funex(fun), dvars)
 
-def compile_fun(name, line, shell=False):
+def compile_fun(line, shell=False):
 	"commands can be launched by the shell or not"
 	if line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
 		shell = True
 
 	if shell:
-		return compile_fun_shell(name, line)
+		return compile_fun_shell(line)
 	else:
-		return compile_fun_noshell(name, line)
+		return compile_fun_noshell(line)
 
 def task_factory(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
 
 	if isinstance(func, str):
-		(f, dvars) = compile_fun(name, func, shell)
+		(f, dvars) = compile_fun(func, shell)
 		f.code = func
 		func = f
 		vars = Utils.to_list(vars) + dvars

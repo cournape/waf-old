@@ -4,7 +4,6 @@
 
 "Base for c programs/libraries"
 
-import os
 from wafadmin import TaskGen, Build, Utils, Task, Errors
 from wafadmin.Logs import debug
 from wafadmin.Tools import ccroot
@@ -30,9 +29,18 @@ def c_hook(self, node):
 	return self.create_compiled_task('cc', node)
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c', scan=ccroot.scan)
-cls.vars.append('CCDEPS')
+class cc(Task.Task):
+	color   = 'GREEN'
+	run_str = cc_str
+	vars    = ['CCDEPS']
+	ext_in  = ['.c']
+	ext_out = ['.o']
+	scan    = ccroot.scan
 
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
-cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin')
+class cc_link(Task.Task):
+	color   = 'YELLOW'
+	run_str = link_str
+	ext_in  = ['.o']
+	ext_out = ['.bin']
 
