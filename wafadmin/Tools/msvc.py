@@ -30,7 +30,10 @@
 
 
 import os, sys, re, string, subprocess
-import _winreg
+try:
+	import _winreg
+except:
+	import winreg as _winreg
 
 from wafadmin import Utils, TaskGen, Runner, Configure, Task, Options
 from wafadmin.Logs import debug, info, warn, error
