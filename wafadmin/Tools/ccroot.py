@@ -155,6 +155,7 @@ def get_dest_binfmt(self):
 		# Infer the binary format from the os name.
 		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
 			self.env.DEST_OS or Utils.unversioned_sys_platform())
+	return self.env.DEST_BINFMT
 
 @taskgen_method
 def get_target_name(self):
