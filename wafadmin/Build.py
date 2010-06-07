@@ -638,9 +638,12 @@ class inst_task(Task.Task):
 	def runnable_status(self):
 		buf = []
 		for x in self.source:
-			y = self.path.find_resource(x)
-			if not y:
-				raise Errors.WafError('could not find %r in %r' % (x, self.path))
+			if isinstance(x, wafadmin.Node.Node):
+				y = x
+			else:
+				y = self.path.find_resource(x)
+				if not y:
+					raise Errors.WafError('could not find %r in %r' % (x, self.path))
 			buf.append(y)
 		self.set_inputs(buf)
 		return Task.RUN_ME
@@ -752,7 +755,10 @@ class InstallContext(BuildContext):
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
-		tsk.source = Utils.to_list(files)
+		if isinstance(files, wafadmin.Node.Node):
+			tsk.source =  [files]
+		else:
+			tsk.source = Utils.to_list(files)
 		tsk.dest = dest
 		tsk.exec_task = tsk.exec_install_files
 		tsk.relative_trick = relative_trick

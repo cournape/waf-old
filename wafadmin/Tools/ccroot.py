@@ -252,7 +252,7 @@ def apply_link(self):
 	out = self.path.find_or_declare(self.get_target_name())
 	self.link_task = self.create_task(link, objs, out)
 
-	if getattr(self, 'is_install', None):
+	if getattr(self.bld, 'is_install', None):
 		if not self.env.BINDIR:
 			self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
 		if not self.env.LIBDIR:
@@ -262,7 +262,7 @@ def apply_link(self):
 			inst = '${BINDIR}'
 		else:
 			inst = '${LIBDIR}'
-		self.install_task = bld.install_files(inst, out, env=self.env)
+		self.install_task = self.bld.install_files(inst, out, env=self.env)
 
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')
@@ -528,7 +528,7 @@ def apply_vnum(self):
 		v = self.env.SONAME_ST % name2
 		self.env.append_value('LINKFLAGS', v.split())
 
-	if not getattr(self, 'is_install', None):
+	if not getattr(self.bld, 'is_install', None):
 		return
 
 	path = getattr(self, 'install_path', None)
