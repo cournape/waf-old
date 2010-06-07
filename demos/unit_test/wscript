@@ -51,6 +51,18 @@ def build(bld):
 			return old(self)
 		Task.Task.runnable_status = test_status
 
+	# use this to disable the test execution
+	"""
+	else:
+		import Task, Constants
+		old = Task.Task.runnable_status
+		def test_status(self):
+			if self.__class__.__name__ == 'utest':
+				return Constants.SKIP_ME
+			return old(self)
+		Task.Task.runnable_status = test_status
+	"""
+
 	# debugging zone:
 	# $ waf --zones=ut
 	# setting the cwd for a unit test execution: see tests/test1/wscript_build (ut_cwd)
