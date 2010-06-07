@@ -38,7 +38,10 @@ from Configure import conftest, conf
 import ccroot, cc, cxx, ar, winres
 from libtool import read_la_file
 
-import _winreg
+try:
+	import _winreg
+except:
+	import winreg as _winreg
 
 pproc = Utils.pproc
 
