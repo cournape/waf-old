@@ -11,6 +11,8 @@ def set_options(opt):
 	opt.tool_options('compiler_cxx')
 	opt.tool_options('unittest')
 
+	opt.add_option('--onlytests', action='store_true', default=True, help='Exec unit tests only', dest='only_tests')
+
 def configure(conf):
 	conf.check_tool('compiler_cxx')
 	conf.check_tool('unittest')
@@ -31,6 +33,23 @@ def build(bld):
 	# $ waf --alltests
 	# to set this behaviour permanenly:
 	Options.options.all_tests = True
+
+	# use this to skip the build entirely (build on a box and execute on some other box)
+	if Options.options.only_tests:
+		import Task, Constants
+		old = Task.Task.runnable_status
+		def test_status(self):
+			if self.__class__.__name__ != 'utest':
+
+				for node in getattr(self, 'outputs', []):
+					try:
+						self.generator.bld.node_sigs[self.env.variant()][node.id]
+					except:
+						self.generator.bld.node_sigs[self.env.variant()][node.id] = Constants.SIG_NIL
+
+				return Constants.SKIP_ME
+			return old(self)
+		Task.Task.runnable_status = test_status
 
 	# debugging zone:
 	# $ waf --zones=ut
