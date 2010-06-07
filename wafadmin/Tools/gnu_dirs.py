@@ -35,7 +35,7 @@ installation variables:
  * PSDIR : ps documentation [DOCDIR]
 """
 
-from wafadmin import Utils, Options
+from wafadmin import Utils, Options, Context
 
 _options = [x.split(', ') for x in '''
 bindir, user executables, ${EXEC_PREFIX}/bin
@@ -65,7 +65,7 @@ def configure(conf):
 
 	env = conf.env
 	env['EXEC_PREFIX'] = get_param('EXEC_PREFIX', env['PREFIX'])
-	env['PACKAGE'] = getattr(Utils.g_module, 'APPNAME', None) or env['PACKAGE']
+	env['PACKAGE'] = getattr(Context.g_module, 'APPNAME', None) or env['PACKAGE']
 
 	complete = False
 	iter = 0

@@ -157,9 +157,6 @@ def default_cc(self):
 		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
 			self.env.DEST_OS or Utils.unversioned_sys_platform())
 
-	if not self.env.BINDIR: self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
-	if not self.env.LIBDIR: self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
-
 @feature('cc', 'cxx')
 @after('apply_lib_vars')
 def apply_defines(self):
@@ -199,6 +196,18 @@ def apply_link(self):
 	objs = [t.outputs[0] for t in self.compiled_tasks]
 	out = self.path.find_or_declare(self.get_target_name())
 	self.link_task = self.create_task(link, objs, out)
+
+	if getattr(self, 'is_install', None):
+		if not self.env.BINDIR:
+			self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
+		if not self.env.LIBDIR:
+			self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
+
+		if 'cprogram' in self.features or 'dprogram' in self.features:
+			inst = '${BINDIR}'
+		else:
+			inst = '${LIBDIR}'
+		self.install_task = bld.install_files(inst, out, env=self.env)
 
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')
@@ -482,7 +491,7 @@ def apply_implib(self):
 
 	implib = dll.parent.find_or_declare(implib)
 	self.link_task.outputs.append(implib)
-	self.bld.install_as('${LIBDIR}/%s' % implib.name, implib, self.env)
+	self.implib_install_task = self.bld.install_as('${LIBDIR}/%s' % implib.name, implib, self.env)
 
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
 
@@ -527,10 +536,12 @@ def apply_vnum(self):
 	tsk.set_inputs([node])
 	tsk.set_outputs(node.parent.find_or_declare(name2))
 
+	self.install_task.hasrun = Task.SKIP_ME
 	bld = self.bld
-	bld.install_as(path + os.sep + name3, node, env=self.env)
-	bld.symlink_as(path + os.sep + name2, name3)
-	bld.symlink_as(path + os.sep + libname, name3)
+	t1 = bld.install_as(path + os.sep + name3, node, env=self.env)
+	t2 = bld.symlink_as(path + os.sep + name2, name3)
+	t3 = bld.symlink_as(path + os.sep + libname, name3)
+	self.vnum_install_task = (t1, t2, t3)
 
 def exec_vnum_link(self):
 	path = self.outputs[0].abspath()
