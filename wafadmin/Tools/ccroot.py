@@ -106,8 +106,15 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
 
+# ============ the --as-needed flag should added during the configuration, not at runtime =========
+
+@conf
+def add_as_needed(conf):
+	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
+		conf.env.append_unique('LINKFLAGS', '--as-needed')
+
 def scan(self):
-	"scanner for c and c++ tasks, uses the python-based preprocessor from the module preproc.py"
+	"scanner for c and c++ tasks, uses the python-based preprocessor from the module preproc.py (task method)"
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
 
 	node = self.inputs[0]
@@ -115,6 +122,31 @@ def scan(self):
 	if Logs.verbose:
 		debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
 	return (nodes, names)
+
+@taskgen_method
+def create_compiled_task(self, name, node):
+	"""
+	creates the compilation task: cc, cxx, asm, ...
+	the task is appended to the list 'compiled_tasks' which is used by
+	'apply_link'
+	"""
+	out = '%s.%d.o' % (node.name, self.idx)
+	task = self.create_task(name, node, node.parent.find_or_declare(out))
+	try:
+		self.compiled_tasks.append(task)
+	except AttributeError:
+		self.compiled_tasks = [task]
+	return task
+
+@taskgen_method
+def get_dest_binfmt(self):
+	# The only thing we need for cross-compilation is DEST_BINFMT.
+	# At some point, we may reach a case where DEST_BINFMT is not enough, but for now it's sufficient.
+	# Currently, cross-compilation is auto-detected only for the gnu and intel compilers.
+	if not self.env.DEST_BINFMT:
+		# Infer the binary format from the os name.
+		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
+			self.env.DEST_OS or Utils.unversioned_sys_platform())
 
 @taskgen_method
 def get_target_name(self):
@@ -128,7 +160,7 @@ def get_target_name(self):
 
 	dir, name = os.path.split(self.target)
 
-	if self.env.DEST_BINFMT == 'pe' and getattr(self, 'vnum', None) and 'cshlib' in self.features:
+	if self.get_dest_binfmt() == 'pe' and getattr(self, 'vnum', None) and 'cshlib' in self.features:
 		# include the version in the dll file name,
 		# the import lib file name stays unversionned.
 		name = name + '-' + self.vnum.split('.')[0]
@@ -148,14 +180,6 @@ def default_cc(self):
 		p_flag_vars = [],
 		compiled_tasks = [],
 		link_task = None)
-
-	# The only thing we need for cross-compilation is DEST_BINFMT.
-	# At some point, we may reach a case where DEST_BINFMT is not enough, but for now it's sufficient.
-	# Currently, cross-compilation is auto-detected only for the gnu and intel compilers.
-	if not self.env.DEST_BINFMT:
-		# Infer the binary format from the os name.
-		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
-			self.env.DEST_OS or Utils.unversioned_sys_platform())
 
 @feature('cc', 'cxx')
 @after('apply_lib_vars')
@@ -367,24 +391,10 @@ def apply_obj_vars(self):
 
 	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
 
-@taskgen_method
-def create_compiled_task(self, name, node):
-	"""
-	creates the compilation task: cc, cxx, asm, ...
-	the task is appended to the list 'compiled_tasks' which is used by
-	'apply_link'
-	"""
-	out = '%s.%d.o' % (node.name, self.idx)
-	task = self.create_task(name, node, node.parent.find_or_declare(out))
-	try:
-		self.compiled_tasks.append(task)
-	except AttributeError:
-		self.compiled_tasks = [task]
-	return task
-
 @after('apply_link')
 def process_obj_files(self):
-	if not hasattr(self, 'obj_files'): return
+	if not hasattr(self, 'obj_files'):
+		return
 	for x in self.obj_files:
 		node = self.path.find_resource(x)
 		self.link_task.inputs.append(node)
@@ -476,7 +486,7 @@ def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
 	"""
-	if not self.env.DEST_BINFMT == 'pe':
+	if not self.get_dest_binfmt() == 'pe':
 		return
 
 	bindir = self.install_path
@@ -504,7 +514,7 @@ def apply_vnum(self):
 	libfoo.so is installed as libfoo.so.1.2.3
 	create symlinks libfoo.so → libfoo.so.1.2.3 and libfoo.so.1 → libfoo.so.1.2.3
 	"""
-	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
+	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.get_dest_binfmt() not in ('elf', 'mac-o'):
 		return
 
 	link = self.link_task
@@ -543,26 +553,21 @@ def apply_vnum(self):
 	t3 = bld.symlink_as(path + os.sep + libname, name3)
 	self.vnum_install_task = (t1, t2, t3)
 
-def exec_vnum_link(self):
-	path = self.outputs[0].abspath()
-	try:
-		os.remove(path)
-	except OSError:
-		pass
+class vnum_task(Task.Task):
+	color = 'CYAN'
+	quient = True
+	ext_in = ['.bin']
+	def run(self):
+		path = self.outputs[0].abspath()
+		try:
+			os.remove(path)
+		except OSError:
+			pass
 
-	try:
-		os.symlink(self.inputs[0].name, path)
-	except OSError:
-		return 1
-
-vnum_task = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN', quiet=True)
-
-# ============ the --as-needed flag should added during the configuration, not at runtime =========
-
-@conf
-def add_as_needed(conf):
-	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
-		conf.env.append_unique('LINKFLAGS', '--as-needed')
+		try:
+			os.symlink(self.inputs[0].name, path)
+		except OSError:
+			return 1
 
 
 # ============ aliases, let's see if people use them ==============
