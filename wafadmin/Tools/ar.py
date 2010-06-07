@@ -9,10 +9,9 @@ import os, sys
 from wafadmin import Task, Utils
 from wafadmin.Configure import conf
 
-ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 class static_link(Task.Task):
 	color = 'YELLOW'
-	run_str = ar_str
+	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 	ext_in = ['.o']
 	def run(self):
 		"""remove the output in case it already exists"""

@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-from wafadmin import Task, Utils
+from wafadmin import Task
 from wafadmin.TaskGen import taskgen_method, before
 
 @taskgen_method
@@ -26,9 +26,10 @@ def process_dbus(self):
 		tsk.env.DBUS_BINDING_TOOL_PREFIX = prefix
 		tsk.env.DBUS_BINDING_TOOL_MODE   = mode
 
-Task.simple_task_type('dbus_binding_tool',
-	'${DBUS_BINDING_TOOL} --prefix=${DBUS_BINDING_TOOL_PREFIX} --mode=${DBUS_BINDING_TOOL_MODE} --output=${TGT} ${SRC}',
-	color='BLUE', before='cc')
+class dbus_binding_tool(Task.Task):
+	color='BLUE'
+	before = ['cc']
+	run_str = '${DBUS_BINDING_TOOL} --prefix=${DBUS_BINDING_TOOL_PREFIX} --mode=${DBUS_BINDING_TOOL_MODE} --output=${TGT} ${SRC}'
 
 def configure(conf):
 	dbus_binding_tool = conf.find_program('dbus-binding-tool', var='DBUS_BINDING_TOOL')
