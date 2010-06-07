@@ -9,24 +9,6 @@ from wafadmin.Logs import debug
 from wafadmin.Tools import ccroot
 from wafadmin.TaskGen import feature, before, extension, after
 
-g_cxx_flag_vars = [
-'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
-'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'CXXFLAGS', 'CCFLAGS', 'CPPFLAGS', 'INCLUDES', 'DEFINES']
-"main cpp variables"
-
-@feature('cxx')
-@before('apply_lib_vars')
-@after('default_cc')
-def init_cxx(self):
-	if not 'cc' in self.features:
-		self.mappings['.c'] = TaskGen.task_gen.mappings['.cxx']
-
-	self.p_flag_vars = set(self.p_flag_vars).union(g_cxx_flag_vars)
-
-	if not self.env['CXX_NAME']:
-		raise Errors.WafError("At least one compiler (g++, ..) must be selected")
-
 @extension('.cpp', '.cc', '.cxx', '.C', '.c++')
 def cxx_hook(self, node):
 	return self.create_compiled_task('cxx', node)

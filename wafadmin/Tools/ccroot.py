@@ -14,6 +14,11 @@ from wafadmin.Tools import preproc
 
 import config_c # <- necessary for the configuration, do not touch
 
+USELIB_VARS = ['CCDEPS', 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
+'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
+'CXXFLAGS', 'CCFLAGS', 'CPPFLAGS', 'INCLUDES', 'DEFINES']
+"""not sure about this"""
+
 @conf
 def get_cc_version(conf, cc, gcc=False, icc=False):
 	"""get the compiler version"""
@@ -180,7 +185,6 @@ def default_cc(self):
 		uselib = '',
 		uselib_local = '',
 		add_objects = '',
-		p_flag_vars = [],
 		compiled_tasks = [],
 		link_task = None)
 
@@ -354,7 +358,7 @@ def apply_lib_vars(self):
 
 	# 2. the case of the libs defined outside
 	for x in self.uselib:
-		for v in self.p_flag_vars:
+		for v in USELIB_VARS:
 			val = self.env[v + '_' + x]
 			if val: self.env.append_value(v, val)
 

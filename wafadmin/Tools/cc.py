@@ -9,21 +9,6 @@ from wafadmin.Logs import debug
 from wafadmin.Tools import ccroot
 from wafadmin.TaskGen import feature, before, extension, after
 
-g_cc_flag_vars = [
-'CCDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
-'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'CCFLAGS', 'CPPFLAGS', 'INCLUDES', 'DEFINES']
-
-@feature('cc')
-@before('apply_lib_vars')
-@after('default_cc')
-def init_cc(self):
-	self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
-
-	if not self.env['CC_NAME']:
-		# TODO move to the paranoid optional checks
-		raise Errors.WafError("At least one compiler (gcc, ..) must be selected")
-
 @extension('.c')
 def c_hook(self, node):
 	return self.create_compiled_task('cc', node)
