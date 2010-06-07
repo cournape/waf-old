@@ -4,12 +4,10 @@
 
 "Base for c++ programs and libraries"
 
-from wafadmin import TaskGen, Task, Utils, Errors
-from wafadmin.Logs import debug
+from wafadmin import TaskGen, Task
 from wafadmin.Tools import ccroot
-from wafadmin.TaskGen import feature, before, extension, after
 
-@extension('.cpp', '.cc', '.cxx', '.C', '.c++')
+@TaskGen.extension('.cpp', '.cc', '.cxx', '.C', '.c++')
 def cxx_hook(self, node):
 	return self.create_compiled_task('cxx', node)
 
