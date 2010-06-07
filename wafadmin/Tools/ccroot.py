@@ -488,12 +488,12 @@ def apply_implib(self):
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
-@feature('cshlib', 'dshlib')
+@feature('cshlib', 'dshlib', 'vnum')
 @after('apply_link')
-@before('apply_lib_vars')
 def apply_vnum(self):
 	"""
 	libfoo.so is installed as libfoo.so.1.2.3
+	create symlinks libfoo.so → libfoo.so.1.2.3 and libfoo.so.1 → libfoo.so.1.2.3
 	"""
 	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
 		return
@@ -510,24 +510,27 @@ def apply_vnum(self):
 		name3 = libname + '.' + self.vnum
 		name2 = libname + '.' + nums[0]
 
+	# add the so name for the ld linker - to disable, just unset env.SONAME_ST
 	if self.env.SONAME_ST:
 		v = self.env.SONAME_ST % name2
 		self.env.append_value('LINKFLAGS', v.split())
 
-	bld = self.bld
-	nums = self.vnum.split('.')
+	if not getattr(self, 'is_install', None):
+		return
 
-	path = self.install_path
-	if not path: return
-
-	bld.install_as(path + os.sep + name3, node, env=self.env)
-	bld.symlink_as(path + os.sep + name2, name3)
-	bld.symlink_as(path + os.sep + libname, name3)
+	path = getattr(self, 'install_path', None)
+	if not path:
+		return
 
 	# the following task is just to enable execution from the build dir :-/
 	tsk = self.create_task('vnum')
 	tsk.set_inputs([node])
 	tsk.set_outputs(node.parent.find_or_declare(name2))
+
+	bld = self.bld
+	bld.install_as(path + os.sep + name3, node, env=self.env)
+	bld.symlink_as(path + os.sep + name2, name3)
+	bld.symlink_as(path + os.sep + libname, name3)
 
 def exec_vnum_link(self):
 	path = self.outputs[0].abspath()
