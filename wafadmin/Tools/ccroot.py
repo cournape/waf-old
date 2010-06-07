@@ -253,16 +253,19 @@ def apply_link(self):
 	self.link_task = self.create_task(link, objs, out)
 
 	if getattr(self.bld, 'is_install', None):
-		if not self.env.BINDIR:
-			self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
-		if not self.env.LIBDIR:
-			self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
 
-		if 'cprogram' in self.features or 'dprogram' in self.features:
-			inst = '${BINDIR}'
-		else:
-			inst = '${LIBDIR}'
-		self.install_task = self.bld.install_files(inst, out, env=self.env)
+		if not getattr(self, 'install_path', None):
+			if 'cprogram' in self.features or 'dprogram' in self.features:
+				if not self.env.BINDIR:
+					self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
+				self.install_path = '${BINDIR}'
+			elif 'cshlib' in self.features or 'dshlib' in self.features:
+				if not self.env.LIBDIR:
+					self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
+				self.install_path = '${LIBDIR}'
+			else:
+				return
+		self.install_task = self.bld.install_files(self.install_path, out, env=self.env)
 
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')
