@@ -34,7 +34,10 @@ def build(bld):
 	# to set this behaviour permanenly:
 	Options.options.all_tests = True
 
-	# use this to skip the build entirely (build on a box and execute on some other box)
+	# to build on one computer and execute the tests on another:
+	#  uncomment the following block, build on the first, then on the second, configure the project
+	#  and build using "./waf --onlytests  --alltests" to force the test execution
+	"""
 	if Options.options.only_tests:
 		import Task, Constants
 		old = Task.Task.runnable_status
@@ -50,9 +53,6 @@ def build(bld):
 				return Constants.SKIP_ME
 			return old(self)
 		Task.Task.runnable_status = test_status
-
-	# use this to disable the test execution
-	"""
 	else:
 		import Task, Constants
 		old = Task.Task.runnable_status
