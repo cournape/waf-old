@@ -176,19 +176,6 @@ def get_target_name(self):
 	return os.path.join(dir, pattern % name)
 
 @feature('cc', 'cxx')
-@before('process_source')
-def default_cc(self):
-	"""compiled_tasks attribute must be set before the '.c->.o' tasks can be created"""
-	Utils.def_attrs(self,
-		defines= '',
-		rpaths = '',
-		uselib = '',
-		uselib_local = '',
-		add_objects = '',
-		compiled_tasks = [],
-		link_task = None)
-
-@feature('cc', 'cxx')
 @after('apply_lib_vars')
 def apply_defines(self):
 	"""after uselib is set for DEFINES"""
@@ -203,9 +190,8 @@ def apply_defines(self):
 			milst.extend(self.to_list(defi))
 
 	# DEFINES_USELIB
-	libs = self.to_list(self.uselib)
-	for l in libs:
-		val = self.env['DEFINES_'+l]
+	for lib in self.to_list(getattr(self, 'uselib', [])):
+		val = self.env['DEFINES_' + lib]
 		if val:
 			milst += self.to_list(val)
 
@@ -222,7 +208,7 @@ def apply_incpaths(self):
 	"""
 
 	paths = self.to_list(getattr(self, 'includes', []))
-	for lib in self.to_list(self.uselib):
+	for lib in self.to_list(getattr(self, 'uselib', [])):
 		for path in self.env['INCLUDES_' + lib]:
 			paths.append(path)
 
@@ -262,7 +248,7 @@ def apply_link(self):
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 
-	objs = [t.outputs[0] for t in self.compiled_tasks]
+	objs = [t.outputs[0] for t in getattr(self, 'compiled_tasks', [])]
 	out = self.path.find_or_declare(self.get_target_name())
 	self.link_task = self.create_task(link, objs, out)
 
@@ -281,8 +267,7 @@ def apply_link(self):
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')
 def apply_lib_vars(self):
-	"""after apply_link because of 'link_task'
-	after default_cc because of the attribute 'uselib'"""
+	"""after apply_link because of 'link_task'"""
 	env = self.env
 
 	# 0.
@@ -298,8 +283,8 @@ def apply_lib_vars(self):
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
-	self.uselib = self.to_list(self.uselib)
-	names = self.to_list(self.uselib_local)
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
+	names = self.to_list(getattr(self, 'uselib_local', []))
 	get = self.bld.get_tgen_by_name
 	seen = set([])
 	tmp = Utils.deque(names) # consume a copy of the list of names
@@ -366,11 +351,13 @@ def apply_lib_vars(self):
 @after('init_cc', 'init_cxx', 'apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
-	if not getattr(self, 'add_objects', None): return
+	names = getattr(self, 'add_objects', [])
+	if not names:
+		return
+	names = self.to_list(names)
 
 	get = self.bld.get_tgen_by_name
 	seen = []
-	names = self.to_list(self.add_objects)
 	while names:
 		x = names[0]
 
@@ -397,7 +384,7 @@ def apply_objdeps(self):
 		y.post()
 		seen.append(x)
 
-		for t in y.compiled_tasks:
+		for t in getattr(y, 'compiled_tasks', []):
 			self.link_task.inputs.extend(t.outputs)
 
 @feature('cprogram', 'cshlib', 'cstlib')
@@ -487,7 +474,7 @@ def add_extra_flags(self):
 # ============ the code above must not know anything about import libs ==========
 
 @feature('cshlib', 'implib')
-@after('apply_link', 'default_cc')
+@after('apply_link')
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs

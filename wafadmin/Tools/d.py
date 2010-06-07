@@ -278,8 +278,7 @@ def init_d(self):
 @after('apply_d_link', 'init_d')
 @before('apply_vnum', 'apply_incpaths')
 def apply_d_libs(self):
-	"""after apply_link because of 'link_task'
-	after default_cc because of the attribute 'uselib'"""
+	"""after apply_link because of 'link_task'"""
 	env = self.env
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
