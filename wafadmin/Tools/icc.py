@@ -21,7 +21,7 @@ def find_icc(conf):
 	if not cc: conf.fatal('Intel C Compiler (icc) was not found')
 	cc = conf.cmd_to_list(cc)
 
-	ccroot.get_cc_version(conf, cc, icc=True)
+	conf.get_cc_version(cc, icc=True)
 	v['CC'] = cc
 	v['CC_NAME'] = 'icc'
 

@@ -14,8 +14,9 @@ from wafadmin.Tools import preproc
 
 import config_c # <- necessary for the configuration, do not touch
 
+@conf
 def get_cc_version(conf, cc, gcc=False, icc=False):
-
+	"""get the compiler version"""
 	cmd = cc + ['-dM', '-E', '-']
 	try:
 		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -113,6 +114,8 @@ def add_as_needed(conf):
 	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
 		conf.env.append_unique('LINKFLAGS', '--as-needed')
 
+# =================================================================================================
+
 def scan(self):
 	"scanner for c and c++ tasks, uses the python-based preprocessor from the module preproc.py (task method)"
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
@@ -205,6 +208,44 @@ def apply_defines(self):
 	self.env['DEFLINES'] = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 	y = self.env['DEFINES_ST']
 	self.env['_DEFFLAGS'] = [y%x for x in milst]
+
+@feature('cc', 'cxx', 'd', 'asm')
+@after('apply_lib_vars', 'process_source')
+def apply_incpaths(self):
+	"""used by the scanner
+	after processing the uselib for INCLUDES
+	after process_source because some processing may add include paths
+	"""
+
+	paths = self.to_list(getattr(self, 'includes', []))
+	for lib in self.to_list(self.uselib):
+		for path in self.env['INCLUDES_' + lib]:
+			paths.append(path)
+
+	lst = []
+	seen = set([])
+	for path in paths:
+
+		if path in seen:
+			continue
+		seen.add(path)
+
+		if isinstance(path, Node.Node):
+			lst.append(node)
+		else:
+			if os.path.isabs(path):
+				lst.append(self.bld.root.make_node(path))
+			else:
+				if path[0] == '#':
+					lst.append(self.bld.bldnode.make_node(path[1:]))
+					lst.append(self.bld.srcnode.make_node(path[1:]))
+				else:
+					lst.append(self.path.get_bld().make_node(path))
+					lst.append(self.path.make_node(path))
+
+	self.env.append_value('INC_PATHS', lst)
+	cpppath_st = self.env['CPPPATH_ST']
+	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
 
 @feature('cprogram', 'cshlib', 'cstlib')
 @after('process_source')
@@ -439,47 +480,9 @@ def add_extra_flags(self):
 		if c_attrs.get(y, None):
 			self.env.append_unique(c_attrs[y], getattr(self, x))
 
-@feature('cc', 'cxx', 'd', 'asm')
-@after('apply_lib_vars', 'process_source')
-def apply_incpaths(self):
-	"""used by the scanner
-	after processing the uselib for INCLUDES
-	after process_source because some processing may add include paths
-	"""
-
-	paths = self.to_list(getattr(self, 'includes', []))
-	for lib in self.to_list(self.uselib):
-		for path in self.env['INCLUDES_' + lib]:
-			paths.append(path)
-
-	lst = []
-	seen = set([])
-	for path in paths:
-
-		if path in seen:
-			continue
-		seen.add(path)
-
-		if isinstance(path, Node.Node):
-			lst.append(node)
-		else:
-			if os.path.isabs(path):
-				lst.append(self.bld.root.make_node(path))
-			else:
-				if path[0] == '#':
-					lst.append(self.bld.bldnode.make_node(path[1:]))
-					lst.append(self.bld.srcnode.make_node(path[1:]))
-				else:
-					lst.append(self.path.get_bld().make_node(path))
-					lst.append(self.path.make_node(path))
-
-	self.env.append_value('INC_PATHS', lst)
-	cpppath_st = self.env['CPPPATH_ST']
-	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
-
 # ============ the code above must not know anything about import libs ==========
 
-@feature('cshlib')
+@feature('cshlib', 'implib')
 @after('apply_link', 'default_cc')
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
@@ -568,7 +571,6 @@ class vnum_task(Task.Task):
 			os.symlink(self.inputs[0].name, path)
 		except OSError:
 			return 1
-
 
 # ============ aliases, let's see if people use them ==============
 

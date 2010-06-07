@@ -13,7 +13,7 @@ from wafadmin.Configure import conf
 def find_gcc(conf):
 	cc = conf.find_program(['gcc', 'cc'], var='CC')
 	cc = conf.cmd_to_list(cc)
-	ccroot.get_cc_version(conf, cc, gcc=True)
+	conf.get_cc_version(cc, gcc=True)
 	conf.env.CC_NAME = 'gcc'
 	conf.env.CC      = cc
 
