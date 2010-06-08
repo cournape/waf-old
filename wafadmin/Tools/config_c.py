@@ -465,8 +465,6 @@ def check(self, *k, **kw):
 def run_c_code(self, *k, **kw):
 	test_f_name = kw['compile_filename']
 
-	# hash kw somehow
-
 	lst = [str(v) for (p, v) in kw.items() if p != 'env']
 	h = Utils.h_list(lst)
 	dir = self.bldnode.abspath() + os.sep + '.conf_check_' + Utils.to_hex(h)
@@ -486,10 +484,13 @@ def run_c_code(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-
-	dest = open(os.path.join(dir, test_f_name), 'w')
-	dest.write(kw['code'])
-	dest.close()
+	dest = None
+	try:
+		dest = open(os.path.join(dir, test_f_name), 'w')
+		dest.write(kw['code'])
+	finally:
+		if dest:
+			dest.close()
 
 	back = os.path.abspath('.')
 
