@@ -12,7 +12,7 @@ NEW IN WAF 1.6.0
 * removed the pseudo glob in installation methods
 * eliminate find_sources_in_dirs
 * bld.new_task_gen(...) disappears, use bld(...)
-* plugin updates
+* network updates for waf tools
 * accept node objects in the source and includes attributes
 * remove task_gen.allnodes: modify self.source directly
 * merge the include system for c, c++, d, gas and nasm
@@ -32,4 +32,5 @@ NEW IN WAF 1.6.0
 * waf list to list the possible targets
 * waf step --file=main.c
 * post task generators in a lazy manner
+* new syntax for check_cfg: conf.check_cfg('cppunit > 1.0')
 
