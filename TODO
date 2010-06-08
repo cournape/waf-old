@@ -6,7 +6,6 @@ General
 - refactor the environment thing
 - unification uselib / uselib_local / objects -> attribute 'uses'? / subsystems
   new global variable uselib_vars and generalization of uselib for all kinds of task generators
-- cache the configuration test results for multiple calls (index the folders by a hash + load/store the pickle file)
 - enable different scripting systems without changing too much code
 - bind declare chain to the build context and to individual functions
 - support for // configurations
@@ -15,7 +14,7 @@ General
 
 Potential sub-projects (contributions will be welcome)
 
-* IDE file generator (msvc, codeblocks)
++ IDE file generator (msvc, codeblocks)
 + CMake file interpreter
 + multiprocess for distributed compilation (vs threads?)
 + autoconf-like configuration library?
