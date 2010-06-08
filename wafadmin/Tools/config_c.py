@@ -467,23 +467,14 @@ def run_c_code(self, *k, **kw):
 
 	# hash kw somehow
 
-	k = 0
-	while k < 10000:
-		# make certain to use a fresh folder - necessary for win32
-		dir = os.path.join(self.bldnode.abspath(), '.conf_check_%d' % k)
+	lst = [str(v) for (p, v) in kw.items() if p != 'env']
+	h = Utils.h_list(lst)
+	dir = self.bldnode.abspath() + os.sep + '.conf_check_' + Utils.to_hex(h)
 
-		# if the folder already exists, remove it
-		try:
-			shutil.rmtree(dir)
-		except OSError:
-			pass
-
-		try:
-			os.stat(dir)
-		except OSError:
-			break
-
-		k += 1
+	try:
+		shutil.rmtree(dir)
+	except:
+		pass
 
 	try:
 		os.makedirs(dir)
