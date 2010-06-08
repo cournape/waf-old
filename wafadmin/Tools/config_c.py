@@ -484,13 +484,13 @@ def run_c_code(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-	dest = None
-	try:
-		dest = open(os.path.join(dir, test_f_name), 'w')
-		dest.write(kw['code'])
-	finally:
-		if dest:
-			dest.close()
+		dest = None
+		try:
+			dest = open(os.path.join(dir, test_f_name), 'w')
+			dest.write(kw['code'])
+		finally:
+			if dest:
+				dest.close()
 
 	back = os.path.abspath('.')
 

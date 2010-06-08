@@ -22,4 +22,5 @@ def build(bld):
 	if bld.cmd != 'clean':
 		bld.log = open('test.log', 'w')
 		bld.check(header_name='stdio.h', features='cxx cprogram')
+		bld.log = None
 
