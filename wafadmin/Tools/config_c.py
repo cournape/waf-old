@@ -66,6 +66,7 @@ def parse_flags(line, uselib, env):
 	except:
 		pass
 
+	app = env.append_unique
 	lst = shlex.split(line)
 	while lst:
 		x = lst.pop(0)
@@ -74,32 +75,32 @@ def parse_flags(line, uselib, env):
 
 		if st == '-I' or st == '/I':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('INCLUDES_' + uselib, [ot])
+			app('INCLUDES_' + uselib, [ot])
 		elif st == '-D':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('DEFINES_' + uselib, [ot])
+			app('DEFINES_' + uselib, [ot])
 		elif st == '-l':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('LIB_' + uselib, [ot])
+			app('LIB_' + uselib, [ot])
 		elif st == '-L':
 			if not ot: ot = lst.pop(0)
-			env.append_unique('LIBPATH_' + uselib, [ot])
+			app('LIBPATH_' + uselib, [ot])
 		elif x == '-pthread' or x.startswith('+'):
-			env.append_unique('CCFLAGS_' + uselib, [x])
-			env.append_unique('CXXFLAGS_' + uselib, [x])
-			env.append_unique('LINKFLAGS_' + uselib, [x])
+			app('CCFLAGS_' + uselib, [x])
+			app('CXXFLAGS_' + uselib, [x])
+			app('LINKFLAGS_' + uselib, [x])
 		elif x == '-framework':
-			env.append_unique('FRAMEWORK_' + uselib, [lst.pop(0)])
+			app('FRAMEWORK_' + uselib, [lst.pop(0)])
 		elif x.startswith('-F'):
-			env.append_unique('FRAMEWORKPATH_' + uselib, [x[2:]])
+			app('FRAMEWORKPATH_' + uselib, [x[2:]])
 		elif x.startswith('-std'):
-			env.append_unique('CCFLAGS_' + uselib, [x])
-			env.append_unique('LINKFLAGS_' + uselib, [x])
+			app('CCFLAGS_' + uselib, [x])
+			app('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-Wl'):
-			env.append_unique('LINKFLAGS_' + uselib, [x])
+			app('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-m') or x.startswith('-f'):
-			env.append_unique('CCFLAGS_' + uselib, [x])
-			env.append_unique('CXXFLAGS_' + uselib, [x])
+			app('CCFLAGS_' + uselib, [x])
+			app('CXXFLAGS_' + uselib, [x])
 
 @conf
 def ret_msg(self, f, kw):
@@ -112,6 +113,8 @@ def ret_msg(self, f, kw):
 def validate_cfg(self, kw):
 
 	if not 'path' in kw:
+		if not self.env.PKGCONFIG:
+			self.find_program('pkg-config', var='PKGCONFIG')
 		kw['path'] = self.env.PKGCONFIG
 
 	# pkg-config version
@@ -209,8 +212,10 @@ def exec_cfg(self, kw):
 @conf
 def check_cfg(self, *k, **kw):
 
-	if not self.env.PKGCONFIG:
-		self.find_program('pkg-config', var='PKGCONFIG')
+	if k:
+		lst = k[0].split()
+		kw['package'] = lst[0]
+		kw['args'] = ' '.join(lst[1:])
 
 	self.validate_cfg(kw)
 	if 'msg' in kw:
