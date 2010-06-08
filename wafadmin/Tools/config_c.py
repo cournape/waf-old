@@ -110,8 +110,9 @@ def ret_msg(self, f, kw):
 
 @conf
 def validate_cfg(self, kw):
+
 	if not 'path' in kw:
-		kw['path'] = 'pkg-config --errors-to-stdout --print-errors'
+		kw['path'] = self.env.PKGCONFIG
 
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
@@ -207,6 +208,10 @@ def exec_cfg(self, kw):
 
 @conf
 def check_cfg(self, *k, **kw):
+
+	if not self.env.PKGCONFIG:
+		self.find_program('pkg-config', var='PKGCONFIG')
+
 	self.validate_cfg(kw)
 	if 'msg' in kw:
 		self.start_msg(kw['msg'])
