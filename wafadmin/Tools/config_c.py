@@ -495,6 +495,9 @@ def run_c_code(self, *k, **kw):
 	back = os.path.abspath('.')
 
 	bld = Build.BuildContext()
+	bld.top_dir = dir
+	bld.variant_dir = bdir
+	bld.load()
 	bld.init_dirs(dir, bdir)
 	bld.out_dir = bdir
 	bld.targets = '*'
