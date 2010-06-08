@@ -472,14 +472,9 @@ def run_c_code(self, *k, **kw):
 	dir = self.bldnode.abspath() + os.sep + '.conf_check_' + Utils.to_hex(h)
 
 	try:
-		shutil.rmtree(dir)
-	except:
-		pass
-
-	try:
 		os.makedirs(dir)
 	except:
-		self.fatal('cannot create a configuration test folder %r' % dir)
+		pass
 
 	try:
 		os.stat(dir)
@@ -491,7 +486,6 @@ def run_c_code(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-	env = kw['env']
 
 	dest = open(os.path.join(dir, test_f_name), 'w')
 	dest.write(kw['code'])
@@ -506,7 +500,7 @@ def run_c_code(self, *k, **kw):
 
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
-	bld.all_envs['default'] = env
+	bld.all_envs['default'] = kw['env']
 
 	if not 'features' in kw:
 		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram cc"
@@ -537,8 +531,6 @@ def run_c_code(self, *k, **kw):
 	if kw['execute']:
 		lastprog = o.link_task.outputs[0].abspath()
 
-	# if we need to run the program, try to get its result
-	if kw['execute']:
 		args = Utils.to_list(kw.get('exec_args', []))
 		try:
 			data = Utils.cmd_output([lastprog] + args).strip()
