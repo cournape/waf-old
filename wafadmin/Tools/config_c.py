@@ -424,8 +424,8 @@ def post_check(self, *k, **kw):
 			define_or_stuff()
 
 	if is_success and 'uselib_store' in kw:
-		import cc, cxx
-		for k in set(cc.g_cc_flag_vars).union(cxx.g_cxx_flag_vars):
+		from wafadmin.Tools import ccroot
+		for k in ccroot.USELIB_VARS:
 			lk = k.lower()
 			if k == 'INCLUDES': lk = 'includes'
 			if k == 'DEFINES': lk = 'defines'
@@ -464,6 +464,8 @@ def check(self, *k, **kw):
 @conf
 def run_c_code(self, *k, **kw):
 	test_f_name = kw['compile_filename']
+
+	# hash kw somehow
 
 	k = 0
 	while k < 10000:
