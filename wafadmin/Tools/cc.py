@@ -16,7 +16,6 @@ class cc(Task.Task):
 	run_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	vars    = ['CCDEPS']
 	ext_in  = ['.h', '.c']
-	ext_out = ['.o']
 	scan    = ccroot.scan
 
 class cc_link(Task.Task):
