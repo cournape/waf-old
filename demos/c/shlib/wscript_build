@@ -3,6 +3,7 @@
 bld(
 	features     = 'cc cshlib',
 	source       = 'test_shlib.c',
+	vnum         = '1.2.3',
 	target       = 'my_shared_lib')
 
 bld(
