@@ -10,8 +10,6 @@ import os
 from wafadmin import TaskGen, Task, Utils
 from wafadmin.TaskGen import before, extension
 
-nasm_str = '${NASM} ${NASM_FLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
-
 @feature('asm')
 @before('apply_link')
 def apply_nasm_vars(self):
@@ -21,8 +19,9 @@ def apply_nasm_vars(self):
 def nasm_file(self, node):
 	return self.create_compiled_task('nasm', node)
 
-# create our action here
-Task.task_factory('nasm', nasm_str, color='BLUE', ext_out='.o')
+class nasm(Task.Task):
+	color = 'BLUE'
+	run_str = '${NASM} ${NASM_FLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 
 def configure(conf):
 	nasm = conf.find_program(['nasm', 'yasm'], var='NASM')

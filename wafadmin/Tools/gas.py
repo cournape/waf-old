@@ -9,8 +9,9 @@ import wafadmin.Tools.ccroot # - leave this
 import wafadmin.Task
 from wafadmin.TaskGen import extension
 
-as_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
-wafadmin.Task.task_factory('asm', as_str, 'PINK', ext_out='.o')
+class asm(wafadmin.Task.Task):
+	color = 'BLUE'
+	run_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 
 @extension('.s', '.S', '.asm', '.ASM', '.spp', '.SPP')
 def asm_hook(self, node):
