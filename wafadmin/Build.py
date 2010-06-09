@@ -44,7 +44,7 @@ POST_BOTH = 2
 """post mode: post the task generators at once, then re-check them for each group"""
 
 class BuildContext(Context.Context):
-	"""executes the build"""
+	'''executes the build'''
 
 	cmd = 'build'
 	variant = ''
@@ -696,7 +696,7 @@ class inst_task(Task.Task):
 		self.generator.bld.do_link(self.link, destfile)
 
 class InstallContext(BuildContext):
-	"""installs the targets on the system"""
+	'''installs the targets on the system'''
 	cmd = 'install'
 
 	def __init__(self, start=None):
@@ -807,7 +807,7 @@ class InstallContext(BuildContext):
 		return tsk
 
 class UninstallContext(InstallContext):
-	"""removes the targets installed"""
+	'''removes the targets installed'''
 	cmd = 'uninstall'
 
 	def __init__(self, start=None):
@@ -868,7 +868,7 @@ class UninstallContext(InstallContext):
 			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
 class CleanContext(BuildContext):
-	"""cleans the project"""
+	'''cleans the project'''
 	cmd = 'clean'
 	def execute(self):
 		"""see Context.execute"""
@@ -895,7 +895,7 @@ class CleanContext(BuildContext):
 			setattr(self, v, {})
 
 class ListContext(BuildContext):
-	"""lists the targets to execute"""
+	'''lists the targets to execute'''
 
 	cmd = 'list'
 	def execute(self):
@@ -927,7 +927,7 @@ class ListContext(BuildContext):
 			Logs.pprint('GREEN', k)
 
 class StepContext(BuildContext):
-	"""executes tasks in a step-by-step fashion, for debugging"""
+	'''executes tasks in a step-by-step fashion, for debugging'''
 	cmd = 'step'
 
 	def __init__(self, *k, **kw):
