@@ -399,6 +399,10 @@ class BuildContext(Context.Context):
 
 		return Utils.exec_command(cmd, **kw)
 
+	def declare_chain(self, *k, **kw):
+		"""alias for TaskGen.declare_chain (wrapper provided for convenience - avoid the import)"""
+		return TaskGen.declare_chain(*k, **kw)
+
 	def printout(self, s):
 		"""for printing stuff TODO remove?"""
 		f = self.log or sys.stderr
