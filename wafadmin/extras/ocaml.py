@@ -229,12 +229,12 @@ def compile_may_start(self):
 
 	return Task.Task.runnable_status(self)
 
-b = Task.simple_task_type
+b = Task.task_factory
 cls = b('ocamlx', '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
 cls.runnable_status = compile_may_start
 cls.scan = scan
 
-b = Task.simple_task_type
+b = Task.task_factory
 cls = b('ocaml', '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
 cls.runnable_status = compile_may_start
 cls.scan = scan

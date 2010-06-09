@@ -408,5 +408,5 @@ def post_run(self):
 def runnable_status(self):
 	return self.RUN_ME
 
-Task.task_type_from_func('copy', vars=[], func=action_process_file_func)
+Task.task_factory('copy', vars=[], func=action_process_file_func)
 

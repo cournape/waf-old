@@ -55,7 +55,7 @@ def apply_cs(self):
 	nodes = [self.path.find_resource(i) for i in self.to_list(self.source)]
 	self.create_task('mcs', nodes, self.path.find_or_declare(self.target))
 
-Task.simple_task_type('mcs', '${MCS} ${SRC} /target:${_TYPE} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
+Task.task_factory('mcs', '${MCS} ${SRC} /target:${_TYPE} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def configure(conf):
 	csc = getattr(Options.options, 'cscbinary', None)

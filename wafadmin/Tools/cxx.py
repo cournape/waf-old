@@ -12,9 +12,9 @@ def cxx_hook(self, node):
 	return self.create_compiled_task('cxx', node)
 
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-cxx = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_in=['.h', '.cxx'], scan=ccroot.scan)
+cxx = Task.task_factory('cxx', cxx_str, color='GREEN', ext_in=['.h', '.cxx'], scan=ccroot.scan)
 cxx.vars.append('CXXDEPS')
 
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
-cxx_link = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin')
+cxx_link = Task.task_factory('cxx_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin')
 

@@ -66,5 +66,5 @@ def configure(conf):
 
 	conf.find_program('msgfmt', var='MSGFMT')
 
-Task.simple_task_type('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE')
+Task.task_factory('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE')
 

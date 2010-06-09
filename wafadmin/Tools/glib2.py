@@ -152,9 +152,9 @@ def process_enums(self):
 		task.set_inputs(inputs)
 		task.set_outputs(tgt_node)
 
-Task.task_type_from_func('glib_genmarshal', func=genmarshal_func, vars=['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL'],
+Task.task_factory('glib_genmarshal', func=genmarshal_func, vars=['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL'],
 	color='BLUE', before='cc cxx')
-Task.simple_task_type('glib_mkenums',
+Task.task_factory('glib_mkenums',
 	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
 	color='PINK', before='cc cxx')
 

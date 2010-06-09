@@ -740,7 +740,7 @@ def exec_mf(self):
 
 	return ret
 
-cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
+cls = Task.task_factory('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 cls.quiet = 1
 
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token

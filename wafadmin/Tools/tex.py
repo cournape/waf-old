@@ -207,13 +207,13 @@ def configure(conf):
 		v[p.upper()+'FLAGS'] = ''
 	v['DVIPSFLAGS'] = '-Ppdf'
 
-b = Task.simple_task_type
+b = Task.task_factory
 b('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE')
 b('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
 b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after="latex pdflatex tex bibtex")
 b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after="latex pdflatex tex bibtex")
 b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after="dvipdf pdflatex")
-b = Task.task_type_from_func
+b = Task.task_factory
 cls = b('latex', latex_build, vars=latex_vardeps)
 cls.scan = scan
 cls = b('pdflatex', pdflatex_build, vars=pdflatex_vardeps)

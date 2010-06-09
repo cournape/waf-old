@@ -73,7 +73,7 @@ def exec_test(self):
 	finally:
 		testlock.release()
 
-cls = Task.task_type_from_func('utest', func=exec_test, color='RED', ext_in='.bin')
+cls = Task.task_factory('utest', func=exec_test, color='RED', ext_in='.bin')
 
 old = cls.runnable_status
 def test_status(self):

@@ -523,7 +523,7 @@ def funex(c):
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun_shell(line):
 	"""Compiles a string (once) into a function, eg:
-	simple_task_type('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
+	compile_fun_shell('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
 
 	The env variables (CXX, ..) on the task must not hold dicts (order)
 	The reserved keywords TGT and SRC represent the task input and output nodes
@@ -611,7 +611,7 @@ def compile_fun(line, shell=False):
 	else:
 		return compile_fun_noshell(line)
 
-def task_factory(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
+def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
 
 	if isinstance(func, str):

@@ -440,14 +440,14 @@ def override_exec(cls):
 		return old_exec(self, *k, **kw)
 	cls.exec_command = exec_command
 
-cls = Task.simple_task_type('d', d_str, 'GREEN', before='static_link d_link')
+cls = Task.task_factory('d', d_str, 'GREEN', before='static_link d_link')
 cls.scan = scan
 override_exec(cls)
 
-cls = Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link')
+cls = Task.task_factory('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link')
 override_exec(cls)
 
-cls = Task.simple_task_type('d_link', link_str, color='YELLOW')
+cls = Task.task_factory('d_link', link_str, color='YELLOW')
 override_exec(cls)
 
 # for feature request #104
@@ -471,7 +471,7 @@ def process_header(self):
 		task.set_outputs(node.change_ext('.di'))
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
-Task.simple_task_type('d_header', d_header_str, color='BLUE')
+Task.task_factory('d_header', d_header_str, color='BLUE')
 
 @conf
 def d_platform_flags(conf):

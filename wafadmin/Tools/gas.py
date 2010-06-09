@@ -10,7 +10,7 @@ import wafadmin.Task
 from wafadmin.TaskGen import extension
 
 as_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
-wafadmin.Task.simple_task_type('asm', as_str, 'PINK', ext_out='.o')
+wafadmin.Task.task_factory('asm', as_str, 'PINK', ext_out='.o')
 
 @extension('.s', '.S', '.asm', '.ASM', '.spp', '.SPP')
 def asm_hook(self, node):

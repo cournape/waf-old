@@ -77,8 +77,8 @@ def apply_intltool_po(self):
 	else:
 		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
-Task.simple_task_type('po', '${MSGFMT} -o ${TGT} ${SRC}', color='BLUE')
-Task.simple_task_type('intltool',
+Task.task_factory('po', '${MSGFMT} -o ${TGT} ${SRC}', color='BLUE')
+Task.task_factory('intltool',
 	'${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
 	color='BLUE', after="cc_link cxx_link")
 

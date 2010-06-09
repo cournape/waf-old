@@ -134,9 +134,9 @@ def apply_java(self):
 				dirs = '.'
 				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
 
-Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
-cls = Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}')
-cls.color = 'BLUE'
+Task.task_factory('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
+cls = Task.task_factory('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}', color='BLUE')
+
 def post_run_javac(self):
 	"""this is for cleaning the folder
 	javac creates single files for inner classes

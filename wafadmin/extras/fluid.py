@@ -9,7 +9,7 @@ Compile fluid files (fltk graphic library). Use the 'fluid' feature in conjuctio
 import Task
 from TaskGen import extension
 
-Task.simple_task_type('fluid', '${FLUID} -c -o ${TGT[0].abspath(env)} -h ${TGT[1].abspath(env)} ${SRC}', color='BLUE', ext_out='.cxx')
+Task.task_factory('fluid', '${FLUID} -c -o ${TGT[0].abspath(env)} -h ${TGT[1].abspath(env)} ${SRC}', color='BLUE', ext_out='.cxx')
 
 @extension('.fl')
 def fluid(self, node):
