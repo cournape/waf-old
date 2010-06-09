@@ -220,16 +220,7 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	while i do not like such wrappers, some people really do
 	"""
 
-	if isinstance(rule, str):
-		act = Task.simple_task_type(name, rule, color=color)
-	else:
-		act = Task.task_type_from_func(name, rule, color=color)
-
-	act.ext_in = Utils.to_list(ext_in)
-	act.ext_out = Utils.to_list(ext_out)
-	act.before = Utils.to_list(before)
-	act.after = Utils.to_list(after)
-	act.scan = scan
+	act = Task.task_factory(name, rule, color=color, ext_in=ext_in, ext_out=ext_out, before=before, after=after, scan=scan)
 
 	def x_file(self, node):
 		if decider:
