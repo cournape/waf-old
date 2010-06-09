@@ -202,7 +202,7 @@ def create_waf(*k, **kw):
 	for d in '. Tools extras'.split():
 		dd = os.path.join('wafadmin', d)
 		for k in os.listdir(dd):
-			if k == '__init_.py':
+			if k == '__init__.py':
 				files.append(os.path.join(dd, k))
 				continue
 			if d == 'extras':
