@@ -661,7 +661,6 @@ def apply_obj_vars_msvc(self):
 	env = self.env
 	app = env.append_unique
 
-	cpppath_st       = env['CPPPATH_ST']
 	lib_st           = env['LIB_ST']
 	staticlib_st     = env['STATICLIB_ST']
 	libpath_st       = env['LIBPATH_ST']
@@ -740,8 +739,7 @@ def exec_mf(self):
 
 	return ret
 
-cls = Task.task_factory('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
-cls.quiet = 1
+msvc_manifest = Task.task_factory('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin', quiet=True)
 
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 

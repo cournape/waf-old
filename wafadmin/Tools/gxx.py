@@ -27,7 +27,6 @@ def gxx_common_flags(conf):
 
 	v['CXX_SRC_F']           = ''
 	v['CXX_TGT_F']           = ['-c', '-o', ''] # shell hack for -MD
-	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# linker
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']

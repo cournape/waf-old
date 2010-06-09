@@ -233,7 +233,7 @@ def apply_incpaths(self):
 					lst.append(self.path.make_node(path))
 
 	self.env.append_value('INC_PATHS', lst)
-	cpppath_st = self.env['CPPPATH_ST']
+	cpppath_st = self.env['CPPPATH_ST'] or '-I%s'
 	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
 
 @feature('cprogram', 'cshlib', 'cstlib')

@@ -350,7 +350,6 @@ def apply_d_link(self):
 @after('process_source')
 def apply_d_vars(self):
 	env = self.env
-	dpath_st   = env['DPATH_ST']
 	lib_st     = env['DLIB_ST']
 	libpath_st = env['DLIBPATH_ST']
 

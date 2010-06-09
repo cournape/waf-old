@@ -26,7 +26,6 @@ def xlc_common_flags(conf):
 
 	v['CC_SRC_F']            = ''
 	v['CC_TGT_F']            = ['-c', '-o', ''] # shell hack for -MD
-	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# linker
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
