@@ -10,7 +10,7 @@ from wafadmin.Logs import error, debug, warn
 from wafadmin.Utils import md5
 from wafadmin.TaskGen import after, before, feature, taskgen_method
 from wafadmin.Configure import conf
-from wafadmin.Tools import preproc
+from wafadmin.Tools import c_aliases, preproc
 
 import config_c # <- necessary for the configuration, do not touch
 
@@ -567,43 +567,4 @@ class vnum_task(Task.Task):
 		except OSError:
 			return 1
 
-# ============ aliases, let's see if people use them ==============
-
-def sniff_features(**kw):
-	"""look at the source files and return the features (mainly cc and cxx)"""
-	has_c = False
-	has_cxx = False
-	s = Utils.to_list(kw['source'])
-	for name in s:
-		if name.endswith('.c'):
-			has_c = True
-		elif name.endswith('.cxx') or name.endswith('.cpp') or name.endswith('.c++'):
-			has_cxx = True
-	lst = []
-	if has_c:
-		lst.append('cc')
-	if has_cxx:
-		lst.append('cxx')
-	return lst
-
-def Program(bld, *k, **kw):
-	"""alias for features='cc cprogram' bound to the build context"""
-	if not 'features' in kw:
-		kw['features'] = ['cprogram'] + sniff_features(**kw)
-	return bld(*k, **kw)
-Build.BuildContext.Program = Program
-
-def Shlib(bld, *k, **kw):
-	"""alias for features='cc cshlib' bound to the build context"""
-	if not 'features' in kw:
-		kw['features'] = ['cshlib'] + sniff_features(**kw)
-	return bld(*k, **kw)
-Build.BuildContext.Shlib = Shlib
-
-def Stlib(bld, *k, **kw):
-	"""alias for features='cc cstlib' bound to the build context"""
-	if not 'features' in kw:
-		kw['features'] = ['cstlib'] + sniff_features(**kw)
-	return bld(*k, **kw)
-Build.BuildContext.Stlib = Stlib
 
