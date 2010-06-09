@@ -16,7 +16,7 @@ wafadmin.TaskGen.declare_chain(
 	name = 'flex',
 	rule = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
 	ext_in = '.l',
-	decider = decide_ext,
+	decider = decide_ext
 )
 
 def configure(conf):
