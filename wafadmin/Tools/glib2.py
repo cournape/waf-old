@@ -153,10 +153,10 @@ def process_enums(self):
 		task.set_outputs(tgt_node)
 
 Task.task_factory('glib_genmarshal', func=genmarshal_func, vars=['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL'],
-	color='BLUE', before='cc cxx')
+	color='BLUE', ext_out='.h')
 Task.task_factory('glib_mkenums',
 	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
-	color='PINK', before='cc cxx')
+	color='PINK', ext_out='.h')
 
 def configure(conf):
 	glib_genmarshal = conf.find_program('glib-genmarshal', var='GLIB_GENMARSHAL')

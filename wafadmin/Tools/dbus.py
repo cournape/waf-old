@@ -27,8 +27,8 @@ def process_dbus(self):
 		tsk.env.DBUS_BINDING_TOOL_MODE   = mode
 
 class dbus_binding_tool(Task.Task):
-	color='BLUE'
-	before = ['cc']
+	color   = 'BLUE'
+	ext_out = ['.h']
 	run_str = '${DBUS_BINDING_TOOL} --prefix=${DBUS_BINDING_TOOL_PREFIX} --mode=${DBUS_BINDING_TOOL_MODE} --output=${TGT} ${SRC}'
 
 def configure(conf):

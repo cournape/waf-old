@@ -8,8 +8,6 @@ import os, sys, re
 from wafadmin import TaskGen, Task
 from wafadmin.TaskGen import extension
 
-winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
-
 @extension('.rc')
 def rc_file(self, node):
 	obj_ext = '.rc.o'
@@ -18,8 +16,9 @@ def rc_file(self, node):
 	rctask = self.create_task('winrc', node, node.change_ext(obj_ext))
 	self.compiled_tasks.append(rctask)
 
-# create our action, for use with rc file
-Task.task_factory('winrc', winrc_str, color='BLUE', before=['cc', 'cxx'])
+class winrc(Task.Task):
+	run_str = '${WINRC} ${_CPPDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
+	color   = 'BLUE'
 
 def configure(conf):
 	v = conf.env

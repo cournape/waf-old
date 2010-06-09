@@ -8,8 +8,8 @@ from wafadmin.TaskGen import extension, after, before
 
 class valac_task(Task.Task):
 
-	vars = ("VALAC", "VALAC_VERSION", "VALAFLAGS")
-	before = ("cc", "cxx")
+	vars = ["VALAC", "VALAC_VERSION", "VALAFLAGS"]
+	ext_out = ['.h']
 
 	def run(self):
 		env = self.env

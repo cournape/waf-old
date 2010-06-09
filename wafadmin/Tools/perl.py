@@ -7,8 +7,6 @@ from wafadmin import Task, Options, Utils
 from wafadmin.Configure import conf
 from wafadmin.TaskGen import extension, taskgen, feature, before
 
-xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
-
 @before('apply_incpaths', 'apply_lib_vars')
 @feature('perlext')
 def init_perlext(self):
@@ -23,7 +21,10 @@ def xsubpp_file(self, node):
 	self.create_task('xsubpp', node, outnode)
 	self.source.append(outnode)
 
-Task.task_factory('xsubpp', xsubpp_str, color='BLUE', before='cc cxx')
+class xsubpp(Task.Task):
+	run_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
+	color   = 'BLUE'
+	ext_out = '.h'
 
 @conf
 def check_perl_version(conf, minver=None):
