@@ -416,8 +416,8 @@ def d_hook(self, node):
 		task = self.create_compiled_task('d', node)
 	return task
 
-d_str = '${D_COMPILER} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
-d_with_header_str = '${D_COMPILER} ${DFLAGS} ${_INCFLAGS} \
+d_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+d_with_header_str = '${D} ${DFLAGS} ${_INCFLAGS} \
 ${D_HDR_F}${TGT[1].bldpath(env)} \
 ${D_SRC_F}${SRC} \
 ${D_TGT_F}${TGT[0].bldpath(env)}'
@@ -466,13 +466,13 @@ def process_header(self):
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.di'))
 
-d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
+d_header_str = '${D} ${D_HEADER} ${SRC}'
 Task.task_factory('d_header', d_header_str, color='BLUE')
 
 @conf
-def d_platform_flags(conf):
-	v = conf.env
-	if self.get_dest_binfmt() == 'pe':
+def d_platform_flags(self):
+	v = self.env
+	if Utils.unversioned_sys_platform_to_binary_format(self.env.DEST_OS or Utils.unversioned_sys_platform()) == 'pe':
 		v['D_program_PATTERN']   = '%s.exe'
 		v['D_shlib_PATTERN']     = 'lib%s.dll'
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
@@ -482,7 +482,7 @@ def d_platform_flags(conf):
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
 
 @conf
-def check_dlibrary(conf):
-	ret = conf.check_cc(features='d dprogram', fragment=DLIB, compile_filename='test.d', execute=True)
-	conf.env.DLIBRARY = ret.strip()
+def check_dlibrary(self):
+	ret = self.check_cc(features='d dprogram', fragment=DLIB, compile_filename='test.d', execute=True)
+	self.env.DLIBRARY = ret.strip()
 

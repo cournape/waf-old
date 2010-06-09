@@ -9,7 +9,7 @@ from wafadmin.Configure import conf
 
 @conf
 def find_dmd(conf):
-	conf.find_program(['dmd', 'ldc'], var='D_COMPILER')
+	conf.find_program(['dmd', 'ldc'], var='D')
 
 @conf
 def common_flags_ldc(conf):
@@ -33,7 +33,7 @@ def common_flags_dmd(conf):
 	v['DPATH_ST']          = '-I%s' # template for adding import paths
 
 	# linker
-	v['D_LINKER']          = v['D_COMPILER']
+	v['D_LINKER']          = v['D']
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = '-of'
 	v['CPPPATH_ST']        = '-I%s'
@@ -60,6 +60,6 @@ def configure(conf):
 	conf.common_flags_dmd()
 	conf.d_platform_flags()
 
-	if str(conf.env.D_COMPILER).find('ldc') > -1:
+	if str(conf.env.D).find('ldc') > -1:
 		conf.common_flags_ldc()
 

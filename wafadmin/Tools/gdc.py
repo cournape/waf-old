@@ -8,7 +8,7 @@ from wafadmin.Configure import conf
 
 @conf
 def find_gdc(conf):
-	conf.find_program('gdc', var='D_COMPILER')
+	conf.find_program('gdc', var='D')
 
 @conf
 def common_flags_gdc(conf):
@@ -24,7 +24,7 @@ def common_flags_gdc(conf):
 	v['DPATH_ST']          = '-I%s' # template for adding import paths
 
 	# linker
-	v['D_LINKER']          = v['D_COMPILER']
+	v['D_LINKER']          = v['D']
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = ['-o', '']
 	v['CPPPATH_ST']        = '-I%s'

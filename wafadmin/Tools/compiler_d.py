@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Carlos Rafael Giani, 2007 (dv)
+# Thomas Nagy, 2010 (ita)
 
 import os, sys, imp, types
 from wafadmin import Utils, Configure, Options
@@ -11,13 +12,23 @@ def configure(conf):
 	else:
 		test_for_compiler = ['gdc', 'dmd']
 
-	for d_compiler in test_for_compiler:
+	orig = conf.env
+	for compiler in test_for_compiler:
 		try:
-			conf.check_tool(d_compiler)
-		except:
-			pass
+			conf.start_msg('Checking for %r (d compiler)' % compiler)
+			conf.env = orig.copy()
+			conf.check_tool(compiler)
+		except Exception as e:
+			raise e
 		else:
-			break
+			if conf.env.D:
+				orig.table = conf.env.get_merged_dict()
+				conf.env = orig
+				conf.end_msg(True)
+				conf.env['COMPILER_D'] = compiler
+				conf.env.D_COMPILER = conf.env.D
+				break
+			conf.end_msg(False)
 	else:
 		conf.fatal('no suitable d compiler was found')
 
