@@ -43,7 +43,7 @@ class task_gen(object):
 		self.source = ''
 		self.target = ''
 
-		# list of methods to execute - does not touch it by hand unless you know
+		# list of methods to execute (it is usually a good idea to avoid touching this)
 		self.meths = []
 
 		# precedence table for sorting the methods
@@ -55,7 +55,6 @@ class task_gen(object):
 		# list of methods to execute (by name)
 		self.features = []
 
-		# not always a good idea
 		self.tasks = []
 
 		for key, val in kwargs.items():
@@ -360,10 +359,6 @@ def process_rule(self):
 
 	# now create one instance
 	tsk = self.create_task(name)
-
-	# we assume that the user knows that without inputs or outputs
-	#if not getattr(self, 'target', None) and not getattr(self, 'source', None):
-	#	cls.quiet = True
 
 	if getattr(self, 'target', None):
 		cls.quiet = True

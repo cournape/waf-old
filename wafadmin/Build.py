@@ -151,10 +151,6 @@ class BuildContext(Context.Context):
 		if self.variant:
 			self.variant_dir += os.sep + self.variant
 
-		# TODO to cache or not to cache?
-		self.bld2src = {id(self.bldnode): self.srcnode}
-		self.src2bld = {id(self.srcnode): self.bldnode}
-
 	def execute(self):
 		"""see Context.execute"""
 		self.load()
