@@ -637,7 +637,6 @@ def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[],
 	global classes
 	classes[name] = cls
 	return cls
-simple_task_type = task_type_from_func = task_factory
 
 
 def always_run(cls):
