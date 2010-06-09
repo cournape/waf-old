@@ -51,7 +51,7 @@ class opt_parser(optparse.OptionParser):
 		p('--nocache',        dest='nocache', default=False, action='store_true', help='ignore the WAFCACHE (if set)')
 		p('--zones',          dest='zones',   default='',    action='store', help='debugging zones (task_gen, deps, tasks, etc)')
 
-		gr = optparse.OptionGroup(self, 'configuration options')
+		gr = optparse.OptionGroup(self, 'configure options')
 		self.add_option_group(gr)
 
 		gr.add_option('-o', '--out', action='store', default='', help='build dir for the project', dest='out')
@@ -80,7 +80,7 @@ class opt_parser(optparse.OptionParser):
 		gr.add_option('--files',          dest='files', default='', action='store', help='files to process, by regexp, e.g. "*/main.c,*/test/main.o"')
 
 		default_destdir = os.environ.get('DESTDIR', '')
-		gr = optparse.OptionGroup(self, 'installation options')
+		gr = optparse.OptionGroup(self, 'install/uninstall options')
 		self.add_option_group(gr)
 		gr.add_option('--destdir', help='installation root [default: %r]' % default_destdir, default=default_destdir, dest='destdir')
 		gr.add_option('-f', '--force', dest='force', default=False, action='store_true', help='force file installation')
