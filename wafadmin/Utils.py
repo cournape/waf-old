@@ -322,7 +322,7 @@ def cmd_output(cmd, **kw):
 
 	try:
 		p = subprocess.Popen(cmd, **kw)
-		output = p.communicate()[0].decode("utf-8")
+		output = p.communicate()[0].decode('utf-8')
 	except OSError as e:
 		raise ValueError(str(e))
 

@@ -51,6 +51,8 @@ def subst(*k):
 @subst('*')
 def r0(code):
 	code = code.replace('as e:', ',e:')
+	code = code.replace(".decode('utf-8')", '')
+	code = code.replace('.encode()', '')
 	return code
 
 @subst('Utils.py')
