@@ -66,7 +66,13 @@ def waf_entry_point(current_directory, version, wafdir):
 
 
 	if not Options.run_dir:
-		if '--version' in sys.argv:
+		if '-h' in sys.argv or '--help' in sys.argv:
+			Logs.warn('No wscript file found: the help message may be incomplete')
+			opt_obj = Options.OptionsContext()
+			opt_obj.curdir = current_directory
+			opt_obj.parse_args()
+			sys.exit(0)
+		elif '--version' in sys.argv:
 			opt_obj = Options.OptionsContext()
 			opt_obj.curdir = current_directory
 			opt_obj.parse_args()
