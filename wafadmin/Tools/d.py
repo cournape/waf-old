@@ -312,7 +312,7 @@ def apply_d_libs(self):
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
 			if 'dstlib' in y.features or 'dshlib' in y.features:
 				env.append_unique('DLINKFLAGS', [env.DLIB_ST % link_name])
-				env.append_unique('DLINKFLAGS', [env.DLIBPATH_ST % y.link_task.outputs[0].parent.bldpath(env)])
+				env.append_unique('DLINKFLAGS', [env.DLIBPATH_ST % y.link_task.outputs[0].parent.bldpath()])
 
 			# the order
 			self.link_task.set_run_after(y.link_task)
@@ -437,14 +437,14 @@ def override_exec(cls):
 		return old_exec(self, *k, **kw)
 	cls.exec_command = exec_command
 
-cls = Task.task_factory('d', d_str, 'GREEN', before='static_link d_link', scan=scan)
-override_exec(cls)
+d = Task.task_factory('d', d_str, 'GREEN', before='static_link d_link', scan=scan)
+override_exec(d)
 
-cls = Task.task_factory('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link')
-override_exec(cls)
+d_with_header = Task.task_factory('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link')
+override_exec(d_with_header)
 
-cls = Task.task_factory('d_link', link_str, color='YELLOW')
-override_exec(cls)
+d_link = Task.task_factory('d_link', link_str, color='YELLOW')
+override_exec(d_link)
 
 # for feature request #104
 @taskgen_method
@@ -475,11 +475,11 @@ def d_platform_flags(self):
 	if Utils.unversioned_sys_platform_to_binary_format(self.env.DEST_OS or Utils.unversioned_sys_platform()) == 'pe':
 		v['D_program_PATTERN']   = '%s.exe'
 		v['D_shlib_PATTERN']     = 'lib%s.dll'
-		v['D_staticlib_PATTERN'] = 'lib%s.a'
+		v['D_stlib_PATTERN'] = 'lib%s.a'
 	else:
 		v['D_program_PATTERN']   = '%s'
 		v['D_shlib_PATTERN']     = 'lib%s.so'
-		v['D_staticlib_PATTERN'] = 'lib%s.a'
+		v['D_stlib_PATTERN'] = 'lib%s.a'
 
 @conf
 def check_dlibrary(self):
