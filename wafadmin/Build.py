@@ -407,25 +407,27 @@ class BuildContext(Context.Context):
 
 	def pre_build(self):
 		"""executes the user-defined methods before the build starts"""
-		if hasattr(self, 'pre_funs'):
-			for m in self.pre_funs:
-				m(self)
+		for m in getattr(self, 'pre_funs', []):
+			m(self)
 
 	def post_build(self):
 		"""executes the user-defined methods after the build is complete (no execution when the build fails)"""
-		if hasattr(self, 'post_funs'):
-			for m in self.post_funs:
-				m(self)
+		for m in getattr(self, 'post_funs', []):
+			m(self)
 
 	def add_pre_fun(self, meth):
 		"""binds a method to be executed after the scripts are read and before the build starts"""
-		try: self.pre_funs.append(meth)
-		except AttributeError: self.pre_funs = [meth]
+		try:
+			self.pre_funs.append(meth)
+		except AttributeError:
+			self.pre_funs = [meth]
 
 	def add_post_fun(self, meth):
 		"""binds a method to be executed immediately after the build is complete"""
-		try: self.post_funs.append(meth)
-		except AttributeError: self.post_funs = [meth]
+		try:
+			self.post_funs.append(meth)
+		except AttributeError:
+			self.post_funs = [meth]
 
 	def get_group(self, x):
 		"""get the group x (name or number), or the current group"""
@@ -628,8 +630,13 @@ class BuildContext(Context.Context):
 			yield []
 
 class inst_task(Task.Task):
+	"""task used for installing files and symlinks"""
 	color = 'CYAN'
 	def runnable_status(self):
+		"""
+		installation tasks are always executed
+		this method is also used for finding the source files in a non-threaded manner
+		"""
 		buf = []
 		for x in self.source:
 			if isinstance(x, wafadmin.Node.Node):
@@ -646,6 +653,7 @@ class inst_task(Task.Task):
 		return self.generator.bld.install_msg
 
 	def run(self):
+		"""the attribute 'exec_task' holds the method to execute (see Task.Task.run)"""
 		return self.generator.exec_task()
 
 	def get_install_path(self):
@@ -657,6 +665,7 @@ class inst_task(Task.Task):
 		return dest
 
 	def exec_install_files(self):
+		"""predefined method for installing files"""
 		destpath = self.get_install_path()
 		Utils.check_dir(destpath)
 		for x, y in zip(self.source, self.inputs):
@@ -668,12 +677,14 @@ class inst_task(Task.Task):
 			self.generator.bld.do_install(y.abspath(), destfile, self.chmod)
 
 	def exec_install_as(self):
+		"""predefined method for installing one file with a given name"""
 		destfile = self.get_install_path()
 		destpath, _ = os.path.split(destfile)
 		Utils.check_dir(destpath)
 		self.generator.bld.do_install(self.inputs[0].abspath(), destfile, self.chmod)
 
 	def exec_symlink_as(self):
+		"""predefined method for installing a symlink"""
 		destfile = self.get_install_path()
 		destpath, _ = os.path.split(destfile)
 		Utils.check_dir(destpath)
@@ -702,6 +713,7 @@ class InstallContext(BuildContext):
 		self.execute_build()
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
+		"""copy a file from src to tgt with given file permissions (will be overridden in UninstallContext)"""
 		if not Options.options.force:
 			# check if the file is already there to avoid a copy
 			try:
@@ -732,6 +744,7 @@ class InstallContext(BuildContext):
 			raise Errors.WafError('Could not install the file %r' % tgt)
 
 	def do_link(self, src, tgt):
+		"""create a symlink from tgt to src (will be overridden in UninstallContext)"""
 		link = False
 		if not os.path.islink(tgt):
 			link = True
@@ -745,6 +758,7 @@ class InstallContext(BuildContext):
 			os.symlink(src, tgt)
 
 	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True):
+		"""the attribute 'relative_trick' is used to preserve the folder hierarchy (install folders)"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
 		tsk.path = cwd or self.path
@@ -798,6 +812,7 @@ class UninstallContext(InstallContext):
 		self.install_msg = 'removing...\n'
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
+		"""see InstallContext.do_install"""
 		Logs.info("* uninstalling %s" % tgt)
 
 		self.uninstall.append(tgt)
@@ -811,7 +826,7 @@ class UninstallContext(InstallContext):
 				if Logs.verbose > 1:
 					Logs.warn('could not remove %s (error code %r)' % (e.filename, e.errno))
 
-
+		# TODO ita refactor this into a post build action to uninstall the folders (optimization)
 		while tgt:
 			tgt = os.path.dirname(tgt)
 			try:
@@ -820,6 +835,7 @@ class UninstallContext(InstallContext):
 				break
 
 	def do_link(self, src, tgt):
+		"""see InstallContext.do_link"""
 		try:
 			Logs.info('* removing %s' % (tgt))
 			os.remove(tgt)
@@ -915,6 +931,7 @@ class StepContext(BuildContext):
 		self.files = Options.options.files
 
 	def compile(self):
+		"""compile the files given in Option.options.files, use regular expression matching (see BuildContext.compile)"""
 		if not self.files:
 			Logs.warn('Add a pattern for the debug build, for example "waf step --files=main.c,app"')
 			BuildContext.compile(self)
