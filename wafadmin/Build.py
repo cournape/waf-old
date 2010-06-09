@@ -111,6 +111,18 @@ class BuildContext(Context.Context):
 		"""Build context copies are not allowed"""
 		raise Errors.WafError('build contexts are not supposed to be copied')
 
+	def install_files(self, *k, **kw):
+		"""Actual implementation provided by InstallContext and UninstallContext"""
+		pass
+
+	def install_as(self, *k, **kw):
+		"""Actual implementation provided by InstallContext and UninstallContext"""
+		pass
+
+	def symlink_as(self, *k, **kw):
+		"""Actual implementation provided by InstallContext and UninstallContext"""
+		pass
+
 	def load_envs(self):
 		"""load the data from the project directory into self.allenvs"""
 		try:
@@ -257,7 +269,7 @@ class BuildContext(Context.Context):
 			raise Errors.BuildError(self.parallel.error)
 
 	def setup(self, tool, tooldir=None, funs=None):
-		"""Loads the waf tools used during the build (task classes, etc)"""
+		"""Loads the waf tools declared in the configuration section"""
 		if isinstance(tool, list):
 			for i in tool: self.setup(i, tooldir)
 			return
@@ -280,7 +292,6 @@ class BuildContext(Context.Context):
 			Logs.error('no such environment: '+name)
 			return None
 
-
 	def add_manual_dependency(self, path, value):
 		"""Adds a dependency from a node object to a path (string or node)"""
 		if isinstance(path, wafadmin.Node.Node):
@@ -299,8 +310,6 @@ class BuildContext(Context.Context):
 		except AttributeError:
 			self.p_ln = self.root.find_dir(self.launch_dir)
 			return self.p_ln
-
-	## the following methods are candidates for the stable apis ##
 
 	def hash_env_vars(self, env, vars_lst):
 		"""hash environment variables
@@ -475,7 +484,7 @@ class BuildContext(Context.Context):
 			self.current_group = idx
 
 	def total(self):
-		"""total of tasks"""
+		"""task count: this value will be inaccurate if the task generators are posted lazily"""
 		total = 0
 		for group in self.groups:
 			for tg in group:
@@ -486,6 +495,7 @@ class BuildContext(Context.Context):
 		return total
 
 	def get_targets(self):
+		"""return the task generator corresponding to the 'targets' list (used by get_build_iterator)"""
 		to_post = []
 		min_grp = 0
 		for name in self.targets.split(','):
@@ -503,7 +513,7 @@ class BuildContext(Context.Context):
 		return (min_grp, to_post)
 
 	def post_group(self):
-		"""post the task generators from a group indexed by self.cur"""
+		"""post the task generators from a group indexed by self.cur (used by get_build_iterator)"""
 		if self.targets == '*':
 			for tg in self.groups[self.cur]:
 				if isinstance(tg, TaskGen.task_gen):
@@ -616,18 +626,6 @@ class BuildContext(Context.Context):
 				yield toreturn
 		while 1:
 			yield []
-
-	def install_files(self, *k, **kw):
-		"""Actual implementation provided by InstallContext and UninstallContext"""
-		pass
-
-	def install_as(self, *k, **kw):
-		"""Actual implementation provided by InstallContext and UninstallContext"""
-		pass
-
-	def symlink_as(self, *k, **kw):
-		"""Actual implementation provided by InstallContext and UninstallContext"""
-		pass
 
 class inst_task(Task.Task):
 	color = 'CYAN'
