@@ -180,6 +180,7 @@ def sfilter(path):
 
 	if path.endswith('Scripting.py'):
 		cnt = cnt.replace("if sys.hexversion<0x206000f:\n\traise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')", '')
+	cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
 
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 
