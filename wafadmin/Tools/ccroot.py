@@ -10,9 +10,7 @@ from wafadmin.Logs import error, debug, warn
 from wafadmin.Utils import md5
 from wafadmin.TaskGen import after, before, feature, taskgen_method
 from wafadmin.Configure import conf
-from wafadmin.Tools import c_aliases, c_preproc
-
-import config_c # <- necessary for the configuration, do not touch
+from wafadmin.Tools import c_aliases, c_preproc, c_config
 
 USELIB_VARS = ['CCDEPS', 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',

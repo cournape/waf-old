@@ -6,7 +6,7 @@
 
 import os, re
 from wafadmin import Configure, TaskGen, Task, Utils, Runner, Options, Build
-import wafadmin.Tools.config_c
+import wafadmin.Tools.ccroot
 from wafadmin.TaskGen import feature, before
 from wafadmin.Logs import error
 
