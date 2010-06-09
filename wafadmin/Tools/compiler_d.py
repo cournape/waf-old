@@ -19,14 +19,14 @@ def configure(conf):
 			conf.env = orig.copy()
 			conf.check_tool(compiler)
 		except Exception as e:
-			raise e
+			pass
 		else:
 			if conf.env.D:
 				orig.table = conf.env.get_merged_dict()
 				conf.env = orig
 				conf.end_msg(True)
 				conf.env['COMPILER_D'] = compiler
-				conf.env.D_COMPILER = conf.env.D
+				conf.env.D_COMPILER = conf.env.D # TODO remove this
 				break
 			conf.end_msg(False)
 	else:
