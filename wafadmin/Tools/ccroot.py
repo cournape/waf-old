@@ -10,7 +10,7 @@ from wafadmin.Logs import error, debug, warn
 from wafadmin.Utils import md5
 from wafadmin.TaskGen import after, before, feature, taskgen_method
 from wafadmin.Configure import conf
-from wafadmin.Tools import c_aliases, preproc
+from wafadmin.Tools import c_aliases, c_preproc
 
 import config_c # <- necessary for the configuration, do not touch
 
@@ -126,7 +126,7 @@ def scan(self):
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
 
 	node = self.inputs[0]
-	(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
+	(nodes, names) = c_preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
 	if Logs.verbose:
 		debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
 	return (nodes, names)

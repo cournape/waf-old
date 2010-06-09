@@ -20,6 +20,9 @@ sys.modules['Runner'] = Runner
 sys.modules['TaskGen'] = TaskGen
 sys.modules['Utils'] = Utils
 
+from wafadmin.Tools import c_preproc
+sys.modules['preproc'] = c_preproc
+
 ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive
 ConfigSet.ConfigSet.set_variant = Utils.nada
 

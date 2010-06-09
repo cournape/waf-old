@@ -9,7 +9,7 @@ and prepare the dependency calculation for the next run
 
 import os, re, threading
 from wafadmin import Task, Logs, Utils, Errors
-from wafadmin.Tools import preproc
+from wafadmin.Tools import c_preproc
 from wafadmin.TaskGen import before, after, feature
 
 lock = threading.Lock()
@@ -61,7 +61,7 @@ def post_run(self):
 	for x in val:
 		if os.path.isabs(x):
 
-			if not preproc.go_absolute:
+			if not c_preproc.go_absolute:
 				continue
 
 			lock.acquire()

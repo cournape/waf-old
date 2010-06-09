@@ -7,7 +7,7 @@ import re
 import Task, Utils, Logs
 from TaskGen import extension, taskgen, feature, after
 from Configure import conf
-import preproc
+import c_preproc
 
 """
 Welcome in the hell of adding tasks dynamically
@@ -78,8 +78,8 @@ def scan(self):
 
 		# read the file
 		code = node.read(env)
-		code = preproc.re_nl.sub('', code)
-		code = preproc.re_cpp.sub(preproc.repl, code)
+		code = c_preproc.re_nl.sub('', code)
+		code = c_preproc.re_cpp.sub(c_preproc.repl, code)
 
 		# find .i files and project headers
 		names = re_2.findall(code) + re_3.findall(code)
