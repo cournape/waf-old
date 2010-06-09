@@ -170,6 +170,27 @@ def process_tokens(tokens):
 	body = "".join(accu)
 	return body
 
+deco_re = re.compile('(def|class)\\s+(\w+)\\(.*')
+def process_decorators(body):
+	lst = body.split('\n')
+	accu = []
+	all_deco = []
+	buf = [] # put the decorator lines
+	for line in lst:
+		if line.startswith('@'):
+			buf.append(line[1:])
+		elif buf:
+			name = deco_re.sub('\\2', line)
+			if not name:
+				raise IOError, "decorator not followed by a function!"+line
+			for x in buf:
+				all_deco.append("%s(%s)" % (x, name))
+			accu.append(line)
+			buf = []
+		else:
+			accu.append(line)
+	return "\n".join(accu+all_deco)
+
 def sfilter(path):
 	f = open(path, "r")
 	if Options.options.strip_comments:
@@ -180,6 +201,10 @@ def sfilter(path):
 
 	if path.endswith('Scripting.py'):
 		cnt = cnt.replace("if sys.hexversion<0x206000f:\n\traise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')", '')
+	cnt = process_decorators(cnt)
+
+	if cnt.find('set(') > -1:
+                cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
 	cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
 
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
