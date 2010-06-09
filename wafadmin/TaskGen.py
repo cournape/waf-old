@@ -223,18 +223,14 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	act = Task.task_factory(name, rule, color=color, ext_in=ext_in, ext_out=ext_out, before=before, after=after, scan=scan)
 
 	def x_file(self, node):
-		if decider:
-			ext = decider(self, node)
-		elif isinstance(act.ext_out, str):
-			ext = act.ext_out
-
-		out_source = [node.change_ext(x) for x in act.ext_out]
+		ext = decider and decider(self, node) or act.ext_out
+		out_source = [node.change_ext(x) for x in ext]
 		if reentrant:
 			for i in range(reentrant):
 				self.source.append(out_source[i])
 		tsk = self.create_task(name, node, out_source)
 
-	for x in Utils.to_list(act.ext_in):
+	for x in act.ext_in:
 		task_gen.mappings[x] = x_file
 	return x_file
 
