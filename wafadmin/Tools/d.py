@@ -368,17 +368,15 @@ def apply_d_vars(self):
 
 	# add import paths
 	for i in uselib:
-		if env['DPATH_' + i]:
-			for entry in self.to_list(env['DPATH_' + i]):
-				if not entry in importpaths:
-					importpaths.append(entry)
+		for entry in self.to_list(env['DPATH_' + i]):
+			if not entry in importpaths:
+				importpaths.append(entry)
 
 	# add library paths
 	for i in uselib:
-		if env['LIBPATH_' + i]:
-			for entry in self.to_list(env['LIBPATH_' + i]):
-				if not entry in libpaths:
-					libpaths.append(entry)
+		for entry in self.to_list(env['LIBPATH_' + i]):
+			if not entry in libpaths:
+				libpaths.append(entry)
 	libpaths = self.to_list(self.libpaths) + libpaths
 
 	# now process the library paths
@@ -388,10 +386,9 @@ def apply_d_vars(self):
 
 	# add libraries
 	for i in uselib:
-		if env['LIB_' + i]:
-			for entry in self.to_list(env['LIB_' + i]):
-				if not entry in libs:
-					libs.append(entry)
+		for entry in self.to_list(env['LIB_' + i]):
+			if not entry in libs:
+				libs.append(entry)
 	libs.extend(self.to_list(self.libs))
 
 	# process user flags
@@ -440,8 +437,7 @@ def override_exec(cls):
 		return old_exec(self, *k, **kw)
 	cls.exec_command = exec_command
 
-cls = Task.task_factory('d', d_str, 'GREEN', before='static_link d_link')
-cls.scan = scan
+cls = Task.task_factory('d', d_str, 'GREEN', before='static_link d_link', scan=scan)
 override_exec(cls)
 
 cls = Task.task_factory('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link')
@@ -476,9 +472,7 @@ Task.task_factory('d_header', d_header_str, color='BLUE')
 @conf
 def d_platform_flags(conf):
 	v = conf.env
-	binfmt = v.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
-		v.DEST_OS or Utils.unversioned_sys_platform())
-	if binfmt == 'pe':
+	if self.get_dest_binfmt() == 'pe':
 		v['D_program_PATTERN']   = '%s.exe'
 		v['D_shlib_PATTERN']     = 'lib%s.dll'
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
@@ -489,6 +483,6 @@ def d_platform_flags(conf):
 
 @conf
 def check_dlibrary(conf):
-	ret = conf.check_cc(features='d dprogram', fragment=DLIB, mandatory=True, compile_filename='test.d', execute=True)
+	ret = conf.check_cc(features='d dprogram', fragment=DLIB, compile_filename='test.d', execute=True)
 	conf.env.DLIBRARY = ret.strip()
 
