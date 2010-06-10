@@ -209,9 +209,8 @@ class BuildContext(Context.Context):
 				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
-				pass
-
-			if f:
+				Logs.debug('build: Build cache loading failed')
+			else:
 				try:
 					wafadmin.Node.pickle_lock.acquire()
 					wafadmin.Node.Nod3 = self.node_class
@@ -220,23 +219,21 @@ class BuildContext(Context.Context):
 					wafadmin.Node.pickle_lock.release()
 				for x in SAVED_ATTRS:
 					setattr(self, x, data[x])
-			else:
-				Logs.debug('build: Build cache loading failed')
-
 		finally:
 			if f:
 				f.close()
 
 	def save(self):
-		"Stores the cache on disk (pickle), see self.load"
-		# some people are very nervous with ctrl+c so we have to make a temporary file
+		"Stores the cache on disk (pickle), see self.load - uses a temporary file to avoid problems with ctrl+c"
+
+		data = {}
+		for x in SAVED_ATTRS:
+			data[x] = getattr(self, x)
+		db = os.path.join(self.variant_dir, Context.DBFILE)
+
 		try:
 			wafadmin.Node.pickle_lock.acquire()
 			wafadmin.Node.Nod3 = self.node_class
-			db = os.path.join(self.variant_dir, Context.DBFILE)
-
-			data = {}
-			for x in SAVED_ATTRS: data[x] = getattr(self, x)
 
 			f = None
 			try:
@@ -248,7 +245,7 @@ class BuildContext(Context.Context):
 		finally:
 			wafadmin.Node.pickle_lock.release()
 
-		# do not use shutil.move
+		# do not use shutil.move (copy is not thread-safe)
 		try: os.unlink(db)
 		except OSError: pass
 		os.rename(db + '.tmp', db)
