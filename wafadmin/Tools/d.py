@@ -410,7 +410,7 @@ def d_hook(self, node):
 	if self.generate_headers:
 		task = self.create_compiled_task('d_with_header', node)
 		header_node = node.change_ext(self.env['DHEADER_ext'])
-		task.output.append(header_node)
+		task.outputs.append(header_node)
 	else:
 		task = self.create_compiled_task('d', node)
 	return task

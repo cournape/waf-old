@@ -165,14 +165,14 @@ def get_target_name(self):
 	pattern = self.env[tp + '_PATTERN']
 	if not pattern: pattern = '%s'
 
-	dir, name = os.path.split(self.target)
+	folder, name = os.path.split(self.target)
 
 	if self.get_dest_binfmt() == 'pe' and getattr(self, 'vnum', None) and 'cshlib' in self.features:
 		# include the version in the dll file name,
 		# the import lib file name stays unversionned.
 		name = name + '-' + self.vnum.split('.')[0]
 
-	return os.path.join(dir, pattern % name)
+	return os.path.join(folder, pattern % name)
 
 @feature('cc', 'cxx', 'defines')
 @after('apply_lib_vars')
