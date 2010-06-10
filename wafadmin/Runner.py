@@ -4,7 +4,7 @@
 
 "Execute the tasks"
 
-import os, sys, random, threading
+import os, sys, random
 try:
 	from queue import Queue
 except:
@@ -14,22 +14,12 @@ from wafadmin import Utils, Logs, Options, Task, Errors
 GAP = 15
 MAXJOBS = 999
 
-run_old = threading.Thread.run
-def run(*args, **kwargs):
-	try:
-		run_old(*args, **kwargs)
-	except (KeyboardInterrupt, SystemExit):
-		raise
-	except:
-		sys.excepthook(*sys.exc_info())
-threading.Thread.run = run
-
-class TaskConsumer(threading.Thread):
+class TaskConsumer(Utils.threading.Thread):
 	ready = Queue(0)
 	consumers = []
 
 	def __init__(self):
-		threading.Thread.__init__(self)
+		Utils.threading.Thread.__init__(self)
 		self.setDaemon(1)
 		self.start()
 

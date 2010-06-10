@@ -154,8 +154,7 @@ class BuildContext(Context.Context):
 	def init_dirs(self, src, bld):
 		"""Initializes the project directory and the build directory"""
 		if not self.root:
-			wafadmin.Node.Nod3 = self.node_class
-			self.root = wafadmin.Node.Nod3('', None)
+			self.root = self.node_class('', None)
 		self.path = self.srcnode = self.root.find_dir(src)
 		self.bldnode = self.root.make_node(bld)
 		self.bldnode.mkdir()
@@ -217,7 +216,11 @@ class BuildContext(Context.Context):
 				pass
 
 			if f:
-				data = cPickle.load(f)
+				try:
+					wafadmin.Node.pickle_lock.acquire()
+					data = cPickle.load(f)
+				finally:
+					wafadmin.Node.pickle_lock.release()
 				for x in SAVED_ATTRS:
 					setattr(self, x, data[x])
 			else:
@@ -229,22 +232,28 @@ class BuildContext(Context.Context):
 
 	def save(self):
 		"Stores the cache on disk (pickle), see self.load"
-		gc.disable()
+		try:
+			gc.disable()
 
-		# some people are very nervous with ctrl+c so we have to make a temporary file
-		wafadmin.Node.Nod3 = self.node_class
-		db = os.path.join(self.variant_dir, Context.DBFILE)
-		file = open(db + '.tmp', 'wb')
-		data = {}
-		for x in SAVED_ATTRS: data[x] = getattr(self, x)
-		cPickle.dump(data, file)
-		file.close()
+			# some people are very nervous with ctrl+c so we have to make a temporary file
+			try:
+				wafadmin.Node.pickle_lock.acquire()
+				wafadmin.Node.Nod3 = self.node_class
+				db = os.path.join(self.variant_dir, Context.DBFILE)
+				file = open(db + '.tmp', 'wb')
+				data = {}
+				for x in SAVED_ATTRS: data[x] = getattr(self, x)
+				cPickle.dump(data, file)
+				file.close()
+			finally:
+				wafadmin.Node.pickle_lock.release()
+		finally:
+			gc.enable()
 
 		# do not use shutil.move
 		try: os.unlink(db)
 		except OSError: pass
 		os.rename(db + '.tmp', db)
-		gc.enable()
 
 	# ======================================= #
 

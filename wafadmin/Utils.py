@@ -20,6 +20,30 @@ except:
 	# never fail to enable fixes from another module
 	pass
 
+try:
+	import threading
+	raise
+except:
+	# broken platforms
+	class threading(object):
+		pass
+	class Lock(object):
+		def acquire(self):
+			pass
+		def release(self):
+			pass
+	threading.Lock = threading.Thread = Lock
+else:
+	run_old = threading.Thread.run
+	def run(*args, **kwargs):
+		try:
+			run_old(*args, **kwargs)
+		except (KeyboardInterrupt, SystemExit):
+			raise
+		except:
+			sys.excepthook(*sys.exc_info())
+	threading.Thread.run = run
+
 SIG_NIL = b'iluvcuteoverload'
 """if you change the hash type, do not forget to change SIG_NIL"""
 

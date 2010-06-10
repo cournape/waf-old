@@ -596,6 +596,9 @@ class Node(object):
 
 		return ret
 
+pickle_lock = Utils.threading.Lock()
+"""thread-safe node serialization requires this"""
+
 class Nod3(Node):
 	pass
 
