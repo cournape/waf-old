@@ -35,7 +35,7 @@ def process_marshal(self):
 
 def genmarshal_func(self):
 
-	bld = self.inputs[0].__class__.bld
+	bld = self.inputs[0].__class__.ctx
 
 	get = self.env.get_flat
 	cmd1 = "%s %s --prefix=%s --header > %s" % (

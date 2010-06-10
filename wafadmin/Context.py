@@ -77,14 +77,13 @@ class Context(ctx):
 			from wafadmin import Options
 			start = Options.run_dir
 
-		# bind the build context to the nodes in use
-		# this means better encapsulation and no context singleton
+		# binds the context to the nodes in use to avoid a context singleton
 		class node_class(wafadmin.Node.Node):
 			pass
 		self.node_class = wafadmin.Node.Nod3 = node_class
 		self.node_class.__module__ = "wafadmin.Node"
 		self.node_class.__name__ = "Nod3"
-		self.node_class.bld = self
+		self.node_class.ctx = self
 
 		self.root = wafadmin.Node.Nod3('', None)
 		self.cur_script = None

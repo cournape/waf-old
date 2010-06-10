@@ -669,7 +669,7 @@ def update_outputs(cls):
 	old_post_run = cls.post_run
 	def post_run(self):
 		old_post_run(self)
-		bld = self.outputs[0].__class__.bld
+		bld = self.outputs[0].__class__.ctx
 		self.outputs[0].sig = Utils.h_file(self.outputs[0].abspath())
 	cls.post_run = post_run
 	return cls

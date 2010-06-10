@@ -16,7 +16,7 @@ unused class members increase the .wafpickle file size sensibly with lots of obj
 
 Each instance of Build.BuildContext has a unique Node subclass.
 (aka: 'Nod3', see BuildContext initializer)
-The BuildContext is referenced here as self.bld
+The BuildContext is referenced here as self.ctx
 Its Node class is referenced here as self.__class__
 """
 
@@ -151,12 +151,12 @@ class Node(object):
 	def compute_sig(self):
 		"compute the signature if it is a file"
 		try:
-			if id(self) in self.bld.hash_cache:
+			if id(self) in self.ctx.hash_cache:
 				return
 		except AttributeError:
-			self.bld.hash_cache = {}
+			self.ctx.hash_cache = {}
 
-		self.bld.hash_cache[id(self)] = True
+		self.ctx.hash_cache[id(self)] = True
 
 		self.sig = Utils.h_file(self.abspath())
 
@@ -340,8 +340,8 @@ class Node(object):
 
 	def is_src(self):
 		cur = self
-		x = id(self.bld.srcnode)
-		y = id(self.bld.bldnode)
+		x = id(self.ctx.srcnode)
+		y = id(self.ctx.bldnode)
 		while cur.parent:
 			if id(cur) == y:
 				return False
@@ -352,13 +352,13 @@ class Node(object):
 
 	def get_src(self):
 		cur = self
-		x = id(self.bld.srcnode)
-		y = id(self.bld.bldnode)
+		x = id(self.ctx.srcnode)
+		y = id(self.ctx.bldnode)
 		lst = []
 		while cur.parent:
 			if id(cur) == y:
 				lst.reverse()
-				return self.bld.srcnode.make_node(lst)
+				return self.ctx.srcnode.make_node(lst)
 			if id(cur) == x:
 				return self
 			lst.append(cur.name)
@@ -367,22 +367,22 @@ class Node(object):
 
 	def get_bld(self):
 		cur = self
-		x = id(self.bld.srcnode)
-		y = id(self.bld.bldnode)
+		x = id(self.ctx.srcnode)
+		y = id(self.ctx.bldnode)
 		lst = []
 		while cur.parent:
 			if id(cur) == y:
 				return self
 			if id(cur) == x:
 				lst.reverse()
-				return self.bld.bldnode.make_node(lst)
+				return self.ctx.bldnode.make_node(lst)
 			lst.append(cur.name)
 			cur = cur.parent
 		return self
 
 	def is_bld(self):
 		cur = self
-		y = id(self.bld.bldnode)
+		y = id(self.ctx.bldnode)
 		while cur.parent:
 			if id(cur) == y:
 				return True
@@ -477,23 +477,23 @@ class Node(object):
 
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
-		return self.path_from(self.bld.launch_node())
+		return self.path_from(self.ctx.launch_node())
 
 	def bldpath(self):
 		"path seen from the build directory default/src/foo.cpp"
-		return self.path_from(self.bld.bldnode)
+		return self.path_from(self.ctx.bldnode)
 
 	def srcpath(self):
 		"path seen from the source directory ../src/foo.cpp"
-		return self.path_from(self.bld.srcnode)
+		return self.path_from(self.ctx.srcnode)
 
 	def relpath(self):
 		"if a build node, bldpath, else srcpath"
 		cur = self
-		x = id(self.bld.bldnode)
+		x = id(self.ctx.bldnode)
 		while cur.parent:
 			if id(cur) == x:
-				return self.bldpath()
+				return self.ctxpath()
 			cur = cur.parent
 		return self.srcpath()
 

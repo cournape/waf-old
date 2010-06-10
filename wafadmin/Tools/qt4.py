@@ -67,7 +67,7 @@ class qxx(cxx.cxx):
 	def add_moc_tasks(self):
 
 		node = self.inputs[0]
-		tree = node.__class__.bld
+		tree = node.__class__.ctx
 
 		try:
 			# compute the signature once to know if there is a moc file to create

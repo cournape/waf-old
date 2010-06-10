@@ -183,8 +183,8 @@ def vala_file(self, node):
 			except AttributeError:
 				Logs.warn("Unable to locate Vala API directory: '%s'" % vapi_dir)
 
-		self.includes.append(node.bld.srcnode.abspath())
-		self.includes.append(node.bld.srcnode.abspath(self.env))
+		self.includes.append(node.ctx.srcnode.abspath())
+		self.includes.append(node.ctx.srcnode.abspath(self.env))
 		for include in includes:
 			try:
 				self.includes.append(self.path.find_dir(include).abspath())

@@ -613,9 +613,9 @@ class c_parser(object):
 		just an idea (TODO)
 		"""
 		try:
-			nd = node.bld.cache_nd
+			nd = node.ctx.cache_nd
 		except:
-			nd = node.bld.cache_nd = {}
+			nd = node.ctx.cache_nd = {}
 
 		tup = hash((id(node), filename))
 		if tup in nd:
@@ -680,7 +680,7 @@ class c_parser(object):
 		debug('preproc: scanning %s (in %s)', node.name, node.parent.name)
 
 		self.env = env
-		bld = node.__class__.bld
+		bld = node.ctx
 		try:
 			self.parse_cache = bld.parse_cache
 		except AttributeError:
