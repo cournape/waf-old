@@ -203,11 +203,9 @@ class BuildContext(Context.Context):
 			for t in env['tools']:
 				self.setup(**t)
 
+		f = None
 		try:
 			gc.disable()
-			f = data = None
-
-			wafadmin.Node.Nod3 = self.node_class
 
 			try:
 				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
@@ -218,6 +216,7 @@ class BuildContext(Context.Context):
 			if f:
 				try:
 					wafadmin.Node.pickle_lock.acquire()
+					wafadmin.Node.Nod3 = self.node_class
 					data = cPickle.load(f)
 				finally:
 					wafadmin.Node.pickle_lock.release()
@@ -227,7 +226,8 @@ class BuildContext(Context.Context):
 				Logs.debug('build: Build cache loading failed')
 
 		finally:
-			if f: f.close()
+			if f:
+				f.close()
 			gc.enable()
 
 	def save(self):
@@ -240,11 +240,17 @@ class BuildContext(Context.Context):
 				wafadmin.Node.pickle_lock.acquire()
 				wafadmin.Node.Nod3 = self.node_class
 				db = os.path.join(self.variant_dir, Context.DBFILE)
-				file = open(db + '.tmp', 'wb')
+
 				data = {}
 				for x in SAVED_ATTRS: data[x] = getattr(self, x)
-				cPickle.dump(data, file)
-				file.close()
+
+				f = None
+				try:
+					f = open(db + '.tmp', 'wb')
+					cPickle.dump(data, f)
+				finally:
+					if f:
+						f.close()
 			finally:
 				wafadmin.Node.pickle_lock.release()
 		finally:

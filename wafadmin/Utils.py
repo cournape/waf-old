@@ -22,7 +22,6 @@ except:
 
 try:
 	import threading
-	raise
 except:
 	# broken platforms
 	class threading(object):
