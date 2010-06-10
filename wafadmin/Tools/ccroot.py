@@ -174,7 +174,7 @@ def get_target_name(self):
 
 	return os.path.join(dir, pattern % name)
 
-@feature('cc', 'cxx')
+@feature('cc', 'cxx', 'defines')
 @after('apply_lib_vars')
 def apply_defines(self):
 	"""after uselib is set for DEFINES"""
@@ -198,7 +198,7 @@ def apply_defines(self):
 	y = self.env['DEFINES_ST']
 	self.env['_DEFFLAGS'] = [y%x for x in milst]
 
-@feature('cc', 'cxx', 'd', 'asm')
+@feature('cc', 'cxx', 'd', 'asm', 'includes')
 @after('apply_lib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
