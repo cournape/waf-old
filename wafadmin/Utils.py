@@ -511,3 +511,13 @@ def read_la_file(path):
 	file.close()
 	return dc
 
+def nogc(fun):
+	def f(*k, **kw):
+		try:
+			gc.disable()
+			ret = fun(*k, **kw)
+		finally:
+			gc.enable()
+		return ret
+	return f
+

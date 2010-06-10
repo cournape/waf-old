@@ -10,7 +10,7 @@ The class Build holds all the info related to a build:
 * various cached objects (task signatures, file scan results, ..)
 """
 
-import os, sys, errno, re, gc, datetime, shutil
+import os, sys, errno, re, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
 from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Errors
@@ -205,8 +205,6 @@ class BuildContext(Context.Context):
 
 		f = None
 		try:
-			gc.disable()
-
 			try:
 				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
 			except (IOError, EOFError):
@@ -228,33 +226,27 @@ class BuildContext(Context.Context):
 		finally:
 			if f:
 				f.close()
-			gc.enable()
 
 	def save(self):
 		"Stores the cache on disk (pickle), see self.load"
+		# some people are very nervous with ctrl+c so we have to make a temporary file
 		try:
-			gc.disable()
+			wafadmin.Node.pickle_lock.acquire()
+			wafadmin.Node.Nod3 = self.node_class
+			db = os.path.join(self.variant_dir, Context.DBFILE)
 
-			# some people are very nervous with ctrl+c so we have to make a temporary file
+			data = {}
+			for x in SAVED_ATTRS: data[x] = getattr(self, x)
+
+			f = None
 			try:
-				wafadmin.Node.pickle_lock.acquire()
-				wafadmin.Node.Nod3 = self.node_class
-				db = os.path.join(self.variant_dir, Context.DBFILE)
-
-				data = {}
-				for x in SAVED_ATTRS: data[x] = getattr(self, x)
-
-				f = None
-				try:
-					f = open(db + '.tmp', 'wb')
-					cPickle.dump(data, f)
-				finally:
-					if f:
-						f.close()
+				f = open(db + '.tmp', 'wb')
+				cPickle.dump(data, f)
 			finally:
-				wafadmin.Node.pickle_lock.release()
+				if f:
+					f.close()
 		finally:
-			gc.enable()
+			wafadmin.Node.pickle_lock.release()
 
 		# do not use shutil.move
 		try: os.unlink(db)
@@ -993,4 +985,7 @@ class StepContext(BuildContext):
 						if do_exec:
 							ret = tsk.run()
 							Logs.info('%s -> %r' % (str(tsk), ret))
+
+BuildContext.save = Utils.nogc(BuildContext.save)
+BuildContext.load = Utils.nogc(BuildContext.load)
 
