@@ -11,6 +11,7 @@ NEW IN WAF 1.6.0
 * new variant system + build context commands
 * removed the pseudo glob in installation methods
 * eliminate find_sources_in_dirs
+* node.__class__.bld → node.ctx
 * bld.new_task_gen(...) disappears, use bld(...)
 * network updates for waf tools
 * accept node objects in the source and includes attributes
