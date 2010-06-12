@@ -5,8 +5,8 @@
 "This hook is called when the class cpp/cc task generator encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
 import os, sys, re
-from wafadmin import TaskGen, Task
-from wafadmin.TaskGen import extension
+from waflib import TaskGen, Task
+from waflib.TaskGen import extension
 
 @extension('.rc')
 def rc_file(self, node):

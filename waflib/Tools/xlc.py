@@ -6,8 +6,8 @@
 # Michael Kuhn, 2009
 
 import os, sys
-from wafadmin.Tools import ccroot, ar
-from wafadmin.Configure import conf
+from waflib.Tools import ccroot, ar
+from waflib.Configure import conf
 
 @conf
 def find_xlc(conf):

@@ -13,8 +13,8 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-from wafadmin import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Errors
-import wafadmin.Node
+from waflib import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Errors
+import waflib.Node
 
 CACHE_DIR = 'c4che'
 """location of the cache files"""
@@ -212,11 +212,11 @@ class BuildContext(Context.Context):
 				Logs.debug('build: Build cache loading failed')
 			else:
 				try:
-					wafadmin.Node.pickle_lock.acquire()
-					wafadmin.Node.Nod3 = self.node_class
+					waflib.Node.pickle_lock.acquire()
+					waflib.Node.Nod3 = self.node_class
 					data = cPickle.load(f)
 				finally:
-					wafadmin.Node.pickle_lock.release()
+					waflib.Node.pickle_lock.release()
 				for x in SAVED_ATTRS:
 					setattr(self, x, data[x])
 		finally:
@@ -232,8 +232,8 @@ class BuildContext(Context.Context):
 		db = os.path.join(self.variant_dir, Context.DBFILE)
 
 		try:
-			wafadmin.Node.pickle_lock.acquire()
-			wafadmin.Node.Nod3 = self.node_class
+			waflib.Node.pickle_lock.acquire()
+			waflib.Node.Nod3 = self.node_class
 
 			f = None
 			try:
@@ -243,7 +243,7 @@ class BuildContext(Context.Context):
 				if f:
 					f.close()
 		finally:
-			wafadmin.Node.pickle_lock.release()
+			waflib.Node.pickle_lock.release()
 
 		# do not use shutil.move (copy is not thread-safe)
 		try: os.unlink(db)
@@ -296,7 +296,7 @@ class BuildContext(Context.Context):
 
 	def add_manual_dependency(self, path, value):
 		"""Adds a dependency from a node object to a path (string or node)"""
-		if isinstance(path, wafadmin.Node.Node):
+		if isinstance(path, waflib.Node.Node):
 			node = path
 		elif os.path.isabs(path):
 			node = self.root.find_resource(path)
@@ -386,7 +386,7 @@ class BuildContext(Context.Context):
 		return msg
 
 	def exec_command(self, cmd, **kw):
-		"""'runner' zone is printed out for waf -v, see wafadmin/Options.py"""
+		"""'runner' zone is printed out for waf -v, see waflib/Options.py"""
 		Logs.debug('runner: system command -> %s' % cmd)
 		if self.log:
 			self.log.write('%s\n' % cmd)
@@ -645,7 +645,7 @@ class inst_task(Task.Task):
 		"""
 		buf = []
 		for x in self.source:
-			if isinstance(x, wafadmin.Node.Node):
+			if isinstance(x, waflib.Node.Node):
 				y = x
 			else:
 				y = self.path.find_resource(x)
@@ -769,7 +769,7 @@ class InstallContext(BuildContext):
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
-		if isinstance(files, wafadmin.Node.Node):
+		if isinstance(files, waflib.Node.Node):
 			tsk.source =  [files]
 		else:
 			tsk.source = Utils.to_list(files)

@@ -3,9 +3,9 @@
 
 import sys
 
-from wafadmin import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils
+from waflib import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils
 
-# the following is to bring some compatibility with waf 1.5 "import wafadmin.Configure → import Configure"
+# the following is to bring some compatibility with waf 1.5 "import waflib.Configure → import Configure"
 sys.modules['Environment'] = ConfigSet
 ConfigSet.Environment = ConfigSet.ConfigSet
 
@@ -20,7 +20,7 @@ sys.modules['Runner'] = Runner
 sys.modules['TaskGen'] = TaskGen
 sys.modules['Utils'] = Utils
 
-from wafadmin.Tools import c_preproc
+from waflib.Tools import c_preproc
 sys.modules['preproc'] = c_preproc
 
 ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive
@@ -42,7 +42,7 @@ def old_importpaths(self):
 	if getattr(self, 'importpaths', []):
 		self.includes = self.importpaths
 
-from wafadmin import Context
+from waflib import Context
 eld = Context.load_tool
 def load_tool(*k, **kw):
 	ret = eld(*k, **kw)

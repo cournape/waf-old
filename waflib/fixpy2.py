@@ -13,7 +13,7 @@ def fixdir(dir):
 	global all_modifs
 	for k in all_modifs:
 		for v in all_modifs[k]:
-			modif(os.path.join(dir, 'wafadmin'), k, v)
+			modif(os.path.join(dir, 'waflib'), k, v)
 
 def modif(dir, name, fun):
 	if name == '*':

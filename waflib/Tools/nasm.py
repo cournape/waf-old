@@ -7,8 +7,8 @@ Nasm processing
 """
 
 import os
-from wafadmin import TaskGen, Task, Utils
-from wafadmin.TaskGen import before, extension
+from waflib import TaskGen, Task, Utils
+from waflib.TaskGen import before, extension
 
 @feature('asm')
 @before('apply_link')

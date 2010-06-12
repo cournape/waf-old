@@ -5,11 +5,11 @@
 
 import os, sys, re
 from collections import deque
-import wafadmin.Tools.ccroot # <- leave this
-from wafadmin import TaskGen, Utils, Task, Logs, Errors
-from wafadmin.Logs import debug, error
-from wafadmin.TaskGen import taskgen_method, feature, after, before, extension
-from wafadmin.Configure import conf
+import waflib.Tools.ccroot # <- leave this
+from waflib import TaskGen, Utils, Task, Logs, Errors
+from waflib.Logs import debug, error
+from waflib.TaskGen import taskgen_method, feature, after, before, extension
+from waflib.Configure import conf
 
 EXT_D = ['.d', '.di', '.D']
 

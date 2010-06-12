@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, shlex, sys, time
-from wafadmin import ConfigSet, Utils, Options, Logs, Context, Build
+from waflib import ConfigSet, Utils, Options, Logs, Context, Build
 
 try:
 	from urllib import request
@@ -50,7 +50,7 @@ conf_template = '''# project %(app)s configured on %(now)s by
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
 	for x in Utils.to_list(Options.remote_repo):
-		for sub in ['branches/waf-%s/wafadmin/extras' % Context.WAFVERSION, 'trunk/wafadmin/extras']:
+		for sub in ['branches/waf-%s/waflib/extras' % Context.WAFVERSION, 'trunk/waflib/extras']:
 			url = '/'.join((x, sub, tool + '.py'))
 			try:
 				web = urlopen(url)
@@ -60,7 +60,7 @@ def download_tool(tool, force=False):
 				continue
 			else:
 				try:
-					tmp = os.sep.join((Options.waf_dir, 'wafadmin', 'extras', tool + '.py'))
+					tmp = os.sep.join((Options.waf_dir, 'waflib', 'extras', tool + '.py'))
 					loc = open(tmp, 'wb')
 					loc.write(web.read())
 					web.close()

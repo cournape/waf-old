@@ -3,8 +3,8 @@
 # Thomas Nagy 2009-2010 (ita)
 
 import os, sys
-from wafadmin.Tools import ccroot, ar, gxx
-from wafadmin.Configure import conf
+from waflib.Tools import ccroot, ar, gxx
+from waflib.Configure import conf
 
 @conf
 def find_icpc(conf):

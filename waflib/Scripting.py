@@ -9,7 +9,7 @@ if sys.hexversion<0x206000f:
 	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
-from wafadmin import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build
+from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build
 
 g_gz = 'bz2'
 
@@ -360,7 +360,7 @@ def distcheck(ctx):
 
 def update(ctx):
 
-	lst = os.listdir(Options.waf_dir + '/wafadmin/extras')
+	lst = os.listdir(Options.waf_dir + '/waflib/extras')
 	for x in lst:
 		if not x.endswith('.py'):
 			continue

@@ -8,9 +8,9 @@ and prepare the dependency calculation for the next run
 """
 
 import os, re, threading
-from wafadmin import Task, Logs, Utils, Errors
-from wafadmin.Tools import c_preproc
-from wafadmin.TaskGen import before, after, feature
+from waflib import Task, Logs, Utils, Errors
+from waflib.Tools import c_preproc
+from waflib.TaskGen import before, after, feature
 
 lock = threading.Lock()
 

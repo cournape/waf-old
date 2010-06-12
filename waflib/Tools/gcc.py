@@ -5,9 +5,9 @@
 # Yinon Ehrlich, 2009
 
 import os, sys
-from wafadmin import Configure, Options, Utils
-from wafadmin.Tools import ccroot, ar
-from wafadmin.Configure import conf
+from waflib import Configure, Options, Utils
+from waflib.Tools import ccroot, ar
+from waflib.Configure import conf
 
 @conf
 def find_gcc(conf):

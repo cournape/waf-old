@@ -26,8 +26,8 @@ file scanner will be added in the future, so we will have most bahaviours.
 # TODO: dumb file scanner tracking all includes
 
 import re, sys, os, string, traceback
-from wafadmin import Logs, Build, Utils, Errors
-from wafadmin.Logs import debug, error
+from waflib import Logs, Build, Utils, Errors
+from waflib.Logs import debug, error
 
 class PreprocError(Errors.WafError):
 	pass

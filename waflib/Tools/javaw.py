@@ -30,9 +30,9 @@ You would have to run:
 """
 
 import os, re
-from wafadmin.Configure import conf
-from wafadmin import TaskGen, Task, Utils, Options, Build
-from wafadmin.TaskGen import feature, before
+from waflib.Configure import conf
+from waflib import TaskGen, Task, Utils, Options, Build
+from waflib.TaskGen import feature, before
 
 class_check_source = '''
 public class Test {

@@ -4,9 +4,9 @@
 # Ralf Habacker, 2006 (rh)
 
 import os
-from wafadmin import Utils
-from wafadmin.Tools import ccroot, ar
-from wafadmin.Configure import conf
+from waflib import Utils
+from waflib.Tools import ccroot, ar
+from waflib.Configure import conf
 
 @conf
 def find_scc(conf):

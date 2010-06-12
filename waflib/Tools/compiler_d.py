@@ -4,7 +4,7 @@
 # Thomas Nagy, 2010 (ita)
 
 import os, sys, imp, types
-from wafadmin import Utils, Configure, Options
+from waflib import Utils, Configure, Options
 
 def configure(conf):
 	if getattr(Options.options, 'check_dmd_first', None):

@@ -5,11 +5,11 @@
 "as and gas"
 
 import os, sys
-import wafadmin.Tools.ccroot # - leave this
-import wafadmin.Task
-from wafadmin.TaskGen import extension
+import waflib.Tools.ccroot # - leave this
+import waflib.Task
+from waflib.TaskGen import extension
 
-class asm(wafadmin.Task.Task):
+class asm(waflib.Task.Task):
 	color = 'BLUE'
 	run_str = '${AS} ${ASFLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
 

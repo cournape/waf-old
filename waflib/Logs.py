@@ -5,7 +5,7 @@
 import os, re, logging, traceback, sys
 
 try:
-	import wafadmin.ansiterm
+	import waflib.ansiterm
 except:
 	# optional module for colors on win32, just ignore if it cannot be imported
 	pass

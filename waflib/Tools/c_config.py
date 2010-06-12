@@ -7,9 +7,9 @@ c/c++ configuration routines
 """
 
 import os, imp, sys, shlex, shutil, subprocess
-from wafadmin.Utils import md5
-from wafadmin import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
-from wafadmin.Configure import conf
+from waflib.Utils import md5
+from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
+from waflib.Configure import conf
 
 WAF_CONFIG_H   = 'config.h'
 """default name for the config.h file"""
@@ -424,7 +424,7 @@ def post_check(self, *k, **kw):
 			define_or_stuff()
 
 	if is_success and 'uselib_store' in kw:
-		from wafadmin.Tools import ccroot
+		from waflib.Tools import ccroot
 		for k in ccroot.USELIB_VARS:
 			lk = k.lower()
 			if k == 'INCLUDES': lk = 'includes'

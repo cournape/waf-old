@@ -6,8 +6,8 @@
 "Create static libraries with ar"
 
 import os, sys
-from wafadmin import Task, Utils
-from wafadmin.Configure import conf
+from waflib import Task, Utils
+from waflib.Configure import conf
 
 class static_link(Task.Task):
 	color = 'YELLOW'

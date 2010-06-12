@@ -4,8 +4,8 @@
 
 "Base for c programs/libraries"
 
-from wafadmin import TaskGen, Task
-from wafadmin.Tools import ccroot
+from waflib import TaskGen, Task
+from waflib.Tools import ccroot
 
 @TaskGen.extension('.c')
 def c_hook(self, node):

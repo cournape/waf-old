@@ -3,8 +3,8 @@
 # Ali Sabil, 2007
 
 import os.path, shutil
-from wafadmin import Task, Runner, Utils, Logs, Build, Node
-from wafadmin.TaskGen import extension, after, before
+from waflib import Task, Runner, Utils, Logs, Build, Node
+from waflib.TaskGen import extension, after, before
 
 class valac_task(Task.Task):
 

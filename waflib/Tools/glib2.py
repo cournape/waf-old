@@ -4,8 +4,8 @@
 
 "GLib2 support"
 
-from wafadmin import Task, Utils
-from wafadmin.TaskGen import taskgen, before, after, feature
+from waflib import Task, Utils
+from waflib.TaskGen import taskgen, before, after, feature
 
 #
 # glib-genmarshal

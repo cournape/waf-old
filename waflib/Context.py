@@ -7,8 +7,8 @@ Base classes (mostly abstract)
 """
 
 import traceback, os, imp, sys
-from wafadmin import Utils, Errors, Logs
-import wafadmin.Node
+from waflib import Utils, Errors, Logs
+import waflib.Node
 
 g_module = None
 """
@@ -74,18 +74,18 @@ class Context(ctx):
 
 	def __init__(self, start=None):
 		if not start:
-			from wafadmin import Options
+			from waflib import Options
 			start = Options.run_dir
 
 		# binds the context to the nodes in use to avoid a context singleton
-		class node_class(wafadmin.Node.Node):
+		class node_class(waflib.Node.Node):
 			pass
-		self.node_class = wafadmin.Node.Nod3 = node_class
-		self.node_class.__module__ = "wafadmin.Node"
+		self.node_class = waflib.Node.Nod3 = node_class
+		self.node_class.__module__ = "waflib.Node"
 		self.node_class.__name__ = "Nod3"
 		self.node_class.ctx = self
 
-		self.root = wafadmin.Node.Nod3('', None)
+		self.root = waflib.Node.Nod3('', None)
 		self.cur_script = None
 		self.path = self.root.find_dir(start)
 
@@ -269,7 +269,7 @@ def load_tool(tool, tooldir=None):
 			sys.path.remove(d)
 	else:
 		for x in ['Tools', 'extras']:
-			imp = 'wafadmin.%s.%s' % (x, tool)
+			imp = 'waflib.%s.%s' % (x, tool)
 			try:
 				__import__(imp)
 			except ImportError:

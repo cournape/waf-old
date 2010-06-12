@@ -3,9 +3,9 @@
 # Matthias Jahn jahn dôt matthias ât freenet dôt de, 2007 (pmarat)
 
 import os, sys, imp, types
-from wafadmin.Tools import ccroot
-from wafadmin import Utils, Configure, Options
-from wafadmin.Logs import debug
+from waflib.Tools import ccroot
+from waflib import Utils, Configure, Options
+from waflib.Logs import debug
 
 c_compiler = {
 'win32':  ['msvc', 'gcc'],

@@ -3,7 +3,7 @@
 # Sebastian Schlingmann, 2008
 # Thomas Nagy, 2008-2010 (ita)
 
-from wafadmin import TaskGen, Utils
+from waflib import TaskGen, Utils
 
 TaskGen.declare_chain(
 	name = 'luac',

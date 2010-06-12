@@ -35,12 +35,12 @@ try:
 except:
 	import winreg as _winreg
 
-from wafadmin import Utils, TaskGen, Runner, Configure, Task, Options
-from wafadmin.Logs import debug, info, warn, error
-from wafadmin.TaskGen import after, before, feature
+from waflib import Utils, TaskGen, Runner, Configure, Task, Options
+from waflib.Logs import debug, info, warn, error
+from waflib.TaskGen import after, before, feature
 
-from wafadmin.Configure import conf
-from wafadmin.Tools import ccroot, cc, cxx, ar, winres
+from waflib.Configure import conf
+from waflib.Tools import ccroot, cc, cxx, ar, winres
 
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....

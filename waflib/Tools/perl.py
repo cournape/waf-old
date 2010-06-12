@@ -3,9 +3,9 @@
 # andersg at 0x63.nu 2007
 
 import os, subprocess
-from wafadmin import Task, Options, Utils
-from wafadmin.Configure import conf
-from wafadmin.TaskGen import extension, taskgen, feature, before
+from waflib import Task, Options, Utils
+from waflib.Configure import conf
+from waflib.TaskGen import extension, taskgen, feature, before
 
 @before('apply_incpaths', 'apply_lib_vars')
 @feature('perlext')

@@ -3,9 +3,9 @@
 # daniel.svensson at purplescout.se 2008
 
 import os
-from wafadmin import Task, Options, Utils
-from wafadmin.TaskGen import before, feature, after
-from wafadmin.Configure import conf
+from waflib import Task, Options, Utils
+from waflib.TaskGen import before, feature, after
+from waflib.Configure import conf
 
 @feature('rubyext')
 @before('apply_incpaths', 'apply_lib_vars', 'apply_bundle')

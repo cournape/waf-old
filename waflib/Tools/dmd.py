@@ -4,8 +4,8 @@
 # Thomas Nagy, 2008-2010 (ita)
 
 import sys
-from wafadmin.Tools import ar
-from wafadmin.Configure import conf
+from waflib.Tools import ar
+from waflib.Configure import conf
 
 @conf
 def find_dmd(conf):

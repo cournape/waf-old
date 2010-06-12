@@ -9,7 +9,7 @@ try:
 	from queue import Queue
 except:
 	from Queue import Queue
-from wafadmin import Utils, Logs, Options, Task, Errors
+from waflib import Utils, Logs, Options, Task, Errors
 
 GAP = 15
 MAXJOBS = 999
