@@ -16,10 +16,10 @@ zip_types = ['bz2', 'gz']
 import tokenize
 
 import os, sys, base64, shutil, re, random, io, optparse, tempfile
-from wafadmin import Utils, Options, Build
+from waflib import Utils, Options, Build
 from hashlib import md5
 
-from wafadmin import Configure
+from waflib import Configure
 Configure.autoconfig = 1
 
 def sub_file(fname, lst):
@@ -55,7 +55,7 @@ def init(*k, **kw):
 		except:
 			pass
 
-		sub_file('wafadmin/Context.py', pats)
+		sub_file('waflib/Context.py', pats)
 
 		sys.exit(0)
 	elif Options.options.waf:
@@ -112,7 +112,7 @@ def compute_revision():
 			elif name.endswith('.py'):
 				arg.append(os.path.join(dirname, name))
 	sources = []
-	os.path.walk('wafadmin', visit, sources)
+	os.path.walk('waflib', visit, sources)
 	sources.sort()
 	m = md5()
 	for source in sources:
@@ -226,7 +226,7 @@ def create_waf(*k, **kw):
 	files = []
 	add3rdparty = [x + '.py' for x in Options.options.add3rdparty.split(',')]
 	for d in '. Tools extras'.split():
-		dd = os.path.join('wafadmin', d)
+		dd = os.path.join('waflib', d)
 		for k in os.listdir(dd):
 			if k == '__init__.py':
 				files.append(os.path.join(dd, k))

@@ -57,7 +57,7 @@ def unpack_wafdir(dir):
 	c = 'corrupt archive (%d)'
 	while 1:
 		line = f.readline()
-		if not line: err('run waf-light from a folder containing wafadmin')
+		if not line: err('run waf-light from a folder containing waflib')
 		if line == b('#==>\n'):
 			txt = f.readline()
 			if not txt: err(c % 1)
@@ -71,7 +71,7 @@ def unpack_wafdir(dir):
 	except OSError: pass
 	try:
 		for x in ['Tools', 'extras']:
-			os.makedirs(join(dir, 'wafadmin', x))
+			os.makedirs(join(dir, 'waflib', x))
 	except OSError:
 		err("Cannot unpack waf lib into %s\nMove waf into a writeable directory" % dir)
 
@@ -92,10 +92,10 @@ def unpack_wafdir(dir):
 		err("Waf cannot be unpacked, check that bzip2 support is present")
 
 	for x in ['Tools', 'extras']:
-		os.chmod(join('wafadmin',x), 493)
+		os.chmod(join('waflib',x), 493)
 
 	if sys.hexversion<0x300000f:
-		sys.path = [join(dir, 'wafadmin')] + sys.path
+		sys.path = [join(dir, 'waflib')] + sys.path
 		import fixpy2
 		fixpy2.fixdir(dir)
 
@@ -104,7 +104,7 @@ def unpack_wafdir(dir):
 
 def test(dir):
 	try:
-		os.stat(join(dir, 'wafadmin'))
+		os.stat(join(dir, 'waflib'))
 		return os.path.abspath(dir)
 	except OSError:
 		pass
@@ -121,7 +121,7 @@ def find_lib():
 	if name.endswith('waf-light'):
 		w = test(base)
 		if w: return w
-		err('waf-light requires wafadmin -> export WAFDIR=/folder')
+		err('waf-light requires waflib -> export WAFDIR=/folder')
 
 	dirname = '%s-%s-%s' % (WAF, VERSION, REVISION)
 	for i in [INSTALL,'/usr','/usr/local','/opt']:
@@ -141,7 +141,7 @@ wafdir = find_lib()
 sys.path.insert(0, wafdir)
 
 if __name__ == '__main__':
-	from wafadmin import Scripting
-	import wafadmin.extras.compat15 # will be removed in waf 1.6.10
+	from waflib import Scripting
+	import waflib.extras.compat15 # will be removed in waf 1.6.10
 	Scripting.waf_entry_point(cwd, VERSION, wafdir)
 
