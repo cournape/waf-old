@@ -21,6 +21,10 @@ def build(bld):
 	bld.program(source='main.cpp', target='app')
 	if bld.cmd != 'clean':
 		bld.log = open('test.log', 'w')
-		bld.check(header_name='stdio.h', features='cxx cprogram')
-		bld.log = None
+		try:
+			bld.check(header_name='sadlib.h', features='cxx cprogram')
+		except bld.errors.ConfigurationError:
+			pass
+		finally:
+			bld.log = None
 

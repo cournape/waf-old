@@ -4,7 +4,6 @@ Waf 1.6
 General
 
 - better apis for shell compilation in Task.py
-- enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 - refactor the environment thing
 - unification uselib / uselib_local / objects -> attribute 'uses'? / subsystems
   new global variable uselib_vars and generalization of uselib for all kinds of task generators
@@ -12,6 +11,7 @@ General
 Low priority
 
 - detect the deadlock in the task scheduler
+- enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
 Potential sub-projects (contributions will be welcome)
 
