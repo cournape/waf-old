@@ -119,7 +119,6 @@ class TaskBase(evil):
 		return self.__class__.__name__ + '\n'
 
 	def __hash__(self):
-		print("hash taskbase") # TODO remove
 		return id(self)
 
 	def exec_command(self, *k, **kw):
@@ -220,7 +219,7 @@ class Task(TaskBase):
 		self.outputs = []
 
 		self.deps_nodes = []
-		self.run_after = []
+		self.run_after = set([])
 
 		# Additionally, you may define the following
 		#self.dep_vars  = 'PREFIX DATADIR'
@@ -267,7 +266,7 @@ class Task(TaskBase):
 		"set (scheduler) order on another task"
 		# TODO: handle list or object
 		assert isinstance(task, TaskBase)
-		self.run_after.append(task)
+		self.run_after.add(task)
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
@@ -498,24 +497,18 @@ def compare_partial(t1, t2):
 
 def set_file_constraints(tasks):
 	"will set the run_after constraints on all tasks"
-	ins = {}
-	outs = {}
+	ins = Utils.defaultdict(set)
+	outs = Utils.defaultdict(set)
 	for x in tasks:
 		for a in getattr(x, 'inputs', []):
-			try:
-				ins[id(a)].append(x)
-			except KeyError:
-				ins[id(a)] = [x]
+			ins[id(a)].add(x)
 		for a in getattr(x, 'outputs', []):
-			try:
-				outs[id(a)].append(x)
-			except KeyError:
-				outs[id(a)] = [x]
+			outs[id(a)].add(x)
 
 	links = set(ins.keys()).intersection(outs.keys())
 	for k in links:
 		for a in ins[k]:
-			a.run_after.extend(outs[k]) # TODO why not?
+			a.run_after.update(outs[k])
 
 def set_precedence_constraints(tasks):
 	# look at the after/before/ext_out/ext_in attributes
@@ -547,7 +540,7 @@ def set_precedence_constraints(tasks):
 				a = j
 				b = i
 			for x in cstr_groups[keys[b]]:
-				x.run_after.extend(cstr_groups[keys[a]])
+				x.run_after.update(cstr_groups[keys[a]])
 
 def funex(c):
 	dc = {}
