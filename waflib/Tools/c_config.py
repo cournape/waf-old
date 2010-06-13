@@ -564,15 +564,13 @@ def define(self, define, value, quote=1):
 	tbl = self.env[DEFINES] or Utils.ordered_dict()
 
 	# the user forgot to tell if the value is quoted or not
-	if isinstance(value, str):
+	if isinstance(value, int):
+		tbl[define] = value
+	else:
 		if quote:
 			tbl[define] = '"%s"' % str(value)
 		else:
 			tbl[define] = value
-	elif isinstance(value, int):
-		tbl[define] = value
-	else:
-		raise TypeError('define %r -> %r must be a string or an int' % (define, value))
 
 	# add later to make reconfiguring faster
 	self.env[DEFINES] = tbl
