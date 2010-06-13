@@ -11,6 +11,9 @@ from waflib.Tools import ccroot
 def cxx_hook(self, node):
 	return self.create_compiled_task('cxx', node)
 
+if not '.c' in TaskGen.task_gen.mappings:
+	TaskGen.task_gen.mappings['.c'] = TaskGen.task_gen.mappings['.cpp']
+
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 cxx = Task.task_factory('cxx', cxx_str, color='GREEN', ext_in=['.h'], scan=ccroot.scan)
 cxx.vars.append('CXXDEPS')
