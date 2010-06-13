@@ -165,7 +165,6 @@ class BuildContext(Context.Context):
 	def execute(self):
 		"""see Context.execute"""
 		self.load()
-		self.init_dirs(self.top_dir, self.variant_dir)
 		if not self.all_envs:
 			self.load_envs()
 
@@ -222,6 +221,7 @@ class BuildContext(Context.Context):
 		finally:
 			if f:
 				f.close()
+		self.init_dirs(self.top_dir, self.variant_dir)
 
 	def save(self):
 		"Stores the cache on disk (pickle), see self.load - uses a temporary file to avoid problems with ctrl+c"
@@ -660,7 +660,6 @@ class InstallContext(BuildContext):
 	def execute(self):
 		"""see Context.execute"""
 		self.load()
-		self.init_dirs(self.top_dir, self.variant_dir)
 		if not self.all_envs:
 			self.load_envs()
 
@@ -823,7 +822,6 @@ class CleanContext(BuildContext):
 	def execute(self):
 		"""see Context.execute"""
 		self.load()
-		self.init_dirs(self.top_dir, self.variant_dir)
 		if not self.all_envs:
 			self.load_envs()
 
@@ -851,7 +849,6 @@ class ListContext(BuildContext):
 	def execute(self):
 		"""see Context.execute"""
 		self.load()
-		self.init_dirs(self.top_dir, self.variant_dir)
 		if not self.all_envs:
 			self.load_envs()
 

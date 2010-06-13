@@ -23,6 +23,9 @@ sys.modules['Utils'] = Utils
 from waflib.Tools import c_preproc
 sys.modules['preproc'] = c_preproc
 
+from waflib.Tools import c_config
+sys.modules['config_c'] = c_config
+
 ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive
 ConfigSet.ConfigSet.set_variant = Utils.nada
 
