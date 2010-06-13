@@ -100,6 +100,18 @@ class TaskBase(evil):
 	color = "GREEN"
 	stat = None
 
+	ext_in = []
+	"""file extensions that objects of this task class might need"""
+
+	ext_out = []
+	"""file extensions that objects of this task class might create"""
+
+	before = []
+	"""list of task class names to execute before instances of this class"""
+
+	after = []
+	"""list of task class names to execute after instances of this class"""
+
 	def __init__(self, *k, **kw):
 		self.hasrun = NOT_RUN
 
@@ -175,12 +187,9 @@ class TaskBase(evil):
 
 	def hash_constraints(self):
 		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
-		a = self.attr
-		h = hash((self.__class__.__name__,
-			str(a('before', '')),
-			str(a('after', '')),
-			str(a('ext_in', '')),
-			str(a('ext_out', ''))))
+		cls = self.__class__
+		tup = (str(cls.before), str(cls.after), str(cls.ext_in), str(cls.ext_out))
+		h = hash(tup)
 		return h
 
 	def format_error(self):
