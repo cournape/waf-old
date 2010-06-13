@@ -210,10 +210,6 @@ class ConfigurationContext(Context.Context):
 		if hasattr(self, 'log') and self.log:
 			self.log.close()
 
-	def fatal(self, msg):
-		"""raise a configuration error"""
-		raise self.errors.ConfigurationError(msg)
-
 	def check_tool(self, input, tooldir=None, funs=None, download=True):
 		"loads a waf tool"
 
@@ -398,4 +394,9 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 
 	if num2ver(max_val) < ver:
 		conf.fatal('waf version should be at most %r (%r found)' % (maxi, ver))
+
+@conf
+def fatal(self, msg):
+	"""raise a configuration error"""
+	raise self.errors.ConfigurationError(msg)
 

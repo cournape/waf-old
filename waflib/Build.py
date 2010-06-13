@@ -583,10 +583,6 @@ class BuildContext(Context.Context):
 		while 1:
 			yield []
 
-	def fatal(self, msg):
-		"""raise a build error"""
-		raise Errors.WafError(msg)
-
 class inst_task(Task.Task):
 	"""task used for installing files and symlinks"""
 	color = 'CYAN'
