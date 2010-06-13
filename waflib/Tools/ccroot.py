@@ -9,7 +9,7 @@ from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Configure import conf
-from waflib.Tools import c_aliases, c_preproc, c_config
+from waflib.Tools import c_aliases, c_preproc, c_config, c_asm
 
 USELIB_VARS = ['CCDEPS', 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',

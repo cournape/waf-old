@@ -3,26 +3,16 @@
 # Thomas Nagy, 2008-2010 (ita)
 
 """
-Nasm processing
+Nasm tool (asm processing)
 """
 
-import os
-from waflib import TaskGen, Task, Utils
-from waflib.TaskGen import before, extension
+import waflib.Tools.ccroot # <- leave this
+from waflib.TaskGen import feature
 
 @feature('asm')
-@before('apply_link')
 def apply_nasm_vars(self):
-	self.env.append_value('NASM_FLAGS', self.to_list(getattr(self, 'nasm_flags', [])))
-
-@extension('.s', '.S', '.asm', '.ASM', '.spp', '.SPP')
-def nasm_file(self, node):
-	return self.create_compiled_task('nasm', node)
-
-class nasm(Task.Task):
-	color = 'BLUE'
-	run_str = '${NASM} ${NASM_FLAGS} ${_INCFLAGS} ${SRC} -o ${TGT}'
+	self.env.append_value('ASFLAGS', self.to_list(getattr(self, 'nasm_flags', [])))
 
 def configure(conf):
-	nasm = conf.find_program(['nasm', 'yasm'], var='NASM')
+	nasm = conf.find_program(['nasm', 'yasm'], var='AS')
 
