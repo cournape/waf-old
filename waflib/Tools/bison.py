@@ -10,7 +10,7 @@ from waflib.TaskGen import extension
 
 class bison(Task.Task):
 	"""bison task, created by the extension method below"""
-	color   = 'GREEN'
+	color   = 'BLUE'
 	run_str = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
 	ext_out = ['.h'] # just to make sure
 
