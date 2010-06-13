@@ -5,8 +5,8 @@
 
 "Create static libraries with ar"
 
-import os, sys
-from waflib import Task, Utils
+import os
+from waflib import Task
 from waflib.Configure import conf
 
 class static_link(Task.Task):
