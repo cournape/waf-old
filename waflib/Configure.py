@@ -241,17 +241,6 @@ class ConfigurationContext(Context.Context):
 
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
-	def find_file(self, filename, path_list):
-		"""finds a file in a list of paths
-		@param filename: name of the file to search for
-		@param path_list: list of directories to search
-		@return: the first occurrence filename or '' if filename could not be found
-		"""
-		for directory in Utils.to_list(path_list):
-			if os.path.exists(os.path.join(directory, filename)):
-				return directory
-		return ''
-
 	def post_recurse(self, node):
 		"""records the path and a hash of the scripts visited, see Context.post_recurse"""
 		super(ConfigurationContext, self).post_recurse(node)
@@ -285,57 +274,6 @@ class ConfigurationContext(Context.Context):
 		# do not use 'get' to make certain the variable is not defined
 		try: self.env.append_value(dest or var, Utils.to_list(self.environ[var]))
 		except KeyError: pass
-
-	def find_program(self, filename, path_list=[], var=None, mandatory=True, environ=None, exts=''):
-		"""Search for a program on the operating system"""
-
-		if not environ:
-			environ = os.environ
-
-		ret = ''
-		if var:
-			if self.env[var]:
-				ret = self.env[var]
-			elif var in environ:
-				ret = environ[var]
-
-		if not ret:
-			if path_list:
-				path_list = Utils.to_list(path_list)
-			else:
-				path_list = environ.get('PATH', '').split(os.pathsep)
-
-			if not isinstance(filename, list):
-				filename = [filename]
-
-			if not exts:
-				if Options.platform == 'win32':
-					exts = '.exe,.com,.bat,.cmd'
-
-			for a in exts.split(','):
-				if ret:
-					break
-				for b in filename:
-					if ret:
-						break
-					for c in path_list:
-						if ret:
-							break
-						x = os.path.join(c, b + a)
-						if os.path.isfile(x):
-							ret = x
-
-		filename = Utils.to_list(filename)
-		self.start_msg('Checking for program ' + ','.join(filename))
-		self.end_msg(ret)
-		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
-
-		if not ret and mandatory:
-			self.fatal('The program %r could not be found' % filename)
-
-		if var:
-			self.env[var] = ret
-		return ret
 
 	def cmd_to_list(self, cmd):
 		"""Detects if a command is written in pseudo shell like 'ccache g++'"""
@@ -399,4 +337,68 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 def fatal(self, msg):
 	"""raise a configuration error"""
 	raise self.errors.ConfigurationError(msg)
+
+@conf
+def find_file(self, filename, path_list):
+	"""finds a file in a list of paths
+	@param filename: name of the file to search for
+	@param path_list: list of directories to search
+	@return: the first occurrence filename or '' if filename could not be found
+	"""
+	for directory in Utils.to_list(path_list):
+		if os.path.exists(os.path.join(directory, filename)):
+			return directory
+	return ''
+
+@conf
+def find_program(self, filename, path_list=[], var=None, mandatory=True, environ=None, exts=''):
+	"""Search for a program on the operating system"""
+
+	if not environ:
+		environ = os.environ
+
+	ret = ''
+	if var:
+		if self.env[var]:
+			ret = self.env[var]
+		elif var in environ:
+			ret = environ[var]
+
+	if not ret:
+		if path_list:
+			path_list = Utils.to_list(path_list)
+		else:
+			path_list = environ.get('PATH', '').split(os.pathsep)
+
+		if not isinstance(filename, list):
+			filename = [filename]
+
+		if not exts:
+			if Options.platform == 'win32':
+				exts = '.exe,.com,.bat,.cmd'
+
+		for a in exts.split(','):
+			if ret:
+				break
+			for b in filename:
+				if ret:
+					break
+				for c in path_list:
+					if ret:
+						break
+					x = os.path.join(c, b + a)
+					if os.path.isfile(x):
+						ret = x
+
+	filename = Utils.to_list(filename)
+	self.start_msg('Checking for program ' + ','.join(filename))
+	self.end_msg(ret)
+	self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
+
+	if not ret and mandatory:
+		self.fatal('The program %r could not be found' % filename)
+
+	if var:
+		self.env[var] = ret
+	return ret
 
