@@ -21,6 +21,6 @@ class cc(Task.Task):
 class cc_link(Task.Task):
 	color   = 'YELLOW'
 	run_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
-	ext_in  = ['.o']
+	ext_in  = ['.h', '.c', '.o']
 	ext_out = ['.bin']
 

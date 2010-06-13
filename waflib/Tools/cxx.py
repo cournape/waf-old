@@ -16,5 +16,5 @@ cxx = Task.task_factory('cxx', cxx_str, color='GREEN', ext_in=['.h', '.cxx'], sc
 cxx.vars.append('CXXDEPS')
 
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
-cxx_link = Task.task_factory('cxx_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin')
+cxx_link = Task.task_factory('cxx_link', link_str, color='YELLOW', ext_in=['.h', '.c', '.o'], ext_out='.bin')
 

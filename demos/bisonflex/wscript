@@ -7,6 +7,7 @@ def options(opt):
 def configure(conf):
 	#conf.check_tool('compiler_cxx flex bison')
 	conf.check_tool('compiler_cc flex bison')
+	conf.env.LIB_CALC = ['fl']
 
 def build(bld):
 	# to compile in c or c++ mode, uncomment the appropriate line below:
