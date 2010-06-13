@@ -14,16 +14,16 @@ def build(bld):
 	#mode = 'cc'
 
 	tg = bld(
-		features = 'cprogram ' + mode,
-		includes = '.',
+		features = ['cprogram', mode],
 		source = 'calc.l calc.y main.c',
 		target = 'calc',
 		uselib = 'CALC')
 
 	if mode == 'cxx':
-		#import waflib.Tools.cxx as cxx
-		#tg.mappings['.c'] = cxx.cxx
+		import waflib.Tools.cxx as cxx
+		tg.mappings['.c'] = cxx.cxx_hook
 
-		import waflib.TaskGen
-		waflib.TaskGen.task_gen.mappings['.c'] = waflib.TaskGen.task_gen.mappings['.cxx']
+		#import waflib.TaskGen
+		#waflib.TaskGen.task_gen.mappings['.c'] = waflib.TaskGen.task_gen.mappings['.cxx']
+		#tg.mappings['.c'] = waflib.TaskGen.task_gen.mappings['.cxx']
 
