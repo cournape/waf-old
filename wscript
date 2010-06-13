@@ -182,7 +182,7 @@ def process_decorators(body):
 		elif buf:
 			name = deco_re.sub('\\2', line)
 			if not name:
-				raise IOError, "decorator not followed by a function!"+line
+				raise IOError("decorator not followed by a function!" + line)
 			for x in buf:
 				all_deco.append("%s(%s)" % (x, name))
 			accu.append(line)
