@@ -108,8 +108,7 @@ class qxx(cxx.cxx):
 					if k:
 						break
 				else:
-					raise Errors.WafError("no header found for %s which is a moc file" % str(d))
-					#TODO
+					raise Errors.WafError('no header found for %r which is a moc file' % d)
 
 			# next time we will not search for the extension (look at the 'for' loop below)
 

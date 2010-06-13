@@ -610,7 +610,7 @@ class c_parser(object):
 
 	def cached_find_resource(self, node, filename):
 		"""
-		just an idea (TODO)
+		this seems to work
 		"""
 		try:
 			nd = node.ctx.cache_nd
