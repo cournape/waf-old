@@ -293,7 +293,7 @@ $ waf configure print_ping
 
 === Building, cleaning, installing and uninstalling a project
 
-The Waf command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
+The 'build' command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
 
 [source,python]
 ---------------
