@@ -2,6 +2,7 @@ NEW IN WAF 1.5.18
 -----------------
 * Fixed a typo in flex.py (python < 2.6)
 * Fixed the winreg import in msvc.py (python > 3.0)
+* Provide a thread-less build mode for broken python installations
 
 NEW IN WAF 1.5.17
 -----------------
