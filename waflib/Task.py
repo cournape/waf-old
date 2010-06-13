@@ -496,7 +496,7 @@ def compare_partial(t1, t2):
 	return 0
 
 def set_file_constraints(tasks):
-	"will set the run_after constraints on all tasks"
+	"adds tasks to the task 'run_after' attribute based on the task inputs and outputs"
 	ins = Utils.defaultdict(set)
 	outs = Utils.defaultdict(set)
 	for x in tasks:
@@ -511,9 +511,8 @@ def set_file_constraints(tasks):
 			a.run_after.update(outs[k])
 
 def set_precedence_constraints(tasks):
-	# look at the after/before/ext_out/ext_in attributes
+	"adds tasks to the task 'run_after' attribute based on the after/before/ext_out/ext_in attributes"
 	cstr_groups = Utils.defaultdict(list)
-	cstr_order = Utils.defaultdict(set)
 	for x in tasks:
 		h = x.hash_constraints()
 		cstr_groups[h].append(x)
@@ -534,9 +533,7 @@ def set_precedence_constraints(tasks):
 			if val > 0:
 				a = i
 				b = j
-				#cstr_order[keys[i]].add(keys[j])
 			elif val < 0:
-				#cstr_order[keys[j]].add(keys[i])
 				a = j
 				b = i
 			for x in cstr_groups[keys[b]]:
