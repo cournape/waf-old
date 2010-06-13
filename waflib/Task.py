@@ -118,6 +118,10 @@ class TaskBase(evil):
 			return 'executing: %s\n' % self.fun.__name__
 		return self.__class__.__name__ + '\n'
 
+	def __hash__(self):
+		print("hash taskbase") # TODO remove
+		return id(self)
+
 	def exec_command(self, *k, **kw):
 		"use this for executing commands from tasks"
 		return self.generator.bld.exec_command(*k, **kw)
@@ -493,7 +497,7 @@ def compare_partial(t1, t2):
 	return 0
 
 def set_file_constraints(tasks):
-	"will set the run_after constraints on all tasks (may cause a slowdown with lots of tasks)"
+	"will set the run_after constraints on all tasks"
 	ins = {}
 	outs = {}
 	for x in tasks:
@@ -511,9 +515,39 @@ def set_file_constraints(tasks):
 	links = set(ins.keys()).intersection(outs.keys())
 	for k in links:
 		for a in ins[k]:
-			for b in outs[k]:
-				a.set_run_after(b)
+			a.run_after.extend(outs[k]) # TODO why not?
 
+def set_precedence_constraints(tasks):
+	# look at the after/before/ext_out/ext_in attributes
+	cstr_groups = Utils.defaultdict(list)
+	cstr_order = Utils.defaultdict(set)
+	for x in tasks:
+		h = x.hash_constraints()
+		cstr_groups[h].append(x)
+
+	keys = list(cstr_groups.keys())
+	maxi = len(keys)
+
+	# this list should be short
+	for i in range(maxi):
+		t1 = cstr_groups[keys[i]][0]
+		for j in range(i + 1, maxi):
+			t2 = cstr_groups[keys[j]][0]
+
+			# add the constraints based on the comparisons
+			val = (compare_exts(t1, t2) or compare_partial(t1, t2))
+			if not val:
+				continue
+			if val > 0:
+				a = i
+				b = j
+				#cstr_order[keys[i]].add(keys[j])
+			elif val < 0:
+				#cstr_order[keys[j]].add(keys[i])
+				a = j
+				b = i
+			for x in cstr_groups[keys[b]]:
+				x.run_after.extend(cstr_groups[keys[a]])
 
 def funex(c):
 	dc = {}

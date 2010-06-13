@@ -15,12 +15,11 @@ class cc(Task.Task):
 	color   = 'GREEN'
 	run_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	vars    = ['CCDEPS']
-	ext_in  = ['.h', '.c']
+	ext_in  = ['.h']
 	scan    = ccroot.scan
 
 class cc_link(Task.Task):
 	color   = 'YELLOW'
 	run_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
-	ext_in  = ['.h', '.c', '.o']
 	ext_out = ['.bin']
 

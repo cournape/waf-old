@@ -146,7 +146,7 @@ class qxx(cxx.cxx):
 				moctasks.append(task)
 
 		# simple scheduler dependency: run the moc task before others
-		self.run_after = moctasks
+		self.run_after += moctasks # TODO run_after
 		self.moc_done = 1
 
 	run = Task.classes['cxx'].__dict__['run']
