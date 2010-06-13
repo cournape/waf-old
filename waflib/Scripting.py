@@ -98,7 +98,7 @@ def waf_entry_point(current_directory, version, wafdir):
 
 	parse_options()
 
-	#"""
+	"""
 	import cProfile, pstats
 	cProfile.runctx("import Scripting; Scripting.run_commands()", {}, {}, 'profi.txt')
 	p = pstats.Stats('profi.txt')
