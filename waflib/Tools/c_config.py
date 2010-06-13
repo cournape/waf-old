@@ -495,8 +495,8 @@ def run_c_code(self, *k, **kw):
 
 	bld = Build.BuildContext()
 	bld.top_dir = dir
-	bld.out_dir = bld.variant_dir = bdir
-	bld.load()
+	bld.out_dir = bdir
+	bld.load() # configuration test cache
 	bld.targets = '*'
 
 	bld.log = self.log
