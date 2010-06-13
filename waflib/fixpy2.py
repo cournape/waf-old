@@ -49,14 +49,19 @@ def subst(*k):
 	return do_subst
 
 @subst('*')
-def r0(code):
+def r1(code):
 	code = code.replace('as e:', ',e:')
 	code = code.replace(".decode('utf-8')", '')
 	code = code.replace('.encode()', '')
 	return code
 
 @subst('Utils.py')
-def r1(code):
+def r2(code):
 	code = code.replace("b'iluvcuteoverload'", "'iluvcuteoverload'")
+	return code
+
+@subst('Tools/ccroot.py')
+def r3(code):
+	code = code.replace("b'\\n'", "'\\n'")
 	return code
 
