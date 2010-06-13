@@ -9,8 +9,8 @@ import waflib.TaskGen
 
 def decide_ext(self, node):
 	if 'cxx' in self.features:
-		return '.lex.cc'
-	return '.lex.c'
+		return ['.lex.cc']
+	return ['.lex.c']
 
 waflib.TaskGen.declare_chain(
 	name = 'flex',

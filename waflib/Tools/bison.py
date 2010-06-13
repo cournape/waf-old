@@ -8,12 +8,15 @@
 from waflib import Task
 from waflib.TaskGen import extension
 
-bison = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
-cls = Task.task_factory('bison', bison, 'GREEN', ext_in='.yc .y .yy', ext_out='.c .cxx .h .l', before='cxx')
+class bison(Task.Task):
+	"""bison task, created by the extension method below"""
+	color   = 'GREEN'
+	run_str = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
+	ext_out = ['.h'] # just to make sure
 
 @extension('.y', '.yc', '.yy')
 def big_bison(self, node):
-	"""when it becomes complicated (unlike flex), the old recipes work better (cwd)"""
+	"""more complicated than flex (need to pass the cwd)"""
 	has_h = '-d' in self.env['BISONFLAGS']
 
 	outs = []
@@ -27,7 +30,7 @@ def big_bison(self, node):
 			outs.append(node.change_ext('.tab.h'))
 
 	tsk = self.create_task('bison', node, outs)
-	tsk.cwd = node.bld_dir(tsk.env)
+	tsk.cwd = node.parent.get_bld().abspath()
 
 	# and the c/cxx file must be compiled too
 	self.source.append(outs[0])
