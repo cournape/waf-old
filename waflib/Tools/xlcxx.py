@@ -49,7 +49,7 @@ def xlcxx_common_flags(conf):
 	v['program_PATTERN']     = '%s'
 
 	# shared library
-	v['shlib_CXXFLAGS']      = ['-fPIC', '-DPIC'] # avoid using -DPIC, -fPIC aleady defines the __PIC__ macro
+	v['shlib_CXXFLAGS']      = ['-fPIC']
 	v['shlib_LINKFLAGS']     = ['-G', '-Wl,-brtl,-bexpfull']
 	v['shlib_PATTERN']       = 'lib%s.so'
 

@@ -51,7 +51,7 @@ def gcc_common_flags(conf):
 	v['program_PATTERN']     = '%s'
 
 	# shared library
-	v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC'] # avoid using -DPIC, -fPIC aleady defines the __PIC__ macro
+	v['shlib_CCFLAGS']       = ['-fPIC']
 	v['shlib_LINKFLAGS']     = ['-shared']
 	v['shlib_PATTERN']       = 'lib%s.so'
 
