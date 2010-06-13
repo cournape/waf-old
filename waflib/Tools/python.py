@@ -345,7 +345,7 @@ def check_python_version(conf, minver=None):
 					python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
 
 		if hasattr(conf, 'define'): # conf.define is added by the C tool, so may not exist
-			conf.define('PYTHONDIR', pydir)
+			conf.define('PYTHONDIR', pydir.encode())
 		conf.env['PYTHONDIR'] = pydir
 
 	# Feedback
