@@ -9,6 +9,10 @@ General
 - unification uselib / uselib_local / objects -> attribute 'uses'? / subsystems
   new global variable uselib_vars and generalization of uselib for all kinds of task generators
 
+Low priority
+
+- detect the deadlock in the task scheduler
+
 Potential sub-projects (contributions will be welcome)
 
 + IDE file generator (msvc, codeblocks)
