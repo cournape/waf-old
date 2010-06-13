@@ -10,11 +10,10 @@ from waflib import Task
 from waflib.Configure import conf
 
 class static_link(Task.Task):
-	color = 'YELLOW'
+	color   = 'YELLOW'
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
-	ext_in = ['.o']
 	def run(self):
-		"""remove the output in case it already exists"""
+		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
 		try:
 			os.remove(self.outputs[0].abspath())
 		except OSError:
