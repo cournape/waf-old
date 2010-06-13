@@ -5,12 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re, subprocess
-from wafadmin import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
-from wafadmin.Logs import error, debug, warn
-from wafadmin.Utils import md5
-from wafadmin.TaskGen import after, before, feature, taskgen_method
-from wafadmin.Configure import conf
-from wafadmin.Tools import preproc
+from waflib import Utils, Build
 
 def sniff_features(**kw):
 	"""look at the source files and return the features (mainly cc and cxx)"""

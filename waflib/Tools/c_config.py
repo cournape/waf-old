@@ -7,7 +7,6 @@ c/c++ configuration routines
 """
 
 import os, imp, sys, shlex, shutil, subprocess
-from waflib.Utils import md5
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
 from waflib.Configure import conf
 

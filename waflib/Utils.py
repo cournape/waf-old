@@ -17,8 +17,11 @@ except:
 try:
 	from hashlib import md5
 except:
-	# never fail to enable fixes from another module
-	pass
+	try:
+		from md5 import md5
+	except:
+		# never fail to enable fixes from another module
+		pass
 
 try:
 	import threading

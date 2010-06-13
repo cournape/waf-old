@@ -7,7 +7,6 @@
 import os, sys, re, subprocess
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
-from waflib.Utils import md5
 from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Configure import conf
 from waflib.Tools import c_aliases, c_preproc, c_config
