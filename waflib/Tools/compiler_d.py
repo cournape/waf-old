@@ -4,7 +4,7 @@
 # Thomas Nagy, 2010 (ita)
 
 import os, sys, imp, types
-from waflib import Utils, Configure, Options
+from waflib import Utils, Configure, Options, Logs
 
 def configure(conf):
 	if getattr(Options.options, 'check_dmd_first', None):
@@ -18,8 +18,9 @@ def configure(conf):
 			conf.start_msg('Checking for %r (d compiler)' % compiler)
 			conf.env = orig.copy()
 			conf.check_tool(compiler)
-		except Exception as e:
-			pass
+		except conf.errors.ConfigurationError as e:
+			conf.end_msg(False)
+			Logs.debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env.D:
 				orig.table = conf.env.get_merged_dict()

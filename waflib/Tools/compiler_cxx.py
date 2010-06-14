@@ -37,6 +37,7 @@ def configure(conf):
 			conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 			conf.check_tool(compiler)
 		except conf.errors.ConfigurationError as e:
+			conf.end_msg(False)
 			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:
