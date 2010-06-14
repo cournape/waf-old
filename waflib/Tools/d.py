@@ -12,17 +12,6 @@ from waflib.Tools import d_scan, d_config
 from waflib.Tools.ccroot import link_task, static_link
 
 @feature('d')
-@before('apply_d_libs')
-def init_d(self):
-	Utils.def_attrs(self,
-		libs='',
-		uselib='',
-		uselib_local='',
-		compiled_tasks=[],
-		add_objects=[],
-		link_task=None)
-
-@feature('d')
 @after('apply_link', 'init_d')
 @before('apply_vnum', 'apply_incpaths')
 def apply_d_libs(self):
@@ -31,8 +20,8 @@ def apply_d_libs(self):
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
-	self.uselib = self.to_list(self.uselib)
-	names = self.to_list(self.uselib_local)
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
+	names = self.to_list(getattr(self, 'uselib_local', []))
 	get = self.bld.get_tgen_by_name
 
 	seen = set([])
@@ -92,7 +81,7 @@ def apply_d_vars(self):
 
 	libpaths = []
 	libs = []
-	uselib = self.to_list(self.uselib)
+	uselib = self.to_list(getattr(self, 'uselib', []))
 
 	for i in uselib:
 		if env['DFLAGS_' + i]:
