@@ -16,7 +16,7 @@ def common_flags_ldc(conf):
 	v = conf.env
 	v['DFLAGS']         = ['-d-version=Posix']
 	v['DLINKFLAGS']     = []
-	v['D_shlib_DFLAGS'] = ['-relocation-model=pic']
+	v['dshlib_DFLAGS'] = ['-relocation-model=pic']
 
 @conf
 def common_flags_dmd(conf):
@@ -39,10 +39,6 @@ def common_flags_dmd(conf):
 	v['DLIB_ST']           = '-L-l%s' # template for adding libs
 	v['DLIBPATH_ST']       = '-L-L%s' # template for adding libpaths
 
-	# linker debug levels
-	v['DFLAGS_OPTIMIZED']  = ['-O']
-	v['DFLAGS_DEBUG']      = ['-g', '-debug']
-	v['DFLAGS_ULTRADEBUG'] = ['-g', '-debug']
 	v['DLINKFLAGS']        = ['-quiet']
 
 	v['dshlib_DFLAGS']    = ['-fPIC']

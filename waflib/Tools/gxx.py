@@ -21,10 +21,6 @@ def find_gxx(conf):
 def gxx_common_flags(conf):
 	v = conf.env
 
-	# CPPFLAGS DEFINES _CXXINCFLAGS _CXXDEFFLAGS
-	v['CXXFLAGS_DEBUG'] = ['-g']
-	v['CXXFLAGS_RELEASE'] = ['-O2']
-
 	v['CXX_SRC_F']           = ''
 	v['CXX_TGT_F']           = ['-c', '-o', ''] # shell hack for -MD
 
@@ -49,12 +45,12 @@ def gxx_common_flags(conf):
 	v['cxxprogram_PATTERN']     = '%s'
 
 	# shared library
-	v['shlib_CXXFLAGS']      = ['-fPIC']
-	v['shlib_LINKFLAGS']     = ['-shared']
+	v['cxxshlib_CXXFLAGS']      = ['-fPIC']
+	v['cxxshlib_LINKFLAGS']     = ['-shared']
 	v['cxxshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
-	v['stlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['cxxstlib_LINKFLAGS'] = ['-Wl,-Bstatic']
 	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
@@ -72,9 +68,9 @@ def gxx_modifier_win32(conf):
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
 
 	dest_arch = v['DEST_CPU']
-	v['shlib_CXXFLAGS'] = []
+	v['cxxshlib_CXXFLAGS'] = []
 
-	v.append_value('shlib_CXXFLAGS', '-DDLL_EXPORT') # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
+	v.append_value('cxxshlib_CXXFLAGS', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
 
 	# Auto-import is enabled by default even without this option,
 	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
@@ -86,16 +82,16 @@ def gxx_modifier_cygwin(conf):
 	gxx_modifier_win32(conf)
 	v = conf.env
 	v['cxxshlib_PATTERN']       = 'cyg%s.dll'
-	v.append_value('shlib_LINKFLAGS', '-Wl,--enable-auto-image-base')
+	v.append_value('cxxshlib_LINKFLAGS', ['-Wl,--enable-auto-image-base'])
 
 @conf
 def gxx_modifier_darwin(conf):
 	v = conf.env
-	v['shlib_CXXFLAGS']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
-	v['shlib_LINKFLAGS']     = ['-dynamiclib']
+	v['cxxshlib_CXXFLAGS']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
+	v['cxxshlib_LINKFLAGS']     = ['-dynamiclib']
 	v['cxxshlib_PATTERN']       = 'lib%s.dylib'
 
-	v['stlib_LINKFLAGS'] = []
+	v['cxxstlib_LINKFLAGS'] = []
 
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
@@ -104,9 +100,9 @@ def gxx_modifier_darwin(conf):
 @conf
 def gxx_modifier_aix(conf):
 	v = conf.env
-	v['program_LINKFLAGS']   = ['-Wl,-brtl']
+	v['cxxprogram_LINKFLAGS']   = ['-Wl,-brtl']
 
-	v['shlib_LINKFLAGS']     = ['-shared', '-Wl,-brtl,-bexpfull']
+	v['cxxshlib_LINKFLAGS']     = ['-shared', '-Wl,-brtl,-bexpfull']
 
 	v['SHLIB_MARKER']        = ''
 

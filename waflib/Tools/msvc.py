@@ -576,20 +576,6 @@ def msvc_common_flags(conf):
 	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
 
-	# compiler debug levels
-	v['CCFLAGS']            = ['/TC']
-	v['CCFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
-	v['CCFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
-	v['CCFLAGS_DEBUG']      = ['/Od', '/RTC1', '/ZI']
-	v['CCFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/ZI']
-
-	v['CXXFLAGS']            = ['/TP', '/EHsc']
-	v['CXXFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
-	v['CXXFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
-
-	v['CXXFLAGS_DEBUG']      = ['/Od', '/RTC1', '/ZI']
-	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/ZI']
-
 	# linker
 	v['LIB']              = []
 
@@ -599,8 +585,6 @@ def msvc_common_flags(conf):
 	v['STATICLIBPATH_ST'] = '/LIBPATH:%s'
 
 	v['LINKFLAGS']            = ['/NOLOGO', '/MANIFEST']
-	v['LINKFLAGS_DEBUG']      = ['/DEBUG']
-	v['LINKFLAGS_ULTRADEBUG'] = ['/DEBUG']
 
 	# shared library
 	v['shlib_CCFLAGS']  = ['']

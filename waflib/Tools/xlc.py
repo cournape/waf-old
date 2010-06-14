@@ -20,10 +20,6 @@ def find_xlc(conf):
 def xlc_common_flags(conf):
 	v = conf.env
 
-	# CPPFLAGS DEFINES _CCINCFLAGS _CCDEFFLAGS
-	v['CCFLAGS_DEBUG'] = ['-g']
-	v['CCFLAGS_RELEASE'] = ['-O2']
-
 	v['CC_SRC_F']            = ''
 	v['CC_TGT_F']            = ['-c', '-o', ''] # shell hack for -MD
 

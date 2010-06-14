@@ -32,11 +32,7 @@ def common_flags_gdc(conf):
 
 	# debug levels
 	v['DLINKFLAGS']        = []
-	v['DFLAGS_OPTIMIZED']  = ['-O3']
-	v['DFLAGS_DEBUG']      = ['-O0']
-	v['DFLAGS_ULTRADEBUG'] = ['-O0']
 
-	v['dshlib_DFLAGS']    = []
 	v['dshlib_LINKFLAGS'] = ['-shared']
 
 	v['DHEADER_ext']       = '.di'
