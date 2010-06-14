@@ -4,21 +4,12 @@
 # Thomas Nagy, 2007-2010 (ita)
 
 import os, sys
-import waflib.Tools.ccroot # <- leave this
 from waflib import Utils, Task, Errors
 from waflib.TaskGen import taskgen_method, feature, after, before, extension
 from waflib.Configure import conf
-
+from waflib.Tools.ccroot import link_task
 from waflib.Tools import d_scan, d_config
-
-def get_target_name(self):
-	"for d programs and libs"
-	v = self.env
-	tp = 'program'
-	for x in self.features:
-		if x in ['dshlib', 'dstlib']:
-			tp = x.lstrip('d')
-	return v['D_%s_PATTERN' % tp] % self.target
+from waflib.Tools.ccroot import link_task
 
 @feature('d')
 @before('apply_d_libs')
@@ -166,12 +157,11 @@ class dstlib(Task.classes['static_link']):
 class d_with_header(d):
 	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
 
-class dprogram(d):
-	color   = 'YELLOW'
+class dprogram(link_task):
 	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
 	inst_to = '${BINDIR}'
 
-class dshlib(d):
+class dshlib(dprogram):
 	inst_to = '${LIBDIR}'
 
 class d_header(Task.Task):

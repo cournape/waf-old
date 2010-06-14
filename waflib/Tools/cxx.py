@@ -6,6 +6,7 @@
 
 from waflib import TaskGen, Task
 from waflib.Tools import ccroot
+from waflib.Tools.ccroot import link_task
 
 @TaskGen.extension('.cpp', '.cc', '.cxx', '.C', '.c++')
 def cxx_hook(self, node):
@@ -21,8 +22,7 @@ class cxx(Task.Task):
 	ext_in  = ['.h']
 	scan    = ccroot.scan
 
-class cxxprogram(Task.Task):
-	color   = 'YELLOW'
+class cxxprogram(link_task):
 	run_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
 	ext_out = ['.bin']
 	inst_to = '${BINDIR}'

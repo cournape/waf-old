@@ -9,13 +9,13 @@ from waflib.Configure import conf
 def d_platform_flags(self):
 	v = self.env
 	if Utils.unversioned_sys_platform_to_binary_format(self.env.DEST_OS or Utils.unversioned_sys_platform()) == 'pe':
-		v['D_program_PATTERN']   = '%s.exe'
-		v['D_shlib_PATTERN']     = 'lib%s.dll'
-		v['D_stlib_PATTERN'] = 'lib%s.a'
+		v['dprogram_PATTERN']   = '%s.exe'
+		v['dshlib_PATTERN']     = 'lib%s.dll'
+		v['dstlib_PATTERN'] = 'lib%s.a'
 	else:
-		v['D_program_PATTERN']   = '%s'
-		v['D_shlib_PATTERN']     = 'lib%s.so'
-		v['D_stlib_PATTERN'] = 'lib%s.a'
+		v['dprogram_PATTERN']   = '%s'
+		v['dshlib_PATTERN']     = 'lib%s.so'
+		v['dstlib_PATTERN'] = 'lib%s.a'
 
 DLIB = """
 version(D_Version2) {

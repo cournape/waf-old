@@ -46,16 +46,16 @@ def sxx_common_flags(conf):
 	v['STATICLIB_MARKER']    = '-Bstatic'
 
 	# program
-	v['program_PATTERN']     = '%s'
+	v['cxxprogram_PATTERN']     = '%s'
 
 	# shared library
 	v['shlib_CXXFLAGS']      = ['-Kpic', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-G']
-	v['shlib_PATTERN']       = 'lib%s.so'
+	v['cxxshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
 	v['stlib_LINKFLAGS'] = ['-Bstatic']
-	v['stlib_PATTERN']   = 'lib%s.a'
+	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
 detect = '''
 find_sxx

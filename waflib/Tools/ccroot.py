@@ -154,25 +154,6 @@ def get_dest_binfmt(self):
 			self.env.DEST_OS or Utils.unversioned_sys_platform())
 	return self.env.DEST_BINFMT
 
-@taskgen_method
-def get_target_name(self):
-	tp = 'program'
-	for x in self.features:
-		if x in ['cshlib', 'cstlib']:
-			tp = x.lstrip('c')
-
-	pattern = self.env[tp + '_PATTERN']
-	if not pattern: pattern = '%s'
-
-	folder, name = os.path.split(self.target)
-
-	if self.get_dest_binfmt() == 'pe' and getattr(self, 'vnum', None) and 'cshlib' in self.features:
-		# include the version in the dll file name,
-		# the import lib file name stays unversionned.
-		name = name + '-' + self.vnum.split('.')[0]
-
-	return os.path.join(folder, pattern % name)
-
 @feature('cc', 'cxx', 'defines')
 @after('apply_lib_vars')
 def apply_defines(self):
@@ -235,6 +216,25 @@ def apply_incpaths(self):
 	cpppath_st = self.env['CPPPATH_ST'] or '-I%s'
 	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
 
+class link_task(Task.Task):
+	color   = 'YELLOW'
+	inst_to = None
+
+	def add_target(self, target):
+		pattern = self.env[self.__class__.__name__ + '_PATTERN']
+		if not pattern:
+			pattern = '%s'
+		folder, name = os.path.split(target)
+
+		if self.__class__.__name__.find('shlib') > 0:
+			if self.generator.get_dest_binfmt() == 'pe' and getattr(self.generator, 'vnum', None):
+				# include the version in the dll file name,
+				# the import lib file name stays unversionned.
+				name = name + '-' + self.vnum.split('.')[0]
+
+		tmp = folder + os.sep + pattern % name
+		node = self.generator.path.find_or_declare(tmp)
+		self.set_outputs(node)
 
 @feature('cc', 'cxx', 'd')
 @after('process_source')
@@ -255,8 +255,8 @@ def apply_link(self):
 		return
 
 	objs = [t.outputs[0] for t in getattr(self, 'compiled_tasks', [])]
-	out = self.path.find_or_declare(self.get_target_name())
-	self.link_task = self.create_task(link, objs, out)
+	self.link_task = self.create_task(link, objs)
+	self.link_task.add_target(self.target)
 
 	if getattr(self.bld, 'is_install', None):
 		# remember that the install paths are given by the task generators
@@ -265,7 +265,7 @@ def apply_link(self):
 		except AttributeError:
 			inst_to = self.link_task.__class__.inst_to
 		if inst_to:
-			self.install_task = self.bld.install_files(inst_to, out, env=self.env)
+			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env)
 
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')

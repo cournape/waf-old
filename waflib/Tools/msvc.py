@@ -606,16 +606,16 @@ def msvc_common_flags(conf):
 	v['shlib_CCFLAGS']  = ['']
 	v['shlib_CXXFLAGS'] = ['']
 	v['shlib_LINKFLAGS']= ['/DLL']
-	v['shlib_PATTERN']  = '%s.dll'
+	v['cshlib_PATTERN'] = v['cxxshlib_PATTERN'] = '%s.dll'
 	v['implib_PATTERN'] = '%s.lib'
 	v['IMPLIB_ST']      = '/IMPLIB:%s'
 
 	# static library
 	v['stlib_LINKFLAGS'] = ['']
-	v['stlib_PATTERN']   = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
+	v['cstlib_PATTERN']  = v['cxxstlib_PATTERN'] = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 
 	# program
-	v['program_PATTERN']     = '%s.exe'
+	v['cprogram_PATTERN'] = v['cxxprogram_PATTERN']    = '%s.exe'
 
 
 #######################################################################################################

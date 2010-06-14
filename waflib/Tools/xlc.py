@@ -46,16 +46,16 @@ def xlc_common_flags(conf):
 
 	# program
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
-	v['program_PATTERN']     = '%s'
+	v['cxxprogram_PATTERN']     = '%s'
 
 	# shared library
 	v['shlib_CCFLAGS']       = ['-fPIC']
 	v['shlib_LINKFLAGS']     = ['-G', '-Wl,-brtl,-bexpfull']
-	v['shlib_PATTERN']       = 'lib%s.so'
+	v['cxxshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
 	v['stlib_LINKFLAGS'] = ''
-	v['stlib_PATTERN']   = 'lib%s.a'
+	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
 def configure(conf):
 	conf.find_xlc()

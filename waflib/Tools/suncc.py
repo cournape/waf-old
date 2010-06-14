@@ -52,16 +52,16 @@ def scc_common_flags(conf):
 	v['STATICLIB_MARKER']    = '-Bstatic'
 
 	# program
-	v['program_PATTERN']     = '%s'
+	v['cprogram_PATTERN']     = '%s'
 
 	# shared library
 	v['shlib_CCFLAGS']       = ['-Kpic', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-G']
-	v['shlib_PATTERN']       = 'lib%s.so'
+	v['cshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
 	v['stlib_LINKFLAGS'] = ['-Bstatic']
-	v['stlib_PATTERN']   = 'lib%s.a'
+	v['cstlib_PATTERN']   = 'lib%s.a'
 
 detect = '''
 find_scc

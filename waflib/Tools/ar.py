@@ -8,11 +8,10 @@
 import os
 from waflib import Task
 from waflib.Configure import conf
+from waflib.Tools.ccroot import link_task
 
-class static_link(Task.Task):
-	color   = 'YELLOW'
+class static_link(link_task):
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
-	inst_to = None
 	def run(self):
 		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
 		try:
