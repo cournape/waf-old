@@ -287,10 +287,7 @@ def apply_lib_vars(self):
 	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
 	# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
 	for x in self.features:
-		if not x in ['cprogram', 'cstlib', 'cshlib']:
-			continue
-		x = x.lstrip('c')
-		for var in ['CCFLAGS', 'CXXFLAGS', 'LINKFLAGS']:
+		for var in USELIB_VARS:
 			compvar = '%s_%s' % (x, var)
 			self.env.append_value(var, self.env[compvar])
 
