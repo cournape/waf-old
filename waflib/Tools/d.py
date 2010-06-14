@@ -21,12 +21,6 @@ def get_target_name(self):
 	return v['D_%s_PATTERN' % tp] % self.target
 
 @feature('d')
-@before('apply_lib_vars')
-def init_d(self):
-	for x in d_params:
-		setattr(self, x, getattr(self, x, d_params[x]))
-
-@feature('d')
 @before('apply_d_libs')
 def init_d(self):
 	Utils.def_attrs(self,
