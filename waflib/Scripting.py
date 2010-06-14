@@ -41,7 +41,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			env = ConfigSet.ConfigSet()
 			try:
 				env.load(os.path.join(cur, Options.lockfile))
-			except Exception as e:
+			except Exception:
 				continue
 
 			Options.run_dir = env.run_dir

@@ -173,6 +173,7 @@ class BuildContext(Context.Context):
 	def execute_build(self):
 		"""Executes the build, it is shared by install and uninstall"""
 
+		Logs.info("Waf: Entering directory `%s'" % self.variant_dir)
 		self.recurse(self.path.abspath())
 		self.pre_build()
 
@@ -187,7 +188,7 @@ class BuildContext(Context.Context):
 			if Options.options.progress_bar:
 				sys.stderr.write(Logs.colors.cursor_on)
 				print('')
-			Logs.info("Waf: Leaving directory `%s'" % self.out_dir)
+			Logs.info("Waf: Leaving directory `%s'" % self.variant_dir)
 		self.post_build()
 
 	def load(self):
@@ -621,7 +622,6 @@ class inst_task(Task.Task):
 	def exec_install_files(self):
 		"""predefined method for installing files"""
 		destpath = self.get_install_path()
-		Utils.check_dir(destpath)
 		for x, y in zip(self.source, self.inputs):
 			if self.relative_trick:
 				destfile = os.path.join(destpath, x)
@@ -633,16 +633,11 @@ class inst_task(Task.Task):
 	def exec_install_as(self):
 		"""predefined method for installing one file with a given name"""
 		destfile = self.get_install_path()
-		destpath, _ = os.path.split(destfile)
-		Utils.check_dir(destpath)
 		self.generator.bld.do_install(self.inputs[0].abspath(), destfile, self.chmod)
 
 	def exec_symlink_as(self):
 		"""predefined method for installing a symlink"""
 		destfile = self.get_install_path()
-		destpath, _ = os.path.split(destfile)
-		Utils.check_dir(destpath)
-
 		self.generator.bld.do_link(self.link, destfile)
 
 class InstallContext(BuildContext):
@@ -667,6 +662,9 @@ class InstallContext(BuildContext):
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""copy a file from src to tgt with given file permissions (will be overridden in UninstallContext)"""
+		d, _ = os.path.split(tgt)
+		Utils.check_dir(d)
+
 		if not Options.options.force:
 			# check if the file is already there to avoid a copy
 			try:
@@ -698,6 +696,9 @@ class InstallContext(BuildContext):
 
 	def do_link(self, src, tgt):
 		"""create a symlink from tgt to src (will be overridden in UninstallContext)"""
+		d, _ = os.path.split(tgt)
+		Utils.check_dir(d)
+
 		link = False
 		if not os.path.islink(tgt):
 			link = True
@@ -766,7 +767,7 @@ class UninstallContext(InstallContext):
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""see InstallContext.do_install"""
-		Logs.info("* uninstalling %s" % tgt)
+		Logs.info("* removing %s" % tgt)
 
 		self.uninstall.append(tgt)
 		try:
