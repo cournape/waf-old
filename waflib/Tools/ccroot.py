@@ -253,6 +253,7 @@ def apply_link(self):
 				link = x
 				break
 	else:
+		print self.features
 		return
 
 	objs = [t.outputs[0] for t in getattr(self, 'compiled_tasks', [])]

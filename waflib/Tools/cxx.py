@@ -30,3 +30,6 @@ class cxxprogram(Task.Task):
 class cxxshlib(cxxprogram):
 	inst_to = '${LIBDIR}'
 
+class cstlib(Task.classes['static_link']):
+	pass
+

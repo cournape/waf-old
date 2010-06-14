@@ -32,7 +32,7 @@ def init_d(self):
 		link_task=None)
 
 @feature('d')
-@after('apply_d_link', 'init_d')
+@after('apply_link', 'init_d')
 @before('apply_vnum', 'apply_incpaths')
 def apply_d_libs(self):
 	"""after apply_link because of 'link_task'"""
@@ -91,17 +91,6 @@ def apply_d_libs(self):
 				if not node:
 					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
 				self.env.append_unique('INC_PATHS', [node])
-
-@feature('dprogram', 'dshlib', 'dstlib')
-@after('process_source')
-def apply_d_link(self):
-	link = getattr(self, 'link', None)
-	if not link:
-		if 'dstlib' in self.features: link = 'static_link'
-		else: link = 'd_link'
-
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	self.link_task = self.create_task(link, outputs, self.path.find_or_declare(get_target_name(self)))
 
 @feature('d')
 @after('process_source')
@@ -171,12 +160,19 @@ class d(Task.Task):
 					break
 		return super(d, self).exec_command(*k, **kw)
 
+class dstlib(Task.classes['static_link']):
+	pass
+
 class d_with_header(d):
 	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
 
-class d_link(d):
+class dprogram(d):
 	color   = 'YELLOW'
 	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
+	inst_to = '${BINDIR}'
+
+class dshlib(d):
+	inst_to = '${LIBDIR}'
 
 class d_header(Task.Task):
 	color   = 'BLUE'

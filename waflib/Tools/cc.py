@@ -27,3 +27,6 @@ class cprogram(Task.Task):
 class cshlib(cprogram):
 	inst_to = '${LIBDIR}'
 
+class cstlib(Task.classes['static_link']):
+	pass
+
