@@ -24,7 +24,6 @@ d_params = {
 'dflags': '',
 'libs':'',
 'libpaths':'',
-'generate_headers':False,
 }
 
 @feature('d')
@@ -42,7 +41,6 @@ def init_d(self):
 		libpaths='',
 		uselib='',
 		uselib_local='',
-		generate_headers=False, # set to true if you want .di files as well as .o
 		compiled_tasks=[],
 		add_objects=[],
 		link_task=None)
@@ -200,7 +198,8 @@ class d_header(Task.Task):
 
 @extension('.d', '.di', '.D')
 def d_hook(self, node):
-	if self.generate_headers:
+	"""set 'generate_headers' to True on the task generator to get .di files as well as .o"""
+	if getattr(self, 'generate_headers', None):
 		task = self.create_compiled_task('d_with_header', node)
 		header_node = node.change_ext(self.env['DHEADER_ext'])
 		task.outputs.append(header_node)
