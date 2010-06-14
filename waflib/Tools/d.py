@@ -58,11 +58,6 @@ def apply_d_vars(self):
 	for i in uselib:
 		env.append_unique('DLINKFLAGS', env['DLINKFLAGS_' + i])
 
-@feature('dshlib')
-@after('apply_d_vars')
-def add_shlib_d_flags(self):
-	self.env.append_unique('DLINKFLAGS', self.env['D_shlib_LINKFLAGS'])
-
 class d(Task.Task):
 	color   = 'GREEN'
 	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
