@@ -236,10 +236,10 @@ def apply_incpaths(self):
 	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
 
 
-@feature('cprogram', 'cshlib', 'cstlib')
+@feature('cc', 'cxx', 'd')
 @after('process_source')
 def apply_link(self):
-	"""executes after process_source for collecting 'compiled_tasks'"""
+	"""executes after process_source for collecting 'compiled_tasks' and creating a 'link_task'"""
 
 	for x in self.features:
 		if x == 'cprogram' and 'cxx' in self.features: # limited compat
