@@ -675,9 +675,10 @@ class InstallContext(BuildContext):
 			else:
 				# same size and identical timestamps -> make no copy
 				if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
+					Logs.info("* %s is up-to-date" % tgt)
 					return False
 
-		srclbl = src.replace(self.srcnode.abspath()+os.sep, '')
+		srclbl = src.replace(self.srcnode.abspath() + os.sep, '')
 		Logs.info("* installing %s as %s" % (srclbl, tgt))
 
 		# following is for shared libs and stale inodes (-_-)
