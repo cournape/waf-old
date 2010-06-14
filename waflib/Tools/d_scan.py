@@ -1,16 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Carlos Rafael Giani, 2007 (dv)
-# Thomas Nagy, 2007-2010 (ita)
+# Thomas Nagy, 2010 (ita)
 
-import os, sys, re
-from collections import deque
-import waflib.Tools.ccroot # <- leave this
-from waflib import TaskGen, Utils, Task, Logs, Errors
-from waflib.Logs import debug, error
-from waflib.TaskGen import taskgen_method, feature, after, before, extension
-from waflib.Configure import conf
-
+import re
+from waflib import Utils, Logs
 
 def filter_comments(filename):
 	"""filter the comments from a d source file to compute the dependencies"""
@@ -55,7 +48,8 @@ def filter_comments(filename):
 			i += 1
 			if i == max: return buf
 			c = txt[i]
-			if c != '\'': error("uh-oh, invalid character")
+			if c != '\'':
+				Logs.error("uh-oh, invalid character")
 
 		# skip a comment
 		elif c == '/':
@@ -209,6 +203,6 @@ def scan(self):
 	names = gruik.names
 
 	if Logs.verbose:
-		debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+		Logs.debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
 	return (nodes, names)
 

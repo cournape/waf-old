@@ -3,11 +3,9 @@
 # Carlos Rafael Giani, 2007 (dv)
 # Thomas Nagy, 2007-2010 (ita)
 
-import os, sys, re
-from collections import deque
+import os, sys
 import waflib.Tools.ccroot # <- leave this
-from waflib import TaskGen, Utils, Task, Logs, Errors
-from waflib.Logs import debug, error
+from waflib import Utils, Task, Errors
 from waflib.TaskGen import taskgen_method, feature, after, before, extension
 from waflib.Configure import conf
 
@@ -87,7 +85,7 @@ def apply_d_libs(self):
 	get = self.bld.get_tgen_by_name
 
 	seen = set([])
-	tmp = deque(names) # consume a copy of the list of names
+	tmp = Utils.deque(names) # consume a copy of the list of names
 	while tmp:
 		lib_name = tmp.popleft()
 		# visit dependencies only once
