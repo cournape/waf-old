@@ -105,8 +105,7 @@ class ConfigurationContext(Context.Context):
 			top = getattr(Context.g_module, Context.SRCDIR, None)
 		if not top:
 			top = os.path.abspath('.')
-			self.start_msg('Setting top to')
-			self.end_msg(top)
+			self.msg('Setting top to', top)
 		top = os.path.abspath(top)
 
 		out = Options.options.out
@@ -115,8 +114,7 @@ class ConfigurationContext(Context.Context):
 		if not out:
 			out = Options.lockfile.replace('.lock-waf', '')
 			out = os.path.abspath(out)
-			self.start_msg('Setting out to')
-			self.end_msg(out)
+			self.msg('Setting out to', out)
 		out = os.path.abspath(out)
 
 		try:
@@ -391,8 +389,7 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 						ret = x
 
 	filename = Utils.to_list(filename)
-	self.start_msg('Checking for program ' + ','.join(filename))
-	self.end_msg(ret)
+	self.msg('Checking for program ' + ','.join(filename), ret)
 	self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 
 	if not ret and mandatory:
