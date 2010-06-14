@@ -259,17 +259,16 @@ def copy_attrs(orig, dest, names, only_if_set=False):
 
 def check_dir(path):
 	"""
-	Ensure that a directory exists. Equivalent to mkdir -p.
+	Ensure that a directory exists, and try to avoid thread issues (similar to mkdir -p)
 	@type  dir: string
 	@param dir: Path to directory
 	"""
-	try:
-		os.stat(path)
-	except OSError:
+	if not os.path.isdir(path):
 		try:
 			os.makedirs(path)
 		except OSError as e:
-			raise Errors.WafError('Cannot create folder %r (original error: %r)' % (path, e))
+			if not os.path.isdir(path):
+				raise Errors.WafError('Cannot create folder %r (original error: %r)' % (path, e))
 
 def def_attrs(cls, **kw):
 	'''
