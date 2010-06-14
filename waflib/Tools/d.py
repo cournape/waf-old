@@ -140,22 +140,34 @@ class d(Task.Task):
 					break
 		return super(d, self).exec_command(*k, **kw)
 
-class dstlib(static_link):
-	pass
-
 class d_with_header(d):
 	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
-
-class dprogram(link_task):
-	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
-	inst_to = '${BINDIR}'
-
-class dshlib(dprogram):
-	inst_to = '${LIBDIR}'
 
 class d_header(Task.Task):
 	color   = 'BLUE'
 	run_str = '${D} ${D_HEADER} ${SRC}'
+
+
+class dprogram(link_task):
+	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
+	inst_to = '${BINDIR}'
+	def exec_command(self, *k, **kw):
+		"""dmd wants -of stuck to the file name"""
+		# TODO duplicate, but do we really want multiple inheritance?
+		if isinstance(k[0], list):
+			lst = k[0]
+			for i in range(len(lst)):
+				if lst[i] == '-of':
+					del lst[i]
+					lst[i] = '-of' + lst[i]
+					break
+		return super(dprogram, self).exec_command(*k, **kw)
+
+class dshlib(dprogram):
+	inst_to = '${LIBDIR}'
+
+class dstlib(static_link):
+	pass
 
 @extension('.d', '.di', '.D')
 def d_hook(self, node):
