@@ -239,11 +239,10 @@ def apply_incpaths(self):
 @feature('cprogram', 'cshlib', 'cstlib')
 @after('process_source')
 def apply_link(self):
-	"""executes after process_source for collecting 'compiled_tasks'
-	use a custom linker if specified (self.link='name-of-custom-link-task')"""
+	"""executes after process_source for collecting 'compiled_tasks'"""
 
 	for x in self.features:
-		if x == 'cprogram' and 'cxx' in self.features: # compat
+		if x == 'cprogram' and 'cxx' in self.features: # limited compat
 			x = 'cxxprogram'
 		elif x == 'cshlib' and 'cxx' in self.features:
 			x = 'cxxshlib'
@@ -253,7 +252,6 @@ def apply_link(self):
 				link = x
 				break
 	else:
-		print self.features
 		return
 
 	objs = [t.outputs[0] for t in getattr(self, 'compiled_tasks', [])]
@@ -261,27 +259,13 @@ def apply_link(self):
 	self.link_task = self.create_task(link, objs, out)
 
 	if getattr(self.bld, 'is_install', None):
+		# remember that the install paths are given by the task generators
 		try:
 			inst_to = self.install_path
 		except AttributeError:
 			inst_to = self.link_task.__class__.inst_to
 		if inst_to:
 			self.install_task = self.bld.install_files(inst_to, out, env=self.env)
-
-		"""
-		if not getattr(self, 'install_path', None):
-			if 'cprogram' in self.features or 'dprogram' in self.features:
-				if not self.env.BINDIR:
-					self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
-				self.install_path = '${BINDIR}'
-			elif 'cshlib' in self.features or 'dshlib' in self.features:
-				if not self.env.LIBDIR:
-					self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
-				self.install_path = '${LIBDIR}'
-			else:
-				return
-		self.install_task = self.bld.install_files(self.install_path, out, env=self.env)
-		"""
 
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')
