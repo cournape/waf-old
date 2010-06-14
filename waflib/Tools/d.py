@@ -11,7 +11,6 @@ from waflib.Logs import debug, error
 from waflib.TaskGen import taskgen_method, feature, after, before, extension
 from waflib.Configure import conf
 
-EXT_D = ['.d', '.di', '.D']
 
 DLIB = """
 version(D_Version2) {
@@ -247,7 +246,6 @@ def get_target_name(self):
 
 d_params = {
 'dflags': '',
-'importpaths':'',
 'libs':'',
 'libpaths':'',
 'generate_headers':False,
@@ -264,7 +262,6 @@ def init_d(self):
 def init_d(self):
 	Utils.def_attrs(self,
 		dflags='',
-		importpaths='',
 		libs='',
 		libpaths='',
 		uselib='',
@@ -353,7 +350,6 @@ def apply_d_vars(self):
 	lib_st     = env['DLIB_ST']
 	libpath_st = env['DLIBPATH_ST']
 
-	importpaths = self.to_list(self.importpaths)
 	libpaths = []
 	libs = []
 	uselib = self.to_list(self.uselib)
@@ -364,12 +360,6 @@ def apply_d_vars(self):
 
 	for x in self.features:
 		env.append_unique('DFLAGS', env[x + '_DFLAGS'])
-
-	# add import paths
-	for i in uselib:
-		for entry in self.to_list(env['DPATH_' + i]):
-			if not entry in importpaths:
-				importpaths.append(entry)
 
 	# add library paths
 	for i in uselib:
@@ -405,7 +395,7 @@ def apply_d_vars(self):
 def add_shlib_d_flags(self):
 	self.env.append_unique('DLINKFLAGS', self.env['D_shlib_LINKFLAGS'])
 
-@extension(*EXT_D)
+@extension('.d', '.di', '.D')
 def d_hook(self, node):
 	if self.generate_headers:
 		task = self.create_compiled_task('d_with_header', node)
@@ -415,17 +405,13 @@ def d_hook(self, node):
 		task = self.create_compiled_task('d', node)
 	return task
 
-d_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
-d_with_header_str = '${D} ${DFLAGS} ${_INCFLAGS} \
-${D_HDR_F}${TGT[1].bldpath(env)} \
-${D_SRC_F}${SRC} \
-${D_TGT_F}${TGT[0].bldpath(env)}'
-link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
+class d(Task.Task):
+	color   = 'GREEN'
+	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+	scan    = scan
 
-def override_exec(cls):
-	"""stupid dmd wants -of stuck to the file name"""
-	old_exec = cls.exec_command
 	def exec_command(self, *k, **kw):
+		"""dmd wants -of stuck to the file name"""
 		if isinstance(k[0], list):
 			lst = k[0]
 			for i in range(len(lst)):
@@ -433,40 +419,34 @@ def override_exec(cls):
 					del lst[i]
 					lst[i] = '-of' + lst[i]
 					break
-		return old_exec(self, *k, **kw)
-	cls.exec_command = exec_command
+		return super(d, self).exec_command(*k, **kw)
 
-d = Task.task_factory('d', d_str, 'GREEN', before='static_link d_link', scan=scan)
-override_exec(d)
+class d_with_header(d):
+	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
 
-d_with_header = Task.task_factory('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link')
-override_exec(d_with_header)
+class d_link(d):
+	color   = 'YELLOW'
+	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
 
-d_link = Task.task_factory('d_link', link_str, color='YELLOW')
-override_exec(d_link)
+class d_header(Task.Task):
+	color   = 'BLUE'
+	run_str = '${D} ${D_HEADER} ${SRC}'
 
-# for feature request #104
 @taskgen_method
-def generate_header(self, filename, install_path):
-	if not hasattr(self, 'header_lst'): self.header_lst = []
-	self.meths.append('process_header')
-	self.header_lst.append([filename, install_path])
+def generate_header(self, filename, install_path=None):
+	"""see feature request #104 - TODO the install_path is not used"""
+	try:
+		self.header_lst.append([filename, install_path])
+	except AttributeError:
+		self.header_lst = [[filename, install_path]]
 
-@before('process_source')
+@feature('d')
 def process_header(self):
-	env = self.env
 	for i in getattr(self, 'header_lst', []):
 		node = self.path.find_resource(i[0])
-
 		if not node:
-			raise Errors.WafError('file not found on d obj '+i[0])
-
-		task = self.create_task('d_header')
-		task.set_inputs(node)
-		task.set_outputs(node.change_ext('.di'))
-
-d_header_str = '${D} ${D_HEADER} ${SRC}'
-Task.task_factory('d_header', d_header_str, color='BLUE')
+			raise Errors.WafError('file %r not found on d obj' % i[0])
+		self.create_task('d_header', node, node.change_ext('.di'))
 
 @conf
 def d_platform_flags(self):
