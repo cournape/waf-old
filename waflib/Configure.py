@@ -183,6 +183,16 @@ class ConfigurationContext(Context.Context):
 		abi = Context.ABI
 		self.log.write(conf_template % vars())
 
+	def prepare_env(self, env):
+		"""insert various variables in the environment"""
+		if not env.PREFIX:
+			env.PREFIX = os.path.abspath(os.path.expanduser(Options.options.prefix))
+		if not env.BINDIR:
+			env.BINDIR = Utils.subst_vars('${PREFIX}/bin', env)
+			print env.BINDIR
+		if not env.LIBDIR:
+			env.LIBDIR = Utils.subst_vars('${PREFIX}/lib', env)
+
 	def store(self):
 		"""Saves the config results into the cache file"""
 		try:
@@ -256,7 +266,7 @@ class ConfigurationContext(Context.Context):
 			env = self.all_envs[name]
 		except KeyError:
 			env = ConfigSet.ConfigSet()
-			env['PREFIX'] = os.path.abspath(os.path.expanduser(Options.options.prefix))
+			self.prepare_env(env)
 			self.all_envs[name] = env
 		else:
 			if fromenv: Logs.warn("The environment %s may have been configured already" % name)
