@@ -174,10 +174,14 @@ class TaskBase(evil):
 				outs = ''
 			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.position[0], ins, outs, ela)
 
+		s = str(self)
+		if not s:
+			return None
+
 		total = self.position[1]
 		n = len(str(total))
 		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-		return fs % (self.position[0], self.position[1], col1, str(self), col2)
+		return fs % (self.position[0], self.position[1], col1, s, col2)
 
 	def attr(self, att, default=None):
 		"retrieve an attribute from the instance or from the class (microoptimization here)"

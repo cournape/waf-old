@@ -408,8 +408,9 @@ class BuildContext(Context.Context):
 
 	def printout(self, s):
 		"""for printing stuff TODO remove?"""
-		f = self.log or sys.stderr
-		f.write(s)
+		if s:
+			f = self.log or sys.stderr
+			f.write(s)
 		#f.flush()
 
 	def pre_build(self):
@@ -605,7 +606,8 @@ class inst_task(Task.Task):
 		return Task.RUN_ME
 
 	def __str__(self):
-		return self.generator.bld.install_msg
+		"""no display"""
+		return ''
 
 	def run(self):
 		"""the attribute 'exec_task' holds the method to execute (see Task.Task.run)"""
@@ -650,7 +652,6 @@ class InstallContext(BuildContext):
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
 		self.is_install = INSTALL
-		self.install_msg = 'installing...\n'
 
 	def execute(self):
 		"""see Context.execute"""
@@ -665,6 +666,7 @@ class InstallContext(BuildContext):
 		d, _ = os.path.split(tgt)
 		Utils.check_dir(d)
 
+		srclbl = src.replace(self.srcnode.abspath() + os.sep, '')
 		if not Options.options.force:
 			# check if the file is already there to avoid a copy
 			try:
@@ -675,11 +677,10 @@ class InstallContext(BuildContext):
 			else:
 				# same size and identical timestamps -> make no copy
 				if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
-					Logs.info("* %s is up-to-date" % tgt)
+					Logs.info("* install %s (from %s, up-to-date)" % (tgt, srclbl))
 					return False
 
-		srclbl = src.replace(self.srcnode.abspath() + os.sep, '')
-		Logs.info("* installing %s as %s" % (srclbl, tgt))
+		Logs.info("* install %s (from %s)" % (tgt, srclbl))
 
 		# following is for shared libs and stale inodes (-_-)
 		try: os.remove(tgt)
@@ -764,11 +765,10 @@ class UninstallContext(InstallContext):
 	def __init__(self, start=None):
 		super(UninstallContext, self).__init__(start)
 		self.is_install = UNINSTALL
-		self.install_msg = 'removing...\n'
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""see InstallContext.do_install"""
-		Logs.info("* removing %s" % tgt)
+		Logs.info("* remove %s" % tgt)
 
 		self.uninstall.append(tgt)
 		try:
@@ -792,7 +792,7 @@ class UninstallContext(InstallContext):
 	def do_link(self, src, tgt):
 		"""see InstallContext.do_link"""
 		try:
-			Logs.info('* removing %s' % (tgt))
+			Logs.info('* remove %s' % (tgt))
 			os.remove(tgt)
 		except OSError:
 			pass
