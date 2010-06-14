@@ -65,8 +65,6 @@ class BuildContext(Context.Context):
 		if self.variant:
 			self.variant_dir = os.path.join(self.out_dir, self.variant)
 
-		print self.variant_dir
-
 		self.cache_dir = kw.get('cache_dir', None)
 		if not self.cache_dir:
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
