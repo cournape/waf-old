@@ -236,6 +236,16 @@ class link_task(Task.Task):
 		node = self.generator.path.find_or_declare(tmp)
 		self.set_outputs(node)
 
+class static_link(link_task):
+	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
+	def run(self):
+		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
+		try:
+			os.remove(self.outputs[0].abspath())
+		except OSError:
+			pass
+		return Task.Task.run(self)
+
 @feature('cc', 'cxx', 'd')
 @after('process_source')
 def apply_link(self):

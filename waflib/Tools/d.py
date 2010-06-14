@@ -9,7 +9,7 @@ from waflib.TaskGen import taskgen_method, feature, after, before, extension
 from waflib.Configure import conf
 from waflib.Tools.ccroot import link_task
 from waflib.Tools import d_scan, d_config
-from waflib.Tools.ccroot import link_task
+from waflib.Tools.ccroot import link_task, static_link
 
 @feature('d')
 @before('apply_d_libs')
@@ -151,7 +151,7 @@ class d(Task.Task):
 					break
 		return super(d, self).exec_command(*k, **kw)
 
-class dstlib(Task.classes['static_link']):
+class dstlib(static_link):
 	pass
 
 class d_with_header(d):

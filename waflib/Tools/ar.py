@@ -6,19 +6,7 @@
 "Create static libraries with ar"
 
 import os
-from waflib import Task
 from waflib.Configure import conf
-from waflib.Tools.ccroot import link_task
-
-class static_link(link_task):
-	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
-	def run(self):
-		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
-		try:
-			os.remove(self.outputs[0].abspath())
-		except OSError:
-			pass
-		return Task.Task.run(self)
 
 @conf
 def find_ar(conf):
