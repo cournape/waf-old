@@ -62,9 +62,10 @@ class BuildContext(Context.Context):
 
 		self.variant_dir = kw.get('variant_dir', self.out_dir)
 
-		self.variant = kw.get('variant', None)
 		if self.variant:
 			self.variant_dir = os.path.join(self.out_dir, self.variant)
+
+		print self.variant_dir
 
 		self.cache_dir = kw.get('cache_dir', None)
 		if not self.cache_dir:
@@ -159,8 +160,6 @@ class BuildContext(Context.Context):
 		self.bldnode = self.root.make_node(bld)
 		self.bldnode.mkdir()
 		self.variant_dir = self.bldnode.abspath()
-		if self.variant:
-			self.variant_dir += os.sep + self.variant
 
 	def execute(self):
 		"""see Context.execute"""
