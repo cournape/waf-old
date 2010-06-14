@@ -524,6 +524,7 @@ def exec_rule(self):
 	if not isinstance(name, str):
 		name = str(self.idx)
 	cls = Task.task_type_from_func(name, func, getattr(self, 'vars', vars2))
+	cls.color = getattr(self, 'color', 'BLUE')
 
 	# now create one instance
 	tsk = self.create_task(name)
