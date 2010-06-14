@@ -710,8 +710,10 @@ class InstallContext(BuildContext):
 		if link:
 			try: os.remove(tgt)
 			except OSError: pass
-			Logs.info('* symlink %s (-> %s)' % (tgt, src))
+			Logs.info('* symlink %s (to %s)' % (tgt, src))
 			os.symlink(src, tgt)
+		else:
+			Logs.info('* symlink %s (to %s, up-to-date)' % (tgt, src))
 
 	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True):
 		"""the attribute 'relative_trick' is used to preserve the folder hierarchy (install folders)"""
