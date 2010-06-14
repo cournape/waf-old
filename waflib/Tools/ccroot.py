@@ -219,7 +219,7 @@ def apply_incpaths(self):
 		seen.add(path)
 
 		if isinstance(path, Node.Node):
-			lst.append(node)
+			lst.append(path)
 		else:
 			if os.path.isabs(path):
 				lst.append(self.bld.root.make_node(path))

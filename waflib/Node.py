@@ -94,8 +94,8 @@ class Node(object):
 		return self.abspath()
 
 	def __hash__(self):
-		"expensive, make certain it is not used"
-		raise Errors.WafError('nodes, you are doing it wrong')
+		return id(self) # TODO see if it is still the case
+		#raise Errors.WafError('do not hash nodes (too expensive)')
 
 	def __eq__(self, node):
 		return id(self) == id(node)
