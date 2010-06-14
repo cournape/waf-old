@@ -20,12 +20,6 @@ def get_target_name(self):
 			tp = x.lstrip('d')
 	return v['D_%s_PATTERN' % tp] % self.target
 
-d_params = {
-'dflags': '',
-'libs':'',
-'libpaths':'',
-}
-
 @feature('d')
 @before('apply_lib_vars')
 def init_d(self):
@@ -36,9 +30,7 @@ def init_d(self):
 @before('apply_d_libs')
 def init_d(self):
 	Utils.def_attrs(self,
-		dflags='',
 		libs='',
-		libpaths='',
 		uselib='',
 		uselib_local='',
 		compiled_tasks=[],
@@ -140,7 +132,7 @@ def apply_d_vars(self):
 		for entry in self.to_list(env['LIBPATH_' + i]):
 			if not entry in libpaths:
 				libpaths.append(entry)
-	libpaths = self.to_list(self.libpaths) + libpaths
+	libpaths = self.to_list(getattr(self, 'libpaths', [])) + libpaths
 
 	# now process the library paths
 	# apply same path manipulation as used with import paths
@@ -152,10 +144,10 @@ def apply_d_vars(self):
 		for entry in self.to_list(env['LIB_' + i]):
 			if not entry in libs:
 				libs.append(entry)
-	libs.extend(self.to_list(self.libs))
+	libs.extend(self.to_list(getattr(self, 'libs', [])))
 
 	# process user flags
-	env.append_unique('DFLAGS', self.to_list(self.dflags))
+	env.append_unique('DFLAGS', self.to_list(getattr(self, 'dflags', [])))
 
 	# now process the libraries
 	env.append_unique('DLINKFLAGS', [lib_st % lib for lib in libs])
