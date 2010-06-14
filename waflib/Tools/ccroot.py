@@ -277,7 +277,7 @@ def apply_link(self):
 		if inst_to:
 			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env)
 
-@feature('cc', 'cxx')
+@feature('cc', 'cxx', 'd')
 @after('apply_link', 'init_cc', 'init_cxx')
 def apply_lib_vars(self):
 	"""after apply_link because of 'link_task'"""
@@ -310,19 +310,23 @@ def apply_lib_vars(self):
 
 		# object has ancestors to process (shared libraries): add them to the end of the list
 		if getattr(y, 'uselib_local', None):
-			lst = y.to_list(y.uselib_local)
-			if 'cshlib' in y.features or 'cprogram' in y.features:
-				lst = [x for x in lst if not 'cstlib' in get(x).features]
-			tmp.extend(lst)
+			for x in self.to_list(getattr(y, 'uselib_local', [])):
+				obj = get(x)
+				obj.post()
+				try:
+					if not isinstance(obj.link_task, static_link):
+						tmp.append(x)
+				except AttributeError:
+					Logs.warn('task generator %s has no link task' % x)
 
 		# link task and flags
 		if getattr(y, 'link_task', None):
 
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
-			if 'cstlib' in y.features:
+			if isinstance(y.link_task, static_link):
 				env.append_value('STATICLIB', [link_name])
-			elif 'cshlib' in y.features or 'cprogram' in y.features:
-				# WARNING some linkers can link against programs
+			else:
+				# some linkers can link against programs
 				env.append_value('LIB', [link_name])
 
 			# the order
@@ -336,7 +340,7 @@ def apply_lib_vars(self):
 			tmp_path = y.link_task.outputs[0].parent.bldpath()
 			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', [tmp_path])
 
-		# add ancestors uselib too - but only propagate those that have no staticlib
+		# add ancestors uselib too - but only propagate those that have no staticlib defined
 		for v in self.to_list(getattr(y, 'uselib', [])):
 			if not env['STATICLIB_' + v]:
 				if not v in self.uselib:
@@ -354,8 +358,7 @@ def apply_lib_vars(self):
 	# 2. the case of the libs defined outside
 	for x in self.uselib:
 		for v in USELIB_VARS:
-			val = self.env[v + '_' + x]
-			if val: self.env.append_value(v, val)
+			self.env.append_value(v, self.env[v + '_' + x])
 
 @feature('cprogram', 'cstlib', 'cshlib', 'dprogram', 'dstlib', 'dshlib')
 @after('init_cc', 'init_cxx', 'apply_link')
