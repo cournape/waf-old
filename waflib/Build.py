@@ -677,14 +677,16 @@ class InstallContext(BuildContext):
 			else:
 				# same size and identical timestamps -> make no copy
 				if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
-					Logs.info("* install %s (from %s, up-to-date)" % (tgt, srclbl))
+					Logs.info('- install %s (from %s)' % (tgt, srclbl))
 					return False
 
-		Logs.info("* install %s (from %s)" % (tgt, srclbl))
+		Logs.info('+ install %s (from %s)' % (tgt, srclbl))
 
 		# following is for shared libs and stale inodes (-_-)
-		try: os.remove(tgt)
-		except OSError: pass
+		try:
+			os.remove(tgt)
+		except OSError:
+			pass
 
 		try:
 			shutil.copy2(src, tgt)
@@ -710,10 +712,10 @@ class InstallContext(BuildContext):
 		if link:
 			try: os.remove(tgt)
 			except OSError: pass
-			Logs.info('* symlink %s (to %s)' % (tgt, src))
+			Logs.info('+ symlink %s (to %s)' % (tgt, src))
 			os.symlink(src, tgt)
 		else:
-			Logs.info('* symlink %s (to %s, up-to-date)' % (tgt, src))
+			Logs.info('- symlink %s (to %s)' % (tgt, src))
 
 	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True):
 		"""the attribute 'relative_trick' is used to preserve the folder hierarchy (install folders)"""
@@ -770,7 +772,7 @@ class UninstallContext(InstallContext):
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""see InstallContext.do_install"""
-		Logs.info("* remove %s" % tgt)
+		Logs.info('- remove %s' % tgt)
 
 		self.uninstall.append(tgt)
 		try:
@@ -794,7 +796,7 @@ class UninstallContext(InstallContext):
 	def do_link(self, src, tgt):
 		"""see InstallContext.do_link"""
 		try:
-			Logs.info('* remove %s' % (tgt))
+			Logs.info('- unlink %s' % tgt)
 			os.remove(tgt)
 		except OSError:
 			pass
