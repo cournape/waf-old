@@ -37,5 +37,5 @@ def build(bld):
 
 	else:
 		# bad pun hidden
-		bld(features='d dprogram', source='foo.d', target='bar', includes='.')
+		bld(features='d dprogram', source='foo.d', target='bar', includes=[bld.path])
 
