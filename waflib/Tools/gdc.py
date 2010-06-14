@@ -3,7 +3,7 @@
 # Carlos Rafael Giani, 2007 (dv)
 
 import sys
-import waflib.Tools.ar
+from waflib.Tools import ar, d
 from waflib.Configure import conf
 
 @conf

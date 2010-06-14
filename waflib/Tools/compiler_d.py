@@ -5,7 +5,6 @@
 
 import os, sys, imp, types
 from waflib import Utils, Configure, Options, Logs
-import waflib.Tools.d
 
 def configure(conf):
 	if getattr(Options.options, 'check_dmd_first', None):

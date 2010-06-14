@@ -4,7 +4,7 @@
 # Thomas Nagy, 2008-2010 (ita)
 
 import sys
-from waflib.Tools import ar
+from waflib.Tools import ar, d
 from waflib.Configure import conf
 
 @conf
