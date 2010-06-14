@@ -235,23 +235,39 @@ def apply_incpaths(self):
 	cpppath_st = self.env['CPPPATH_ST'] or '-I%s'
 	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in self.env['INC_PATHS']])
 
+
 @feature('cprogram', 'cshlib', 'cstlib')
 @after('process_source')
 def apply_link(self):
 	"""executes after process_source for collecting 'compiled_tasks'
 	use a custom linker if specified (self.link='name-of-custom-link-task')"""
-	link = getattr(self, 'link', None)
-	if not link:
-		if 'cstlib' in self.features: link = 'static_link'
-		elif 'cxx' in self.features: link = 'cxx_link'
-		else: link = 'cc_link'
+
+	for x in self.features:
+		if x == 'cprogram' and 'cxx' in self.features: # compat
+			x = 'cxxprogram'
+		elif x == 'cshlib' and 'cxx' in self.features:
+			x = 'cxxshlib'
+
+		if x in Task.classes:
+			if hasattr(Task.classes[x], 'inst_to'):
+				link = x
+				break
+	else:
+		return
 
 	objs = [t.outputs[0] for t in getattr(self, 'compiled_tasks', [])]
 	out = self.path.find_or_declare(self.get_target_name())
 	self.link_task = self.create_task(link, objs, out)
 
 	if getattr(self.bld, 'is_install', None):
+		try:
+			inst_to = self.install_path
+		except AttributeError:
+			inst_to = self.link_task.__class__.inst_to
+		if inst_to:
+			self.install_task = self.bld.install_files(inst_to, out, env=self.env)
 
+		"""
 		if not getattr(self, 'install_path', None):
 			if 'cprogram' in self.features or 'dprogram' in self.features:
 				if not self.env.BINDIR:
@@ -264,6 +280,7 @@ def apply_link(self):
 			else:
 				return
 		self.install_task = self.bld.install_files(self.install_path, out, env=self.env)
+		"""
 
 @feature('cc', 'cxx')
 @after('apply_link', 'init_cc', 'init_cxx')

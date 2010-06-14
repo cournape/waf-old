@@ -78,9 +78,7 @@ def apply_intltool_po(self):
 		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
 Task.task_factory('po', '${MSGFMT} -o ${TGT} ${SRC}', color='BLUE')
-Task.task_factory('intltool',
-	'${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
-	color='BLUE', after="cc_link cxx_link")
+Task.task_factory('intltool', '${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', color='BLUE', ext_in='.bin')
 
 def configure(conf):
 	conf.find_program('msgfmt', var='MSGFMT')

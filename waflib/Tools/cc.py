@@ -18,8 +18,12 @@ class cc(Task.Task):
 	ext_in  = ['.h']
 	scan    = ccroot.scan
 
-class cc_link(Task.Task):
+class cprogram(Task.Task):
 	color   = 'YELLOW'
 	run_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
 	ext_out = ['.bin']
+	inst_to = '${BINDIR}'
+
+class cshlib(cprogram):
+	inst_to = '${LIBDIR}'
 

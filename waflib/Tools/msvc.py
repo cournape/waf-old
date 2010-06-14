@@ -763,7 +763,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return self.generator.bld.exec_command(*k, **kw)
 
-for k in 'cc cxx winrc cc_link cxx_link static_link qxx'.split():
+for k in 'cc cxx winrc cprogram cxxprogram cshlib cxxshlib static_link qxx'.split():
 	cls = Task.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
