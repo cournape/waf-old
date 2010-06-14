@@ -9,31 +9,7 @@ from waflib import Utils, Task, Errors
 from waflib.TaskGen import taskgen_method, feature, after, before, extension
 from waflib.Configure import conf
 
-import waflib.Tools.d_scan
-
-DLIB = """
-version(D_Version2) {
-	import std.stdio;
-	int main() {
-		writefln("phobos2");
-		return 0;
-	}
-} else {
-	version(Tango) {
-		import tango.stdc.stdio;
-		int main() {
-			printf("tango");
-			return 0;
-		}
-	} else {
-		import std.stdio;
-		int main() {
-			writefln("phobos1");
-			return 0;
-		}
-	}
-}
-"""
+from waflib.Tools import d_scan, d_config
 
 def get_target_name(self):
 	"for d programs and libs"
@@ -195,20 +171,10 @@ def apply_d_vars(self):
 def add_shlib_d_flags(self):
 	self.env.append_unique('DLINKFLAGS', self.env['D_shlib_LINKFLAGS'])
 
-@extension('.d', '.di', '.D')
-def d_hook(self, node):
-	if self.generate_headers:
-		task = self.create_compiled_task('d_with_header', node)
-		header_node = node.change_ext(self.env['DHEADER_ext'])
-		task.outputs.append(header_node)
-	else:
-		task = self.create_compiled_task('d', node)
-	return task
-
 class d(Task.Task):
 	color   = 'GREEN'
 	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
-	scan    = waflib.Tools.d_scan.scan
+	scan    = d_scan.scan
 
 	def exec_command(self, *k, **kw):
 		"""dmd wants -of stuck to the file name"""
@@ -232,6 +198,16 @@ class d_header(Task.Task):
 	color   = 'BLUE'
 	run_str = '${D} ${D_HEADER} ${SRC}'
 
+@extension('.d', '.di', '.D')
+def d_hook(self, node):
+	if self.generate_headers:
+		task = self.create_compiled_task('d_with_header', node)
+		header_node = node.change_ext(self.env['DHEADER_ext'])
+		task.outputs.append(header_node)
+	else:
+		task = self.create_compiled_task('d', node)
+	return task
+
 @taskgen_method
 def generate_header(self, filename, install_path=None):
 	"""see feature request #104 - TODO the install_path is not used"""
@@ -247,21 +223,4 @@ def process_header(self):
 		if not node:
 			raise Errors.WafError('file %r not found on d obj' % i[0])
 		self.create_task('d_header', node, node.change_ext('.di'))
-
-@conf
-def d_platform_flags(self):
-	v = self.env
-	if Utils.unversioned_sys_platform_to_binary_format(self.env.DEST_OS or Utils.unversioned_sys_platform()) == 'pe':
-		v['D_program_PATTERN']   = '%s.exe'
-		v['D_shlib_PATTERN']     = 'lib%s.dll'
-		v['D_stlib_PATTERN'] = 'lib%s.a'
-	else:
-		v['D_program_PATTERN']   = '%s'
-		v['D_shlib_PATTERN']     = 'lib%s.so'
-		v['D_stlib_PATTERN'] = 'lib%s.a'
-
-@conf
-def check_dlibrary(self):
-	ret = self.check_cc(features='d dprogram', fragment=DLIB, compile_filename='test.d', execute=True)
-	self.env.DLIBRARY = ret.strip()
 
