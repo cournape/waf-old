@@ -196,7 +196,7 @@ class d_parser(object):
 def scan(self):
 	"look for .d/.di the .d source need"
 	env = self.env
-	gruik = d_parser(env, env['INC_PATHS'])
+	gruik = d_parser(env, self.generator.includes_nodes)
 	node = self.inputs[0]
 	gruik.start(node)
 	nodes = gruik.nodes

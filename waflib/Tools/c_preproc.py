@@ -14,13 +14,13 @@ Reasons for using the Waf preprocessor by default
 Regarding the speed concerns:
 a. the preprocessing is performed only when files must be compiled
 b. the macros are evaluated only for #if/#elif/#include
-c. the time penalty is about 10%
-d. system headers are not scanned
+c. system headers are not scanned by default
 
 Now if you do not want the Waf preprocessor, the tool "gccdeps" uses the .d files produced
 during the compilation to track the dependencies (useful when used with the boost libraries).
-It only works with gcc though, and it cannot be used with Qt builds. A dumb
-file scanner will be added in the future, so we will have most bahaviours.
+It only works with gcc though.
+
+A dumb preprocessor is also available in the tool "c_dumbpreproc"
 """
 # TODO: more varargs, pragma once
 # TODO: dumb file scanner tracking all includes
@@ -769,14 +769,11 @@ def get_deps(task):
 	#include some_macro()
 	"""
 
-	#node = self.inputs[0]
-    #(nodes, names) = c_preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
-
 	global go_absolute
 	if go_absolute:
-		nodepaths = task.env['INC_PATHS']
+		nodepaths = task.generator.includes_nodes
 	else:
-		nodepaths = [x for x in task.env['INC_PATHS'] if x.is_child_of(x.ctx.srcnode) or x.is_child_of(x.ctx.bldnode)]
+		nodepaths = [x for x in task.generator.includes_nodes if x.is_child_of(x.ctx.srcnode) or x.is_child_of(x.ctx.bldnode)]
 
 	tmp = c_parser(nodepaths)
 	tmp.start(task.inputs[0], task.env)
