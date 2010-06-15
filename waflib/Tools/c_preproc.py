@@ -34,7 +34,7 @@ class PreprocError(Errors.WafError):
 
 POPFILE = '-'
 
-go_absolute = 0
+go_absolute = False
 "set to 1 to track headers on files in /usr/include - else absolute paths are ignored"
 
 standard_includes = ['/usr/include']
@@ -62,7 +62,7 @@ g_optrans = {
 "these ops are for c++, to reset, set an empty dict"
 
 # ignore #warning and #error
-re_lines = re.compile(\
+re_lines = re.compile(
 	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
 
@@ -70,7 +70,7 @@ re_mac = re.compile("^[a-zA-Z_]\w*")
 re_fun = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
 re_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
 re_nl = re.compile('\\\\\r*\n', re.MULTILINE)
-re_cpp = re.compile(\
+re_cpp = re.compile(
 	r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""",
 	re.MULTILINE)
 trig_def = [('??'+a, b) for a, b in zip("=-/!'()<>", r'#~\|^[]{}')]
@@ -769,13 +769,17 @@ def get_deps(node, env, nodepaths=[]):
 	#include some_macro()
 	"""
 
+	global go_absolute
+	if not go_absolute:
+		nodepaths = [x for x in nodepaths if x.is_child_of(x.ctx.srcnode) or x.is_child_of(x.ctx.bldnode)]
+
 	gruik = c_parser(nodepaths)
 	gruik.start(node, env)
 	return (gruik.nodes, gruik.names)
 
 #################### dumb dependency scanner
 
-re_inc = re.compile(\
+re_inc = re.compile(
 	'^[ \t]*(#|%:)[ \t]*(include)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
 
