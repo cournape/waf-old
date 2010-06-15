@@ -71,6 +71,7 @@ def configure(conf):
 	conf.find_program(conf.env.GO_LINKER,   var='GOL')
 	conf.find_program(conf.env.GO_PACK,     var='GOP')
 
-	# The go examples for cgo don't work
+	# no cgo support unless it stops hardcoding all absolute paths
+	# http://groups.google.com/group/golang-nuts/browse_thread/thread/20ff377c05e49a5e?pli=1
 	conf.find_program('cgo',                var='CGO')
 
