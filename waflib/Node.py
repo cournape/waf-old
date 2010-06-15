@@ -398,6 +398,8 @@ class Node(object):
 
 		node = self.get_bld().search(lst)
 		if node:
+			if not node.is_child_of(self.ctx.bldnode):
+				node.compute_sig()
 			return node
 
 		self = self.get_src()
