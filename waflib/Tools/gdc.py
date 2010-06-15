@@ -27,11 +27,8 @@ def common_flags_gdc(conf):
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = ['-o', '']
 
-	v['DLIB_ST']           = '-l%s' # template for adding libs
-	v['DLIBPATH_ST']       = '-L%s' # template for adding libpaths
-
-	# debug levels
-	v['DLINKFLAGS']        = []
+	v['STATICLIB_ST'] = v['LIB_ST']           = '-l%s'
+	v['STATICLIBPATH_ST'] = v['LIBPATH_ST']       = '-L%s'
 
 	v['dshlib_LINKFLAGS'] = ['-shared']
 

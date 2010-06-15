@@ -11,53 +11,6 @@ from waflib.Tools.ccroot import link_task
 from waflib.Tools import d_scan, d_config
 from waflib.Tools.ccroot import link_task, static_link
 
-@feature('d')
-@after('process_source')
-def apply_d_vars(self):
-	env = self.env
-	lib_st     = env['DLIB_ST']
-	libpath_st = env['DLIBPATH_ST']
-
-	libpaths = []
-	libs = []
-	uselib = self.to_list(getattr(self, 'uselib', []))
-
-	for i in uselib:
-		if env['DFLAGS_' + i]:
-			env.append_unique('DFLAGS', env['DFLAGS_' + i])
-
-	for x in self.features:
-		env.append_unique('DFLAGS', env[x + '_DFLAGS'])
-
-	# add library paths
-	for i in uselib:
-		for entry in self.to_list(env['LIBPATH_' + i]):
-			if not entry in libpaths:
-				libpaths.append(entry)
-	libpaths = self.to_list(getattr(self, 'libpaths', [])) + libpaths
-
-	# now process the library paths
-	# apply same path manipulation as used with import paths
-	for path in libpaths:
-		env.append_unique('DLINKFLAGS', [libpath_st % path])
-
-	# add libraries
-	for i in uselib:
-		for entry in self.to_list(env['LIB_' + i]):
-			if not entry in libs:
-				libs.append(entry)
-	libs.extend(self.to_list(getattr(self, 'libs', [])))
-
-	# process user flags
-	env.append_unique('DFLAGS', self.to_list(getattr(self, 'dflags', [])))
-
-	# now process the libraries
-	env.append_unique('DLINKFLAGS', [lib_st % lib for lib in libs])
-
-	# add linker flags
-	for i in uselib:
-		env.append_unique('DLINKFLAGS', env['DLINKFLAGS_' + i])
-
 class d(Task.Task):
 	color   = 'GREEN'
 	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
@@ -83,7 +36,7 @@ class d_header(Task.Task):
 
 
 class dprogram(link_task):
-	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
+	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755
 	def exec_command(self, *k, **kw):

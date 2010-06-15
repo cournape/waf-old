@@ -15,7 +15,7 @@ def find_dmd(conf):
 def common_flags_ldc(conf):
 	v = conf.env
 	v['DFLAGS']         = ['-d-version=Posix']
-	v['DLINKFLAGS']     = []
+	v['LINKFLAGS']     = []
 	v['dshlib_DFLAGS'] = ['-relocation-model=pic']
 
 @conf
@@ -36,10 +36,10 @@ def common_flags_dmd(conf):
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = '-of'
 
-	v['DLIB_ST']           = '-L-l%s' # template for adding libs
-	v['DLIBPATH_ST']       = '-L-L%s' # template for adding libpaths
+	v['STATICLIB_ST'] = v['LIB_ST']           = '-L-l%s'
+	v['STATICLIBPATH_ST'] = v['LIBPATH_ST']       = '-L-L%s'
 
-	v['DLINKFLAGS']        = ['-quiet']
+	v['LINKFLAGS']        = ['-quiet']
 
 	v['dshlib_DFLAGS']    = ['-fPIC']
 	v['dshlib_LINKFLAGS'] = ['-L-shared']

@@ -398,7 +398,7 @@ def apply_objdeps(self):
 		for t in getattr(y, 'compiled_tasks', []):
 			self.link_task.inputs.extend(t.outputs)
 
-@feature('cprogram', 'cshlib', 'cstlib')
+@feature('cprogram', 'cshlib', 'cstlib', 'dprogram', 'dshlib', 'dstlib')
 @after('apply_lib_vars')
 def apply_obj_vars(self):
 	"""after apply_lib_vars for uselib"""
