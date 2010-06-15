@@ -67,7 +67,7 @@ class qxx(cxx.cxx):
 	def add_moc_tasks(self):
 
 		node = self.inputs[0]
-		tree = node.__class__.ctx
+		bld = self.generator.bld
 
 		try:
 			# compute the signature once to know if there is a moc file to create
@@ -82,8 +82,8 @@ class qxx(cxx.cxx):
 		moctasks=[]
 		mocfiles=[]
 		try:
-			tmp_lst = tree.raw_deps[self.unique_id()]
-			tree.raw_deps[self.unique_id()] = []
+			tmp_lst = bld.raw_deps[self.unique_id()]
+			bld.raw_deps[self.unique_id()] = []
 		except KeyError:
 			tmp_lst = []
 		for d in tmp_lst:
@@ -114,32 +114,32 @@ class qxx(cxx.cxx):
 
 			h_node = node.parent.find_resource(base2 + exth)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[(self.inputs[0].parent.abspath(), m_node.name)] = h_node
+			bld.node_deps[(self.inputs[0].parent.abspath(), m_node.name)] = h_node
 
 			# create the task
 			task = Task.classes['moc'](env=self.env, generator=self.generator)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
-			gen = tree.generator
+			gen = bld.producer
 			gen.outstanding.insert(0, task)
 			gen.total += 1
 
 			moctasks.append(task)
 
 		# remove raw deps except the moc files to save space (optimization)
-		tmp_lst = tree.raw_deps[self.unique_id()] = mocfiles
+		tmp_lst = bld.raw_deps[self.unique_id()] = mocfiles
 
 		# look at the file inputs, it is set right above
-		lst = tree.node_deps.get(self.unique_id(), ())
+		lst = bld.node_deps.get(self.unique_id(), ())
 		for d in lst:
 			name = d.name
 			if name.endswith('.moc'):
 				task = Task.classes['moc'](env=self.env, generator=self.generator)
-				task.set_inputs(tree.node_deps[(self.inputs[0].parent.abspath(), name)]) # 1st element in a tuple
+				task.set_inputs(bld.node_deps[(self.inputs[0].parent.abspath(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
-				gen = tree.generator
+				gen = bld.producer
 				gen.outstanding.insert(0, task)
 				gen.total += 1
 

@@ -255,18 +255,18 @@ class BuildContext(Context.Context):
 		Logs.debug('build: compile()')
 
 		# use another object to perform the producer-consumer logic (reduce the complexity)
-		self.parallel = Runner.Parallel(self)
-		self.parallel.biter = self.get_build_iterator()
+		self.producer = Runner.Parallel(self)
+		self.producer.biter = self.get_build_iterator()
 		try:
-			self.parallel.start() # vroom
+			self.producer.start() # vroom
 		except KeyboardInterrupt:
 			self.save()
 			raise
 		else:
 			self.save()
 
-		if self.parallel.error:
-			raise Errors.BuildError(self.parallel.error)
+		if self.producer.error:
+			raise Errors.BuildError(self.producer.error)
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"""Loads the waf tools declared in the configuration section"""
