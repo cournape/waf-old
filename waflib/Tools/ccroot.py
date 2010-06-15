@@ -120,12 +120,9 @@ def add_as_needed(conf):
 
 def scan(self):
 	"scanner for c and c++ tasks, uses the python-based preprocessor from the module preproc.py (task method)"
-	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
-
-	node = self.inputs[0]
-	(nodes, names) = c_preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
+	(nodes, names) = c_preproc.get_deps(self)
 	if Logs.verbose:
-		debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+		debug('deps: deps for %r: %r; unresolved %r' % (self.inputs, nodes, names))
 	return (nodes, names)
 
 @taskgen_method

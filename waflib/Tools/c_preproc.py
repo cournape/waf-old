@@ -763,67 +763,22 @@ class c_parser(object):
 			if re_pragma_once.search(line.lower()):
 				self.ban_includes.append(self.curfile)
 
-def get_deps(node, env, nodepaths=[]):
+def get_deps(task):
 	"""
 	Get the dependencies using a c/c++ preprocessor, this is required for finding dependencies of the kind
 	#include some_macro()
 	"""
 
+	#node = self.inputs[0]
+    #(nodes, names) = c_preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
+
 	global go_absolute
-	if not go_absolute:
-		nodepaths = [x for x in nodepaths if x.is_child_of(x.ctx.srcnode) or x.is_child_of(x.ctx.bldnode)]
+	if go_absolute:
+		nodepaths = task.env['INC_PATHS']
+	else:
+		nodepaths = [x for x in task.env['INC_PATHS'] if x.is_child_of(x.ctx.srcnode) or x.is_child_of(x.ctx.bldnode)]
 
-	gruik = c_parser(nodepaths)
-	gruik.start(node, env)
-	return (gruik.nodes, gruik.names)
-
-#################### dumb dependency scanner
-
-re_inc = re.compile(
-	'^[ \t]*(#|%:)[ \t]*(include)[ \t]*(.*)\r*$',
-	re.IGNORECASE | re.MULTILINE)
-
-def lines_includes(filename):
-	code = Utils.readf(filename)
-	if use_trigraphs:
-		for (a, b) in trig_def: code = code.split(a).join(b)
-	code = re_nl.sub('', code)
-	code = re_cpp.sub(repl, code)
-	return [(m.group(2), m.group(3)) for m in re.finditer(re_inc, code)]
-
-def get_deps_simple(node, env, nodepaths=[], defines={}):
-	"""
-	Get the dependencies by just looking recursively at the #include statements
-	"""
-
-	nodes = []
-	names = []
-
-	def find_deps(node):
-		lst = lines_includes(node.abspath())
-
-		for (_, line) in lst:
-			(t, filename) = extract_include(line, defines)
-			if filename in names:
-				continue
-
-			if filename.endswith('.moc'):
-				names.append(filename)
-
-			found = None
-			for n in nodepaths:
-				if found:
-					break
-				found = n.find_resource(filename)
-
-			if not found:
-				if not filename in names:
-					names.append(filename)
-			elif not found in nodes:
-				nodes.append(found)
-				find_deps(node)
-
-	find_deps(node)
-	return (nodes, names)
-
+	tmp = c_parser(nodepaths)
+	tmp.start(task.inputs[0], task.env)
+	return (tmp.nodes, tmp.names)
 
