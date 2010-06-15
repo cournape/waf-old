@@ -767,6 +767,8 @@ def get_deps(task):
 	"""
 	Get the dependencies using a c/c++ preprocessor, this is required for finding dependencies of the kind
 	#include some_macro()
+
+	replacing this method may be a better choice than replacing "ccroot.scan" from all the tasks that use it
 	"""
 
 	global go_absolute
