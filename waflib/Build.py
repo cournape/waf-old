@@ -658,7 +658,7 @@ class InstallContext(BuildContext):
 
 		self.execute_build()
 
-	def do_install(self, src, tgt, chmod=Utils.O644):
+	def do_install(self, src, tgt, chmod=None):
 		"""copy a file from src to tgt with given file permissions (will be overridden in UninstallContext)"""
 		d, _ = os.path.split(tgt)
 		Utils.check_dir(d)
@@ -687,7 +687,10 @@ class InstallContext(BuildContext):
 
 		try:
 			shutil.copy2(src, tgt)
-			os.chmod(tgt, chmod)
+			if chmod:
+				os.chmod(tgt, chmod)
+			else:
+				shutil.copymode(src, tgt)
 		except IOError:
 			try:
 				os.stat(src)
@@ -714,7 +717,7 @@ class InstallContext(BuildContext):
 		else:
 			Logs.info('- symlink %s (to %s)' % (tgt, src))
 
-	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True):
+	def install_files(self, dest, files, env=None, chmod=None, relative_trick=False, cwd=None, add=True):
 		"""the attribute 'relative_trick' is used to preserve the folder hierarchy (install folders)"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -730,7 +733,7 @@ class InstallContext(BuildContext):
 		if add: self.add_to_group(tsk)
 		return tsk
 
-	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None, add=True):
+	def install_as(self, dest, srcfile, env=None, chmod=None, cwd=None, add=True):
 		"""example: bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -767,7 +770,7 @@ class UninstallContext(InstallContext):
 		super(UninstallContext, self).__init__(start)
 		self.is_install = UNINSTALL
 
-	def do_install(self, src, tgt, chmod=Utils.O644):
+	def do_install(self, src, tgt, chmod=None):
 		"""see InstallContext.do_install"""
 		Logs.info('- remove %s' % tgt)
 

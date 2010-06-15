@@ -494,11 +494,15 @@ def apply_implib(self):
 		return
 
 	bindir = self.install_path
-	if not bindir: return
+	if not bindir:
+		return
+
+	# disable the normal install system
+	self.install_task.hasrun = Task.SKIP_ME
 
 	# install the dll in the bin dir
 	dll = self.link_task.outputs[0]
-	self.bld.install_files(bindir, dll, self.env, self.chmod)
+	self.install_task_dll = self.bld.install_files(bindir, dll, self.env)
 
 	# add linker flags to generate the import lib
 	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
