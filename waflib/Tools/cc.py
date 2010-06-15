@@ -4,7 +4,7 @@
 
 "Base for c programs/libraries"
 
-from waflib import TaskGen, Task
+from waflib import TaskGen, Task, Utils
 from waflib.Tools import ccroot
 from waflib.Tools.ccroot import link_task, static_link
 
@@ -23,6 +23,7 @@ class cprogram(link_task):
 	run_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${LINKFLAGS}'
 	ext_out = ['.bin']
 	inst_to = '${BINDIR}'
+	chmod   = Utils.O755
 
 class cshlib(cprogram):
 	inst_to = '${LIBDIR}'

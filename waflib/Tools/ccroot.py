@@ -216,6 +216,7 @@ def apply_incpaths(self):
 class link_task(Task.Task):
 	color   = 'YELLOW'
 	inst_to = None
+	chmod   = Utils.O644
 
 	def add_target(self, target):
 		pattern = self.env[self.__class__.__name__ + '_PATTERN']
@@ -272,7 +273,7 @@ def apply_link(self):
 		except AttributeError:
 			inst_to = self.link_task.__class__.inst_to
 		if inst_to:
-			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env)
+			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env, chmod=self.link_task.chmod)
 
 @feature('cc', 'cxx', 'd')
 @after('apply_link', 'init_cc', 'init_cxx')
