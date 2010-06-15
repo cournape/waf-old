@@ -539,11 +539,7 @@ def msvc_common_flags(conf):
 	v = conf.env
 
 	v['CPPFLAGS']     = ['/W3', '/nologo']
-
 	v['DEFINES_ST']     = '/D%s'
-
-	# TODO just use _WIN32, which defined by the compiler itself!
-	v['DEFINES']    = ['WIN32'] # avoid using this, any compiler predefines the _WIN32 macro anyway
 
 	v['CC_SRC_F']     = ''
 	v['CC_TGT_F']     = ['/c', '/Fo']
