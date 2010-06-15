@@ -33,7 +33,6 @@ def xlcxx_common_flags(conf):
 	v['STATICLIB_ST']        = '-l%s'
 	v['STATICLIBPATH_ST']    = '-L%s'
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
-	v['CXXDEFINES_ST']       = '-D%s'
 
 	v['SONAME_ST']           = ''
 	v['SHLIB_MARKER']        = ''

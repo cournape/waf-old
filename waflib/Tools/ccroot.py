@@ -172,8 +172,8 @@ def apply_defines(self):
 			milst += self.to_list(val)
 
 	self.env['DEFLINES'] = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
-	y = self.env['DEFINES_ST']
-	self.env['_DEFFLAGS'] = [y%x for x in milst]
+	y = self.env['DEFINES_ST'] or '-D%s'
+	self.env['_DEFFLAGS'] = [y % x for x in milst]
 
 @feature('cc', 'cxx', 'd', 'asm', 'includes')
 @after('apply_lib_vars', 'process_source')
