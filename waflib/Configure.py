@@ -189,7 +189,6 @@ class ConfigurationContext(Context.Context):
 			env.PREFIX = os.path.abspath(os.path.expanduser(Options.options.prefix))
 		if not env.BINDIR:
 			env.BINDIR = Utils.subst_vars('${PREFIX}/bin', env)
-			print env.BINDIR
 		if not env.LIBDIR:
 			env.LIBDIR = Utils.subst_vars('${PREFIX}/lib', env)
 
