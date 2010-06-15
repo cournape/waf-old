@@ -71,3 +71,6 @@ def configure(conf):
 	conf.find_program(conf.env.GO_LINKER,   var='GOL')
 	conf.find_program(conf.env.GO_PACK,     var='GOP')
 
+	# The go examples for cgo don't work
+	conf.find_program('cgo',                var='CGO')
+
