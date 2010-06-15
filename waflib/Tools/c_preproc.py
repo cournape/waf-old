@@ -688,6 +688,8 @@ class c_parser(object):
 			self.parse_cache = bld.parse_cache
 
 		self.addlines(node)
+
+		# macros may be defined on the command-line, so they must be parsed as if they were part of the file
 		if env['DEFLINES']:
 			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
 
