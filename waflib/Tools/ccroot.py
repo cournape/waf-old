@@ -175,7 +175,7 @@ def apply_defines(self):
 	y = self.env['DEFINES_ST'] or '-D%s'
 	self.env['_DEFFLAGS'] = [y % x for x in milst]
 
-@feature('cc', 'cxx', 'd', 'asm', 'includes')
+@feature('cc', 'cxx', 'd', 'go', 'asm', 'includes')
 @after('apply_lib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
@@ -244,7 +244,7 @@ class static_link(link_task):
 			pass
 		return Task.Task.run(self)
 
-@feature('cc', 'cxx', 'd')
+@feature('cc', 'cxx', 'd', 'go')
 @after('process_source')
 def apply_link(self):
 	"""executes after process_source for collecting 'compiled_tasks' and creating a 'link_task'"""
