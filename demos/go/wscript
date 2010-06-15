@@ -23,5 +23,6 @@ def build(ctx):
 		target   = 'test',
 		uselib_local = 'other',
 		source   = 'main.go',
+		includes = '.',
 	)
 
