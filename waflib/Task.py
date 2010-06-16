@@ -37,25 +37,27 @@ SKIP_ME = -2
 RUN_ME = -3
 
 COMPILE_TEMPLATE_SHELL = '''
-def f(task):
-	env = task.env
-	wd = getattr(task, 'cwd', None)
+def f(tsk):
+	env = tsk.env
+	bld = tsk.generator.bld
+	wd = getattr(tsk, 'cwd', None)
 	p = env.get_flat
 	cmd = \'\'\' %s \'\'\' % s
-	return task.exec_command(cmd, cwd=wd)
+	return tsk.exec_command(cmd, cwd=wd)
 '''
 
 COMPILE_TEMPLATE_NOSHELL = '''
-def f(task):
-	env = task.env
-	wd = getattr(task, 'cwd', None)
+def f(tsk):
+	env = tsk.env
+	bld = tsk.generator.bld
+	wd = getattr(tsk, 'cwd', None)
 	def to_list(xx):
 		if isinstance(xx, str): return [xx]
 		return xx
 	lst = []
 	%s
 	lst = [x for x in lst if x]
-	return task.exec_command(lst, cwd=wd)
+	return tsk.exec_command(lst, cwd=wd)
 '''
 
 classes = {}
@@ -584,11 +586,11 @@ def compile_fun_shell(line):
 	app = parm.append
 	for (var, meth) in extr:
 		if var == 'SRC':
-			if meth: app('task.inputs%s' % meth)
-			else: app('" ".join([a.path_from(task.generator.bld.bldnode) for a in task.inputs])')
+			if meth: app('tsk.inputs%s' % meth)
+			else: app('" ".join([a.path_from(bld.bldnode) for a in tsk.inputs])')
 		elif var == 'TGT':
-			if meth: app('task.outputs%s' % meth)
-			else: app('" ".join([a.path_from(task.generator.bld.bldnode) for a in task.outputs])')
+			if meth: app('tsk.outputs%s' % meth)
+			else: app('" ".join([a.path_from(bld.bldnode) for a in tsk.outputs])')
 		else:
 			if not var in dvars: dvars.append(var)
 			app("p('%s')" % var)
@@ -621,11 +623,11 @@ def compile_fun_noshell(line):
 			app("lst.extend(%r)" % params[x].split())
 		(var, meth) = extr[x]
 		if var == 'SRC':
-			if meth: app('lst.append(task.inputs%s)' % meth)
-			else: app("lst.extend([a.path_from(task.generator.bld.bldnode) for a in task.inputs])")
+			if meth: app('lst.append(tsk.inputs%s)' % meth)
+			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.inputs])")
 		elif var == 'TGT':
-			if meth: app('lst.append(task.outputs%s)' % meth)
-			else: app("lst.extend([a.path_from(task.generator.bld.bldnode) for a in task.outputs])")
+			if meth: app('lst.append(tsk.outputs%s)' % meth)
+			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.outputs])")
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
