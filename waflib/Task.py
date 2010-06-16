@@ -214,10 +214,6 @@ class TaskBase(evil):
 		else:
 			return ''
 
-	def map(self, var, lst):
-		"""use in scriptlet expressions, ${tsk.map('FOO', 'BAR')} is equivalent to [env.FOO % x for x in env.BAR]"""
-		return [self.env[var] % x for x in self.env[lst]]
-
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:
 	* file system interaction: input and output nodes
@@ -597,8 +593,8 @@ def compile_fun_shell(line):
 		elif var == 'TGT':
 			if meth: app('tsk.outputs%s' % meth)
 			else: app('" ".join([a.path_from(bld.bldnode) for a in tsk.outputs])')
-		elif var in ('tsk', 'bld', 'gen'):
-			app('" ".join(tsk%s)' % meth)
+		elif meth:
+			app('" ".join(%s%s)' % (var, meth))
 			# TODO extract more dvars here
 		else:
 			if not var in dvars: dvars.append(var)
@@ -637,8 +633,8 @@ def compile_fun_noshell(line):
 		elif var == 'TGT':
 			if meth: app('lst.append(tsk.outputs%s)' % meth)
 			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.outputs])")
-		elif var in ('tsk', 'bld', 'gen'):
-			app('lst.extend(tsk%s)' % meth)
+		elif meth:
+			app('lst.extend(%s%s)' % (var, meth))
 			# TODO extract more dvars here
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)

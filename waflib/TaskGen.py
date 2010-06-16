@@ -343,7 +343,7 @@ def process_rule(self):
 	vars2 = []
 	if isinstance(func, str):
 		# use the shell by default for user-defined commands
-		(func, vars2) = Task.compile_fun('', self.rule, shell=getattr(self, 'shell', True))
+		(func, vars2) = Task.compile_fun(self.rule, shell=getattr(self, 'shell', True))
 		func.code = self.rule
 
 	vars = getattr(self, 'vars', vars2)
