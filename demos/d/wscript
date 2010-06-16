@@ -37,7 +37,7 @@ def build(bld):
 
 	else:
 		# bad pun hidden
-		bld(features='d dprogram', source='foo.d', target='bar', uselib_local='hmm sha', includes=[bld.path])
+		bld(features='d dprogram', source='foo.d', target='bar', uselib_local='hmm', includes=[bld.path])
 		bld(features='d dstlib', source='hmm.d', target='hmm')
 
 		#bld(features='d dshlib', source='shared.d', target='sha')
