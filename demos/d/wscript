@@ -37,6 +37,14 @@ def build(bld):
 
 	else:
 		# bad pun hidden
-		bld(features='d dprogram', source='foo.d', target='bar', uselib_local='hmm', includes=[bld.path])
+		bld(features='d dprogram', source='foo.d', target='bar', uselib_local='hmm sha', includes=[bld.path])
 		bld(features='d dstlib', source='hmm.d', target='hmm')
+
+		#bld(features='d dshlib', source='shared.d', target='sha')
+		# shared libs do not work here:
+		# ldc -relocation-model=pic -L-shared shared.d -offoo
+		# /usr/lib64/gcc/x86_64-suse-linux/4.5/../../../../x86_64-suse-linux/bin/ld:
+		# /disk/comp/ldc/bin/../lib/libtango.a(tango-core-rt-compiler-ldc-object_-O2.o):
+		# relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
+
 
