@@ -424,7 +424,12 @@ def post_check(self, *k, **kw):
 
 	if is_success and 'uselib_store' in kw:
 		from waflib.Tools import ccroot
-		for k in ccroot.USELIB_VARS:
+		_vars = set([])
+		for x in kw['features']:
+			if x in ccroot.USELIB_VARS:
+				_vars |= ccroot.USELIB_VARS[x]
+
+		for k in _vars:
 			lk = k.lower()
 			if k == 'INCLUDES': lk = 'includes'
 			if k == 'DEFINES': lk = 'defines'

@@ -11,10 +11,21 @@ from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Configure import conf
 from waflib.Tools import c_aliases, c_preproc, c_config, c_asm
 
-USELIB_VARS = ['CCDEPS', 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH', 'DFLAGS',
-'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'CXXFLAGS', 'CCFLAGS', 'CPPFLAGS', 'INCLUDES', 'DEFINES']
-"""not sure about this"""
+USELIB_VARS = Utils.defaultdict(set)
+USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
+USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
+USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
+
+USELIB_VARS['cprogram'] = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['cshlib']   = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['cstlib']   = set(['ARFLAGS'])
+
+USELIB_VARS['dprogram'] = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['dshlib']   = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['dstlib']   = set(['ARFLAGS'])
+
+USELIB_VARS['go'] = set(['GOCFLAGS'])
+USELIB_VARS['goprogram'] = set(['GOLFLAGS'])
 
 @conf
 def get_cc_version(conf, cc, gcc=False, icc=False):
@@ -281,11 +292,16 @@ def apply_lib_vars(self):
 	"""after apply_link because of 'link_task'"""
 	env = self.env
 
+	_vars = set([])
+	for x in self.features:
+		if x in USELIB_VARS:
+			_vars |= USELIB_VARS[x]
+
 	# 0.
 	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
 	# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
 	for x in self.features:
-		for var in USELIB_VARS:
+		for var in _vars:
 			compvar = '%s_%s' % (x, var)
 			self.env.append_value(var, self.env[compvar])
 
@@ -355,7 +371,7 @@ def apply_lib_vars(self):
 
 	# 2. the case of the libs defined outside
 	for x in self.uselib:
-		for v in USELIB_VARS:
+		for v in _vars:
 			self.env.append_value(v, self.env[v + '_' + x])
 
 @feature('cprogram', 'cstlib', 'cshlib', 'dprogram', 'dstlib', 'dshlib')
