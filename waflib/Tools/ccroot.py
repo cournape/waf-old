@@ -11,7 +11,7 @@ from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Configure import conf
 from waflib.Tools import c_aliases, c_preproc, c_config, c_asm
 
-USELIB_VARS = ['CCDEPS', 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
+USELIB_VARS = ['CCDEPS', 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH', 'DFLAGS',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'CXXFLAGS', 'CCFLAGS', 'CPPFLAGS', 'INCLUDES', 'DEFINES']
 """not sure about this"""
