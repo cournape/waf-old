@@ -3,7 +3,7 @@
 # go.py - Waf tool for the Go programming language
 # By: Tom Wambold <tom5760@gmail.com>
 
-import platform
+import platform, os
 
 import Task
 import Utils
@@ -19,16 +19,29 @@ def detect(conf):
 		if not conf.env[var]:
 			conf.env[var] = val
 
-	set_def('GO_PLATFORM', platform.machine())
+	goarch = os.getenv("GOARCH")
+
+	if goarch == '386':
+		set_def('GO_PLATFORM', 'i386')
+	elif goarch == 'amd64':
+		set_def('GO_PLATFORM', 'x86_64')
+	elif goarch == 'arm':
+		set_def('GO_PLATFORM', 'arm')
+	else:
+		set_def('GO_PLATFORM', platform.machine())
 
 	if conf.env.GO_PLATFORM == 'x86_64':
 		set_def('GO_COMPILER', '6g')
 		set_def('GO_LINKER', '6l')
 		set_def('GO_EXTENSION', '.6')
-	elif conf.env.GO_PLATFORM == 'i386':
+	elif conf.env.GO_PLATFORM in ['i386', 'i486', 'i586', 'i686']:
 		set_def('GO_COMPILER', '8g')
 		set_def('GO_LINKER', '8l')
 		set_def('GO_EXTENSION', '.8')
+	elif conf.env.GO_PLATFORM == 'arm':
+		set_def('GO_COMPILER', '5g')
+		set_def('GO_LINKER', '5l')
+		set_def('GO_EXTENSION', '.5')
 
 	if not (conf.env.GO_COMPILER or conf.env.GO_LINKER or conf.env.GO_EXTENSION):
 		raise conf.fatal('Unsupported platform ' + platform.machine())
