@@ -562,15 +562,15 @@ def msvc_common_flags(conf):
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
 
 	# TODO these are defined by the compiler itself!
-	v['CPPDEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
-	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
+	v['DEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
+	v['DEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
 
 	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] = ['/MTd']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
 
 	# TODO these are defined by the compiler itself!
-	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
-	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
+	v['DEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
+	v['DEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
 
 	# linker
 	v['LIB']              = []
