@@ -1081,7 +1081,7 @@ def update_outputs(cls):
 	old_post_run = cls.post_run
 	def post_run(self):
 		old_post_run(self)
-		bld = self.outputs[0].__class__.bld
+		bld = self.generator.bld
 		for output in self.outputs:
 			bld.node_sigs[self.env.variant()][output.id] = Utils.h_file(output.abspath(self.env))
 	cls.post_run = post_run
