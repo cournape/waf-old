@@ -39,7 +39,8 @@ RUN_ME = -3
 COMPILE_TEMPLATE_SHELL = '''
 def f(tsk):
 	env = tsk.env
-	bld = tsk.generator.bld
+	gen = tsk.generator
+	bld = gen.bld
 	wd = getattr(tsk, 'cwd', None)
 	p = env.get_flat
 	cmd = \'\'\' %s \'\'\' % s
@@ -49,7 +50,8 @@ def f(tsk):
 COMPILE_TEMPLATE_NOSHELL = '''
 def f(tsk):
 	env = tsk.env
-	bld = tsk.generator.bld
+	gen = tsk.generator
+	bld = gen.bld
 	wd = getattr(tsk, 'cwd', None)
 	def to_list(xx):
 		if isinstance(xx, str): return [xx]
