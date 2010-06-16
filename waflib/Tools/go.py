@@ -9,7 +9,7 @@ go language support
 The methods apply_link and apply_incpaths from ccroot.py are re-used
 """
 
-import platform
+import os, platform
 
 import Utils, Task
 from TaskGen import feature, extension, after
@@ -52,14 +52,26 @@ def configure(conf):
 		if not conf.env[var]:
 			conf.env[var] = val
 
-	set_def('GO_PLATFORM', platform.machine())
+	goarch = os.getenv('GOARCH')
+	if goarch == '386':
+		set_def('GO_PLATFORM', 'i386')
+	elif goarch == 'amd64':
+		set_def('GO_PLATFORM', 'x86_64')
+	elif goarch == 'arm':
+		set_def('GO_PLATFORM', 'arm')
+	else:
+		set_def('GO_PLATFORM', platform.machine())
 
 	if conf.env.GO_PLATFORM == 'x86_64':
 		set_def('GO_COMPILER', '6g')
 		set_def('GO_LINKER', '6l')
-	elif conf.env.GO_PLATFORM == 'i386':
+	elif conf.env.GO_PLATFORM in ['i386', 'i486', 'i586', 'i686']:
 		set_def('GO_COMPILER', '8g')
 		set_def('GO_LINKER', '8l')
+	elif conf.env.GO_PLATFORM == 'arm':
+		set_def('GO_COMPILER', '5g')
+		set_def('GO_LINKER', '5l')
+		set_def('GO_EXTENSION', '.5')
 
 	if not (conf.env.GO_COMPILER or conf.env.GO_LINKER):
 		raise conf.fatal('Unsupported platform ' + platform.machine())
