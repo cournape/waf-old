@@ -214,6 +214,10 @@ class TaskBase(evil):
 		else:
 			return ''
 
+	def map(self, var, lst):
+		"""use in scriptlet expressions, ${tsk.map('FOO', 'BAR')} is equivalent to [env.FOO % x for x in env.BAR]"""
+		return [self.env[var] % x for x in self.env[lst]]
+
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:
 	* file system interaction: input and output nodes
