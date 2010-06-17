@@ -156,7 +156,7 @@ class Context(ctx):
 		self.start_msg('Checking for ' + msg)
 
 		if not isinstance(color, str):
-			color = color and 'GREEN' or 'YELLOW'
+			color = result and 'GREEN' or 'YELLOW'
 
 		self.end_msg(result, color)
 
