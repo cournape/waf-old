@@ -43,7 +43,7 @@ def init_pyext(self):
 @feature('pyext')
 def pyext_shlib_ext(self):
 	# override shlib_PATTERN set by the osx module
-	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
+	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] =self.env['pyext_PATTERN']
 
 @before('apply_incpaths', 'apply_lib_vars')
 @feature('pyembed')
@@ -116,7 +116,8 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	except KeyError:
 		pass
 	proc = subprocess.Popen([python_exe, "-c", '\n'.join(program)], stdout=subprocess.PIPE, env=os_env)
-	output = proc.communicate()[0].decode('utf-8').split("\n")
+	output = proc.communicate()[0].encode().split('\n')
+
 	if proc.returncode:
 		if Options.options.verbose:
 			warn("Python program to extract python configuration variables failed:\n%s"
@@ -196,12 +197,12 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		for lib in python_SYSLIBS.split():
 			if lib.startswith('-l'):
 				lib = lib[2:] # strip '-l'
-			env.append_value('LIB_PYEMBED', lib)
+			env.append_value('LIB_PYEMBED', [lib])
 	if python_SHLIBS is not None:
 		for lib in python_SHLIBS.split():
 			if lib.startswith('-l'):
 				lib = lib[2:] # strip '-l'
-			env.append_value('LIB_PYEMBED', lib)
+			env.append_value('LIB_PYEMBED', [lib])
 
 	if Options.platform != 'darwin' and python_LDFLAGS:
 		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS.split())
@@ -227,7 +228,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	if result:
 		env['LIBPATH_PYEMBED'] = path
-		env.append_value('LIB_PYEMBED', name)
+		env.append_value('LIB_PYEMBED', [name])
 	else:
 		conf.log.write("\n\n### LIB NOT FOUND\n")
 
@@ -250,7 +251,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	includes = []
 	if python_config:
-		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).strip().split():
+		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).decode().strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I')
 			    or incstr.startswith('/I')):
@@ -270,11 +271,11 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC_NAME'] == 'gcc':
-		env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
-		env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
+		env.append_value('CCFLAGS_PYEMBED', ['-fno-strict-aliasing'])
+		env.append_value('CCFLAGS_PYEXT', ['-fno-strict-aliasing'])
 	if env['CXX_NAME'] == 'gcc':
-		env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
-		env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
+		env.append_value('CXXFLAGS_PYEMBED', ['-fno-strict-aliasing'])
+		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])
 
 	# See if it compiles
 	test_env = env.derive()
