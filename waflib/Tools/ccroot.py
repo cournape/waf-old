@@ -11,7 +11,7 @@ from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_objects
 
 USELIB_VARS = Utils.defaultdict(set)
-USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
+USELIB_VARS['cc']  = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 
@@ -162,22 +162,10 @@ def apply_link(self):
 
 @feature('cc', 'cxx', 'd')
 @after('apply_link')
-def apply_lib_vars(self):
+@before('propagate_uselib_vars')
+def apply_uselib_local(self):
 	"""execute after apply_link because of the execution order set on 'link_task'"""
 	env = self.env
-
-	_vars = set([])
-	for x in self.features:
-		if x in USELIB_VARS:
-			_vars |= USELIB_VARS[x]
-
-	# 0.
-	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
-	# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
-	for x in self.features:
-		for var in _vars:
-			compvar = '%s_%s' % (x, var)
-			self.env.append_value(var, self.env[compvar])
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
@@ -226,7 +214,8 @@ def apply_lib_vars(self):
 
 			# add the link path too
 			tmp_path = y.link_task.outputs[0].parent.bldpath()
-			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', [tmp_path])
+			if not tmp_path in env['LIBPATH']:
+				env.prepend_value('LIBPATH', [tmp_path])
 
 		# add ancestors uselib too - but only propagate those that have no staticlib defined
 		for v in self.to_list(getattr(y, 'uselib', [])):
@@ -243,40 +232,40 @@ def apply_lib_vars(self):
 					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
 				self.includes.append(node)
 
-	# 2. the case of the libs defined outside
+@taskgen_method
+def get_uselib_vars(self):
+	_vars = set([])
+	for x in self.features:
+		if x in USELIB_VARS:
+			_vars |= USELIB_VARS[x]
+	return _vars
+
+@feature('cc', 'cxx', 'd')
+@after('apply_lib_vars')
+def propagate_uselib_vars(self):
+	_vars = self.get_uselib_vars()
+	env = self.env
+
+	# 1. add the attributes defined in a lowercase manner such as obj.cxxflags
+	for x in _vars:
+
+		# TODO for debugging, detect the invalid variables such as ldflags, ccflag, header, etc (plurals, capitalization, ...)
+		y = x.lower()
+		print x, y
+
+		env.append_unique(x, self.to_list(getattr(self, y, [])))
+
+	# 2. each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
+	# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
+	for x in self.features:
+		for var in _vars:
+			compvar = '%s_%s' % (x, var)
+			env.append_value(var, env[compvar])
+
+	# 3. the case of the libs defined outside
 	for x in self.uselib:
 		for v in _vars:
-			self.env.append_value(v, self.env[v + '_' + x])
-
-c_attrs = {
-'cxxflag' : 'CXXFLAGS',
-'cflag' : 'CCFLAGS',
-'ccflag' : 'CCFLAGS',
-'defines' : 'DEFINES',
-'linkflag' : 'LINKFLAGS',
-'ldflag' : 'LINKFLAGS',
-'lib' : 'LIB',
-'libpath' : 'LIBPATH',
-'stlib': 'STLIB',
-'stlibpath': 'STLIBPATH',
-'rpath' : 'RPATH',
-'framework' : 'FRAMEWORK',
-'frameworkpath' : 'FRAMEWORKPATH'
-}
-
-@feature('cc', 'cxx')
-@before('apply_lib_vars')
-def add_extra_flags(self):
-	"""
-	process additional task generator attributes such as cflags → CFLAGS, see c_attrs above
-	case and plural insensitive (does not process 'includes')
-	"""
-	for x in self.__dict__.keys():
-		y = x.lower()
-		if y[-1] == 's':
-			y = y[:-1]
-		if c_attrs.get(y, None):
-			self.env.append_unique(c_attrs[y], getattr(self, x))
+			env.append_value(v, env[v + '_' + x])
 
 # ============ the code above must not know anything about import libs ==========
 
