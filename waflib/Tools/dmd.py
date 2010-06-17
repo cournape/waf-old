@@ -35,6 +35,7 @@ def common_flags_dmd(conf):
 	v['D_LINKER']          = v['D']
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = '-of'
+	v['DINC_ST'] = '-I%s'
 
 	v['STATICLIB_ST'] = v['LIB_ST']           = '-L-l%s'
 	v['STATICLIBPATH_ST'] = v['LIBPATH_ST']       = '-L-L%s'

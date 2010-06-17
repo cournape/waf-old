@@ -221,8 +221,7 @@ def apply_incpaths(self):
 					lst.append(self.path.make_node(path))
 
 	self.includes_nodes = lst
-	cpppath_st = self.env['CPPPATH_ST'] or '-I%s'
-	self.env.append_unique('_INCFLAGS', [cpppath_st % x.abspath() for x in lst])
+	self.env['INCPATHS'] = [x.abspath() for x in lst]
 
 class link_task(Task.Task):
 	color   = 'YELLOW'

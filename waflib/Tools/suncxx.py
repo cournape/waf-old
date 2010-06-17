@@ -34,6 +34,7 @@ def sxx_common_flags(conf):
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
 	v['CXXLNK_SRC_F']        = ''
 	v['CXXLNK_TGT_F']        = ['-o', ''] # solaris hack, separate the -o from the target
+	v['CPPPATH_ST'] = '-I%s'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths

@@ -13,7 +13,7 @@ from waflib.Tools.ccroot import link_task, static_link
 
 class d(Task.Task):
 	color   = 'GREEN'
-	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 	scan    = d_scan.scan
 
 	def exec_command(self, *k, **kw):
@@ -28,7 +28,7 @@ class d(Task.Task):
 		return super(d, self).exec_command(*k, **kw)
 
 class d_with_header(d):
-	run_str = '${D} ${DFLAGS} ${_INCFLAGS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
+	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
 
 class d_header(Task.Task):
 	color   = 'BLUE'

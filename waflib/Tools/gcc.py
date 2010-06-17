@@ -28,6 +28,7 @@ def gcc_common_flags(conf):
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
 	v['CCLNK_SRC_F']         = ''
 	v['CCLNK_TGT_F']         = ['-o', ''] # shell hack for -MD
+	v['CPPPATH_ST'] = '-I%s'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths

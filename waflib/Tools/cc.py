@@ -14,7 +14,7 @@ def c_hook(self, node):
 
 class cc(Task.Task):
 	color   = 'GREEN'
-	run_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_INCFLAGS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+	run_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${CPPPATH_ST:INCPATHS} ${_DEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	vars    = ['CCDEPS']
 	ext_in  = ['.h']
 	scan    = ccroot.scan

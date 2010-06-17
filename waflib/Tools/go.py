@@ -16,7 +16,7 @@ from TaskGen import feature, extension, after
 from waflib.Tools.ccroot import link_task, static_link
 
 class go(Task.Task):
-	run_str = '${GOC} ${GOCFLAGS} ${_INCFLAGS} -o ${TGT} ${SRC}'
+	run_str = '${GOC} ${GOCFLAGS} ${CPPPATH_ST:INCPATHS} -o ${TGT} ${SRC}'
 
 class gopackage(static_link):
 	run_str = '${GOP} grc ${TGT} ${SRC}'

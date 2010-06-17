@@ -26,6 +26,7 @@ def common_flags_gdc(conf):
 	v['D_LINKER']          = v['D']
 	v['DLNK_SRC_F']        = ''
 	v['DLNK_TGT_F']        = ['-o', '']
+	v['DINC_ST'] = '-I%s'
 
 	v['STATICLIB_ST'] = v['LIB_ST']           = '-l%s'
 	v['STATICLIBPATH_ST'] = v['LIBPATH_ST']       = '-L%s'
