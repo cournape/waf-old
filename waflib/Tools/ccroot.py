@@ -251,8 +251,6 @@ def propagate_uselib_vars(self):
 
 		# TODO for debugging, detect the invalid variables such as ldflags, ccflag, header, etc (plurals, capitalization, ...)
 		y = x.lower()
-		print x, y
-
 		env.append_unique(x, self.to_list(getattr(self, y, [])))
 
 	# 2. each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
