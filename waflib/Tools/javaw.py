@@ -151,7 +151,7 @@ class javac(Task.Task):
 		"""record the inner class files created (Class$Foo) - for cleaning the folders mostly
 		it is not possible to know which inner classes in advance"""
 
-		lst = set([x.parent for x in self.inputs])
+		lst = set([x.parent for x in self.outputs])
 
 		inner = []
 		for k in lst:
