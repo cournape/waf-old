@@ -3,7 +3,6 @@
 # Gustavo Carneiro, 2007
 
 import sys
-import Configure
 
 VERSION='0.0.1'
 APPNAME='python_test'
@@ -23,15 +22,13 @@ def configure(conf):
 
 	try:
 		conf.check_python_module('pygccxml')
-	except Configure.ConfigurationError:
+	except conf.errors.ConfigurationError:
 		print ("(module pygccxml not found, but we ignore it)")
 
 def build(bld):
 
 	# first compile a few pyc and pyo files
-	obj = bld(
-		features = 'py')
-	obj.find_sources_in_dirs('.', exts=['.py'])
+	bld(features='py', source=bld.path.ant_glob('*.py'))
 
 	# then a c extension module
 	bld(

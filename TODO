@@ -3,6 +3,7 @@ Waf 1.6
 
 General
 
+- update the waf tools
 - broken pkg-config apis
 - better apis for shell compilation in Task.py and remove misc.py
 - refactor the environment thing
@@ -11,6 +12,7 @@ Low priority
 
 - refactor the c and d preprocessor functions
 - detect potential deadlocks in the task scheduler
+- detect user typos
 - enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
 Potential sub-projects (contributions will be welcome)
