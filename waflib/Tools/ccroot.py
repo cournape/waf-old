@@ -164,7 +164,10 @@ def apply_link(self):
 @after('apply_link')
 @before('propagate_uselib_vars')
 def apply_uselib_local(self):
-	"""execute after apply_link because of the execution order set on 'link_task'"""
+	"""
+	process the uselib_local attribute
+	execute after apply_link because of the execution order set on 'link_task'
+	"""
 	env = self.env
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
