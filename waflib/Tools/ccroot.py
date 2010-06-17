@@ -62,7 +62,7 @@ def get_dest_binfmt(self):
 	return self.env.DEST_BINFMT
 
 @feature('cc', 'cxx', 'd', 'go', 'asm', 'includes')
-@after('apply_lib_vars', 'process_source')
+@after('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
 	after processing the uselib for INCLUDES
@@ -162,7 +162,6 @@ def apply_link(self):
 
 @feature('cc', 'cxx', 'd')
 @after('apply_link')
-@before('propagate_uselib_vars')
 def apply_uselib_local(self):
 	"""
 	process the uselib_local attribute
@@ -244,7 +243,7 @@ def get_uselib_vars(self):
 	return _vars
 
 @feature('cc', 'cxx', 'd')
-@after('apply_lib_vars')
+@after('apply_uselib_local')
 def propagate_uselib_vars(self):
 	_vars = self.get_uselib_vars()
 	env = self.env

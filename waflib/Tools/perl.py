@@ -7,13 +7,12 @@ from waflib import Task, Options, Utils
 from waflib.Configure import conf
 from waflib.TaskGen import extension, feature, before
 
-@before('apply_incpaths', 'apply_lib_vars')
+@before('apply_incpaths', 'propagate_uselib_vars')
 @feature('perlext')
 def init_perlext(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
-	if not 'PERL' in self.uselib: self.uselib.append('PERL')
 	if not 'PERLEXT' in self.uselib: self.uselib.append('PERLEXT')
-	self.env['shlib_PATTERN'] = self.env['perlext_PATTERN']
+	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['perlext_PATTERN']
 
 @extension('.xs')
 def xsubpp_file(self, node):
@@ -96,7 +95,7 @@ def check_perl_ext_devel(self):
 		return Utils.to_list(Utils.cmd_output(perl + cmd).encode())
 
 	env["LINKFLAGS_PERLEXT"] = read_out(" -MConfig -e'print $Config{lddlflags}'")
-	env["CPPPATH_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")
+	env["INCLUDES_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")
 	env["CCFLAGS_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")
 
 	env["XSUBPP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")
