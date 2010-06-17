@@ -84,11 +84,6 @@ def apply_java(self):
 		sourcepath='.', srcdir='.', source_re='**/*.java',
 		jar_mf_attributes={}, jar_mf_classpath=[])
 
-	if getattr(self, 'source_root', None):
-		# old stuff
-		self.srcdir = self.source_root
-
-
 	nodes_lst = []
 
 	if not self.classpath:
@@ -103,6 +98,9 @@ def apply_java(self):
 
 	src_nodes = [x for x in srcdir_node.ant_glob(self.source_re, flat=False)]
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]
+
+	for x in src_nodes:
+		x.sig = Utils.h_file(x.abspath())
 
 	self.env['OUTDIR'] = [srcdir_node.abspath()]
 
@@ -134,34 +132,32 @@ def apply_java(self):
 				dirs = '.'
 				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
 
-Task.task_factory('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
-cls = Task.task_factory('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}', color='BLUE')
+class jar_create(Task.Task):
+	color   = 'GREEN'
+	run_str = '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}'
 
-def post_run_javac(self):
-	"""this is for cleaning the folder
-	javac creates single files for inner classes
-	but it is not possible to know which inner classes in advance"""
+class javac(Task.Task):
+	color   = 'BLUE'
+	run_str = '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}'
 
-	par = {}
-	for x in self.inputs:
-		par[x.parent.id] = x.parent
+	def post_run(self):
+		"""this is for cleaning the folder
+		javac creates single files for inner classes
+		but it is not possible to know which inner classes in advance"""
 
-	inner = {}
-	for k in par.values():
-		path = k.abspath()
-		lst = os.listdir(path)
+		lst = set([x.parent for x in self.inputs])
 
-		for u in lst:
-			if u.find('$') >= 0:
-				inner_class_node = k.find_or_declare(u)
-				inner[inner_class_node.id] = inner_class_node
+		inner = []
+		for k in lst:
+			lst = Utils.listdir(k.abspath())
+			for u in lst:
+				if u.find('$') >= 0:
+					node = k.find_or_declare(u)
+					inner.append(node)
 
-	to_add = set(inner.keys()) - set([x.id for x in self.outputs])
-	for x in to_add:
-		self.outputs.append(inner[x])
-
-	return Task.Task.post_run(self)
-cls.post_run = post_run_javac
+		to_add = set(inner) - set(self.outputs)
+		self.outputs.extend(list(to_add))
+		return super(javac, self).post_run()
 
 def configure(self):
 	# If JAVA_PATH is set, we prepend it to the path list
