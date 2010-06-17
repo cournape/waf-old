@@ -29,6 +29,7 @@ def gxx_common_flags(conf):
 	v['CXXLNK_SRC_F']        = ''
 	v['CXXLNK_TGT_F']        = ['-o', ''] # shell hack for -MD
 	v['CPPPATH_ST'] = '-I%s'
+	v['DEFINES_ST'] = '-D%s'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths

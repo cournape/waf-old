@@ -41,6 +41,7 @@ def scc_common_flags(conf):
 	v['CCLNK_SRC_F']         = ''
 	v['CCLNK_TGT_F']         = ['-o', ''] # solaris hack, separate the -o from the target
 	v['CPPPATH_ST'] = '-I%s'
+	v['DEFINES_ST'] = '-D%s'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths

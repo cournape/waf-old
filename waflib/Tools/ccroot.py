@@ -168,6 +168,8 @@ def apply_defines(self):
 	"""after uselib is set for DEFINES"""
 	self.defines = getattr(self, 'defines', [])
 
+	# TODO refactor the uselib thing and remove this this method
+
 	lst = self.to_list(self.defines) + self.to_list(self.env['DEFINES'])
 	milst = []
 
@@ -182,9 +184,9 @@ def apply_defines(self):
 		if val:
 			milst += self.to_list(val)
 
+	# FIXME deflines is only used by the waf preprocessor
 	self.env['DEFLINES'] = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
-	y = self.env['DEFINES_ST'] or '-D%s'
-	self.env['_DEFFLAGS'] = [y % x for x in milst]
+	self.env.DEFINES = milst
 
 @feature('cc', 'cxx', 'd', 'go', 'asm', 'includes')
 @after('apply_lib_vars', 'process_source')
