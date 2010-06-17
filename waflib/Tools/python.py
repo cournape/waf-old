@@ -28,24 +28,17 @@ int main()
 }
 '''
 
-@before('apply_incpaths', 'apply_lib_vars')
 @feature('pyext')
-@before('apply_bundle')
+@before('propagate_uselib_vars')
 def init_pyext(self):
-	self.default_install_path = '${PYTHONDIR}'
+	self.install_path = '${PYTHONDIR}'
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
-	self.env['MACBUNDLE'] = True
-
-@before('apply_link', 'apply_lib_vars')
-@after('apply_bundle')
-@feature('pyext')
-def pyext_shlib_ext(self):
 	# override shlib_PATTERN set by the osx module
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] =self.env['pyext_PATTERN']
 
-@before('apply_incpaths', 'apply_lib_vars')
+@before('propagate_uselib_vars')
 @feature('pyembed')
 def init_pyembed(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
@@ -54,16 +47,18 @@ def init_pyembed(self):
 
 @extension('.py')
 def process_py(self, node):
-	if not (self.bld.is_install or self.install_path):
+	try:
+		self.is_install
+	except:
 		return
 	def inst_py(ctx):
 		install_pyfile(self, node)
 	self.bld.add_post_fun(inst_py)
 
 def install_pyfile(self, node):
-	path = self.bld.get_install_path(self.install_path + os.sep + node.name, self.env)
+	path = self.bld.get_install_path('${PYTHONDIR}/%s' %node.name, self.env)
 
-	self.bld.install_files(self.install_path, [node], self.env, self.chmod, postpone=False)
+	self.bld.install_files('${PYTHONDIR}', [node], self.env, self.chmod, postpone=False)
 	if self.bld.is_install < 0:
 		info("* removing byte compiled python files")
 		for x in 'co':
@@ -97,12 +92,6 @@ for pyfile in sys.argv[1:]:
 			ret = subprocess.Popen(argv).wait()
 			if ret:
 				raise Errors.WafError('bytecode compilation failed %r' % path)
-
-@before('process_source')
-@after('vars_target_cprogram', 'vars_target_lib')
-@feature('py')
-def init_py(self):
-	self.default_install_path = '${PYTHONDIR}'
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
@@ -251,7 +240,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	includes = []
 	if python_config:
-		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).decode().strip().split():
+		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).encode().strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I')
 			    or incstr.startswith('/I')):
@@ -261,13 +250,13 @@ MACOSX_DEPLOYMENT_TARGET = %r
 				includes.append(incstr)
 		conf.log.write("Include path for Python extensions "
 			       "(found via python-config --includes): %r\n" % (includes,))
-		env['CPPPATH_PYEXT'] = includes
-		env['CPPPATH_PYEMBED'] = includes
+		env['INCLUDES_PYEXT'] = includes
+		env['INCLUDES_PYEMBED'] = includes
 	else:
 		conf.log.write("Include path for Python extensions "
 			       "(found via distutils module): %r\n" % (INCLUDEPY,))
-		env['CPPPATH_PYEXT'] = [INCLUDEPY]
-		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
+		env['INCLUDES_PYEXT'] = [INCLUDEPY]
+		env['INCLUDES_PYEMBED'] = [INCLUDEPY]
 
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC_NAME'] == 'gcc':
@@ -280,7 +269,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 	# See if it compiles
 	test_env = env.derive()
 	a = test_env.append_value
-	a('CPPPATH', env['CPPPATH_PYEMBED'])
+	a('INCLUDES', env['INCLUDES_PYEMBED'])
 	a('LIBPATH', env['LIBPATH_PYEMBED'])
 	a('LIB', env['LIB_PYEMBED'])
 	a('LINKFLAGS', env['LINKFLAGS_PYEMBED'])
@@ -312,7 +301,7 @@ def check_python_version(conf, minver=None):
 	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print(str(x))"]
 	debug('python: Running python command %r' % cmd)
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-	lines = proc.communicate()[0].split()
+	lines = proc.communicate()[0].decode().split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
 	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
 

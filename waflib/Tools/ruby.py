@@ -85,7 +85,7 @@ def check_ruby_ext_devel(conf):
 
 	conf.env.LIBPATH_RUBYEXT = read_config('libdir')
 	conf.env.LIBPATH_RUBYEXT += archdir
-	conf.env.CPPPATH_RUBYEXT = cpppath
+	conf.env.INCLUDES_RUBYEXT = cpppath
 	conf.env.CCFLAGS_RUBYEXT = read_config("CCDLFLAGS")
 	conf.env.rubyext_PATTERN = '%s.' + read_config('DLEXT')[0]
 

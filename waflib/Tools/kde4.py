@@ -61,8 +61,8 @@ def configure(conf):
 	conf.env['LIB_KPARTS'] ='kparts'
 
 	conf.env['LIBPATH_KDECORE'] = conf.env['KDE4_LIB_INSTALL_DIR']
-	conf.env['CPPPATH_KDECORE'] = conf.env['KDE4_INCLUDE_INSTALL_DIR']
-	conf.env.append_value('CPPPATH_KDECORE', conf.env['KDE4_INCLUDE_INSTALL_DIR']+"/KDE")
+	conf.env['INCLUDES_KDECORE'] = conf.env['KDE4_INCLUDE_INSTALL_DIR']
+	conf.env.append_value('INCLUDES_KDECORE', conf.env['KDE4_INCLUDE_INSTALL_DIR']+"/KDE")
 
 	conf.find_program('msgfmt', var='MSGFMT')
 

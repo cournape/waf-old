@@ -452,7 +452,7 @@ def autodetect(conf):
 	v = conf.env
 	compiler, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
-	v['CPPPATH'] = includes
+	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
 	v['MSVC_COMPILER'] = compiler
 
@@ -478,7 +478,7 @@ def find_msvc(conf):
 
 	compiler, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
-	v['CPPPATH'] = includes
+	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
@@ -502,7 +502,7 @@ def find_msvc(conf):
 	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
 
 	# environment flags
-	try: v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
+	try: v.prepend_value('INCLUDES', conf.environ['INCLUDE'])
 	except KeyError: pass
 	try: v.prepend_value('LIBPATH', conf.environ['LIB'])
 	except KeyError: pass
