@@ -161,9 +161,9 @@ def apply_link(self):
 			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env, chmod=self.link_task.chmod)
 
 @feature('cc', 'cxx', 'd')
-@after('apply_link', 'init_cc', 'init_cxx')
+@after('apply_link')
 def apply_lib_vars(self):
-	"""after apply_link because of 'link_task'"""
+	"""execute after apply_link because of the execution order set on 'link_task'"""
 	env = self.env
 
 	_vars = set([])
@@ -249,7 +249,7 @@ def apply_lib_vars(self):
 			self.env.append_value(v, self.env[v + '_' + x])
 
 @feature('cprogram', 'cstlib', 'cshlib', 'dprogram', 'dstlib', 'dshlib')
-@after('init_cc', 'init_cxx', 'apply_link')
+@after('apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
 	names = getattr(self, 'add_objects', [])
@@ -322,8 +322,7 @@ c_attrs = {
 }
 
 @feature('cc', 'cxx')
-@before('init_cxx', 'init_cc')
-@before('apply_lib_vars', 'apply_incpaths', 'init_cc')
+@before('apply_lib_vars', 'apply_incpaths')
 def add_extra_flags(self):
 	"""
 	process additional task generator attributes such as cflags → CFLAGS, see c_attrs above
