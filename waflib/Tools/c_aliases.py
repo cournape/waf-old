@@ -20,33 +20,32 @@ def sniff_features(**kw):
 	"""look at the source files and return the features (mainly cc and cxx)"""
 	exts = get_extensions(kw['source'])
 	type = kw['_type']
-	print exts
 
 	if 'cxx' in exts or 'cpp' in exts or 'c++' in exts:
-		if '_type' == 'program':
+		if type == 'program':
 			return 'cxx cxxprogram'
-		if '_type' == 'shlib':
+		if type == 'shlib':
 			return 'cxx cxxshlib'
-		if '_type' == 'stlib':
+		if type == 'stlib':
 			return 'cxx cxxstlib'
 		return 'cxx'
 
 	if 'd' in exts:
-		if '_type' == 'program':
+		if type == 'program':
 			return 'd dprogram'
-		if '_type' == 'shlib':
+		if type == 'shlib':
 			return 'd dshlib'
-		if '_type' == 'stlib':
+		if type == 'stlib':
 			return 'd dstlib'
 		return 'd'
 
 	if 'vala' in exts or 'c' in exts:
-		if '_type' == 'program':
-			return 'c cprogram'
-		if '_type' == 'shlib':
-			return 'c cshlib'
-		if '_type' == 'stlib':
-			return 'c cstlib'
+		if type == 'program':
+			return 'cc cprogram'
+		if type == 'shlib':
+			return 'cc cshlib'
+		if type == 'stlib':
+			return 'cc cstlib'
 		return 'cc'
 
 	if 'java' in exts:
