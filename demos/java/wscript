@@ -27,7 +27,7 @@ def build(bld):
 	#
 	# basedir: directory containing the .class files to package
 	# destfile: the destination file
-	#bld(features='jar seq', basedir='src', destfile='foo.jar')
+	bld(features='jar seq', basedir='src', destfile='foo.jar')
 
 	#jaropts = '-C default/src/ .', # can be used to give files
 	#classpath = '..:.', # can be used to set a custom classpath
