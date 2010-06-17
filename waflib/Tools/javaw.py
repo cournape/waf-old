@@ -62,18 +62,17 @@ def jar_files(self):
 	jaropts = getattr(self, 'jaropts', [])
 	jarcreate = getattr(self, 'jarcreate', 'cf')
 
-	dir = self.path.find_dir(basedir)
-	if not dir: raise
-
-	jaropts.append('-C')
-	jaropts.append(dir.abspath())
-	jaropts.append('.')
-
-	out = self.path.find_or_declare(destfile)
+	d = self.path.find_dir(basedir)
+	if not d: raise
 
 	tsk = self.create_task('jar_create')
-	tsk.set_outputs(out)
-	tsk.inputs = [x for x in dir.find_iter(src=0, bld=1) if x.id != out.id]
+	tsk.set_outputs(self.path.find_or_declare(destfile))
+	tsk.basedir = d
+
+	jaropts.append('-C')
+	jaropts.append(d.abspath())
+	jaropts.append('.')
+
 	tsk.env['JAROPTS'] = jaropts
 	tsk.env['JARCREATE'] = jarcreate
 
@@ -98,9 +97,7 @@ def apply_java(self):
 
 	src_nodes = [x for x in srcdir_node.ant_glob(self.source_re, flat=False)]
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]
-
-	for x in src_nodes:
-		x.sig = Utils.h_file(x.abspath())
+	#print bld_nodes, bld_nodes[0].abspath()
 
 	self.env['OUTDIR'] = [srcdir_node.abspath()]
 
@@ -122,7 +119,6 @@ def apply_java(self):
 
 	if self.jarname:
 		tsk = self.create_task('jar_create')
-		tsk.set_inputs(bld_nodes)
 		tsk.set_outputs(self.path.find_or_declare(self.jarname))
 
 		if not self.env['JAROPTS']:
@@ -135,15 +131,24 @@ def apply_java(self):
 class jar_create(Task.Task):
 	color   = 'GREEN'
 	run_str = '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}'
+	quiet   = True
+
+	def runnable_status(self):
+		for t in self.run_after:
+			if not t.hasrun:
+				return Task.ASK_LATER
+
+		if not self.inputs:
+			self.inputs = [x for x in self.basedir.get_bld().ant_glob('**/*') if id(x) != id(self.outputs[0])]
+		return super(jar_create, self).runnable_status()
 
 class javac(Task.Task):
 	color   = 'BLUE'
 	run_str = '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}'
 
 	def post_run(self):
-		"""this is for cleaning the folder
-		javac creates single files for inner classes
-		but it is not possible to know which inner classes in advance"""
+		"""record the inner class files created (Class$Foo) - for cleaning the folders mostly
+		it is not possible to know which inner classes in advance"""
 
 		lst = set([x.parent for x in self.inputs])
 
