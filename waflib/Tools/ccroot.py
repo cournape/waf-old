@@ -256,7 +256,7 @@ def propagate_uselib_vars(self):
 		env.append_unique(x, self.to_list(getattr(self, y, [])))
 
 	# 2. each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
-	# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
+	# so when we make a task generator of the type cshlib, CXXFLAGS are modified accordingly
 	for x in self.features:
 		for var in _vars:
 			compvar = '%s_%s' % (x, var)

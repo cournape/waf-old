@@ -3,14 +3,16 @@ Waf 1.6
 
 General
 
-- better apis for shell compilation in Task.py
-- refactor the environment thing
+- broken pkg-config apis
 - unification uselib / uselib_local / objects -> attribute 'uses'? / subsystems
   new global variable uselib_vars and generalization of uselib for all kinds of task generators
+- better apis for shell compilation in Task.py
+- refactor the environment thing
 
 Low priority
 
-- detect the deadlock in the task scheduler
+- refactor the c and d preprocessor functions
+- detect potential deadlocks in the task scheduler
 - enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
 Potential sub-projects (contributions will be welcome)
