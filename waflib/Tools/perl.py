@@ -93,21 +93,21 @@ def check_perl_ext_devel(self):
 		self.fatal('find perl first')
 
 	def read_out(cmd):
-		return Utils.to_list(Utils.cmd_output(perl + cmd))
+		return Utils.to_list(Utils.cmd_output(perl + cmd).encode())
 
-	env["LINKFLAGS_PERLEXT"] = [read_out(" -MConfig -e'print $Config{lddlflags}'")]
-	env["CPPPATH_PERLEXT"] = [read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")]
-	env["CCFLAGS_PERLEXT"] = [read_out(" -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")]
+	env["LINKFLAGS_PERLEXT"] = read_out(" -MConfig -e'print $Config{lddlflags}'")
+	env["CPPPATH_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")
+	env["CCFLAGS_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")
 
-	env["XSUBPP"] = [read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")]
-	env["EXTUTILS_TYPEMAP"] = [read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")]
+	env["XSUBPP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")
+	env["EXTUTILS_TYPEMAP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")
 
 	if not getattr(Options.options, 'perlarchdir', None):
-		env['ARCHDIR_PERL'] = Utils.cmd_output(perl + " -MConfig -e'print $Config{sitearch}'")
+		env['ARCHDIR_PERL'] = Utils.cmd_output(perl + " -MConfig -e'print $Config{sitearch}'").encode()
 	else:
 		env['ARCHDIR_PERL'] = getattr(Options.options, 'perlarchdir')
 
-	env['perlext_PATTERN'] = '%s.' + Utils.cmd_output(perl + " -MConfig -e'print $Config{dlext}'")
+	env['perlext_PATTERN'] = '%s.' + Utils.cmd_output(perl + " -MConfig -e'print $Config{dlext}'").encode()
 
 def options(opt):
 	opt.add_option('--with-perl-binary', type='string', dest='perlbinary', help = 'Specify alternate perl binary', default=None)
