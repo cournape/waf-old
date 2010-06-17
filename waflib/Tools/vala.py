@@ -85,7 +85,7 @@ class valac_task(Task.Task):
 			if not first:
 				first = node
 			else:
-				if first.parent.id != node.parent.id:
+				if id(first.parent) != id(node.parent):
 					# issue #483
 					if env['VALAC_VERSION'] < (0, 7, 0):
 						shutil.move(first.parent.get_bld().abspath() + os.sep + node.name, node.get_bld().abspath())
