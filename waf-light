@@ -142,6 +142,6 @@ sys.path.insert(0, wafdir)
 
 if __name__ == '__main__':
 	from waflib import Scripting
-	import waflib.extras.compat15 # will be removed in waf 1.6.10
+	import waflib.extras.compat15 # will be removed in waf 1.7
 	Scripting.waf_entry_point(cwd, VERSION, wafdir)
 
