@@ -367,7 +367,7 @@ def check_python_module(conf, module_name):
 	"""
 	result = not subprocess.Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
 			   stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
-	conf.check_message('Python module', module_name, result)
+	conf.msg('Python module %s' % module_name, result)
 	if not result:
 		conf.fatal('Could not find the python module %r' % module_name)
 

@@ -292,6 +292,9 @@ def validate_c(self, kw):
 	if not 'compile_filename' in kw:
 		kw['compile_filename'] = 'test.c' + ((kw['compile_mode'] == 'cxx') and 'pp' or '')
 
+	if not 'features' in kw:
+		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram cc"
+
 	#OSX
 	if 'framework_name' in kw:
 		try: TaskGen.task_gen.create_task_macapp
@@ -510,8 +513,6 @@ def run_c_code(self, *k, **kw):
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = kw['env']
 
-	if not 'features' in kw:
-		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram cc"
 	o = bld(features=kw['features'], source=test_f_name, target='testprog')
 
 	for k, v in kw.items():
