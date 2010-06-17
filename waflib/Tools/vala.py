@@ -13,11 +13,12 @@ class valac_task(Task.Task):
 
 	def run(self):
 		env = self.env
-		inputs = [a.srcpath(env) for a in self.inputs]
+		inputs = [a.abspath() for a in self.inputs]
+
 		valac = env['VALAC']
 		vala_flags = env.get_flat('VALAFLAGS')
 		top_src = self.generator.bld.srcnode.abspath()
-		top_bld = self.generator.bld.srcnode.abspath(env)
+		top_bld = self.generator.bld.bldnode.abspath()
 
 		if env['VALAC_VERSION'] > (0, 1, 6):
 			cmd = [valac, '-C', '--quiet', vala_flags]
@@ -33,7 +34,7 @@ class valac_task(Task.Task):
 		features = self.generator.features
 
 		if 'cshlib' in features or 'cstlib' in features:
-			output_dir = self.outputs[0].bld_dir(env)
+			output_dir = self.outputs[0].bld_dir()
 			cmd.append('--library ' + self.target)
 			if env['VALAC_VERSION'] >= (0, 7, 0):
 				cmd.append('--header ' + os.path.join(output_dir, self.target + '.h'))
@@ -44,7 +45,7 @@ class valac_task(Task.Task):
 				cmd.append('--gir=%s.gir' % self.gir)
 
 		else:
-			output_dir = self.outputs[0].bld_dir(env)
+			output_dir = self.outputs[0].bld_dir()
 			cmd.append('-d %s' % output_dir)
 
 		for vapi_dir in self.vapi_dirs:
@@ -62,7 +63,7 @@ class valac_task(Task.Task):
 		if not 'cprogram' in features:
 			# generate the .deps file
 			if self.packages:
-				filename = os.path.join(self.generator.path.abspath(env), "%s.deps" % self.target)
+				filename = os.path.join(self.generator.path.get_bld().abspath(), "%s.deps" % self.target)
 				deps = open(filename, 'w')
 				for package in self.packages:
 					deps.write(package + '\n')
@@ -87,10 +88,10 @@ class valac_task(Task.Task):
 				if first.parent.id != node.parent.id:
 					# issue #483
 					if env['VALAC_VERSION'] < (0, 7, 0):
-						shutil.move(first.parent.abspath(self.env) + os.sep + node.name, node.abspath(self.env))
+						shutil.move(first.parent.get_bld().abspath() + os.sep + node.name, node.get_bld().abspath())
 		return result
 
-	def install(self):
+	def post_install(self):
 		bld = self.generator.bld
 		features = self.generator.features
 
@@ -116,10 +117,10 @@ class valac_task(Task.Task):
 			bld.install_files('${DATAROOTDIR}/gir-1.0', gir_list, self.env)
 
 	def _fix_output(self, output):
-		top_bld = self.generator.bld.srcnode.abspath(self.env)
+		top_bld = self.generator.bld.bldnode.abspath()
 		try:
 			src = os.path.join(top_bld, output)
-			dst = self.generator.path.abspath (self.env)
+			dst = self.generator.path.get_bld().abspath()
 			shutil.move(src, dst)
 		except:
 			pass
@@ -137,7 +138,6 @@ def vala_file(self, node):
 		valatask.vapi_dirs = []
 		valatask.target = self.target
 		valatask.threading = False
-		valatask.install_path = self.install_path
 		valatask.target_glib = None
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
@@ -179,16 +179,16 @@ def vala_file(self, node):
 		for vapi_dir in vapi_dirs:
 			try:
 				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath())
-				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath(self.env))
+				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).get_bld().abspath())
 			except AttributeError:
 				Logs.warn("Unable to locate Vala API directory: '%s'" % vapi_dir)
 
 		self.includes.append(node.ctx.srcnode.abspath())
-		self.includes.append(node.ctx.srcnode.abspath(self.env))
+		self.includes.append(node.ctx.bldnode.abspath())
 		for include in includes:
 			try:
 				self.includes.append(self.path.find_dir(include).abspath())
-				self.includes.append(self.path.find_dir(include).abspath(self.env))
+				self.includes.append(self.path.find_dir(include).get_bld().abspath())
 			except AttributeError:
 				Logs.warn("Unable to locate include directory: '%s'" % include)
 
