@@ -36,7 +36,7 @@ class d_header(Task.Task):
 
 
 class dprogram(link_task):
-	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${LINKFLAGS}'
+	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${RPATH_ST:RPATH} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755
 	def exec_command(self, *k, **kw):
