@@ -623,50 +623,6 @@ def apply_flags_msvc(self):
 				self.bld.install_files(self.install_path, [pdbnode], env=self.env)
 				break
 
-@feature('cprogram', 'cshlib', 'cstlib')
-@after('apply_lib_vars')
-@before('apply_obj_vars')
-def apply_obj_vars_msvc(self):
-	if self.env['CC_NAME'] != 'msvc':
-		return
-
-	try:
-		self.meths.remove('apply_obj_vars')
-	except ValueError:
-		pass
-
-	libpaths = getattr(self, 'libpaths', [])
-	if not libpaths: self.libpaths = libpaths
-
-	env = self.env
-	app = env.append_unique
-
-	lib_st           = env['LIB_ST']
-	staticlib_st     = env['STLIB_ST']
-	libpath_st       = env['LIBPATH_ST']
-	staticlibpath_st = env['STLIBPATH_ST']
-
-	for i in env['LIBPATH']:
-		app('LINKFLAGS', [libpath_st % i])
-		if not libpaths.count(i):
-			libpaths.append(i)
-
-	for i in env['LIBPATH']:
-		app('LINKFLAGS', [staticlibpath_st % i])
-		if not libpaths.count(i):
-			libpaths.append(i)
-
-	# i doubt that anyone will make a fully static binary anyway
-	if not env['FULLSTATIC']:
-		if env['STLIB'] or env['LIB']:
-			app('LINKFLAGS', env['SHLIB_MARKER']) # TODO does SHLIB_MARKER work?
-
-	for i in env['STLIB']:
-		app('LINKFLAGS', [staticlib_st % i])
-
-	for i in env['LIB']:
-		app('LINKFLAGS', lib_st % i)
-
 # split the manifest file processing from the link task, like for the rc processing
 
 @feature('cprogram', 'cshlib')

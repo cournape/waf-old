@@ -415,42 +415,6 @@ def apply_objdeps(self):
 		for t in getattr(y, 'compiled_tasks', []):
 			self.link_task.inputs.extend(t.outputs)
 
-@feature('cprogram', 'cshlib', 'cstlib', 'dprogram', 'dshlib', 'dstlib')
-@after('apply_lib_vars')
-def apply_obj_vars(self):
-	"""after apply_lib_vars for uselib"""
-	v = self.env
-	lib_st           = v['LIB_ST']
-	staticlib_st     = v['STLIB_ST']
-	libpath_st       = v['LIBPATH_ST']
-	staticlibpath_st = v['STLIBPATH_ST']
-	rpath_st         = v['RPATH_ST']
-
-	app = v.append_unique
-
-	if v['FULLSTATIC']:
-		v.append_value('LINKFLAGS', [v['FULLSTATIC_MARKER']])
-
-	for i in v['RPATH']:
-		if i and rpath_st:
-			app('LINKFLAGS', rpath_st % i)
-
-	for i in v['LIBPATH']:
-		app('LINKFLAGS', [libpath_st % i])
-		app('LINKFLAGS', [staticlibpath_st % i])
-
-	if v['STLIB']:
-		v.append_value('LINKFLAGS', [v['STLIB_MARKER']])
-		k = [(staticlib_st % i) for i in v['STLIB']]
-		app('LINKFLAGS', k)
-
-	# fully static binaries ?
-	if not v['FULLSTATIC']:
-		if v['STLIB'] or v['LIB']:
-			v.append_value('LINKFLAGS', [v['SHLIB_MARKER']])
-
-	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
-
 @after('apply_link')
 def process_obj_files(self):
 	if not hasattr(self, 'obj_files'):
@@ -485,12 +449,11 @@ c_attrs = {
 
 @feature('cc', 'cxx')
 @before('init_cxx', 'init_cc')
-@before('apply_lib_vars', 'apply_obj_vars', 'apply_incpaths', 'init_cc')
+@before('apply_lib_vars', 'apply_incpaths', 'init_cc')
 def add_extra_flags(self):
 	"""
 	process additional task generator attributes such as cflags → CFLAGS, see c_attrs above
 	case and plural insensitive
-	before apply_obj_vars for processing the library attributes
 	"""
 	for x in self.__dict__.keys():
 		y = x.lower()
