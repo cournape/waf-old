@@ -594,7 +594,10 @@ def compile_fun_shell(line):
 			if meth: app('tsk.outputs%s' % meth)
 			else: app('" ".join([a.path_from(bld.bldnode) for a in tsk.outputs])')
 		elif meth:
-			app('" ".join(%s%s)' % (var, meth))
+			if meth.startswith(':'):
+				app('" ".join([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
+			else:
+				app('" ".join(%s%s)' % (var, meth))
 			# TODO extract more dvars here
 		else:
 			if not var in dvars: dvars.append(var)
@@ -634,7 +637,10 @@ def compile_fun_noshell(line):
 			if meth: app('lst.append(tsk.outputs%s)' % meth)
 			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.outputs])")
 		elif meth:
-			app('lst.extend(%s%s)' % (var, meth))
+			if meth.startswith(':'):
+				app('lst.extend([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
+			else:
+				app('lst.extend(%s%s)' % (var, meth))
 			# TODO extract more dvars here
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)

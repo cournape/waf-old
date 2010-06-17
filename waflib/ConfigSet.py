@@ -190,7 +190,3 @@ class ConfigSet(object):
 		for k, v in d.items():
 			self[k] = v
 
-	def map(self, var, lst):
-		"""use in scriptlet expressions, ${env.map('FOO', 'BAR')} is equivalent to [env.FOO % x for x in env.BAR]"""
-		return [self[var] % x for x in self[lst]]
-
