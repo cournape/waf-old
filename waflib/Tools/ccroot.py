@@ -8,7 +8,6 @@ import os, sys, re, subprocess
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
-from waflib.Configure import conf
 from waflib.Tools import c_aliases, c_preproc, c_config, c_asm
 
 USELIB_VARS = Utils.defaultdict(set)
@@ -26,106 +25,6 @@ USELIB_VARS['dstlib']   = set(['ARFLAGS'])
 
 USELIB_VARS['go'] = set(['GOCFLAGS'])
 USELIB_VARS['goprogram'] = set(['GOLFLAGS'])
-
-@conf
-def get_cc_version(conf, cc, gcc=False, icc=False):
-	"""get the compiler version"""
-	cmd = cc + ['-dM', '-E', '-']
-	try:
-		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		p.stdin.write(b'\n')
-		out = p.communicate()[0].decode('utf-8')
-	except:
-		conf.fatal('could not determine the compiler version %r' % cmd)
-
-	# PY3K: do not touch
-	out = str(out)
-
-	if gcc:
-		if out.find('__INTEL_COMPILER') >= 0:
-			conf.fatal('The intel compiler pretends to be gcc')
-		if out.find('__GNUC__') < 0:
-			conf.fatal('Could not determine the compiler type')
-
-	if icc and out.find('__INTEL_COMPILER') < 0:
-		conf.fatal('Not icc/icpc')
-
-	k = {}
-	if icc or gcc:
-		out = out.split('\n')
-		import shlex
-
-		for line in out:
-			lst = shlex.split(line)
-			if len(lst)>2:
-				key = lst[1]
-				val = lst[2]
-				k[key] = val
-
-		def isD(var):
-			return var in k
-
-		def isT(var):
-			return var in k and k[var] != '0'
-
-		# Some documentation is available at http://predef.sourceforge.net
-		# The names given to DEST_OS must match what Utils.unversioned_sys_platform() returns.
-		mp1 = {
-			'__linux__'   : 'linux',
-			'__GNU__'     : 'gnu',
-			'__FreeBSD__' : 'freebsd',
-			'__NetBSD__'  : 'netbsd',
-			'__OpenBSD__' : 'openbsd',
-			'__sun'       : 'sunos',
-			'__hpux'      : 'hpux',
-			'__sgi'       : 'irix',
-			'_AIX'        : 'aix',
-			'__CYGWIN__'  : 'cygwin',
-			'__MSYS__'    : 'msys',
-			'_UWIN'       : 'uwin',
-			'_WIN64'      : 'win32',
-			'_WIN32'      : 'win32',
-			}
-
-		for i in mp1:
-			if isD(i):
-				conf.env.DEST_OS = mp1[i]
-				break
-		else:
-			if isD('__APPLE__') and isD('__MACH__'):
-				conf.env.DEST_OS = 'darwin'
-			elif isD('__unix__'): # unix must be tested last as it's a generic fallback
-				conf.env.DEST_OS = 'generic'
-
-		if isD('__ELF__'):
-			conf.env.DEST_BINFMT = 'elf'
-
-		mp2 = {
-				'__x86_64__'  : 'x86_64',
-				'__i386__'    : 'x86',
-				'__ia64__'    : 'ia',
-				'__mips__'    : 'mips',
-				'__sparc__'   : 'sparc',
-				'__alpha__'   : 'alpha',
-				'__arm__'     : 'arm',
-				'__hppa__'    : 'hppa',
-				'__powerpc__' : 'powerpc',
-				}
-		for i in mp2:
-			if isD(i):
-				conf.env.DEST_CPU = mp2[i]
-				break
-
-		debug('ccroot: dest platform: ' + ' '.join([conf.env[x] or '?' for x in ('DEST_OS', 'DEST_BINFMT', 'DEST_CPU')]))
-		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
-	return k
-
-# ============ the --as-needed flag should added during the configuration, not at runtime =========
-
-@conf
-def add_as_needed(conf):
-	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
-		conf.env.append_unique('LINKFLAGS', '--as-needed')
 
 # =================================================================================================
 
@@ -532,5 +431,4 @@ class vnum_task(Task.Task):
 			os.symlink(self.inputs[0].name, path)
 		except OSError:
 			return 1
-
 
