@@ -3,7 +3,7 @@
 
 import sys
 
-from waflib import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils
+from waflib import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils, Errors
 
 # the following is to bring some compatibility with waf 1.5 "import waflib.Configure → import Configure"
 sys.modules['Environment'] = ConfigSet
@@ -34,6 +34,7 @@ Build.BuildContext.name_to_obj = Build.BuildContext.get_tgen_by_name
 
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
 Configure.conftest = Configure.conf
+Configure.ConfigurationError = Errors.ConfigurationError
 
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
 
