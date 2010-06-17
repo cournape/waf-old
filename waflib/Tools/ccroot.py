@@ -162,32 +162,6 @@ def get_dest_binfmt(self):
 			self.env.DEST_OS or Utils.unversioned_sys_platform())
 	return self.env.DEST_BINFMT
 
-@feature('cc', 'cxx', 'defines')
-@after('apply_lib_vars')
-def apply_defines(self):
-	"""after uselib is set for DEFINES"""
-	self.defines = getattr(self, 'defines', [])
-
-	# TODO refactor the uselib thing and remove this this method
-
-	lst = self.to_list(self.defines) + self.to_list(self.env['DEFINES'])
-	milst = []
-
-	# now process the local defines
-	for defi in lst:
-		if not defi in milst:
-			milst.extend(self.to_list(defi))
-
-	# DEFINES_USELIB
-	for lib in self.to_list(getattr(self, 'uselib', [])):
-		val = self.env['DEFINES_' + lib]
-		if val:
-			milst += self.to_list(val)
-
-	# FIXME deflines is only used by the waf preprocessor
-	self.env['DEFLINES'] = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
-	self.env.DEFINES = milst
-
 @feature('cc', 'cxx', 'd', 'go', 'asm', 'includes')
 @after('apply_lib_vars', 'process_source')
 def apply_incpaths(self):
@@ -436,6 +410,7 @@ c_attrs = {
 'cxxflag' : 'CXXFLAGS',
 'cflag' : 'CCFLAGS',
 'ccflag' : 'CCFLAGS',
+'defines' : 'DEFINES',
 'linkflag' : 'LINKFLAGS',
 'ldflag' : 'LINKFLAGS',
 'lib' : 'LIB',

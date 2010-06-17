@@ -690,8 +690,9 @@ class c_parser(object):
 		self.addlines(node)
 
 		# macros may be defined on the command-line, so they must be parsed as if they were part of the file
-		if env['DEFLINES']:
-			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
+		if env['DEFINES']:
+			lst = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in env['DEFINES']]]
+			self.lines = [('define', x) for x in lst] + self.lines
 
 		while self.lines:
 			(kind, line) = self.lines.pop(0)
