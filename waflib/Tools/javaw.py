@@ -95,11 +95,12 @@ def apply_java(self):
 	if not srcdir_node:
 		raise Errors.WafError('could not find srcdir %r' % self.srcdir)
 
-	src_nodes = [x for x in srcdir_node.ant_glob(self.source_re, flat=False)]
+	src_nodes = srcdir_node.ant_glob(self.source_re)
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]
-	#print bld_nodes, bld_nodes[0].abspath()
+	for x in src_nodes:
+		x.sig = Utils.h_file(x.abspath())
 
-	self.env['OUTDIR'] = [srcdir_node.abspath()]
+	self.env['OUTDIR'] = [srcdir_node.get_bld().abspath()]
 
 	tsk = self.create_task('javac')
 	tsk.set_inputs(src_nodes)
@@ -139,7 +140,7 @@ class jar_create(Task.Task):
 				return Task.ASK_LATER
 
 		if not self.inputs:
-			self.inputs = [x for x in self.basedir.get_bld().ant_glob('**/*') if id(x) != id(self.outputs[0])]
+			self.inputs = [x for x in self.basedir.get_bld().ant_glob('**/*', dir=False) if id(x) != id(self.outputs[0])]
 		return super(jar_create, self).runnable_status()
 
 class javac(Task.Task):
@@ -239,11 +240,11 @@ def check_jni_headers(conf):
 	b = Build.BuildContext()
 	b.load_dirs(conf.srcdir, conf.blddir)
 	dir = b.root.find_dir(conf.env.JAVA_HOME[0] + '/include')
-	f = dir.ant_glob('**/(jni|jni_md).h', flat=False)
+	f = dir.ant_glob('**/(jni|jni_md).h')
 	incDirs = [x.parent.abspath() for x in f]
 
 	dir = b.root.find_dir(conf.env.JAVA_HOME[0])
-	f = dir.ant_glob('**/*jvm.(so|dll)', flat=False)
+	f = dir.ant_glob('**/*jvm.(so|dll)')
 	libDirs = [x.parent.abspath() for x in f] or [javaHome]
 
 	for i, d in enumerate(libDirs):

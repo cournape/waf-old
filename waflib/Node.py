@@ -511,7 +511,7 @@ class Node(object):
 
 	# complicated stuff below
 
-	def ant_iter(self, accept=None, maxdepth=25, pats=[]):
+	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True):
 
 		dircont = self.listdir()
 
@@ -527,13 +527,19 @@ class Node(object):
 			npats = accept(name, pats)
 			if npats and npats[0]:
 				accepted = [] in npats[0]
-				#print accepted, self, name
 
 				node = self.make_node([name])
-				if accepted:
-					yield node
 
-				if getattr(node, 'cache_isdir', None) or os.path.isdir(node.abspath()):
+				isdir = os.path.isdir(node.abspath())
+				if accepted:
+					if isdir:
+						if dir:
+							yield node
+					else:
+						if src:
+							yield node
+
+				if getattr(node, 'cache_isdir', None) or isdir:
 					node.cache_isdir = True
 					if maxdepth:
 						for k in node.ant_iter(accept=accept, maxdepth=maxdepth - 1, pats=npats):
@@ -542,8 +548,8 @@ class Node(object):
 
 	def ant_glob(self, *k, **kw):
 
-		src = kw.get('src', 1)
-		dir = kw.get('dir', 0)
+		src = kw.get('src', True)
+		dir = kw.get('dir', False)
 
 		excl = kw.get('excl', exclude_regs)
 		incl = k and k[0] or kw.get('incl', '**')
@@ -591,10 +597,9 @@ class Node(object):
 				nacc = []
 			return [nacc, nrej]
 
-		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25)]
-
+		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25, dir=dir, src=src)]
 		if kw.get('flat', False):
-			return " ".join([x.path_from(self) for x in ret])
+			return ' '.join([x.path_from(self) for x in ret])
 
 		return ret
 
