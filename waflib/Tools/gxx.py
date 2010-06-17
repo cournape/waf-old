@@ -33,13 +33,13 @@ def gxx_common_flags(conf):
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['STATICLIB_ST']        = '-l%s'
-	v['STATICLIBPATH_ST']    = '-L%s'
+	v['STLIB_ST']        = '-l%s'
+	v['STLIBPATH_ST']    = '-L%s'
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
 
 	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
-	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
+	v['STLIB_MARKER']    = '-Wl,-Bstatic'
 	v['FULLSTATIC_MARKER']   = '-static'
 
 	# program
@@ -95,7 +95,7 @@ def gxx_modifier_darwin(conf):
 	v['cxxstlib_LINKFLAGS'] = []
 
 	v['SHLIB_MARKER']        = ''
-	v['STATICLIB_MARKER']    = ''
+	v['STLIB_MARKER']    = ''
 	v['SONAME_ST']		 = ''
 
 @conf

@@ -16,12 +16,12 @@ USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', '
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 
-USELIB_VARS['cprogram'] = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
-USELIB_VARS['cshlib']   = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['cprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['cshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
 USELIB_VARS['cstlib']   = set(['ARFLAGS'])
 
-USELIB_VARS['dprogram'] = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
-USELIB_VARS['dshlib']   = set(['LIB', 'STATICLIB', 'LIBPATH', 'STATICLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['dprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
+USELIB_VARS['dshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
 USELIB_VARS['dstlib']   = set(['ARFLAGS'])
 
 USELIB_VARS['go'] = set(['GOCFLAGS'])
@@ -339,7 +339,7 @@ def apply_lib_vars(self):
 
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
 			if isinstance(y.link_task, static_link):
-				env.append_value('STATICLIB', [link_name])
+				env.append_value('STLIB', [link_name])
 			else:
 				# some linkers can link against programs
 				env.append_value('LIB', [link_name])
@@ -357,7 +357,7 @@ def apply_lib_vars(self):
 
 		# add ancestors uselib too - but only propagate those that have no staticlib defined
 		for v in self.to_list(getattr(y, 'uselib', [])):
-			if not env['STATICLIB_' + v]:
+			if not env['STLIB_' + v]:
 				if not v in self.uselib:
 					self.uselib.insert(0, v)
 
@@ -421,9 +421,9 @@ def apply_obj_vars(self):
 	"""after apply_lib_vars for uselib"""
 	v = self.env
 	lib_st           = v['LIB_ST']
-	staticlib_st     = v['STATICLIB_ST']
+	staticlib_st     = v['STLIB_ST']
 	libpath_st       = v['LIBPATH_ST']
-	staticlibpath_st = v['STATICLIBPATH_ST']
+	staticlibpath_st = v['STLIBPATH_ST']
 	rpath_st         = v['RPATH_ST']
 
 	app = v.append_unique
@@ -439,14 +439,14 @@ def apply_obj_vars(self):
 		app('LINKFLAGS', [libpath_st % i])
 		app('LINKFLAGS', [staticlibpath_st % i])
 
-	if v['STATICLIB']:
-		v.append_value('LINKFLAGS', [v['STATICLIB_MARKER']])
-		k = [(staticlib_st % i) for i in v['STATICLIB']]
+	if v['STLIB']:
+		v.append_value('LINKFLAGS', [v['STLIB_MARKER']])
+		k = [(staticlib_st % i) for i in v['STLIB']]
 		app('LINKFLAGS', k)
 
 	# fully static binaries ?
 	if not v['FULLSTATIC']:
-		if v['STATICLIB'] or v['LIB']:
+		if v['STLIB'] or v['LIB']:
 			v.append_value('LINKFLAGS', [v['SHLIB_MARKER']])
 
 	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
@@ -476,8 +476,8 @@ c_attrs = {
 'ldflag' : 'LINKFLAGS',
 'lib' : 'LIB',
 'libpath' : 'LIBPATH',
-'staticlib': 'STATICLIB',
-'staticlibpath': 'STATICLIBPATH',
+'stlib': 'STLIB',
+'stlibpath': 'STLIBPATH',
 'rpath' : 'RPATH',
 'framework' : 'FRAMEWORK',
 'frameworkpath' : 'FRAMEWORKPATH'

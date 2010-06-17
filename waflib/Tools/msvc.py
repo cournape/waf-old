@@ -418,11 +418,11 @@ def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=
 	if not uselib_store:
 		uselib_store = libname.upper()
 
-	# Note: ideally we should be able to place the lib in the right env var, either STATICLIB or LIB,
+	# Note: ideally we should be able to place the lib in the right env var, either STLIB or LIB,
 	# but we don't distinguish static libs from shared libs.
-	# This is ok since msvc doesn't have any special linker flag to select static libs (no env['STATICLIB_MARKER'])
+	# This is ok since msvc doesn't have any special linker flag to select static libs (no env['STLIB_MARKER'])
 	if False and is_static: # disabled
-		self.env['STATICLIB_' + uselib_store] = [libn]
+		self.env['STLIB_' + uselib_store] = [libn]
 	else:
 		self.env['LIB_' + uselib_store] = [libn]
 
@@ -577,8 +577,8 @@ def msvc_common_flags(conf):
 
 	v['LIB_ST']           = '%s.lib' # template for adding libs
 	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
-	v['STATICLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
-	v['STATICLIBPATH_ST'] = '/LIBPATH:%s'
+	v['STLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
+	v['STLIBPATH_ST'] = '/LIBPATH:%s'
 
 	v['LINKFLAGS']            = ['/NOLOGO', '/MANIFEST']
 
@@ -642,9 +642,9 @@ def apply_obj_vars_msvc(self):
 	app = env.append_unique
 
 	lib_st           = env['LIB_ST']
-	staticlib_st     = env['STATICLIB_ST']
+	staticlib_st     = env['STLIB_ST']
 	libpath_st       = env['LIBPATH_ST']
-	staticlibpath_st = env['STATICLIBPATH_ST']
+	staticlibpath_st = env['STLIBPATH_ST']
 
 	for i in env['LIBPATH']:
 		app('LINKFLAGS', [libpath_st % i])
@@ -658,10 +658,10 @@ def apply_obj_vars_msvc(self):
 
 	# i doubt that anyone will make a fully static binary anyway
 	if not env['FULLSTATIC']:
-		if env['STATICLIB'] or env['LIB']:
+		if env['STLIB'] or env['LIB']:
 			app('LINKFLAGS', env['SHLIB_MARKER']) # TODO does SHLIB_MARKER work?
 
-	for i in env['STATICLIB']:
+	for i in env['STLIB']:
 		app('LINKFLAGS', [staticlib_st % i])
 
 	for i in env['LIB']:

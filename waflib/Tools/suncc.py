@@ -45,12 +45,12 @@ def scc_common_flags(conf):
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['STATICLIB_ST']        = '-l%s'
-	v['STATICLIBPATH_ST']    = '-L%s'
+	v['STLIB_ST']        = '-l%s'
+	v['STLIBPATH_ST']    = '-L%s'
 
 	v['SONAME_ST']           = '-Wl,-h -Wl,%s'
 	v['SHLIB_MARKER']        = '-Bdynamic'
-	v['STATICLIB_MARKER']    = '-Bstatic'
+	v['STLIB_MARKER']    = '-Bstatic'
 
 	# program
 	v['cprogram_PATTERN']     = '%s'
