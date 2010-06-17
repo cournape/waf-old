@@ -38,7 +38,7 @@ def configure(conf):
 	for compiler in test_for_compiler.split():
 		try:
 			conf.start_msg('Checking for %r (c compiler)' % compiler)
-			conf.env = orig.copy()
+			conf.env = orig.derive()
 			conf.check_tool(compiler)
 		except conf.errors.ConfigurationError as e:
 			conf.end_msg(False)

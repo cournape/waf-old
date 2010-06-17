@@ -33,7 +33,7 @@ def configure(conf):
 	orig = conf.env
 	for compiler in test_for_compiler.split():
 		try:
-			conf.env = orig.copy()
+			conf.env = orig.derive()
 			conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 			conf.check_tool(compiler)
 		except conf.errors.ConfigurationError as e:
