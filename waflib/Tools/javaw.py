@@ -66,7 +66,7 @@ def jar_files(self):
 	if not dir: raise
 
 	jaropts.append('-C')
-	jaropts.append(dir.abspath(self.env))
+	jaropts.append(dir.abspath())
 	jaropts.append('.')
 
 	out = self.path.find_or_declare(destfile)
@@ -104,7 +104,7 @@ def apply_java(self):
 	src_nodes = [x for x in srcdir_node.ant_glob(self.source_re, flat=False)]
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]
 
-	self.env['OUTDIR'] = [srcdir_node.abspath(self.env)]
+	self.env['OUTDIR'] = [srcdir_node.abspath()]
 
 	tsk = self.create_task('javac')
 	tsk.set_inputs(src_nodes)
@@ -148,7 +148,7 @@ def post_run_javac(self):
 
 	inner = {}
 	for k in par.values():
-		path = k.abspath(self.env)
+		path = k.abspath()
 		lst = os.listdir(path)
 
 		for u in lst:
@@ -163,25 +163,24 @@ def post_run_javac(self):
 	return Task.Task.post_run(self)
 cls.post_run = post_run_javac
 
-def configure(conf):
+def configure(self):
 	# If JAVA_PATH is set, we prepend it to the path list
-	java_path = conf.environ['PATH'].split(os.pathsep)
-	v = conf.env
+	java_path = self.environ['PATH'].split(os.pathsep)
+	v = self.env
 
-	if 'JAVA_HOME' in conf.environ:
-		java_path = [os.path.join(conf.environ['JAVA_HOME'], 'bin')] + java_path
-		conf.env['JAVA_HOME'] = [conf.environ['JAVA_HOME']]
+	if 'JAVA_HOME' in self.environ:
+		java_path = [os.path.join(self.environ['JAVA_HOME'], 'bin')] + java_path
+		self.env['JAVA_HOME'] = [self.environ['JAVA_HOME']]
 
 	for x in 'javac java jar'.split():
-		conf.find_program(x, var=x.upper(), path_list=java_path)
-		conf.env[x.upper()] = conf.cmd_to_list(conf.env[x.upper()])
-	v['JAVA_EXT'] = ['.java']
+		self.find_program(x, var=x.upper(), path_list=java_path)
+		self.env[x.upper()] = self.cmd_to_list(self.env[x.upper()])
 
-	if 'CLASSPATH' in conf.environ:
-		v['CLASSPATH'] = conf.environ['CLASSPATH']
+	if 'CLASSPATH' in self.environ:
+		v['CLASSPATH'] = self.environ['CLASSPATH']
 
-	if not v['JAR']: conf.fatal('jar is required for making java packages')
-	if not v['JAVAC']: conf.fatal('javac is required for compiling java classes')
+	if not v['JAR']: self.fatal('jar is required for making java packages')
+	if not v['JAVAC']: self.fatal('javac is required for compiling java classes')
 	v['JARCREATE'] = 'cf' # can use cvf
 
 @conf
