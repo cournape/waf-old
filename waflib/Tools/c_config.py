@@ -142,43 +142,12 @@ def validate_cfg(self, kw):
 		kw['errmsg'] = 'not found'
 
 @conf
-def cmd_and_log(self, cmd, kw):
-	Logs.debug('runner: %s\n' % cmd)
-
-	if self.log:
-		self.log.write('%s\n' % cmd)
-
-	try:
-		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=isinstance(cmd, str))
-		(out, err) = p.communicate()
-	except:
-		try:
-			self.log.write(str(err))
-		except:
-			pass
-		self.fatal('fail')
-
-	self.log.write(str(err))
-
-	if not isinstance(out, str):
-		out = out.decode('utf-8')
-
-	if p.returncode:
-		if not kw.get('errmsg', ''):
-			if kw.get('mandatory', False):
-				kw['errmsg'] = out.strip()
-			else:
-				kw['errmsg'] = 'fail'
-		self.fatal('fail')
-	return out
-
-@conf
 def exec_cfg(self, kw):
 
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
 		cmd = '%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version'])
-		self.cmd_and_log(cmd, kw)
+		self.cmd_and_log(cmd, **kw)
 		if not 'okmsg' in kw:
 			kw['okmsg'] = 'ok'
 		return
@@ -187,7 +156,7 @@ def exec_cfg(self, kw):
 	for x in cfg_ver:
 		y = x.replace('-', '_')
 		if y in kw:
-			self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']), kw)
+			self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']), **kw)
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
 			self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
@@ -195,7 +164,7 @@ def exec_cfg(self, kw):
 
 	# retrieving the version of a module
 	if 'modversion' in kw:
-		version = self.cmd_and_log('%s --modversion %s' % (kw['path'], kw['modversion']), kw).strip()
+		version = self.cmd_and_log('%s --modversion %s' % (kw['path'], kw['modversion']), **kw).strip()
 		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['modversion'])), version)
 		return version
 
@@ -208,7 +177,7 @@ def exec_cfg(self, kw):
 
 	# so we assume the command-line will output flags to be parsed afterwards
 	cmd = ' '.join(lst)
-	ret = self.cmd_and_log(cmd, kw)
+	ret = self.cmd_and_log(cmd, **kw)
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 

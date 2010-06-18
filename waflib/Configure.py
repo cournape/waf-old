@@ -408,3 +408,34 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 		self.env[var] = ret
 	return ret
 
+@conf
+def cmd_and_log(self, cmd, **kw):
+	Logs.debug('runner: %s\n' % cmd)
+
+	if self.log:
+		self.log.write('%s\n' % cmd)
+
+	try:
+		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=isinstance(cmd, str))
+		(out, err) = p.communicate()
+	except:
+		try:
+			self.log.write(str(err))
+		except:
+			pass
+		self.fatal('fail')
+
+	self.log.write(str(err))
+
+	if not isinstance(out, str):
+		out = out.decode('utf-8')
+
+	if p.returncode:
+		if not kw.get('errmsg', ''):
+			if kw.get('mandatory', False):
+				kw['errmsg'] = out.strip()
+			else:
+				kw['errmsg'] = 'fail'
+		self.fatal(kw['errmsg'])
+	return out
+
