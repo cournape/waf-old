@@ -62,7 +62,7 @@ def tex_build(task, command='LATEX'):
 		fun = pdflatex_fun
 
 	node = task.inputs[0]
-	reldir  = node.bld_dir(env)
+	reldir  = node.bld_dir()
 
 	# wtf
 	lst = []
@@ -171,7 +171,7 @@ class tex_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('tex')
-@before('apply_core')
+@before('process_source')
 def apply_tex(self):
 	if not getattr(self, 'type', None) in ['latex', 'pdflatex']:
 		self.type = 'pdflatex'
@@ -207,7 +207,6 @@ def apply_tex(self):
 
 		# add the manual dependencies
 		if deps_lst:
-			variant = node.variant(self.env)
 			try:
 				lst = tree.node_deps[task.unique_id()]
 				for n in deps_lst:
@@ -219,10 +218,10 @@ def apply_tex(self):
 		if self.type == 'latex':
 			if 'ps' in outs:
 				tsk = self.create_task('dvips', task.outputs, node.change_ext('.ps'))
-				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + os.pathsep + self.path.abspath() + os.pathsep + self.path.abspath(self.env)}
+				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + os.pathsep + self.path.abspath() + os.pathsep + self.path.get_bld().abspath()}
 			if 'pdf' in outs:
 				tsk = self.create_task('dvipdf', task.outputs, node.change_ext('.pdf'))
-				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + os.pathsep + self.path.abspath() + os.pathsep + self.path.abspath(self.env)}
+				tsk.env.env = {'TEXINPUTS' : node.parent.abspath() + os.pathsep + self.path.abspath() + os.pathsep + self.path.get_bld().abspath()}
 		elif self.type == 'pdflatex':
 			if 'ps' in outs:
 				self.create_task('pdf2ps', task.outputs, node.change_ext('.ps'))
@@ -236,11 +235,9 @@ def configure(conf):
 	v['DVIPSFLAGS'] = '-Ppdf'
 
 b = Task.task_factory
-b('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE', shell=False) # not used anywhere
-b('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE', shell=False) # not used anywhere
-b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after="latex pdflatex tex bibtex", shell=False)
-b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after="latex pdflatex tex bibtex", shell=False)
-b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after="dvipdf pdflatex", shell=False)
+b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
+b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
+b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after=["dvipdf", "pdflatex"], shell=False)
 b('latex', latex_build, vars=latex_vardeps, scan=scan)
 b('pdflatex', pdflatex_build, vars=pdflatex_vardeps, scan=scan)
 
