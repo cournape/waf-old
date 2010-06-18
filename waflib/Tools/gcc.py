@@ -91,6 +91,8 @@ def gcc_modifier_darwin(conf):
 	v['cshlib_CCFLAGS']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['cshlib_LINKFLAGS']     = ['-dynamiclib']
 	v['cshlib_PATTERN']       = 'lib%s.dylib'
+	v['FRAMEWORKPATH_ST'] = '-F%s'
+	v['FRAMEWORK_ST'] = '-framework %s'
 
 	v['cstlib_LINKFLAGS'] = []
 
