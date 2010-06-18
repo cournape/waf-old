@@ -694,7 +694,7 @@ def exec_command_msvc(self, *k, **kw):
 		env.update(PATH = ';'.join(self.env['PATH']))
 		kw['env'] = env
 
-	return self.generator.bld.exec_command(*k, **kw)
+	return Task.Task.exec_command(self, *k, **kw)
 
 for k in 'cc cxx winrc cprogram cxxprogram cshlib cxxshlib static_link qxx'.split():
 	cls = Task.classes.get(k, None)
