@@ -104,16 +104,10 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 		del os_env['MACOSX_DEPLOYMENT_TARGET'] # see comments in the OSX tool
 	except KeyError:
 		pass
-	proc = subprocess.Popen([python_exe, "-c", '\n'.join(program)], stdout=subprocess.PIPE, env=os_env)
-	output = proc.communicate()[0].encode().split('\n')
 
-	if proc.returncode:
-		if Options.options.verbose:
-			warn("Python program to extract python configuration variables failed:\n%s"
-				       % '\n'.join(["line %03i: %s" % (lineno+1, line) for lineno, line in enumerate(program)]))
-		raise RuntimeError
+	out = Utils.cmd_output([python_exe, '-c', '\n'.join(program)], env=os_env)
 	return_values = []
-	for s in output:
+	for s in out.split('\n'):
 		s = s.strip()
 		if not s:
 			continue
@@ -240,10 +234,9 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	includes = []
 	if python_config:
-		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).encode().strip().split():
+		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).strip().split():
 			# strip the -I or /I
-			if (incstr.startswith('-I')
-			    or incstr.startswith('/I')):
+			if (incstr.startswith('-I') or incstr.startswith('/I')):
 				incstr = incstr[2:]
 			# append include path, unless already given
 			if incstr not in includes:

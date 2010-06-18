@@ -106,7 +106,10 @@ try:
 except:
 	import binascii
 	def to_hex(s):
-		return binascii.hexlify(s)
+		ret = binascii.hexlify(s)
+		if not isinstance(ret, str):
+			ret = ret.decode('utf-8')
+		return ret
 else:
 	def to_hex(s):
 		return s.encode('hex')
