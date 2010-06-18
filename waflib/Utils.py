@@ -348,16 +348,19 @@ def cmd_output(cmd, **kw):
 
 	try:
 		p = subprocess.Popen(cmd, **kw)
-		output = p.communicate()[0].decode('utf-8')
+		out = p.communicate()[0]
 	except OSError as e:
 		raise ValueError(str(e))
 
+	if not isinstance(out, str):
+		out = out.decode('utf-8')
+
 	if p.returncode:
 		if not silent:
-			msg = "command execution failed: %s -> %r" % (cmd, str(output))
+			msg = 'command execution failed: %s -> %r' % (cmd, str(out))
 			raise ValueError(msg)
-		output = ''
-	return output
+		out = ''
+	return out
 
 reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
