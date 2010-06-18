@@ -259,15 +259,6 @@ def apply_qt4(self):
 def cxx_hook(self, node):
 	return self.create_compiled_task('qxx', node)
 
-def process_qm2rcc(task):
-	outfile = task.outputs[0].abspath()
-	f = open(outfile, 'w')
-	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
-	for k in task.inputs:
-		f.write(' <file>%s</file>\n' % k.path_from(task.path))
-	f.write('</qresource>\n</RCC>')
-	f.close()
-
 b = Task.task_factory
 b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
 cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx', after="qm2rcc")
@@ -275,10 +266,21 @@ cls.scan = scan
 b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc qxx')
 b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc')
 
-Task.task_factory('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', before='rcc', after='ts2qm')
+class qm2rcc(Task.Task):
+	color = 'BLUE'
+	after = 'ts2qm'
+	before = 'rcc'
 
-def detect_qt4(conf):
-	env = conf.env
+	def process_qm2rcc(self):
+		"""TODO try to see if it works"""
+		txt = '\n'.join(['<file>%s</file>' % k.path_from(self.path) for k in self.inputs])
+		code = '<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n%s\n</qresource>\n</RCC>' % txt
+		task.outputs[0].write(code)
+
+#Task.task_factory('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', before='rcc', after='ts2qm')
+
+def configure(self):
+	env = self.env
 	opt = Options.options
 
 	qtdir = getattr(opt, 'qtdir', '')
@@ -294,7 +296,7 @@ def detect_qt4(conf):
 
 	# the qt directory has been given - we deduce the qt binary path
 	if not qtdir:
-		qtdir = conf.environ.get('QT4_ROOT', '')
+		qtdir = self.environ.get('QT4_ROOT', '')
 		qtbin = os.path.join(qtdir, 'bin')
 		paths = [qtbin]
 
@@ -321,7 +323,7 @@ def detect_qt4(conf):
 	cand = None
 	prev_ver = ['4', '0', '0']
 	for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
-		qmake = conf.find_program(qmk, path_list=paths, mandatory=False)
+		qmake = self.find_program(qmk, path_list=paths, mandatory=False)
 		if qmake:
 			try:
 				version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip()
@@ -336,9 +338,9 @@ def detect_qt4(conf):
 	if cand:
 		qmake = cand
 	else:
-		conf.fatal('could not find qmake for qt4')
+		self.fatal('could not find qmake for qt4')
 
-	conf.env.QMAKE = qmake
+	self.env.QMAKE = qmake
 	qtincludes = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
 	qtdir = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
 	qtbin = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
@@ -351,7 +353,7 @@ def detect_qt4(conf):
 
 	def find_bin(lst, var):
 		for f in lst:
-			ret = conf.find_program(f, path_list=paths, mandatory=False)
+			ret = self.find_program(f, path_list=paths, mandatory=False)
 			if ret:
 				env[var]=ret
 				break
@@ -359,19 +361,19 @@ def detect_qt4(conf):
 	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
 	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
 	if not env['QT_UIC']:
-		conf.fatal('cannot find the uic compiler for qt4')
+		self.fatal('cannot find the uic compiler for qt4')
 
 	try:
 		version = Utils.cmd_output(env['QT_UIC'] + " -version 2>&1").strip()
 	except ValueError:
-		conf.fatal('your uic compiler is for qt3, add uic for qt4 to your path')
+		self.fatal('your uic compiler is for qt3, add uic for qt4 to your path')
 
 	version = version.replace('Qt User Interface Compiler ','')
 	version = version.replace('User Interface Compiler for Qt', '')
 	if version.find(' 3.') != -1:
-		conf.msg('uic version', '(%s: too old)' % version, False)
-		conf.fatal('uic is too old')
-	conf.msg('uic version', '(%s)'%version)
+		self.msg('uic version', '(%s: too old)' % version, False)
+		self.fatal('uic is too old')
+	self.msg('uic version', '(%s)'%version)
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
@@ -390,7 +392,7 @@ def detect_qt4(conf):
 	pkgconfig = env['pkg-config'] or 'PKG_CONFIG_PATH=%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
 	for i in vars_debug+vars:
 		try:
-			conf.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
+			self.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
 		except ValueError:
 			pass
 
@@ -432,9 +434,6 @@ def detect_qt4(conf):
 					env['RPATH_'+var] = accu
 		process_rpath(vars, 'LIBPATH_QTCORE')
 		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
-
-def configure(conf):
-	detect_qt4(conf)
 
 def options(opt):
 	opt.add_option('--want-rpath', action='store_true', default=False, dest='want_rpath', help='enable the rpath for qt libraries')
