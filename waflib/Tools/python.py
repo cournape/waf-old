@@ -291,10 +291,9 @@ def check_python_version(conf, minver=None):
 		conf.fatal('could not find the python executable')
 
 	# Get python version string
-	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print(str(x))"]
+	cmd = [python, '-c', 'import sys\nfor x in sys.version_info: print(str(x))']
 	debug('python: Running python command %r' % cmd)
-	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-	lines = proc.communicate()[0].decode().split()
+	lines = Utils.cmd_output(cmd).split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
 	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
 
@@ -347,11 +346,13 @@ def check_python_module(conf, module_name):
 	"""
 	Check if the selected python interpreter can import the given python module.
 	"""
-	result = not subprocess.Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
-			   stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
-	conf.msg('Python module %s' % module_name, result)
-	if not result:
+	conf.start_msg('Python module %s' % module_name)
+	try:
+		conf.cmd_and_log([conf.env['PYTHON'], '-c', 'import %s\nprint(1)\n' % module_name], {})
+	except:
+		conf.end_msg(False)
 		conf.fatal('Could not find the python module %r' % module_name)
+	conf.end_msg(True)
 
 def configure(conf):
 

@@ -144,25 +144,33 @@ def validate_cfg(self, kw):
 @conf
 def cmd_and_log(self, cmd, kw):
 	Logs.debug('runner: %s\n' % cmd)
-	if self.log: self.log.write('%s\n' % cmd)
+
+	if self.log:
+		self.log.write('%s\n' % cmd)
 
 	try:
-		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-		output = p.communicate()[0]
-	except OSError:
+		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=isinstance(cmd, str))
+		(out, err) = p.communicate()
+	except:
+		try:
+			self.log.write(str(err))
+		except:
+			pass
 		self.fatal('fail')
 
-	if not isinstance(output, str):
-		output = output.decode('utf-8')
+	self.log.write(str(err))
+
+	if not isinstance(out, str):
+		out = out.decode('utf-8')
 
 	if p.returncode:
 		if not kw.get('errmsg', ''):
 			if kw.get('mandatory', False):
-				kw['errmsg'] = output.strip()
+				kw['errmsg'] = out.strip()
 			else:
 				kw['errmsg'] = 'fail'
 		self.fatal('fail')
-	return output
+	return out
 
 @conf
 def exec_cfg(self, kw):
