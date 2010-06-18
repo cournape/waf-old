@@ -431,12 +431,16 @@ def cmd_and_log(self, cmd, **kw):
 			pass
 		self.fatal('fail')
 
-	self.log.write(str(err))
+	if out:
+		self.log.write('out: %r\n' % out)
+	if err:
+		self.log.write('err: %r\n' % err)
 
 	if not isinstance(out, str):
 		out = out.decode('utf-8')
 
 	if p.returncode:
+		self.log.write('command exit code: %r\n' % p.returncode)
 		if not kw.get('errmsg', ''):
 			if kw.get('mandatory', False):
 				kw['errmsg'] = out.strip()

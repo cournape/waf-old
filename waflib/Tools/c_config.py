@@ -509,21 +509,18 @@ def run_c_code(self, *k, **kw):
 		ret = 0
 
 	if self.log:
-		self.log.write('config test compiles\n')
 		if ret:
-			self.log.write('command returned %r' % ret)
+			self.log.write('command returned: %s\n' % ret)
 			self.fatal(str(ret))
+		else:
+			self.log.write('config test compiles\n')
 
 	# keep the name of the program to execute
 	if kw['execute']:
 		lastprog = o.link_task.outputs[0].abspath()
 
 		args = Utils.to_list(kw.get('exec_args', []))
-		try:
-			data = Utils.cmd_output([lastprog] + args).strip()
-		except ValueError as e:
-			self.fatal(Utils.ex_stack())
-		ret = data
+		ret = self.cmd_and_log([lastprog] + args).strip()
 
 	return ret
 

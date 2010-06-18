@@ -206,7 +206,7 @@ class TaskBase(evil):
 			return self.err_msg
 		elif self.hasrun == CRASHED:
 			try:
-				return " -> task failed (err #%d): %r" % (self.err_code, self)
+				return " -> task failed (exit status %r): %r" % (self.err_code, self)
 			except AttributeError:
 				return " -> task failed: %r" % self
 		elif self.hasrun == MISSING:
