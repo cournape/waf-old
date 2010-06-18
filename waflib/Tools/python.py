@@ -93,7 +93,8 @@ for pyfile in sys.argv[1:]:
 			if ret:
 				raise Errors.WafError('bytecode compilation failed %r' % path)
 
-def _get_python_variables(python_exe, variables, imports=['import sys']):
+@conf
+def get_python_variables(conf, python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
 	program = list(imports)
 	program.append('')
@@ -105,7 +106,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	except KeyError:
 		pass
 
-	out = Utils.cmd_output([python_exe, '-c', '\n'.join(program)], env=os_env)
+	out = conf.cmd_and_log([python_exe, '-c', '\n'.join(program)], env=os_env)
 	return_values = []
 	for s in out.split('\n'):
 		s = s.strip()
@@ -150,7 +151,7 @@ def check_python_headers(conf):
 		(python_prefix, python_SO, python_SYSLIBS, python_LDFLAGS, python_SHLIBS,
 		 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED,
 		 python_MACOSX_DEPLOYMENT_TARGET) = \
-			_get_python_variables(python, ["get_config_var('%s')" % x for x in v],
+			conf.get_python_variables(python, ["get_config_var('%s')" % x for x in v],
 					      ['from distutils.sysconfig import get_config_var'])
 	except RuntimeError:
 		conf.fatal("Python development headers not found (-v for details).")
@@ -234,7 +235,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	includes = []
 	if python_config:
-		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).strip().split():
+		for incstr in conf.cmd_and_log("%s %s --includes" % (python, python_config)).strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I') or incstr.startswith('/I')):
 				incstr = incstr[2:]
@@ -293,7 +294,7 @@ def check_python_version(conf, minver=None):
 	# Get python version string
 	cmd = [python, '-c', 'import sys\nfor x in sys.version_info: print(str(x))']
 	debug('python: Running python command %r' % cmd)
-	lines = Utils.cmd_output(cmd).split()
+	lines = conf.cmd_and_log(cmd).split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
 	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
 
@@ -310,14 +311,14 @@ def check_python_version(conf, minver=None):
 		else:
 			if sys.platform == 'win32':
 				(python_LIBDEST, pydir) = \
-						_get_python_variables(python,
+						conf.get_python_variables(python,
 											  ["get_config_var('LIBDEST')",
 											   "get_python_lib(standard_lib=0, prefix=%r)" % conf.env['PREFIX']],
 											  ['from distutils.sysconfig import get_config_var, get_python_lib'])
 			else:
 				python_LIBDEST = None
 				(pydir,) = \
-						_get_python_variables(python,
+						conf.get_python_variables(python,
 											  ["get_python_lib(standard_lib=0, prefix=%r)" % conf.env['PREFIX']],
 											  ['from distutils.sysconfig import get_config_var, get_python_lib'])
 			if python_LIBDEST is None:
