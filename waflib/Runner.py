@@ -132,7 +132,7 @@ class Parallel(object):
 				self.outstanding += self.frozen
 				self.frozen = []
 			elif not self.count:
-				self.outstanding.extend(self.biter.next())
+				self.outstanding.extend(next(self.biter))
 				self.total = self.bld.total()
 				break
 
@@ -198,7 +198,7 @@ class Parallel(object):
 					TaskConsumer.ready.put(tsk)
 					# create the consumer threads only if there is something to consume
 					if not TaskConsumer.consumers:
-						TaskConsumer.consumers = [TaskConsumer() for i in xrange(self.numjobs)]
+						TaskConsumer.consumers = [TaskConsumer() for i in range(self.numjobs)]
 
 
 		# self.count represents the tasks that have been made available to the consumer threads

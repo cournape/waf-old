@@ -65,3 +65,8 @@ def r3(code):
 	code = code.replace("b'\\n'", "'\\n'")
 	return code
 
+@subst('Runner.py')
+def r4(code):
+	code = code.replace('next(self.biter)', 'self.biter.next()')
+	return code
+
