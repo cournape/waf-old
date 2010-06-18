@@ -2,7 +2,7 @@
 # encoding: utf-8
 # andersg at 0x63.nu 2007
 
-import os, subprocess
+import os
 from waflib import Task, Options, Utils
 from waflib.Configure import conf
 from waflib.TaskGen import extension, feature, before
@@ -71,8 +71,13 @@ def check_perl_module(self, module):
 	self.check_perl_module("Some::Module 2.92")
 	"""
 	cmd = [self.env['PERL'], '-e', 'use %s' % module]
-	r = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
-	self.msg('perl module %s' % module, r)
+	self.start_msg('perl module %s' % module)
+	try:
+		r = self.cmd_and_log(cmd)
+	except:
+		self.end_msg(False)
+		return None
+	self.end_msg(r)
 	return r
 
 @conf
