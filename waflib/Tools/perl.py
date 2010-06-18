@@ -44,7 +44,7 @@ def check_perl_version(self, minver=None):
 	else:
 		self.env['PERL'] = perl = Options.options.perlbinary
 
-	version = Utils.cmd_output(perl + " -e'printf \"%vd\", $^V'")
+	version = self.cmd_and_log(perl + " -e'printf \"%vd\", $^V'")
 	if not version:
 		res = False
 		version = "Unknown"
@@ -92,7 +92,7 @@ def check_perl_ext_devel(self):
 		self.fatal('find perl first')
 
 	def read_out(cmd):
-		return Utils.to_list(Utils.cmd_output(perl + cmd).encode())
+		return Utils.to_list(self.cmd_and_log(perl + cmd).encode())
 
 	env["LINKFLAGS_PERLEXT"] = read_out(" -MConfig -e'print $Config{lddlflags}'")
 	env["INCLUDES_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")
@@ -102,11 +102,11 @@ def check_perl_ext_devel(self):
 	env["EXTUTILS_TYPEMAP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")
 
 	if not getattr(Options.options, 'perlarchdir', None):
-		env['ARCHDIR_PERL'] = Utils.cmd_output(perl + " -MConfig -e'print $Config{sitearch}'").encode()
+		env['ARCHDIR_PERL'] = self.cmd_and_log(perl + " -MConfig -e'print $Config{sitearch}'")
 	else:
 		env['ARCHDIR_PERL'] = getattr(Options.options, 'perlarchdir')
 
-	env['perlext_PATTERN'] = '%s.' + Utils.cmd_output(perl + " -MConfig -e'print $Config{dlext}'").encode()
+	env['perlext_PATTERN'] = '%s.' + self.cmd_and_log(perl + " -MConfig -e'print $Config{dlext}'")
 
 def options(opt):
 	opt.add_option('--with-perl-binary', type='string', dest='perlbinary', help = 'Specify alternate perl binary', default=None)
