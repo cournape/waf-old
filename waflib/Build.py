@@ -206,16 +206,20 @@ class BuildContext(Context.Context):
 				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
-				Logs.debug('build: Build cache loading failed')
+				Logs.debug('build: could not load the build cache (missing)')
 			else:
 				try:
 					waflib.Node.pickle_lock.acquire()
 					waflib.Node.Nod3 = self.node_class
-					data = cPickle.load(f)
+					try:
+						data = cPickle.load(f)
+					except Exception as e:
+						Logs.debug('build: could not load the build cache %r' % e)
+					else:
+						for x in SAVED_ATTRS:
+							setattr(self, x, data[x])
 				finally:
 					waflib.Node.pickle_lock.release()
-				for x in SAVED_ATTRS:
-					setattr(self, x, data[x])
 		finally:
 			if f:
 				f.close()
