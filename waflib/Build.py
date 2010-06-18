@@ -387,22 +387,6 @@ class BuildContext(Context.Context):
 
 		return msg
 
-	def exec_command(self, cmd, **kw):
-		"""'runner' zone is printed out for waf -v, see waflib/Options.py"""
-		Logs.debug('runner: system command -> %s' % cmd)
-		if self.log:
-			self.log.write('%s\n' % cmd)
-			kw['log'] = self.log
-
-		# ensure that a command is always frun from somewhere
-		try:
-			if not kw.get('cwd', None):
-				kw['cwd'] = self.cwd
-		except AttributeError:
-			self.cwd = kw['cwd'] = self.variant_dir
-
-		return Utils.exec_command(cmd, **kw)
-
 	def declare_chain(self, *k, **kw):
 		"""alias for TaskGen.declare_chain (wrapper provided for convenience - avoid the import)"""
 		return TaskGen.declare_chain(*k, **kw)
