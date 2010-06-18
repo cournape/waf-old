@@ -359,12 +359,9 @@ def configure(conf):
 	if not conf.env.PYTHON:
 		conf.env.PYTHON = sys.executable
 
-	python = conf.find_program('python', var='PYTHON')
-	if not python:
-		conf.fatal('Could not find the path of the python executable')
+	conf.find_program('python', var='PYTHON')
 
 	v = conf.env
-
 	v['PYCMD'] = '"import sys, py_compile;py_compile.compile(sys.argv[1], sys.argv[2])"'
 	v['PYFLAGS'] = ''
 	v['PYFLAGS_OPT'] = '-O'
