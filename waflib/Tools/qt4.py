@@ -337,7 +337,7 @@ def configure(self):
 		if qmake:
 			try:
 				version = self.cmd_and_log([qmake, '-query', 'QT_VERSION']).strip()
-			except ValueError:
+			except self.errors.ConfigurationError:
 				pass
 			else:
 				if version:
@@ -403,7 +403,7 @@ def configure(self):
 	for i in vars_debug+vars:
 		try:
 			self.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
-		except ValueError:
+		except self.errors.ConfigurationError:
 			pass
 
 	# the libpaths make really long command-lines
