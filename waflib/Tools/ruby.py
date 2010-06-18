@@ -39,7 +39,7 @@ def check_ruby_version(conf, minver=()):
 	ruby = conf.env.RUBY
 
 	try:
-		version = Utils.cmd_output([ruby, '-e', 'puts defined?(VERSION) ? VERSION : RUBY_VERSION']).strip()
+		version = Utils.cmd_output([ruby, '-e', 'puts defined?(VERSION) ? VERSION : RUBY_VERSION']).decode().strip()
 	except:
 		conf.fatal('could not determine ruby version')
 	conf.env.RUBY_VERSION = version
@@ -55,7 +55,7 @@ def check_ruby_version(conf, minver=()):
 			conf.fatal('ruby is too old')
 		cver = ".".join(str(x) for x in minver)
 
-	conf.check_message('ruby', cver, True, version)
+	conf.msg('ruby', cver)
 
 @conf
 def check_ruby_ext_devel(conf):
@@ -68,7 +68,7 @@ def check_ruby_ext_devel(conf):
 	version = tuple(map(int, conf.env.RUBY_VERSION.split(".")))
 
 	def read_out(cmd):
-		return Utils.to_list(Utils.cmd_output([conf.env.RUBY, '-rrbconfig', '-e', cmd]))
+		return Utils.to_list(Utils.cmd_output([conf.env.RUBY, '-rrbconfig', '-e', cmd]).encode())
 
 	def read_config(key):
 		return read_out('puts Config::CONFIG[%r]' % key)
@@ -76,6 +76,7 @@ def check_ruby_ext_devel(conf):
 	ruby = conf.env['RUBY']
 	archdir = read_config('archdir')
 	cpppath = archdir
+
 	if version >= (1, 9, 0):
 		ruby_hdrdir = read_config('rubyhdrdir')
 		cpppath += ruby_hdrdir
