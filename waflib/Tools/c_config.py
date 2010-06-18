@@ -6,9 +6,10 @@
 c/c++ configuration routines
 """
 
-import os, imp, sys, shlex, shutil, subprocess
+import os, imp, sys, shlex, shutil
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
 from waflib.Configure import conf
+from waflib.Utils import subprocess
 
 WAF_CONFIG_H   = 'config.h'
 """default name for the config.h file"""

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import os, sys, subprocess
+import os, sys
 from waflib import Build, TaskGen, Utils, Options, Logs, Task
 from waflib.TaskGen import before, after, feature
 

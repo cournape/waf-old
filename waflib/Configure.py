@@ -415,8 +415,14 @@ def cmd_and_log(self, cmd, **kw):
 	if self.log:
 		self.log.write('%s\n' % cmd)
 
+	args = {}
+	args['shell'] = isinstance(cmd, str)
+	args['stderr'] = args['stdout'] = Utils.subprocess.PIPE
+	if 'env' in kw:
+		args['env'] = kw['env']
+
 	try:
-		p = Utils.subprocess.Popen(cmd, stdout=Utils.subprocess.PIPE, stderr=Utils.subprocess.PIPE, shell=isinstance(cmd, str))
+		p = Utils.subprocess.Popen(cmd, **args)
 		(out, err) = p.communicate()
 	except:
 		try:

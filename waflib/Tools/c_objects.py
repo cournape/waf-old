@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import os, sys, re, subprocess
+import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method

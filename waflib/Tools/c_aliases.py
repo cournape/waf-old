@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import os, sys, re, subprocess
+import os, sys, re
 from waflib import Utils, Build
 
 def get_extensions(lst):

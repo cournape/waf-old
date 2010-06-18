@@ -29,7 +29,7 @@
 #  PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
 
 
-import os, sys, re, string, subprocess
+import os, sys, re
 try:
 	import _winreg
 except:
@@ -132,10 +132,7 @@ echo LIB=%%LIB%%
 		del(env['CL'])
 
 	try:
-		p = subprocess.Popen([cxx, '/help'], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		out, err = p.communicate()
-		if p.returncode != 0:
-			raise Exception('return code: %r: %r' % (p.returncode, err))
+		conf.cmd_and_log([cxx, '/help'], env=env)
 	except Exception as e:
 		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
 		debug(str(e))

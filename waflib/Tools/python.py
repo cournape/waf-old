@@ -5,7 +5,7 @@
 
 "Python support"
 
-import os, sys, subprocess
+import os, sys
 from waflib import TaskGen, Utils, Utils, Runner, Options, Build
 from waflib.Logs import debug, warn, info
 from waflib.TaskGen import extension, taskgen_method, before, after, feature
@@ -78,7 +78,7 @@ for pyfile in sys.argv[1:]:
 	py_compile.compile(pyfile, pyfile + 'c')
 """)
 			argv = [self.env['PYTHON'], '-c', program, path]
-			ret = subprocess.Popen(argv).wait()
+			ret = Utils.subprocess.Popen(argv).wait()
 			if ret:
 				raise Errors.WafError('bytecode compilation failed %r' % path)
 
@@ -89,7 +89,7 @@ for pyfile in sys.argv[1:]:
 	py_compile.compile(pyfile, pyfile + 'o')
 """)
 			argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], '-c', program, path]
-			ret = subprocess.Popen(argv).wait()
+			ret = Utils.subprocess.Popen(argv).wait()
 			if ret:
 				raise Errors.WafError('bytecode compilation failed %r' % path)
 
