@@ -308,10 +308,6 @@ def load_tool(tool, tooldir=None):
 		else:
 			d = 'waflib.Tools.%s' % tool
 
-		try:
-			__import__(d)
-		except ImportError:
-			pass
-		else:
-			return sys.modules[d]
+		__import__(d)
+		return sys.modules[d]
 

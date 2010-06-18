@@ -11,8 +11,8 @@ The methods apply_link and apply_incpaths from ccroot.py are re-used
 
 import os, platform
 
-import Utils, Task
-from TaskGen import feature, extension, after
+from waflib import Utils, Task
+from waflib.TaskGen import feature, extension, after
 from waflib.Tools.ccroot import link_task, static_link
 
 class go(Task.Task):
