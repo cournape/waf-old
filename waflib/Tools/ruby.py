@@ -21,7 +21,7 @@ def init_rubyext(self):
 @feature('rubyext')
 @before('apply_link')
 def apply_ruby_so_name(self):
-	self.env['shlib_PATTERN'] = self.env['rubyext_PATTERN']
+	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['rubyext_PATTERN']
 
 @conf
 def check_ruby_version(conf, minver=()):
