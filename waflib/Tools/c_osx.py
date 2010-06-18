@@ -132,15 +132,17 @@ def apply_link_osx(self):
 			self.env.append_value('LINKFLAGS', ['-install_name', path])
 
 @feature('cc', 'cxx')
-@before('apply_link')
+@before('apply_link', 'propagate_uselib_vars')
 def apply_bundle(self):
 	"""use env['MACBUNDLE'] to force all shlibs into mac bundles
 	or use obj.mac_bundle = True for specific targets only"""
-	if not ('cshlib' in self.features or 'shlib' in self.features): return
+	if not ('cshlib' in self.features or 'cxxshlib' in self.features):
+		return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
-		self.env['shlib_PATTERN'] = self.env['macbundle_PATTERN']
+		self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['macbundle_PATTERN']
 		uselib = self.uselib = self.to_list(self.uselib)
-		if not 'MACBUNDLE' in uselib: uselib.append('MACBUNDLE')
+		if not 'MACBUNDLE' in uselib:
+			uselib.append('MACBUNDLE')
 
 @feature('cshlib', 'cxxshlib')
 @after('apply_link')
@@ -155,16 +157,14 @@ def apply_bundle_remove_dynamiclib(self):
 # TODO REMOVE IN 1.6 (global variable)
 app_dirs = ['Contents', 'Contents/MacOS', 'Contents/Resources']
 
-def app_build(task):
-	env = task.env
-	shutil.copy2(task.inputs[0].srcpath(env), task.outputs[0].abspath(env))
+class macapp(Task.Task):
+	color = 'PINK'
+	def run(self):
+		shutil.copy2(self.inputs[0].srcpath(), self.outputs[0].abspath(self.env))
 
-def plist_build(task):
-	env = task.env
-	f = open(task.outputs[0].abspath(env), "w")
-	f.write(task.mac_plist)
-	f.close()
-
-Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link static_link")
-Task.task_type_from_func('macplist', vars=[], func=plist_build, after="cxx_link cc_link static_link")
+class macplist(Task.Task):
+	color = 'PINK'
+	ext_in = ['.bin']
+	def run(self):
+		self.outputs[0].write(self.mac_plist)
 
