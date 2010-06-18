@@ -10,7 +10,7 @@ APPNAME='python_test'
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('python') # options for disabling pyc or pyo compilation
 	opt.tool_options('compiler_cc')
 
