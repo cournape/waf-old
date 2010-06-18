@@ -62,14 +62,8 @@ def tex_build(task, command='LATEX'):
 		fun = pdflatex_fun
 
 	node = task.inputs[0]
-	reldir  = node.bld_dir()
-
-	# wtf
-	lst = []
-	for c in Utils.split_path(reldir):
-		if c: lst.append('..')
-	srcfile = os.path.join(*(lst + [node.srcpath()]))
-	sr2 = os.path.join(*(lst + [node.parent.srcpath()]))
+	srcfile = node.path_from(node.parent.get_bld())
+	sr2 = node.parent.path_from(node.parent.get_bld())
 
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
@@ -79,7 +73,6 @@ def tex_build(task, command='LATEX'):
 
 	# important, set the cwd for everybody
 	task.cwd = task.inputs[0].parent.get_bld().abspath()
-
 
 	warn('first pass on %s' % command)
 

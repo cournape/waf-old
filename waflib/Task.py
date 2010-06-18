@@ -44,7 +44,7 @@ def f(tsk):
 	wd = getattr(tsk, 'cwd', None)
 	p = env.get_flat
 	cmd = \'\'\' %s \'\'\' % s
-	return tsk.exec_command(cmd, cwd=wd)
+	return tsk.exec_command(cmd, cwd=wd, env=env.env or None)
 '''
 
 COMPILE_TEMPLATE_NOSHELL = '''
@@ -59,7 +59,7 @@ def f(tsk):
 	lst = []
 	%s
 	lst = [x for x in lst if x]
-	return tsk.exec_command(lst, cwd=wd)
+	return tsk.exec_command(lst, cwd=wd, env=env.env or None)
 '''
 
 classes = {}
