@@ -78,6 +78,7 @@ def configure(conf):
 
 	set_def('GO_PACK', 'gopack')
 	set_def('gopackage_PATTERN', '%s.a')
+	set_def('CPPPATH_ST', '-I%s')
 
 	conf.find_program(conf.env.GO_COMPILER, var='GOC')
 	conf.find_program(conf.env.GO_LINKER,   var='GOL')
