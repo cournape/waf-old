@@ -164,7 +164,10 @@ def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
 	ctx = Context.create_context(cmd_name)
 	ctx.cmd = cmd_name
-	ctx.execute()
+	try:
+		ctx.execute()
+	finally:
+		ctx.free()
 
 def run_commands():
 	run_command('init')

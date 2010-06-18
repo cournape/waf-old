@@ -128,6 +128,13 @@ class Context(ctx):
 		global g_module
 		self.recurse(os.path.dirname(g_module.root_path))
 
+	def free(self):
+		"""cleanup function: close config.log"""
+
+		# may be ran by the gc, not always after initialization
+		if hasattr(self, 'log') and self.log:
+			self.log.close()
+
 	def pre_recurse(self, node):
 		"""from the context class"""
 		self.stack_path.append(self.cur_script)

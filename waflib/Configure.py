@@ -210,13 +210,6 @@ class ConfigurationContext(Context.Context):
 			tmpenv = self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + Build.CACHE_SUFFIX))
 
-	def __del__(self):
-		"""cleanup function: close config.log"""
-
-		# may be ran by the gc, not always after initialization
-		if hasattr(self, 'log') and self.log:
-			self.log.close()
-
 	def check_tool(self, input, tooldir=None, funs=None, download=True):
 		"loads a waf tool"
 
