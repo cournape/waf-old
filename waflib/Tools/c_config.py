@@ -148,9 +148,12 @@ def cmd_and_log(self, cmd, kw):
 
 	try:
 		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-		output = p.communicate()[0].decode('utf-8')
+		output = p.communicate()[0]
 	except OSError:
 		self.fatal('fail')
+
+	if not isinstance(output, str):
+		output = output.decode('utf-8')
 
 	if p.returncode:
 		if not kw.get('errmsg', ''):
@@ -708,12 +711,12 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	try:
 		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		p.stdin.write(b'\n')
-		out = p.communicate()[0].decode('utf-8')
+		out = p.communicate()[0]
 	except:
 		conf.fatal('could not determine the compiler version %r' % cmd)
 
-	# PY3K: do not touch
-	out = str(out)
+	if not isinstance(out, str):
+		out = out.decode('utf-8')
 
 	if gcc:
 		if out.find('__INTEL_COMPILER') >= 0:
