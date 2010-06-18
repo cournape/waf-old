@@ -18,6 +18,9 @@ def find_sxx(conf):
 	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: cc = conf.find_program('CC', var='CXX') #studio
 	if not cc: conf.fatal('sunc++ was not found')
+
+	# TODO FIXME the detection in suncc seems to do more than this
+
 	v['CXX']  = cc
 	v['CXX_NAME'] = 'sun'
 
