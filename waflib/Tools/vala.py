@@ -233,29 +233,29 @@ def vala_file(self, node):
 	valatask.inputs.append(node)
 	valatask.outputs.extend(output_nodes)
 
-def configure(conf):
+def configure(self):
 	min_version = (0, 1, 6)
 	min_version_str = "%d.%d.%d" % min_version
 
-	valac = conf.find_program('valac', var='VALAC')
+	valac = self.find_program('valac', var='VALAC')
 
-	if not conf.env.HAVE_GTHREAD:
-		conf.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')
+	if not self.env.HAVE_GTHREAD:
+		self.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')
 
 	try:
-		output = conf.cmd_output(valac + " --version", silent=True)
+		output = self.cmd_and_log(valac + " --version", silent=True)
 		version = output.split(' ', 1)[-1].strip().split(".")
 		version = [int(x) for x in version]
 		valac_version = tuple(version)
 	except Exception:
 		valac_version = (0, 0, 0)
 
-	conf.msg('Checking for valac version >= ' + min_version_str, "%d.%d.%d" % valac_version, valac_version >= min_version)
+	self.msg('Checking for valac version >= ' + min_version_str, "%d.%d.%d" % valac_version, valac_version >= min_version)
 
 	if valac_version < min_version:
-		conf.fatal("the valac version %r is too old (%r)" % (valac_version, min_version))
+		self.fatal("the valac version %r is too old (%r)" % (valac_version, min_version))
 
-	conf.check_tool('gnu_dirs')
-	conf.env.VALAC_VERSION = valac_version
-	conf.env.VALAFLAGS     = []
+	self.check_tool('gnu_dirs')
+	self.env.VALAC_VERSION = valac_version
+	self.env.VALAFLAGS     = []
 

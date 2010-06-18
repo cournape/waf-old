@@ -288,8 +288,8 @@ def configure(conf):
 	v['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX')
 	v['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC')
 	v['OCAMLFLAGS']   = ''
-	v['OCAMLLIB']     = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
-	v['LIBPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
-	v['CPPPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['OCAMLLIB']     = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['LIBPATH_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['CPPPATH_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
 	v['LIB_OCAML'] = 'camlrun'
 

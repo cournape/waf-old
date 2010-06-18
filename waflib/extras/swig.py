@@ -176,7 +176,7 @@ def check_swig_version(conf, minver=None):
 	or conf.check_swig_version((1,3,28)) """
 	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
 
-	swig_out = Utils.cmd_output('%s -version' % conf.env['SWIG'])
+	swig_out = self.cmd_and_log('%s -version' % conf.env['SWIG'])
 
 	swigver = [int(s) for s in reg_swig.findall(swig_out)[0].split('.')]
 	if isinstance(minver, basestring):

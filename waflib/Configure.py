@@ -406,7 +406,7 @@ def cmd_and_log(self, cmd, **kw):
 	Logs.debug('runner: %s\n' % cmd)
 
 	if self.log:
-		self.log.write('%s\n' % cmd)
+		self.log.write('command: %s\n' % cmd)
 
 	args = {}
 	args['shell'] = isinstance(cmd, str)
