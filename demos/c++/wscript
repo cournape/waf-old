@@ -26,5 +26,6 @@ def build(bld):
 		except bld.errors.ConfigurationError:
 			pass
 		finally:
+			bld.log.close() # always close the file or it may be empty
 			bld.log = None
 
