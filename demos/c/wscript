@@ -22,7 +22,7 @@ def configure(conf):
 	conf.check_tool('gnu_dirs')
 	conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
 
-	conf.check_cc(fragment="""#include<stdio.h>\nint main(){printerr("mu"); printf("%d", 22);return 1;}\n""", execute=True)
+	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 1;}\n""", execute=True)
 
 def build(bld):
 
