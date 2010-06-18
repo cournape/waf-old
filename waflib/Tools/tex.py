@@ -18,7 +18,7 @@ def scan(self):
 	names = []
 	if not node: return (nodes, names)
 
-	code = Utils.readf(node.abspath(env))
+	code = node.read()
 
 	curdirnode = self.curdirnode
 	abs = curdirnode.abspath()
@@ -52,14 +52,14 @@ def tex_build(task, command='LATEX'):
 	if not env['PROMPT_LATEX']: com = "%s %s" % (com, '-interaction=batchmode')
 
 	node = task.inputs[0]
-	reldir  = node.bld_dir(env)
-	srcfile = node.srcpath(env)
+	reldir  = node.bld_dir()
+	srcfile = node.srcpath()
 
 	lst = []
 	for c in Utils.split_path(reldir):
 		if c: lst.append('..')
 	sr = os.path.join(*(lst + [srcfile]))
-	sr2 = os.path.join(*(lst + [node.parent.srcpath(env)]))
+	sr2 = os.path.join(*(lst + [node.parent.srcpath()]))
 
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
@@ -77,7 +77,7 @@ def tex_build(task, command='LATEX'):
 
 	# look in the .aux file if there is a bibfile to process
 	try:
-		ct = Utils.readf(aux_node.abspath(env))
+		ct = Utils.readf(aux_node.abspath())
 	except (OSError, IOError):
 		error('error bibtex scan')
 	else:
@@ -95,7 +95,7 @@ def tex_build(task, command='LATEX'):
 
 	# look on the filesystem if there is a .idx file to process
 	try:
-		idx_path = idx_node.abspath(env)
+		idx_path = idx_node.abspath()
 		os.stat(idx_path)
 	except OSError:
 		error('error file.idx scan')
@@ -115,9 +115,9 @@ def tex_build(task, command='LATEX'):
 		# watch the contents of file.aux
 		old_hash = hash
 		try:
-			hash = Utils.h_file(aux_node.abspath(env))
+			hash = aux_node.read()
 		except KeyError:
-			error('could not read aux.h -> %s' % aux_node.abspath(env))
+			error('could not read aux.h -> %s' % aux_node.abspath())
 			pass
 
 		# debug
@@ -181,7 +181,6 @@ def apply_tex(self):
 
 		# add the manual dependencies
 		if deps_lst:
-			variant = node.variant(self.env)
 			try:
 				lst = tree.node_deps[task.unique_id()]
 				for n in deps_lst:
@@ -213,9 +212,6 @@ b('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
 b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after="latex pdflatex tex bibtex")
 b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after="latex pdflatex tex bibtex")
 b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after="dvipdf pdflatex")
-b = Task.task_factory
-cls = b('latex', latex_build, vars=latex_vardeps)
-cls.scan = scan
-cls = b('pdflatex', pdflatex_build, vars=pdflatex_vardeps)
-cls.scan = scan
+b('latex', latex_build, vars=latex_vardeps, scan=scan)
+b('pdflatex', pdflatex_build, vars=pdflatex_vardeps, scan=scan)
 
