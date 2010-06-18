@@ -9,7 +9,10 @@ from waflib.TaskGen import feature, after
 @feature('msgfmt')
 def init_msgfmt(self):
 	#langs = '' # for example "foo/fr foo/br"
-	self.default_install_path = '${KDE4_LOCALE_INSTALL_DIR}'
+	try:
+		self.install_path
+	except:
+		self.install_path = '${KDE4_LOCALE_INSTALL_DIR}'
 
 @feature('msgfmt')
 @after('init_msgfmt')
@@ -25,22 +28,20 @@ def apply_msgfmt(self):
 		task.filename = getattr(self, 'appname', 'set_your_appname') + '.mo'
 		task.chmod = self.chmod
 
-def configure(conf):
-	kdeconfig = conf.find_program('kde4-config')
-	if not kdeconfig:
-		conf.fatal('we need kde4-config')
-	prefix = Utils.cmd_output('%s --prefix' % kdeconfig, silent=True).strip()
-	file = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
-	try: os.stat(file)
+def configure(self):
+	kdeconfig = self.find_program('kde4-config')
+	prefix = self.cmd_and_log('%s --prefix' % kdeconfig, silent=True).strip()
+	fname = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
+	try: os.stat(fname)
 	except OSError:
-		file = '%s/share/kde4/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
-		try: os.stat(file)
-		except OSError: conf.fatal('could not open %s' % file)
+		fname = '%s/share/kde4/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
+		try: os.stat(fname)
+		except OSError: self.fatal('could not open %s' % fname)
 
 	try:
-		txt = Utils.readf(file)
+		txt = Utils.readf(fname)
 	except (OSError, IOError):
-		conf.fatal('could not read %s' % file)
+		self.fatal('could not read %s' % fname)
 
 	txt = txt.replace('\\\n', '\n')
 	fu = re.compile('#(.*)\n')
@@ -51,20 +52,22 @@ def configure(conf):
 
 	for (_, key, val) in found:
 		#print key, val
-		conf.env[key] = val
+		self.env[key] = val
 
 	# well well, i could just write an interpreter for cmake files
-	conf.env['LIB_KDECORE']='kdecore'
-	conf.env['LIB_KDEUI']  ='kdeui'
-	conf.env['LIB_KIO']    ='kio'
-	conf.env['LIB_KHTML']  ='khtml'
-	conf.env['LIB_KPARTS'] ='kparts'
+	self.env['LIB_KDECORE']= ['kdecore']
+	self.env['LIB_KDEUI']  = ['kdeui']
+	self.env['LIB_KIO']    = ['kio']
+	self.env['LIB_KHTML']  = ['khtml']
+	self.env['LIB_KPARTS'] = ['kparts']
 
-	conf.env['LIBPATH_KDECORE'] = conf.env['KDE4_LIB_INSTALL_DIR']
-	conf.env['INCLUDES_KDECORE'] = conf.env['KDE4_INCLUDE_INSTALL_DIR']
-	conf.env.append_value('INCLUDES_KDECORE', conf.env['KDE4_INCLUDE_INSTALL_DIR']+"/KDE")
+	self.env['LIBPATH_KDECORE']  = [self.env['KDE4_LIB_INSTALL_DIR']]
+	self.env['INCLUDES_KDECORE'] = [self.env['KDE4_INCLUDE_INSTALL_DIR']]
+	self.env.append_value('INCLUDES_KDECORE', [self.env['KDE4_INCLUDE_INSTALL_DIR']+ os.sep + 'KDE'])
 
-	conf.find_program('msgfmt', var='MSGFMT')
+	self.find_program('msgfmt', var='MSGFMT')
 
-Task.task_factory('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE')
+class msgfmt(Task.Task):
+	color   = 'BLUE'
+	run_str = '${MSGFMT} ${SRC} -o ${TGT}'
 
