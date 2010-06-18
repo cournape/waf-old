@@ -118,18 +118,18 @@ def create_task_macplist(self):
 		self.plisttask = plisttask
 
 @feature('cshlib', 'cxxshlib')
-@after('apply_link')
+@after('apply_link', 'propagate_uselib_vars')
 def apply_link_osx(self):
-	name = self.link_task.outputs[0].name
-	if not self.install_path:
-		return
-	if getattr(self, 'vnum', None):
-		name = name.replace('.dylib', '.%s.dylib' % self.vnum)
+	try:
+		inst_to = self.install_path
+	except AttributeError:
+		inst_to = self.link_task.__class__.inst_to
 
-	path = os.path.join(Utils.subst_vars(self.install_path, self.env), name)
-	if '-dynamiclib' in self.env['LINKFLAGS']:
-		self.env.append_value('LINKFLAGS', '-install_name')
-		self.env.append_value('LINKFLAGS', path)
+	if inst_to:
+		path = Utils.subst_vars(inst_to, self.env)
+		name = self.link_task.outputs[0].name
+		if '-dynamiclib' in self.env['LINKFLAGS']:
+			self.env.append_value('LINKFLAGS', ['-install_name', path])
 
 @feature('cc', 'cxx')
 @before('apply_link')
