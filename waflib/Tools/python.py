@@ -348,7 +348,7 @@ def check_python_module(conf, module_name):
 	"""
 	conf.start_msg('Python module %s' % module_name)
 	try:
-		conf.cmd_and_log([conf.env['PYTHON'], '-c', 'import %s\nprint(1)\n' % module_name], {})
+		conf.cmd_and_log([conf.env['PYTHON'], '-c', 'import %s\nprint(1)\n' % module_name])
 	except:
 		conf.end_msg(False)
 		conf.fatal('Could not find the python module %r' % module_name)

@@ -416,7 +416,7 @@ def cmd_and_log(self, cmd, **kw):
 		self.log.write('%s\n' % cmd)
 
 	try:
-		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=isinstance(cmd, str))
+		p = Utils.subprocess.Popen(cmd, stdout=Utils.subprocess.PIPE, stderr=Utils.subprocess.PIPE, shell=isinstance(cmd, str))
 		(out, err) = p.communicate()
 	except:
 		try:
