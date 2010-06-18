@@ -8,7 +8,7 @@ Utilities and cross-platform fixes.
 
 import os, sys, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
 from collections import deque # do not touch
-import Errors
+from waflib import Errors
 
 try:
 	from collections import UserDict
