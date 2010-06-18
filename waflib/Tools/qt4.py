@@ -175,26 +175,6 @@ class XMLHandler(ContentHandler):
 	def characters(self, cars):
 		self.buf.append(cars)
 
-def scan(self):
-	"add the dependency on the files referenced in the qrc"
-	node = self.inputs[0]
-	parser = make_parser()
-	curHandler = XMLHandler()
-	parser.setContentHandler(curHandler)
-	fi = open(self.inputs[0].abspath())
-	parser.parse(fi)
-	fi.close()
-
-	nodes = []
-	names = []
-	root = self.inputs[0].parent
-	for x in curHandler.files:
-		nd = root.find_resource(x)
-		if nd: nodes.append(nd)
-		else: names.append(x)
-
-	return (nodes, names)
-
 @extension(*EXT_RCC)
 def create_rcc_task(self, node):
 	"hook for rcc files"
@@ -259,12 +239,42 @@ def apply_qt4(self):
 def cxx_hook(self, node):
 	return self.create_compiled_task('qxx', node)
 
-b = Task.task_factory
-b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
-cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc qxx', after="qm2rcc")
-cls.scan = scan
-b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc qxx')
-b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc')
+class rcc(Task.Task):
+	color   = 'BLUE'
+	run_str = '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}'
+	ext_out = ['.h']
+
+	def scan(self):
+		"""add the dependency on the files referenced in the qrc"""
+		node = self.inputs[0]
+		parser = make_parser()
+		curHandler = XMLHandler()
+		parser.setContentHandler(curHandler)
+		fi = open(self.inputs[0].abspath())
+		parser.parse(fi)
+		fi.close()
+
+		nodes = []
+		names = []
+		root = self.inputs[0].parent
+		for x in curHandler.files:
+			nd = root.find_resource(x)
+			if nd: nodes.append(nd)
+			else: names.append(x)
+		return (nodes, names)
+
+class moc(Task.Task):
+	color   = 'BLUE'
+	run_str = '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}'
+
+class ui4(Task.Task):
+	color   = 'BLUE'
+	run_str = '${QT_UIC} ${SRC} -o ${TGT}'
+	ext_out = ['.h']
+
+class ts2qm(Task.Task):
+	color   = 'BLUE'
+	run_str = '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}'
 
 class qm2rcc(Task.Task):
 	color = 'BLUE'
