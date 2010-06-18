@@ -336,7 +336,7 @@ def configure(self):
 		qmake = self.find_program(qmk, path_list=paths, mandatory=False)
 		if qmake:
 			try:
-				version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip()
+				version = self.cmd_and_log([qmake, '-query', 'QT_VERSION']).strip()
 			except ValueError:
 				pass
 			else:
@@ -351,14 +351,14 @@ def configure(self):
 		self.fatal('could not find qmake for qt4')
 
 	self.env.QMAKE = qmake
-	qtincludes = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
-	qtdir = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
-	qtbin = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
+	qtincludes = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
+	qtdir = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
+	qtbin = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
 
 	if not qtlibs:
 		try:
-			qtlibs = Utils.cmd_output([qmake, '-query', 'QT_LIBRARIES']).strip() + os.sep
-		except ValueError:
+			qtlibs = self.cmd_and_log([qmake, '-query', 'QT_LIBRARIES']).strip() + os.sep
+		except self.errors.ConfigurationError:
 			qtlibs = os.path.join(qtdir, 'lib')
 
 	def find_bin(lst, var):
@@ -374,8 +374,8 @@ def configure(self):
 		self.fatal('cannot find the uic compiler for qt4')
 
 	try:
-		version = Utils.cmd_output(env['QT_UIC'] + " -version 2>&1").strip()
-	except ValueError:
+		version = self.cmd_and_log(env['QT_UIC'] + " -version 2>&1").strip()
+	except self.errors.ConfigurationError:
 		self.fatal('your uic compiler is for qt3, add uic for qt4 to your path')
 
 	version = version.replace('Qt User Interface Compiler ','')
