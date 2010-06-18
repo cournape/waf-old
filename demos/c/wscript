@@ -13,7 +13,7 @@ out = 'build'
 import waflib.Configure
 waflib.Configure.autoconfig = True
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('compiler_cc')
 	opt.tool_options('gnu_dirs')
 
