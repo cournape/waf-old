@@ -24,7 +24,7 @@ def apply_ruby_so_name(self):
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['rubyext_PATTERN']
 
 @conf
-def check_ruby_version(conf, minver=()):
+def check_ruby_version(self, minver=()):
 	"""
 	Checks if ruby is installed.
 	If installed the variable RUBY will be set in environment.
@@ -32,48 +32,48 @@ def check_ruby_version(conf, minver=()):
 	"""
 
 	if Options.options.rubybinary:
-		conf.env.RUBY = Options.options.rubybinary
+		self.env.RUBY = Options.options.rubybinary
 	else:
-		conf.find_program('ruby', var='RUBY')
+		self.find_program('ruby', var='RUBY')
 
-	ruby = conf.env.RUBY
+	ruby = self.env.RUBY
 
 	try:
-		version = conf.cmd_and_log([ruby, '-e', 'puts defined?(VERSION) ? VERSION : RUBY_VERSION']).strip()
+		version = self.cmd_and_log([ruby, '-e', 'puts defined?(VERSION) ? VERSION : RUBY_VERSION']).strip()
 	except:
-		conf.fatal('could not determine ruby version')
-	conf.env.RUBY_VERSION = version
+		self.fatal('could not determine ruby version')
+	self.env.RUBY_VERSION = version
 
 	try:
 		ver = tuple(map(int, version.split(".")))
 	except:
-		conf.fatal('unsupported ruby version %r' % version)
+		self.fatal('unsupported ruby version %r' % version)
 
 	cver = ''
 	if minver:
 		if ver < minver:
-			conf.fatal('ruby is too old')
+			self.fatal('ruby is too old %r' % ver)
 		cver = ".".join(str(x) for x in minver)
 
-	conf.msg('ruby', cver)
+	self.msg('ruby', cver)
 
 @conf
-def check_ruby_ext_devel(conf):
-	if not conf.env.RUBY:
-		conf.fatal('ruby detection is required first')
+def check_ruby_ext_devel(self):
+	if not self.env.RUBY:
+		self.fatal('ruby detection is required first')
 
-	if not conf.env.CC_NAME and not conf.env.CXX_NAME:
-		conf.fatal('load a c/c++ compiler first')
+	if not self.env.CC_NAME and not self.env.CXX_NAME:
+		self.fatal('load a c/c++ compiler first')
 
-	version = tuple(map(int, conf.env.RUBY_VERSION.split(".")))
+	version = tuple(map(int, self.env.RUBY_VERSION.split(".")))
 
 	def read_out(cmd):
-		return Utils.to_list(conf.cmd_and_log([conf.env.RUBY, '-rrbconfig', '-e', cmd]))
+		return Utils.to_list(self.cmd_and_log([self.env.RUBY, '-rrbconfig', '-e', cmd]))
 
 	def read_config(key):
 		return read_out('puts Config::CONFIG[%r]' % key)
 
-	ruby = conf.env['RUBY']
+	ruby = self.env['RUBY']
 	archdir = read_config('archdir')
 	cpppath = archdir
 
@@ -82,13 +82,13 @@ def check_ruby_ext_devel(conf):
 		cpppath += ruby_hdrdir
 		cpppath += [os.path.join(ruby_hdrdir[0], read_config('arch')[0])]
 
-	conf.check(header_name='ruby.h', includes=cpppath, mandatory=True, errmsg='could not find ruby header file')
+	self.check(header_name='ruby.h', includes=cpppath, mandatory=True, errmsg='could not find ruby header file')
 
-	conf.env.LIBPATH_RUBYEXT = read_config('libdir')
-	conf.env.LIBPATH_RUBYEXT += archdir
-	conf.env.INCLUDES_RUBYEXT = cpppath
-	conf.env.CCFLAGS_RUBYEXT = read_config("CCDLFLAGS")
-	conf.env.rubyext_PATTERN = '%s.' + read_config('DLEXT')[0]
+	self.env.LIBPATH_RUBYEXT = read_config('libdir')
+	self.env.LIBPATH_RUBYEXT += archdir
+	self.env.INCLUDES_RUBYEXT = cpppath
+	self.env.CCFLAGS_RUBYEXT = read_config("CCDLFLAGS")
+	self.env.rubyext_PATTERN = '%s.' + read_config('DLEXT')[0]
 
 	# ok this is really stupid, but the command and flags are combined.
 	# so we try to find the first argument...
@@ -100,19 +100,19 @@ def check_ruby_ext_devel(conf):
 	if len(flags) > 1 and flags[1] == "ppc":
 		flags = flags[2:]
 
-	conf.env.LINKFLAGS_RUBYEXT = flags
-	conf.env.LINKFLAGS_RUBYEXT += read_config("LIBS")
-	conf.env.LINKFLAGS_RUBYEXT += read_config("LIBRUBYARG_SHARED")
+	self.env.LINKFLAGS_RUBYEXT = flags
+	self.env.LINKFLAGS_RUBYEXT += read_config("LIBS")
+	self.env.LINKFLAGS_RUBYEXT += read_config("LIBRUBYARG_SHARED")
 
 	if Options.options.rubyarchdir:
-		conf.env.ARCHDIR_RUBY = Options.options.rubyarchdir
+		self.env.ARCHDIR_RUBY = Options.options.rubyarchdir
 	else:
-		conf.env.ARCHDIR_RUBY = read_config('sitearchdir')[0]
+		self.env.ARCHDIR_RUBY = read_config('sitearchdir')[0]
 
 	if Options.options.rubylibdir:
-		conf.env.LIBDIR_RUBY = Options.options.rubylibdir
+		self.env.LIBDIR_RUBY = Options.options.rubylibdir
 	else:
-		conf.env.LIBDIR_RUBY = read_config('sitelibdir')[0]
+		self.env.LIBDIR_RUBY = read_config('sitelibdir')[0]
 
 def options(opt):
 	opt.add_option('--with-ruby-archdir', type='string', dest='rubyarchdir', help='Specify directory where to install arch specific files')
