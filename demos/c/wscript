@@ -10,8 +10,8 @@ APPNAME='cc_test'
 top = '.'
 out = 'build'
 
-import Configure
-Configure.autoconfig = True
+import waflib.Configure
+waflib.Configure.autoconfig = True
 
 def set_options(opt):
 	opt.tool_options('compiler_cc')
