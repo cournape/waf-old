@@ -10,7 +10,7 @@ from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Tools import c_aliases, c_preproc, c_config, c_asm
 
-@feature('cprogram', 'cstlib', 'cshlib', 'dprogram', 'dstlib', 'dshlib')
+@feature('cprogram', 'cxxprogram', 'cstlib', 'cxxstlib', 'cshlib', 'cxxshlib', 'dprogram', 'dstlib', 'dshlib')
 @after('apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
