@@ -8,7 +8,7 @@ import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
-from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_objects
+from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_objects, c_osx
 
 USELIB_VARS = Utils.defaultdict(set)
 USELIB_VARS['cc']  = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
