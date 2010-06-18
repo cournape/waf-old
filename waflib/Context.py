@@ -300,14 +300,18 @@ def load_tool(tool, tooldir=None):
 		for d in tooldir:
 			sys.path.remove(d)
 	else:
-		for x in ['Tools', 'extras']:
-			imp = 'waflib.%s.%s' % (x, tool)
-			try:
-				__import__(imp)
-			except ImportError:
-				pass
-			else:
-				return sys.modules[imp]
+		global waf_dir
+		try:
+			os.stat(os.path.join(waf_dir, 'waflib', 'Tools', tool + '.py'))
+		except:
+			d = 'waflib.extras.%s' % tool
 		else:
-			raise Errors.WscriptError('Could not load the waf tool %r' % tool)
+			d = 'waflib.Tools.%s' % tool
+
+		try:
+			__import__(d)
+		except ImportError:
+			pass
+		else:
+			return sys.modules[d]
 
