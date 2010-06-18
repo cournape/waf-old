@@ -403,42 +403,27 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 
 @conf
 def cmd_and_log(self, cmd, **kw):
+	"""wrapper for Utils.cmd_output to copy the std out/err to the log file"""
+
 	Logs.debug('runner: %s\n' % cmd)
-
-	if self.log:
-		self.log.write('command: %s\n' % cmd)
-
-	args = {}
-	args['shell'] = isinstance(cmd, str)
-	args['stderr'] = args['stdout'] = Utils.subprocess.PIPE
-	if 'env' in kw:
-		args['env'] = kw['env']
+	log = getattr(self, 'log', None)
+	if log:
+		kw['log'] = log
 
 	try:
-		p = Utils.subprocess.Popen(cmd, **args)
-		(out, err) = p.communicate()
-	except:
-		try:
-			self.log.write(str(err))
-		except:
-			pass
-		self.fatal('fail')
+		return Utils.cmd_output(cmd, **kw)
+	except self.errors.WafError as e:
+		retcode = getattr(e, 'returncode', None)
+		if log:
+			if retcode:
+				log.write('command exit code: %r\n' % retcode)
+			else:
+				log.write('error: ' % e)
 
-	if out:
-		self.log.write('out: %r\n' % out)
-	if err:
-		self.log.write('err: %r\n' % err)
-
-	if not isinstance(out, str):
-		out = out.decode('utf-8')
-
-	if p.returncode:
-		self.log.write('command exit code: %r\n' % p.returncode)
 		if not kw.get('errmsg', ''):
 			if kw.get('mandatory', False):
 				kw['errmsg'] = out.strip()
 			else:
-				kw['errmsg'] = 'fail'
+				kw['errmsg'] = 'failure (%r)' % retcode
 		self.fatal(kw['errmsg'])
-	return out
 

@@ -332,37 +332,40 @@ def cmd_output(cmd, **kw):
 	Execute a command and return its output as a string.
 	@param cmd: Command line or list of arguments for subprocess.Popen
 	@rtype: string
-	@return: Command output
+	@return: Command output or throws a WafError
 	"""
-	silent = False
-	if 'silent' in kw:
-		silent = kw['silent']
-		del(kw['silent'])
+	if 'log' in kw:
+		kw['log'].write('command: %s\n' % cmd)
 
-	if 'e' in kw:
-		tmp = kw['e']
-		del(kw['e'])
-		kw['env'] = tmp
-
-	kw['shell'] = isinstance(cmd, str)
-	kw['stdout'] = subprocess.PIPE
-	if silent:
-		kw['stderr'] = subprocess.PIPE
+	args = {}
+	args['shell'] = isinstance(cmd, str)
+	args['stderr'] = args['stdout'] = subprocess.PIPE
+	if 'env' in kw:
+		args['env'] = kw['env']
 
 	try:
-		p = subprocess.Popen(cmd, **kw)
-		out = p.communicate()[0]
-	except OSError as e:
-		raise ValueError(str(e))
+		p = subprocess.Popen(cmd, **args)
+		(out, err) = p.communicate()
+	except Exception as e:
+		try:
+			self.log.write(str(err))
+		except:
+			pass
+		raise Errors.WafError('execution failure %r' % e)
+
+	if 'log' in kw:
+		if out:
+			kw['log'].write('out: %r\n' % out)
+		if err:
+			kw['log'].write('err: %r\n' % err)
 
 	if not isinstance(out, str):
 		out = out.decode('utf-8')
 
 	if p.returncode:
-		if not silent:
-			msg = 'command execution failed: %s -> %r' % (cmd, str(out))
-			raise ValueError(msg)
-		out = ''
+		e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))
+		e.returncode = p.returncode
+		raise e
 	return out
 
 reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
