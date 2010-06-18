@@ -10,6 +10,22 @@ import traceback, os, imp, sys
 from waflib import Utils, Errors, Logs
 import waflib.Node
 
+launch_dir = ''
+"""Where Waf was executed"""
+run_dir = ''
+"""The wscript file to use as the entry point"""
+top_dir = ''
+"""project directory (top), if the project was configured"""
+out_dir = ''
+"""build directory (out), if the project was configured"""
+waf_dir = ''
+"""directory for the waf modules"""
+
+local_repo = ''
+"""local repository for the plugins"""
+remote_repo = 'http://waf.googlecode.com/svn/'
+"""remote directory for the plugins"""
+
 g_module = None
 """
 wscript file representing the entry point of the project
@@ -19,16 +35,31 @@ WSCRIPT_FILE = 'wscript'
 
 # do not touch these 5 lines, they are updated automatically
 HEXVERSION = 0x106000
+"""constant updated on new releases"""
+
 WAFVERSION="1.6.0"
+"""constant updated on new releases"""
+
 WAFREVISION = "XXXXX"
+"""constant updated on new releases"""
+
 ABI = 98
+"""project constant"""
+
 DBFILE = '.wafpickle-%d' % ABI
+"""constant"""
 
 APPNAME = 'APPNAME'
+"""constant"""
+
 VERSION = 'VERSION'
+"""constant"""
 
 SRCDIR  = 'top'
+"""constant"""
+
 BLDDIR  = 'out'
+"""constant"""
 
 classes = []
 def create_context(cmd_name, *k, **kw):
@@ -74,8 +105,8 @@ class Context(ctx):
 
 	def __init__(self, start=None):
 		if not start:
-			from waflib import Options
-			start = Options.run_dir
+			global run_dir
+			start = run_dir
 
 		# binds the context to the nodes in use to avoid a context singleton
 		class node_class(waflib.Node.Node):
@@ -230,6 +261,7 @@ def load_module(file_path):
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
+
 	try:
 		exec(code, module.__dict__)
 	except Exception as e:

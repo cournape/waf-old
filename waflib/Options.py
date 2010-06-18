@@ -15,22 +15,6 @@ options = {}
 commands = []
 """List of commands to execute"""
 
-launch_dir = ''
-"""Where Waf was executed"""
-run_dir = ''
-"""The wscript file to use as the entry point"""
-top_dir = ''
-"""project directory (top), if the project was configured"""
-out_dir = ''
-"""build directory (out), if the project was configured"""
-waf_dir = ''
-"""directory for the waf modules"""
-
-local_repo = ''
-"""local repository for the plugins"""
-remote_repo = 'http://waf.googlecode.com/svn/'
-"""remote directory for the plugins"""
-
 lockfile = os.environ.get('WAFLOCK', '.lock-wafbuild')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''

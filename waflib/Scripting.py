@@ -26,8 +26,8 @@ def waf_entry_point(current_directory, version, wafdir):
 		Logs.error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
 		sys.exit(1)
 
-	Options.waf_dir = wafdir
-	Options.launch_dir = current_directory
+	Context.waf_dir = wafdir
+	Context.launch_dir = current_directory
 
 	# try to find a lock file (if the project was configured)
 	# at the same time, store the first wscript file seen
@@ -44,15 +44,15 @@ def waf_entry_point(current_directory, version, wafdir):
 			except Exception:
 				continue
 
-			Options.run_dir = env.run_dir
-			Options.top_dir = env.top_dir
-			Options.out_dir = env.out_dir
+			Context.run_dir = env.run_dir
+			Context.top_dir = env.top_dir
+			Context.out_dir = env.out_dir
 
 			break
 
-		if not Options.run_dir:
+		if not Context.run_dir:
 			if Context.WSCRIPT_FILE in lst:
-				Options.run_dir = cur
+				Context.run_dir = cur
 
 		cur = os.path.dirname(cur)
 
@@ -65,7 +65,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		break
 
 
-	if not Options.run_dir:
+	if not Context.run_dir:
 		if '-h' in sys.argv or '--help' in sys.argv:
 			Logs.warn('No wscript file found: the help message may be incomplete')
 			opt_obj = Options.OptionsContext()
@@ -81,18 +81,18 @@ def waf_entry_point(current_directory, version, wafdir):
 		sys.exit(1)
 
 	try:
-		os.chdir(Options.run_dir)
+		os.chdir(Context.run_dir)
 	except OSError:
-		Logs.error('Waf: The folder %r is unreadable' % Options.run_dir)
+		Logs.error('Waf: The folder %r is unreadable' % Context.run_dir)
 		sys.exit(1)
 
 	try:
-		set_main_module(Options.run_dir + os.sep + Context.WSCRIPT_FILE)
+		set_main_module(Context.run_dir + os.sep + Context.WSCRIPT_FILE)
 	except Errors.WscriptError as e:
 		Logs.error(str(e))
 		sys.exit(1)
 	except Exception as e:
-		Logs.error('Waf: The wscript in %r is unreadable' % Options.run_dir, e)
+		Logs.error('Waf: The wscript in %r is unreadable' % Context.run_dir, e)
 		traceback.print_exc(file=sys.stdout)
 		sys.exit(2)
 
@@ -360,7 +360,7 @@ def distcheck(ctx):
 
 def update(ctx):
 
-	lst = os.listdir(Options.waf_dir + '/waflib/extras')
+	lst = os.listdir(Context.waf_dir + '/waflib/extras')
 	for x in lst:
 		if not x.endswith('.py'):
 			continue
@@ -376,7 +376,7 @@ def autoconfigure(execute_method):
 		env = ConfigSet.ConfigSet()
 		do_config = False
 		try:
-			env.load(os.path.join(Options.top_dir, Options.lockfile))
+			env.load(os.path.join(Context.top_dir, Options.lockfile))
 		except Exception as e:
 			Logs.warn('Configuring the project')
 			do_config = True

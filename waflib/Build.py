@@ -52,13 +52,13 @@ class BuildContext(Context.Context):
 	def __init__(self, *k, **kw):
 		super(BuildContext, self).__init__(kw.get('start', None))
 
-		self.top_dir = kw.get('top_dir', Options.top_dir)
+		self.top_dir = kw.get('top_dir', Context.top_dir)
 
 		self.post_mode = POST_AT_ONCE
 		"""post the task generators at once, group-by-group, or both"""
 
 		# output directory - may be set until the nodes are considered
-		self.out_dir = kw.get('out_dir', Options.out_dir)
+		self.out_dir = kw.get('out_dir', Context.out_dir)
 
 		self.variant_dir = kw.get('variant_dir', self.out_dir)
 
@@ -86,7 +86,7 @@ class BuildContext(Context.Context):
 		self.log = None
 
 		self.targets = Options.options.targets
-		self.launch_dir = Options.launch_dir
+		self.launch_dir = Context.launch_dir
 
 		############ stuff below has not been reviewed
 

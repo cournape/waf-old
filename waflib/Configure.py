@@ -49,7 +49,7 @@ conf_template = '''# project %(app)s configured on %(now)s by
 
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
-	for x in Utils.to_list(Options.remote_repo):
+	for x in Utils.to_list(Context.remote_repo):
 		for sub in ['branches/waf-%s/waflib/extras' % Context.WAFVERSION, 'trunk/waflib/extras']:
 			url = '/'.join((x, sub, tool + '.py'))
 			try:
@@ -60,7 +60,7 @@ def download_tool(tool, force=False):
 				continue
 			else:
 				try:
-					tmp = os.sep.join((Options.waf_dir, 'waflib', 'extras', tool + '.py'))
+					tmp = os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py'))
 					loc = open(tmp, 'wb')
 					loc.write(web.read())
 					web.close()
@@ -132,8 +132,8 @@ class ConfigurationContext(Context.Context):
 
 		self.store()
 
-		Options.top_dir = self.srcnode.abspath()
-		Options.out_dir = self.bldnode.abspath()
+		Context.top_dir = self.srcnode.abspath()
+		Context.out_dir = self.bldnode.abspath()
 
 		# this will write a configure lock so that subsequent builds will
 		# consider the current path as the root directory (see prepare_impl).
@@ -142,9 +142,9 @@ class ConfigurationContext(Context.Context):
 		env['argv'] = sys.argv
 		env['options'] = Options.options.__dict__
 
-		env.run_dir = Options.run_dir
-		env.top_dir = Options.top_dir
-		env.out_dir = Options.out_dir
+		env.run_dir = Context.run_dir
+		env.top_dir = Context.top_dir
+		env.out_dir = Context.out_dir
 
 		# conf.hash & conf.files hold wscript files paths and hash
 		# (used only by Configure.autoconfig)
@@ -152,9 +152,9 @@ class ConfigurationContext(Context.Context):
 		env['files'] = self.files
 		env['environ'] = dict(self.environ)
 
-		env.store(Options.run_dir + os.sep + Options.lockfile)
-		env.store(Options.top_dir + os.sep + Options.lockfile)
-		env.store(Options.out_dir + os.sep + Options.lockfile)
+		env.store(Context.run_dir + os.sep + Options.lockfile)
+		env.store(Context.top_dir + os.sep + Options.lockfile)
+		env.store(Context.out_dir + os.sep + Options.lockfile)
 
 	def post_init(self):
 
