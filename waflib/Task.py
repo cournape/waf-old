@@ -143,7 +143,7 @@ class TaskBase(evil):
 		bld = self.generator.bld
 		if bld.log:
 			bld.log.write('%s\n' % cmd)
-			kw['log'] = self.log
+			kw['log'] = bld.log
 
 		# ensure that a command is always frun from somewhere
 		try:
