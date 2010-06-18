@@ -34,7 +34,7 @@ def compile_go(self, node):
 def go_local_libs(self):
 	names = self.to_list(getattr(self, 'uselib_local', []))
 	for name in names:
-		tg = self.bld.name_to_obj(name)
+		tg = self.bld.get_tgen_by_name(name)
 		if not tg:
 			raise Utils.WafError('no target of name %r necessary for %r in go uselib local' % (name, self))
 		tg.post()
