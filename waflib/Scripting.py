@@ -141,7 +141,7 @@ def set_main_module(file_path):
 		Context.g_module.options = Utils.nada
 
 def parse_options():
-	opt = Options.OptionsContext().execute()
+	opt = Options.OptionsContext().call_execute()
 
 	if not Options.commands:
 		Options.commands = ['build']
@@ -164,10 +164,7 @@ def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
 	ctx = Context.create_context(cmd_name)
 	ctx.cmd = cmd_name
-	try:
-		ctx.execute()
-	finally:
-		ctx.free()
+	ctx.call_execute()
 
 def run_commands():
 	run_command('init')

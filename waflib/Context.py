@@ -123,15 +123,23 @@ class Context(ctx):
 		self.stack_path = []
 		self.exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
 
+	def call_execute(self):
+		"""leave this indirection if necessary"""
+		try:
+			self.execute()
+		finally:
+			self.free()
+
 	def execute(self):
-		"""executes the command represented by this context"""
+		"""executes the command represented by this context - subclasses must override this method"""
 		global g_module
 		self.recurse(os.path.dirname(g_module.root_path))
 
 	def free(self):
-		"""cleanup function: close config.log"""
-
-		# may be ran by the gc, not always after initialization
+		"""
+		close the log file (config.log) or any log file if present (__del__ does not work properly everywher)
+		override this method if necessary
+		"""
 		if hasattr(self, 'log') and self.log:
 			self.log.close()
 
