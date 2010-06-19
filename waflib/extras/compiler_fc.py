@@ -3,7 +3,7 @@
 
 import os, sys, imp, types
 from waflib import Utils, Configure, Options
-from waflib.extras import fortran
+from waflib.extras import fc
 
 fc_compiler = {
 	'darwin' : ['gfortran', 'ifort'],

@@ -5,7 +5,7 @@ import re
 
 from waflib import Utils, Task, TaskGen, Logs
 import waflib.Tools.ccroot
-from waflib.extras import fortran_cfg, fc_scan
+from waflib.extras import fc_cfg, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
@@ -140,8 +140,6 @@ def apply_fortran_type_vars(self):
 	#else:
 	#	# XXX: assume that compiler put .mod in cwd by default
 	#	app('_FCINCFLAGS', self.env['FCPATH_ST'] % self.bld.bdir)
-"""
-
 
 @feature('fprogram', 'fshlib', 'fstaticlib')
 @after('apply_core')
@@ -170,69 +168,20 @@ def apply_fortran_link(self):
 	linktask.chmod = self.chmod
 
 	self.link_task = linktask
+"""
+
 
 #################################################### Configuration
 
-@conf
-def check_fortran(self, *k, **kw):
-	if not 'compile_filename' in kw:
-		kw['compile_filename'] = 'test.f'
-	if 'fragment' in kw:
-		kw['code'] = kw['fragment']
-	if not 'code' in kw:
-		kw['code'] = '''        program main
+FC_FRAGMENT = '''        program main
         end     program main
 '''
 
-	if not 'compile_mode' in kw:
-		kw['compile_mode'] = 'fortran'
-	if not 'type' in kw:
-		kw['type'] = 'fprogram'
-	if not 'env' in kw:
-		kw['env'] = self.env.copy()
-	kw['execute'] = kw.get('execute', None)
-
-	kw['msg'] = kw.get('msg', 'Compiling a simple fortran app')
-	kw['okmsg'] = kw.get('okmsg', 'ok')
-	kw['errmsg'] = kw.get('errmsg', 'bad luck')
-
-	return self.check_cc(*k, **kw)
-
-#################################################### Add some flags on some feature
-
 @conf
-def fc_flags(conf):
-	v = conf.env
-
-	v['FC_SRC_F']    = ''
-	v['FC_TGT_F']    = ['-c', '-o', '']
-	v['FCPATH_ST']  = '-I%s'
-
-	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
-	v['FCLNK_SRC_F'] = ''
-	v['FCLNK_TGT_F'] = ['-o', '']
-
-	v['fshlib_FCFLAGS']   = ['-fpic']
-	v['fshlib_LINKFLAGS'] = ['-shared']
-	v['fshlib_PATTERN']   = 'lib%s.so'
-
-@feature('flink_with_c++')
-@after('apply_core')
-@before('apply_link', 'apply_lib_vars', 'apply_fortran_link')
-def apply_special_link(self):
-	linktask = self.create_task('fortran_link')
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare("and_without_target"))
-	linktask.chmod = self.chmod
-	self.link_task = linktask
-
-@feature('flink_with_c++')
-@before('apply_lib_vars')
-@after('default_cc')
-def add_some_uselib_vars(self):
-	#if sys.platform == ...
-	self.uselib += ' DEBUG'
-
-
+def check_fortran(self, *k, **kw):
+	conf.check_cc(
+		fragment=FC_FRAGMENT,
+		compile_filename='test.f',
+		features='fc fcprogram',
+		msg='Compiling a simple fortran app')
 

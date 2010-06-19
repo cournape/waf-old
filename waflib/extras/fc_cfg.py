@@ -541,3 +541,42 @@ def mycompile_code(self, *k, **kw):
 		lastprog = o.link_task.outputs[0].abspath(env)
 
 	return ret, bld.out
+
+@conf
+def fc_flags(conf):
+	v = conf.env
+
+	v['FC_SRC_F']    = ''
+	v['FC_TGT_F']    = ['-c', '-o', '']
+	v['FCPATH_ST']  = '-I%s'
+
+	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
+	v['FCLNK_SRC_F'] = ''
+	v['FCLNK_TGT_F'] = ['-o', '']
+
+	v['fshlib_FCFLAGS']   = ['-fpic']
+	v['fshlib_LINKFLAGS'] = ['-shared']
+	v['fshlib_PATTERN']   = 'lib%s.so'
+
+@feature('flink_with_c++')
+@after('apply_core')
+@before('apply_link', 'apply_lib_vars', 'apply_fortran_link')
+def apply_special_link(self):
+	linktask = self.create_task('fortran_link')
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
+	linktask.set_inputs(outputs)
+	linktask.set_outputs(self.path.find_or_declare("and_without_target"))
+	linktask.chmod = self.chmod
+	self.link_task = linktask
+
+@feature('flink_with_c++')
+@before('apply_lib_vars')
+@after('default_cc')
+def add_some_uselib_vars(self):
+	#if sys.platform == ...
+	self.uselib += ' DEBUG'
+
+
+
+
+
