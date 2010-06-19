@@ -124,6 +124,9 @@ def test(ctx):
 
 	create('src/a.txt')
 	create('src/b.txt')
-	tt("ant_glob ->", len(bld.srcnode.ant_glob('*.txt', flat=False)), 2)
+	nd = bld.srcnode.make_node('c.txt')
+	nd.write("test")
+
+	tt("ant_glob ->", len(bld.srcnode.ant_glob('*.txt', flat=False)), 1)
 	#print("ant_glob src ->", bld.srcnode.ant_glob('*.txt'))
 
