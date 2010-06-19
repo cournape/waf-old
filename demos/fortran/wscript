@@ -6,11 +6,11 @@ out = 'build'
 
 def set_options(opt):
 	opt.tool_options('compiler_cc')
-	opt.tool_options('compiler_fortran')
+	opt.tool_options('compiler_fc')
 
 def configure(conf):
 	conf.check_tool('compiler_cc')
-	conf.check_tool('compiler_fortran')
+	conf.check_tool('compiler_fc')
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 	#conf.env['FORTRANMODPATH'] = ['mfloupi']
 	#conf.env['FORTRANMODOUTPATH'] = ['floupi']
