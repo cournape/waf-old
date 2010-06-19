@@ -1,48 +1,24 @@
 #! /usr/bin/env python
 # encoding: utf-8
+# DC 2008
+# Thomas Nagy 2010 (ita)
 
-import ccroot # <- leave this
-import fortran
-import ar
-import gcc
-from Configure import conftest
+from wafadmin.extras import fortran
+from Configure import conf
 
-@conftest
+@conf
 def find_gfortran(conf):
-	v = conf.env
-	fc = conf.find_program('gfortran', var='FC')
-	if not fc: 
-		conf.fatal('gfortran not found')
-	v['FC_NAME'] = 'GFORTRAN'
-	v['FC'] = fc
+	conf.find_program('gfortran', var='FC')
+	conf.env.FC_NAME = 'GFORTRAN'
 
-@conftest
+@conf
 def gfortran_flags(conf):
-	v = conf.env
-
-	v['FC_SRC_F']    = ''
-	v['FC_TGT_F']    = ['-c', '-o', ''] # shell hack for -MD
-	v['FCPATH_ST']  = '-I%s' # template for adding include paths
+	v['fshlib_FCFLAGS']   = ['-fPIC']
 	v['FORTRANMODFLAG']  = ['-M', ''] # template for module path
 
-	# linker
-	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
-	v['FCLNK_SRC_F'] = ''
-	v['FCLNK_TGT_F'] = ['-o', ''] # shell hack for -MD
+def configure(conf):
+	conf.find_gfortran()
+	conf.find_ar()
+	conf.fc_flags()
+	conf.gfortran_flags()
 
-	v['FCFLAGS_DEBUG'] = ['-Werror']
-
-	# shared library: XXX this is platform dependent, actually (no -fPIC on
-	# windows, etc...)
-	v['shlib_FCFLAGS'] = ['-fPIC']
-	v['shlib_LINKFLAGS'] = ['-shared']
-	#v['shlib_PATTERN']       = 'lib%s.so'
-
-@conftest
-def detect(conf):
-	find_gfortran(conf)
-	ar.find_ar(conf)
-	gfortran_flags(conf)
-	gcc.gcc_modifier_win32(conf)
-	gcc.gcc_modifier_cygwin(conf)
-	gcc.gcc_modifier_darwin(conf)

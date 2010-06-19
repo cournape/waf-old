@@ -1,42 +1,18 @@
 #! /usr/bin/env python
 # encoding: utf-8
+# DC 2008
+# Thomas Nagy 2010 (ita)
 
-from waflib.Tools import ar, ccroot # <- leave this
+from waflib.extras import fortran
 from Configure import conf
 
 @conf
 def find_ifort(conf):
-	v = conf.env
-	fc = conf.find_program('ifort', var='FC')
-	if not fc:
-		conf.fatal('ifort not found')
-	v['FC_NAME'] = 'IFORT'
-	v['FC'] = fc
-
-@conf
-def ifort_flags(conf):
-	v = conf.env
-
-	v['FC_SRC_F']    = ''
-	v['FC_TGT_F']    = ['-c', '-o', ''] # shell hack for -MD
-	v['FCPATH_ST']  = '-I%s' # template for adding include paths
-
-	# linker
-	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
-	v['FCLNK_SRC_F'] = ''
-	v['FCLNK_TGT_F'] = ['-o', ''] # shell hack for -MD
-
-	#v['FCFLAGS_DEBUG'] = []
-
-	# shared library: XXX this is platform dependent, actually (no -fPIC on
-	# windows, etc...)
-	v['shlib_FCFLAGS'] = ['-fpic']
-	v['shlib_LINKFLAGS'] = ['-shared']
-	#v['shlib_PATTERN']       = 'lib%s.so'
+	conf.find_program('ifort', var='FC')
+	conf.env.FC_NAME = 'IFORT'
 
 def detect(conf):
-	v = conf.env
-	find_ifort(conf)
-	ar.find_ar(conf)
-	ifort_flags(conf)
+	conf.find_ifort()
+	conf.find_ar()
+	conf.fc_flags()
 

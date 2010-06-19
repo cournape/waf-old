@@ -306,6 +306,22 @@ def check_fortran(self, *k, **kw):
 
 #################################################### Add some flags on some feature
 
+@conf
+def fc_flags(conf):
+	v = conf.env
+
+	v['FC_SRC_F']    = ''
+	v['FC_TGT_F']    = ['-c', '-o', '']
+	v['FCPATH_ST']  = '-I%s'
+
+	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
+	v['FCLNK_SRC_F'] = ''
+	v['FCLNK_TGT_F'] = ['-o', '']
+
+	v['fshlib_FCFLAGS']   = ['-fpic']
+	v['fshlib_LINKFLAGS'] = ['-shared']
+	v['fshlib_PATTERN']   = 'lib%s.so'
+
 @feature('flink_with_c++')
 @after('apply_core')
 @before('apply_link', 'apply_lib_vars', 'apply_fortran_link')
@@ -323,3 +339,6 @@ def apply_special_link(self):
 def add_some_uselib_vars(self):
 	#if sys.platform == ...
 	self.uselib += ' DEBUG'
+
+
+
