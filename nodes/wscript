@@ -37,7 +37,7 @@ def shutdown(self):
 def bar(ctx):
 	print("command ok")
 
-from wafadmin import Task
+from waflib import Task
 
 # TODO update_outputs is a decorator too .. now
 @Task.always_run
@@ -53,7 +53,7 @@ print("classes", Task.classes)
 #
 
 import os
-from wafadmin import Build, Options
+from waflib import Build, Options
 
 class debug_context(Build.BuildContext):
 	cmd = 'debug'
