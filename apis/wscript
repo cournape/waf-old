@@ -40,7 +40,13 @@ def configure(ctx):
 def test(ctx):
 	bld = Build.BuildContext()
 
-	absdir = os.getcwd().split('/')[1:]
+
+	# 1. absdir is wrong, keep the drive letter
+	# 2. split should use os.sep
+	# 3. replace / in d1 from d2
+	# 4. use os.sep in find_node
+	absdir = os.getcwd().split(os.sep)
+
 	dd = bld.root.make_node(absdir)
 	pp = dd.parent
 
@@ -59,8 +65,8 @@ def test(ctx):
 	d2 = dd.make_node(['c', 'd'])
 	tt('compare height', d1.height() - pp.height(), 3)
 
-	tt('d1 from d2', d1.path_from(d2), '../../a/b')
-	tt('d2 from d1', d2.path_from(d1), '../../c/d')
+	tt('d1 from d2', d1.path_from(d2), '../../a/b'.replace('/', os.sep))
+	tt('d2 from d1', d2.path_from(d1), '../../c/d'.replace('/', os.sep))
 
 
 	d1.parent.delete()
@@ -88,7 +94,7 @@ def test(ctx):
 	remove('1234')
 	create('/'.join(rama))
 	rr = dd.find_node(rama)
-	tt('find a node', repr(rr), '/'.join([os.getcwd()]+rama))
+	tt('find a node', repr(rr), os.sep.join([os.getcwd()]+rama))
 
 	remove('src/build')
 	create('src/build')
