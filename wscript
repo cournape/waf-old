@@ -320,7 +320,7 @@ def configure(conf):
 
 def build(bld):
 	waf = bld.path.make_node('waf') # create the node right here
-	bld(name='create_waf', rule=create_waf, target=waf, always=True, color='PINK')
+	bld(name='create_waf', rule=create_waf, target=waf, always=True, color='PINK', update_outputs=True)
 
 #def dist():
 #	import Scripting
