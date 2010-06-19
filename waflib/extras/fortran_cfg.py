@@ -28,7 +28,7 @@ class MyBuildContext(Build.BuildContext):
 		Build.BuildContext.__init__(self)
 
 	def exec_command(self, cmd, **kw):
-		# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
+		# 'runner' zone is printed out for waf -v, see waflib/Options.py
 		if self.log:
 			self.log.write('%s\n' % cmd)
 			kw['log'] = self.log

@@ -3,7 +3,7 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
-from wafadmin.extras import fortran
+from waflib.extras import fortran
 from Configure import conf
 
 @conf
@@ -13,6 +13,7 @@ def find_gfortran(conf):
 
 @conf
 def gfortran_flags(conf):
+	v = conf.env
 	v['fshlib_FCFLAGS']   = ['-fPIC']
 	v['FORTRANMODFLAG']  = ['-M', ''] # template for module path
 

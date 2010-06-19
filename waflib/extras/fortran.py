@@ -4,118 +4,15 @@
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
-import waflib.Tools.ccroot # <- leave this
-import fortran_cfg # <- leave this
+import waflib.Tools.ccroot
+from waflib.extras import fortran_cfg, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
-INCLUDE_REGEX = """(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
-USE_REGEX = """(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"""
-
-EXT_MOD = ".mod"
-EXT_FC = ".f"
-EXT_FCPP = ".F"
-EXT_OBJ = ".o"
-
-# TODO:
-#   - handle pre-processed files (FORTRANPPCOM in scons)
-#   - handle modules
-#   - handle multiple dialects
-#   - windows...
-
-class fortran_parser(object):
-	def __init__(self, env, incpaths, modsearchpath):
-		self.allnames = []
-
-		self.re_inc = re.compile(INCLUDE_REGEX, re.IGNORECASE)
-		self.re_use = re.compile(USE_REGEX, re.IGNORECASE)
-
-		self.env = env
-
-		self.nodes = []
-		self.names = []
-		self.modules = []
-
-		self.incpaths = incpaths
-		# XXX:
-		self.modsearchpath = modsearchpath
-
-	def tryfind_header(self, filename):
-		found = 0
-		for n in self.incpaths:
-			found = n.find_resource(filename)
-			if found:
-				self.nodes.append(found)
-				self.waiting.append(found)
-				break
-		if not found:
-			if not filename in self.names:
-				self.names.append(filename)
-
-	def tryfind_module(self, filename):
-		found = 0
-		for n in self.modsearchpath:
-			found = n.find_resource(filename + EXT_MOD)
-			if found:
-				self.nodes.append(found)
-				self.waiting.append(found)
-				break
-		if not found:
-			if not filename in self.names:
-				self.names.append(filename)
-
-	def find_deps(self, code):
-		headers = []
-		modules = []
-		for line in code.readlines():
-			m = self.re_inc.search(line)
-			if m:
-				headers.append(m.group(1))
-			m = self.re_use.search(line)
-			if m:
-				modules.append(m.group(1))
-		return headers, modules
-
-	def start(self, node):
-		self.waiting = [node]
-		# while the stack is not empty, add the dependencies
-		while self.waiting:
-			nd = self.waiting.pop(0)
-			self.iter(nd)
-
-	def iter(self, node):
-		path = node.abspath(self.env) # obtain the absolute path
-		code = open(path, 'r')
-		hnames, mnames = self.find_deps(code)
-		for x in hnames:
-			# optimization
-			if x in self.allnames:
-				continue
-			self.allnames.append(x)
-
-			# for each name, see if it is like a node or not
-			self.tryfind_header(x)
-
-		for x in mnames:
-			# optimization
-			if x in self.allnames:
-				continue
-			self.allnames.append(x)
-
-			# for each name, see if it is like a node or not
-			self.tryfind_module(x)
-
-def scan(self):
-	env = self.env
-	gruik = fortran_parser(env, env['INC_PATHS'], env["MODULE_SEARCH_PATH"])
-	gruik.start(self.inputs[0])
-
-	#print self.inputs, gruik.nodes, gruik.names
-	if Logs.verbose:
-		Logs.debug('deps: nodes found for %s: %s %s' % (str(self.inputs[0]), str(gruik.nodes), str(gruik.names)))
-		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
-	return (gruik.nodes, gruik.names)
-#################################################### Task definitions
+ccroot.USELIB_VARS['fc'] = []
+ccroot.USELIB_VARS[''] = []
+ccroot.USELIB_VARS[''] = []
+ccroot.USELIB_VARS[''] = []
 
 def fortran_compile(task):
 	env = task.env
@@ -181,7 +78,7 @@ def fortranpp_hook(self, node):
 #################################################### Task generators
 
 # we reuse a lot of code from ccroot.py
-
+"""
 FORTRAN = 'init_f default_cc apply_incpaths apply_defines_cc apply_type_vars apply_lib_vars add_extra_flags apply_obj_vars_cc'.split()
 FPROGRAM = 'apply_verif vars_target_cprogram install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
 FSHLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib install_target_cshlib apply_objdeps apply_obj_vars apply_vnum'.split()
@@ -206,7 +103,9 @@ def init_f(self):
 	self.p_flag_vars = ['FC', 'FCFLAGS', 'RPATH', 'LINKFLAGS',
 			'FORTRANMODPATH', 'CPPPATH', 'FORTRANMODOUTPATH', '_CCINCFLAGS']
 	self.p_type_vars = ['FCFLAGS', 'LINKFLAGS']
+"""
 
+"""
 @feature('fortran')
 @after('apply_incpaths', 'apply_obj_vars_cc')
 def apply_fortran_type_vars(self):
@@ -241,6 +140,8 @@ def apply_fortran_type_vars(self):
 	#else:
 	#	# XXX: assume that compiler put .mod in cwd by default
 	#	app('_FCINCFLAGS', self.env['FCPATH_ST'] % self.bld.bdir)
+"""
+
 
 @feature('fprogram', 'fshlib', 'fstaticlib')
 @after('apply_core')
@@ -295,14 +196,7 @@ def check_fortran(self, *k, **kw):
 	kw['okmsg'] = kw.get('okmsg', 'ok')
 	kw['errmsg'] = kw.get('errmsg', 'bad luck')
 
-	self.check_message_1(kw['msg'])
-	ret = self.run_c_code(*k, **kw) == 0
-	if not ret:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-	else:
-		self.check_message_2(kw['okmsg'], 'GREEN')
-
-	return ret
+	return self.check_cc(*k, **kw)
 
 #################################################### Add some flags on some feature
 
