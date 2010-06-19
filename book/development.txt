@@ -178,7 +178,7 @@ $ cd waf-read-only
 $ ./waf-light --make-waf
 ---------------
 
-To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing wafadmin:
+To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing waflib:
 
 [source,shishell]
 ---------------
@@ -198,7 +198,7 @@ Though Waf is written in Python, additional restrictions apply to the source cod
 
 . Identation is tab-only, and the maximum line length should be about 200 characters
 . The development code is kept compatible with Python 2.3, to the exception of decorators in the Tools directory. In particular, the Waf binary can be generated using Python 2.3
-. The `wafadmin` modules must be insulated from the `Tools` modules to keep the Waf core small and language independent
+. The `waflib` modules must be insulated from the `Tools` modules to keep the Waf core small and language independent
 . Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.n)
 
 NOTE: More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.

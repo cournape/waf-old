@@ -5,7 +5,7 @@ A very open architecture is provided, in which all classes are open for extensio
 
 === The core library
 
-Waf is based on only 12 modules which constitute the core library. They are located in the directory `wafadmin/`. The modules located under `wafadmin/Tools` add support for programming languages and more tools, but are not essential for the Waf core.
+Waf is based on only 12 modules which constitute the core library. They are located in the directory `waflib/`. The modules located under `waflib/Tools` add support for programming languages and more tools, but are not essential for the Waf core.
 
 .The core library
 [options="header"]

@@ -188,7 +188,7 @@ $ echo $?
 
 === Loading Waf tools
 
-For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `wafadmin/Tools`. The contributed tools, or the tools in testing phase are located under the folder `wafadmin/3rdparty`.
+For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `waflib/Tools`. The contributed tools, or the tools in testing phase are located under the folder `waflib/3rdparty`.
 
 Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named `dang.py`:
 
