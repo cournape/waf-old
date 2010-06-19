@@ -20,7 +20,7 @@ The BuildContext is referenced here as self.ctx
 Its Node class is referenced here as self.__class__
 """
 
-import os, shutil, re
+import os, shutil, re, sys
 from waflib import Utils, Errors
 
 # These fnmatch expressions are used by default to prune the directory tree
@@ -59,6 +59,31 @@ exclude_regs = '''
 **/_darcs
 **/_darcs/**
 **/.DS_Store'''
+
+# TODO optimize split_path by performing a replacement when unpacking?
+
+def split_path(path):
+	return path.split('/')
+
+def split_path_cygwin(path):
+	if path.startswith('//'):
+		ret = path.split('/')[2:]
+		ret[0] = '/' + ret[0]
+		return ret
+	return path.split('/')
+
+re_sp = re.compile('[/\\\\]')
+def split_path_win32(path):
+	if path.startswith('\\\\'):
+		ret = re.split(re_sp, path)[2:]
+		ret[0] = '\\' + ret[0]
+		return ret
+	return re.split(re_sp, path)
+
+if sys.platform == 'cygwin':
+	split_path = split_path_cygwin
+elif sys.platform == 'win32':
+	split_path = split_path_win32
 
 class Node(object):
 	"""
@@ -194,7 +219,7 @@ class Node(object):
 		"read the file system, make the nodes as needed"
 
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x and x != '.']
+			lst = [x for x in split_path(lst) if x and x != '.']
 
 		cur = self
 		for x in lst:
@@ -231,7 +256,7 @@ class Node(object):
 	def make_node(self, lst):
 		"make a branch of nodes"
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x and x != '.']
+			lst = [x for x in split_path(lst) if x and x != '.']
 
 		cur = self
 		for x in lst:
@@ -251,7 +276,7 @@ class Node(object):
 	def search(self, lst):
 		"dumb search for existing nodes"
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x and x != '.']
+			lst = [x for x in split_path(lst) if x and x != '.']
 
 		cur = self
 		try:
@@ -394,7 +419,7 @@ class Node(object):
 		try to find a declared build node or a source file
 		"""
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x and x != '.']
+			lst = [x for x in split_path(lst) if x and x != '.']
 
 		node = self.get_bld().search(lst)
 		if node:
@@ -425,7 +450,7 @@ class Node(object):
 		if no node is found, create it in the build directory
 		"""
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x and x != '.']
+			lst = [x for x in split_path(lst) if x and x != '.']
 
 		node = self.get_bld().search(lst)
 		if node:
@@ -456,7 +481,7 @@ class Node(object):
 		create the corresponding mappings source <-> build directories
 		"""
 		if isinstance(lst, str):
-			lst = [x for x in lst.split('/') if x and x != '.']
+			lst = [x for x in split_path(lst) if x and x != '.']
 
 		node = self.find_node(lst)
 		try:
