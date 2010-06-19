@@ -279,25 +279,20 @@ def apply_implib(self):
 	if not self.get_dest_binfmt() == 'pe':
 		return
 
-	bindir = self.install_path
-	if not bindir:
+	dll=self.link_task.outputs[0]
+	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
+	implib = dll.parent.find_or_declare(implib)
+	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
+	self.link_task.outputs.append(implib)
+
+	try:
+		inst_to=self.install_path
+	except AttributeError:
+		inst_to=self.link_task.__class__.inst_to
+	if not inst_to:
 		return
 
-	# disable the normal install system
-	self.install_task.hasrun = Task.SKIP_ME
-
-	# install the dll in the bin dir
-	dll = self.link_task.outputs[0]
-	self.install_task_dll = self.bld.install_files(bindir, dll, self.env)
-
-	# add linker flags to generate the import lib
-	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
-
-	implib = dll.parent.find_or_declare(implib)
-	self.link_task.outputs.append(implib)
 	self.implib_install_task = self.bld.install_as('${LIBDIR}/%s' % implib.name, implib, self.env)
-
-	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
