@@ -76,7 +76,7 @@ def gxx_modifier_win32(conf):
 	# Auto-import is enabled by default even without this option,
 	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
 	# that the linker emits otherwise.
-	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import')
+	v.append_value('LINKFLAGS', ['-Wl,--enable-auto-import'])
 
 @conf
 def gxx_modifier_cygwin(conf):
