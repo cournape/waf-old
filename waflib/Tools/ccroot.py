@@ -113,7 +113,7 @@ class link_task(Task.Task):
 			if self.generator.get_dest_binfmt() == 'pe' and getattr(self.generator, 'vnum', None):
 				# include the version in the dll file name,
 				# the import lib file name stays unversionned.
-				name = name + '-' + self.vnum.split('.')[0]
+				name = name + '-' + self.generator.vnum.split('.')[0]
 
 		tmp = folder + os.sep + pattern % name
 		node = self.generator.path.find_or_declare(tmp)
