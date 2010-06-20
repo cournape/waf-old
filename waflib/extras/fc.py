@@ -70,14 +70,11 @@ class fc(Task.Task):
 
 @extension('.F')
 def fcpp_hook(self, node):
-	"""capital letter tricks will not work on win32 - use .F.pp.f ?"""
-	out = node.change_ext('.f')
-	self.source.append(out)
-	return self.create_compiled_task('fcpp', node, out)
+	return self.create_compiled_task('fcpp', node)
 
 class fcpp(Task.Task):
 	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${FCPATH_ST:INCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
