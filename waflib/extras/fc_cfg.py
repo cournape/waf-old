@@ -15,9 +15,24 @@ from waflib import Build, Utils
 FC_FRAGMENT = '        program main\n        end     program main\n'
 FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n' # what's the actual difference between these?
 
-GCC_DRIVER_LINE = re.compile('^Driving:')
-POSIX_STATIC_EXT = re.compile('\S+\.a')
-POSIX_LIB_FLAGS = re.compile('-l\S+')
+@conf
+def fc_flags(conf):
+	v = conf.env
+
+	v['FC_SRC_F']    = ''
+	v['FC_TGT_F']    = ['-c', '-o', '']
+	v['FCINCPATH_ST']  = '-I%s'
+	v['FCDEFINES_ST']  = '-D%s'
+
+	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
+	v['FCLNK_SRC_F'] = ''
+	v['FCLNK_TGT_F'] = ['-o', '']
+
+	v['fcshlib_FCFLAGS']   = ['-fpic']
+	v['fcshlib_LINKFLAGS'] = ['-shared']
+	v['fcshlib_PATTERN']   = 'lib%s.so'
+
+	v['fcstlib_PATTERN']   = 'lib%s.a'
 
 @conf
 def check_fortran(self, *k, **kw):
@@ -27,6 +42,8 @@ def check_fortran(self, *k, **kw):
 		compile_filename = 'test.f',
 		features         = 'fc fcprogram',
 		msg              = 'Compiling a simple fortran app')
+
+# ------------------------------------------------------------------------
 
 @conf
 def check_fortran_dummy_main(self, *k, **kw):
@@ -67,6 +84,13 @@ def check_fortran_dummy_main(self, *k, **kw):
 	else:
 		self.end_msg('not found')
 		self.fatal('could not detect whether fortran requires a dummy main, see the config.log')
+
+# ------------------------------------------------------------------------
+
+
+GCC_DRIVER_LINE = re.compile('^Driving:')
+POSIX_STATIC_EXT = re.compile('\S+\.a')
+POSIX_LIB_FLAGS = re.compile('-l\S+')
 
 @conf
 def is_link_verbose(self, output):
@@ -110,49 +134,14 @@ def check_fortran_verbose_flag(self, *k, **kw):
 	self.env.FC_VERBOSE_FLAG = x
 	return x
 
-@conf
-def check_fortran_clib(self, autoadd=True, *k, **kw):
-	"""
-	Obtain flags for linking with the c library
-	if this check works, add uselib='CLIB' to your task generators
-	"""
-	if not self.env.FC_VERBOSE_FLAG:
-		self.fatal('env.FC_VERBOSE_FLAG is not set: execute check_fortran_verbose_flag?')
+# ------------------------------------------------------------------------
 
-	self.start_msg('Getting fortran runtime link flags')
-	try:
-		self.check_cc(
-			fragment = FC_FRAGMENT2,
-			compile_filename = 'test.f',
-			features = 'fc fcprogram_test',
-			linkflags = [self.env.FC_VERBOSE_FLAG]
-		)
-	except:
-		self.end_msg(False)
-		if kw.get('mandatory', True):
-			conf.fatal('Could not find the c library flags')
-	else:
-		out = self.test_bld.err
-		flags = parse_fortran_link(out.splitlines())
-		self.end_msg('ok (%s)' % ' '.join(flags))
-		self.env.CLIB_LINKFLAGS = flags
-		return flags
-	return []
-
-
-#------------------------------------
-# Detecting fortran runtime libraries
-#------------------------------------
 # linkflags which match those are ignored
-LINKFLAGS_IGNORED = [r'-lang*', r'-lcrt[a-zA-Z0-9]*\.o', r'-lc$', r'-lSystem',
-                     r'-libmil', r'-LIST:*', r'-LNO:*']
+LINKFLAGS_IGNORED = [r'-lang*', r'-lcrt[a-zA-Z0-9]*\.o', r'-lc$', r'-lSystem', r'-libmil', r'-LIST:*', r'-LNO:*']
 if os.name == 'nt':
-	LINKFLAGS_IGNORED.extend([r'-lfrt*', r'-luser32',
-			r'-lkernel32', r'-ladvapi32', r'-lmsvcrt',
-			r'-lshell32', r'-lmingw', r'-lmoldname'])
+	LINKFLAGS_IGNORED.extend([r'-lfrt*', r'-luser32', r'-lkernel32', r'-ladvapi32', r'-lmsvcrt', r'-lshell32', r'-lmingw', r'-lmoldname'])
 else:
 	LINKFLAGS_IGNORED.append(r'-lgcc*')
-
 RLINKFLAGS_IGNORED = [re.compile(f) for f in LINKFLAGS_IGNORED]
 
 def _match_ignore(line):
@@ -176,6 +165,7 @@ SPACE_OPTS = re.compile('^-[LRuYz]$')
 NOSPACE_OPTS = re.compile('^-[RL]')
 
 def _parse_flink_line(line, final_flags):
+	"""private"""
 	lexer = shlex.shlex(line, posix = True)
 	lexer.whitespace_split = True
 
@@ -225,9 +215,37 @@ def _parse_flink_line(line, final_flags):
 	final_flags.extend(tmp_flags)
 	return final_flags
 
-#-------------------------
-# Fortran mangling scheme
-#-------------------------
+@conf
+def check_fortran_clib(self, autoadd=True, *k, **kw):
+	"""
+	Obtain flags for linking with the c library
+	if this check works, add uselib='CLIB' to your task generators
+	"""
+	if not self.env.FC_VERBOSE_FLAG:
+		self.fatal('env.FC_VERBOSE_FLAG is not set: execute check_fortran_verbose_flag?')
+
+	self.start_msg('Getting fortran runtime link flags')
+	try:
+		self.check_cc(
+			fragment = FC_FRAGMENT2,
+			compile_filename = 'test.f',
+			features = 'fc fcprogram_test',
+			linkflags = [self.env.FC_VERBOSE_FLAG]
+		)
+	except:
+		self.end_msg(False)
+		if kw.get('mandatory', True):
+			conf.fatal('Could not find the c library flags')
+	else:
+		out = self.test_bld.err
+		flags = parse_fortran_link(out.splitlines())
+		self.end_msg('ok (%s)' % ' '.join(flags))
+		self.env.CLIB_LINKFLAGS = flags
+		return flags
+	return []
+
+# ------------------------------------------------------------------------
+
 # Helper to generate combinations of lists
 def _RecursiveGenerator(*sets):
 	"""Returns a generator that yields one tuple per element combination.
@@ -397,23 +415,4 @@ def check_fortran_mangling(self, *k, **kw):
 							 'GREEN')
 		result = True
 	return result, mangler
-
-@conf
-def fc_flags(conf):
-	v = conf.env
-
-	v['FC_SRC_F']    = ''
-	v['FC_TGT_F']    = ['-c', '-o', '']
-	v['FCINCPATH_ST']  = '-I%s'
-	v['FCDEFINES_ST']  = '-D%s'
-
-	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
-	v['FCLNK_SRC_F'] = ''
-	v['FCLNK_TGT_F'] = ['-o', '']
-
-	v['fcshlib_FCFLAGS']   = ['-fpic']
-	v['fcshlib_LINKFLAGS'] = ['-shared']
-	v['fcshlib_PATTERN']   = 'lib%s.so'
-
-	v['fcstlib_PATTERN']   = 'lib%s.a'
 
