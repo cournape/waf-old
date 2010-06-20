@@ -245,23 +245,6 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 
 # ------------------------------------------------------------------------
 
-# Helper to generate combinations of lists
-def _RecursiveGenerator(*sets):
-	"""Returns a generator that yields one tuple per element combination.
-	  A set may be any iterable to which the not operator is applicable.
-	"""
-	if not sets: return
-	def calc(sets):
-		head, tail = sets[0], sets[1:]
-		if not tail:
-			for e in head:
-				yield (e,)
-		else:
-			for e in head:
-				for t in calc(tail):
-					  yield (e,) + t
-	return calc(sets)
-
 @conf
 def link_main_routines(self, *k, **kw):
 	"""
@@ -375,30 +358,47 @@ def link_main_routines(self, *k, **kw):
 
 	return ret
 
+def _RecursiveGenerator(*sets):
+	"""
+	Helper to generate combinations of lists
+
+	Returns a generator that yields one tuple per element combination.
+	A set may be any iterable to which the not operator is applicable.
+	"""
+	if not sets:
+		return
+
+	def calc(sets):
+		head, tail = sets[0], sets[1:]
+		if not tail:
+			for e in head:
+				yield (e,)
+		else:
+			for e in head:
+				for t in calc(tail):
+					  yield (e,) + t
+	return calc(sets)
+
 @conf
 def check_fortran_mangling(self, *k, **kw):
 	"""
 	and the funny thing is, we do not even have to overload the existing code
 	"""
 
+	self.start_msg('Getting fortran mangling scheme')
 
-	# XXX: what's the best way to return a second result ?
-	kw['msg'] = kw.get('msg', 'Getting fortran mangling scheme')
-	kw['errmsg'] = kw.get('errmsg', 'Failed !')
-
-	self.check_message_1(kw['msg'])
-
-	# Order is 'optimized' for gfortran
+	# order tuned for gfortan
 	under = ['_', '']
 	doubleunder = ['', '_']
 	casefcn = ["lower", "upper"]
+
 	gen = _RecursiveGenerator(under, doubleunder, casefcn)
 	while True:
 		try:
 			u, du, c = gen.next()
 			def make_mangler(u, du, c):
-				return lambda n: getattr(string, c)(n) +\
-								 u + (n.find('_') != -1 and du or '')
+				return lambda n: getattr(string, c)(n) + u + (n.find('_') != -1 and du or '')
+
 			mangler = make_mangler(u, du, c)
 			kw['dummy_func_nounder'] = mangler("foobar")
 			kw['dummy_func_under'] = mangler("foo_bar")
@@ -406,7 +406,7 @@ def check_fortran_mangling(self, *k, **kw):
 				ret = self.link_main_routines(*k, **kw)
 			except self.errors.ConfigurationError, e:
 				ret = 1
-			if ret == 0:
+			else:
 				break
 		except StopIteration:
 			# We ran out, mangling scheme is unknown ...
@@ -414,11 +414,9 @@ def check_fortran_mangling(self, *k, **kw):
 			break
 
 	if mangler is None:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-		result = False
+		self.end_msg('not found', 'YELLOW')
+		self.fatal('mangler not found')
 	else:
-		self.check_message_2("ok ('%s', '%s', '%s-case')" % (u, du, c),
-							 'GREEN')
-		result = True
-	return result, mangler
+		self.end_msg("ok ('%s', '%s', '%s-case')" % (u, du, c))
+	return mangler
 
