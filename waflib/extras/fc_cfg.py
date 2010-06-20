@@ -19,7 +19,7 @@ def check_fortran(self, *k, **kw):
 	self.check_cc(
 		fragment         = FC_FRAGMENT,
 		compile_filename = 'test.f',
-		features         = 'fc fcprogram_test',
+		features         = 'fc fcprogram',
 		msg              = 'Compiling a simple fortran app')
 
 @conf

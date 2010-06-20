@@ -99,13 +99,19 @@ class fcprogram_test(fcprogram):
 		kw['shell'] = isinstance(cmd, str)
 		kw['stdout'] = kw['stderr'] = Utils.subprocess.PIPE
 		kw['cwd'] = bld.variant_dir
-		bld.out = ''
+		bld.out = bld.err = ''
 
 		try:
 			proc = Utils.subprocess.Popen(cmd, **kw)
 			(bld.out, bld.err) = proc.communicate()
 		except OSError:
 			return -1
+
+		if bld.log:
+			if bld.out:
+				bld.log.write("out: %s\n" % bld.out)
+			if bld.err:
+				bld.log.write("err: %s\n" % bld.err)
 
 		return proc.returncode
 
