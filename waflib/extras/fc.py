@@ -11,7 +11,7 @@ from waflib.extras import fc_cfg, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
-ccroot.USELIB_VARS['fc'] = set(['FCFLAGS'])
+ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
 ccroot.USELIB_VARS['fcprogram'] = set(['LINKFLAGS'])
 ccroot.USELIB_VARS['fcshlib'] = set(['LINKFLAGS'])
 ccroot.USELIB_VARS['fcstlib'] = set(['LINKFLAGS'])
@@ -64,7 +64,7 @@ def fc_hook(self, node):
 
 class fc(Task.Task):
 	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${FCINPATH_ST:INCPATHS} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	run_str = '${FC} ${FCFLAGS} ${FCINPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
 	vars = ["FORTRANMODPATHFLAG"]
 	scan = fc_scan.scan
 
@@ -74,7 +74,7 @@ def fcpp_hook(self, node):
 
 class fcpp(Task.Task):
 	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'

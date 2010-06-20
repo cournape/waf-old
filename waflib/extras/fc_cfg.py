@@ -532,6 +532,7 @@ def fc_flags(conf):
 	v['FC_SRC_F']    = ''
 	v['FC_TGT_F']    = ['-c', '-o', '']
 	v['FCINCPATH_ST']  = '-I%s'
+	v['FCDEFINES_ST']  = '-D%s'
 
 	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
 	v['FCLNK_SRC_F'] = ''
