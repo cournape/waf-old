@@ -8,6 +8,20 @@ from waflib.Configure import conf
 from waflib.TaskGen import feature, after, before
 from waflib import Build, Utils
 
+FC_FRAGMENT = '        program main\n        end     program main\n'
+
+GCC_DRIVER_LINE = re.compile('^Driving:')
+POSIX_STATIC_EXT = re.compile('\S+\.a')
+POSIX_LIB_FLAGS = re.compile('-l\S+')
+
+@conf
+def check_fortran(self, *k, **kw):
+	self.check_cc(
+		fragment         = FC_FRAGMENT,
+		compile_filename = 'test.f',
+		features         = 'fc fcprogram',
+		msg              = 'Compiling a simple fortran app')
+
 @conf
 def check_fortran_dummy_main(self, *k, **kw):
 	"""For a given main , compile the code snippet with the C compiler, and
@@ -43,58 +57,14 @@ def check_fortran_dummy_main(self, *k, **kw):
 		self.end_msg('not found')
 		self.fatal('could not detect whether fortran requires a dummy main, see the config.log')
 
-#from myconfig import MyBuildContext
-
-def _log_exec_command(s, **kw):
-	"""Like pproc.exec_command, but returns both return code as well as
-	stdout/stderr."""
-	if 'log' in kw:
-		kw["stdout"] = pproc.PIPE
-		kw["stderr"] = pproc.STDOUT
-		log = kw["log"]
-		del kw["log"]
-	kw['shell'] = isinstance(s, str)
-
-	p = pproc.Popen(s, **kw)
-	ret = p.wait()
-	lout = p.communicate()[0]
-	log.write(lout)
-
-	return ret, lout
-
-class MyBuildContext(Build.BuildContext):
-	"""A build context whose log output can be queried."""
-	def __init__(self):
-		self.out = None
-		Build.BuildContext.__init__(self)
-
-	def exec_command(self, cmd, **kw):
-		# 'runner' zone is printed out for waf -v, see waflib/Options.py
-		if self.log:
-			self.log.write('%s\n' % cmd)
-			kw['log'] = self.log
-		try:
-			if not 'cwd' in kw: kw['cwd'] = self.cwd
-		except AttributeError:
-			self.cwd = kw['cwd'] = self.bldnode.abspath()
-		ret, self.out = _log_exec_command(cmd, **kw)
-		return ret
-
-
-#-----------------------------
-# Detecting verbose link flag
-#-----------------------------
-GCC_DRIVER_LINE = re.compile('^Driving:')
-POSIX_STATIC_EXT = re.compile('\S+\.a')
-POSIX_LIB_FLAGS = re.compile('-l\S+')
-
-def is_link_verbose(lines):
+@conf
+def is_link_verbose(self, output):
 	"""Return true if useful link option can be found in output."""
 	if sys.platform == 'win32':
 		raise NotImplementedError("FIXME: not implemented on win32")
 
-	assert isinstance(lines, str)
-	for line in lines.splitlines():
+	assert isinstance(output, str)
+	for line in output.splitlines():
 		if not GCC_DRIVER_LINE.search(line):
 			if POSIX_STATIC_EXT.search(line) or POSIX_LIB_FLAGS.search(line):
 				return True
@@ -109,14 +79,14 @@ def check_fortran_verbose_flag(self, *k, **kw):
 		try:
 			self.check_cc(
 				features = 'fc fcprogram',
-				fragment = '        \nPROGRAM MAIN        \nEND',
+				fragment = '        \nPROGRAM MAIN        \nEND', # TODO why not use FC_FRAGMENT?
 				compile_filename = 'test.f',
 				fcflags = [x]
 				)
 		except:
 			pass
 		else:
-			if is_link_verbose(self.prev_bld.out):
+			if self.is_link_verbose(self.test_bld.out):
 				self.end_msg(x)
 			break
 	else:
@@ -431,79 +401,6 @@ def check_fortran_mangling(self, *k, **kw):
 		result = True
 	return result, mangler
 
-#---------
-# Misc ...
-#---------
-# XXX: things which have nothing to do here...
-@conf
-def mycompile_code(self, *k, **kw):
-	"""Like compile_code, but return output of the compiler command as well as
-	the return code."""
-	test_f_name = kw['compile_filename']
-
-	# create a small folder for testing
-	dir = os.path.join(self.blddir, '.wscript-trybuild')
-
-	# if the folder already exists, remove it
-	try:
-		shutil.rmtree(dir)
-	except OSError:
-		pass
-	os.makedirs(dir)
-
-	bdir = os.path.join(dir, 'testbuild')
-
-	if not os.path.exists(bdir):
-		os.makedirs(bdir)
-
-	env = kw['env']
-
-	dest = open(os.path.join(dir, test_f_name), 'w')
-	dest.write(kw['code'])
-	dest.close()
-
-	back = os.path.abspath('.')
-
-	bld = Build.MyBuildContext()
-	bld.log = self.log
-	bld.all_envs.update(self.all_envs)
-	bld.all_envs['default'] = env
-	bld.lst_variants = bld.all_envs.keys()
-	bld.load_dirs(dir, bdir)
-
-	os.chdir(dir)
-
-	bld.rescan(bld.srcnode)
-
-	o = bld(features=[kw['compile_mode'], kw['type']],
-			source=test_f_name, target='testprog')
-
-	for k, v in kw.iteritems():
-		setattr(o, k, v)
-
-	self.log.write("==>\n%s\n<==\n" % kw['code'])
-
-	# compile the program
-	try:
-		bld.compile()
-	except:
-		ret = Utils.ex_stack()
-	else:
-		ret = 0
-
-	# chdir before returning
-	os.chdir(back)
-
-	if ret:
-		self.log.write('command returned %r' % ret)
-		self.fatal(str(ret))
-
-	# keep the name of the program to execute
-	if kw['execute']:
-		lastprog = o.link_task.outputs[0].abspath(env)
-
-	return ret, bld.out
-
 @conf
 def fc_flags(conf):
 	v = conf.env
@@ -543,15 +440,4 @@ def add_some_uselib_vars(self):
 	self.uselib += ' DEBUG'
 
 
-FC_FRAGMENT = '''        program main
-        end     program main
-'''
-
-@conf
-def check_fortran(self, *k, **kw):
-	self.check_cc(
-		fragment         = FC_FRAGMENT,
-		compile_filename = 'test.f',
-		features         = 'fc fcprogram',
-		msg              = 'Compiling a simple fortran app')
 
