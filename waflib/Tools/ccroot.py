@@ -61,7 +61,7 @@ def get_dest_binfmt(self):
 			self.env.DEST_OS or Utils.unversioned_sys_platform())
 	return self.env.DEST_BINFMT
 
-@feature('cc', 'cxx', 'd', 'go', 'asm', 'includes',  'fc')
+@feature('cc', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
 @after('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner

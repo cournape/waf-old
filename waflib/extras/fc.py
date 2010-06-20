@@ -74,7 +74,7 @@ def fcpp_hook(self, node):
 
 class fcpp(Task.Task):
 	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
