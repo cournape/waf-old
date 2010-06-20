@@ -4,7 +4,7 @@
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
-import waflib.Tools.ccroot
+from waflib.Tools import ccroot
 from waflib.extras import fc_cfg, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
@@ -14,46 +14,80 @@ ccroot.USELIB_VARS[''] = []
 ccroot.USELIB_VARS[''] = []
 ccroot.USELIB_VARS[''] = []
 
-def fortran_compile(task):
-	env = task.env
-	def tolist(xx):
-		if isinstance(xx, str):
-			return [xx]
-		return xx
-	cmd = []
-	cmd.extend(tolist(env["FC"]))
-	cmd.extend(tolist(env["FCFLAGS"]))
-	cmd.extend(tolist(env["_FCINCFLAGS"]))
-	cmd.extend(tolist(env["_FCMODOUTFLAGS"]))
-	for a in task.outputs:
-		cmd.extend(tolist(env["FC_TGT_F"] + tolist(a.bldpath(env))))
-	for a in task.inputs:
-		cmd.extend(tolist(env["FC_SRC_F"]) + tolist(a.srcpath(env)))
-	cmd = [x for x in cmd if x]
-	cmd = [cmd]
 
-	ret = task.exec_command(*cmd)
-	return ret
+@TaskGen.extension('.f')
+def fc_hook(self, node):
+	return self.create_compiled_task('fc', node)
 
-fcompiler = Task.task_type_from_func('fortran',
-	vars=["FC", "FCFLAGS", "_FCINCFLAGS", "FC_TGT_F", "FC_SRC_F",
-		"FORTRANMODPATHFLAG"],
-	func=fortran_compile,
-	color='GREEN',
-	ext_out=EXT_OBJ,
-	ext_in=EXT_FC)
-fcompiler.scan = scan
+class fc(Task.Task):
+	color = 'GREEN'
+	run_str = '${FC} ${FCFLAGS} ${_FCINCFLAGS} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	vars = ["FORTRANMODPATHFLAG"]
+	scan = fc_scan.scan
+
+#def fortran_compile(task):
+#	env = task.env
+#	def tolist(xx):
+#		if isinstance(xx, str):
+#			return [xx]
+#		return xx
+#	cmd = []
+#	cmd.extend(tolist(env["FC"]))
+#	cmd.extend(tolist(env["FCFLAGS"]))
+#	cmd.extend(tolist(env["_FCINCFLAGS"]))
+#	cmd.extend(tolist(env["_FCMODOUTFLAGS"]))
+#	for a in task.outputs:
+#		cmd.extend(tolist(env["FC_TGT_F"] + tolist(a.bldpath(env))))
+#	for a in task.inputs:
+#		cmd.extend(tolist(env["FC_SRC_F"]) + tolist(a.srcpath(env)))
+#	cmd = [x for x in cmd if x]
+#	cmd = [cmd]
+#
+#	ret = task.exec_command(*cmd)
+#	return ret
+
+#fcompiler = Task.task_type_from_func('fortran',
+#	vars=["FC", "FCFLAGS", "_FCINCFLAGS", "FC_TGT_F", "FC_SRC_F", "FORTRANMODPATHFLAG"],
+#	func=fortran_compile,
+#	color='GREEN',
+#	ext_out=EXT_OBJ,
+#	ext_in=EXT_FC)
+#fcompiler.scan = scan
 
 # Task to compile fortran source which needs to be preprocessed by cpp first
-Task.simple_task_type('fortranpp',
-	'${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ',
-	'GREEN',
-	ext_out=EXT_OBJ,
-	ext_in=EXT_FCPP)
 
-Task.simple_task_type('fortran_link',
-	'${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}',
-	color='YELLOW', ext_in=EXT_OBJ)
+@extension('.F')
+def fcpp_hook(self, node):
+	"""capital letter tricks will not work on win32"""
+	out = node.change_ext('.f')
+	self.source.append(out)
+	return self.create_compiled_task('fcpp', node, out)
+
+class fcpp(Task.Task):
+	color = 'GREEN'
+	run_str = '${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+
+#Task.simple_task_type('fortranpp',
+#	'${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ',
+#	'GREEN',
+#	ext_out=EXT_OBJ,
+#	ext_in=EXT_FCPP)
+
+class fcprogram(ccroot.link_task):
+	color = 'YELLOW'
+	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}'
+	inst_to = '${BINDIR}'
+
+class fcshlib(fcprogram):
+	inst_to = '${LIBDIR}'
+
+class fcstlib(ccroot.static_link):
+	"""just use ar normally"""
+	pass # do not remove the pass statement
+
+#Task.simple_task_type('fortran_link',
+#	'${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}',
+#	color='YELLOW', ext_in=EXT_OBJ)
 
 @extension(EXT_FC)
 def fortran_hook(self, node):
@@ -173,15 +207,4 @@ def apply_fortran_link(self):
 
 #################################################### Configuration
 
-FC_FRAGMENT = '''        program main
-        end     program main
-'''
-
-@conf
-def check_fortran(self, *k, **kw):
-	conf.check_cc(
-		fragment=FC_FRAGMENT,
-		compile_filename='test.f',
-		features='fc fcprogram',
-		msg='Compiling a simple fortran app')
 

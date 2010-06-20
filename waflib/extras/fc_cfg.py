@@ -1,5 +1,6 @@
 import re, shutil, os, sys, string, shlex
 from waflib.Configure import conf
+from waflib.TaskGen import feature, after, before
 from waflib import Build, Utils
 
 #from myconfig import MyBuildContext
@@ -577,6 +578,15 @@ def add_some_uselib_vars(self):
 	self.uselib += ' DEBUG'
 
 
+FC_FRAGMENT = '''        program main
+        end     program main
+'''
 
-
+@conf
+def check_fortran(self, *k, **kw):
+	conf.check_cc(
+		fragment=FC_FRAGMENT,
+		compile_filename='test.f',
+		features='fc fcprogram',
+		msg='Compiling a simple fortran app')
 
