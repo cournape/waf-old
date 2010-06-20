@@ -52,7 +52,6 @@ def build(bld):
 		target   = 'foo',
 		defines  = ['USEFOO', 'blah=1'])
 
-	return
 	bld(
 		features = 'fc fcprogram',
 		includes = 'src/include',

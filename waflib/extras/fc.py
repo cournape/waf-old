@@ -64,7 +64,7 @@ def fc_hook(self, node):
 
 class fc(Task.Task):
 	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${FCINPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
 	vars = ["FORTRANMODPATHFLAG"]
 	scan = fc_scan.scan
 
