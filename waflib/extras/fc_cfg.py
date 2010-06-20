@@ -3,6 +3,10 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
+"""
+fortran configuration helpers
+"""
+
 import re, shutil, os, sys, string, shlex
 from waflib.Configure import conf
 from waflib.TaskGen import feature, after, before
@@ -17,6 +21,7 @@ POSIX_LIB_FLAGS = re.compile('-l\S+')
 
 @conf
 def check_fortran(self, *k, **kw):
+	"""see if the compiler works by compiling a fragment"""
 	self.check_cc(
 		fragment         = FC_FRAGMENT,
 		compile_filename = 'test.f',
@@ -25,14 +30,19 @@ def check_fortran(self, *k, **kw):
 
 @conf
 def check_fortran_dummy_main(self, *k, **kw):
-	"""For a given main , compile the code snippet with the C compiler, and
-	link with the Fortran compiler
-
-	TODO:
-	- handling dialects (F77, F90, etc... -> needs core support first)
-	- handling dependencies between config checks ?
-	- fix dummy main check (AC_FC_DUMMY_MAIN vs AC_FC_MAIN)
 	"""
+	Guess if a main function is needed by compiling a code snippet with
+	the C compiler and link with the Fortran compiler
+
+	TODO: (DC)
+	- handling dialects (F77, F90, etc... -> needs core support first)
+	- fix dummy main check (AC_FC_DUMMY_MAIN vs AC_FC_MAIN)
+
+	TODO: what does the above mean? (ita)
+	"""
+
+	if not self.env.CC:
+		self.fatal('A c compiler is required for check_fortran_dummy_main')
 
 	lst = ['MAIN__', '__MAIN', '_MAIN', 'MAIN_', 'MAIN']
 	lst.extend([m.lower() for m in lst])
@@ -60,7 +70,7 @@ def check_fortran_dummy_main(self, *k, **kw):
 
 @conf
 def is_link_verbose(self, output):
-	"""Return true if useful link option can be found in output."""
+	"""Return true if 'useful' link options can be found in output."""
 	if sys.platform == 'win32':
 		raise NotImplementedError("FIXME: not implemented on win32")
 
@@ -82,7 +92,7 @@ def check_fortran_verbose_flag(self, *k, **kw):
 		try:
 			self.check_cc(
 				features = 'fc fcprogram_test',
-				fragment = '        PROGRAM MAIN\n        END\n', # TODO why not use FC_FRAGMENT?
+				fragment = FC_FRAGMENT2,
 				compile_filename = 'test.f',
 				linkflags = [x],
 				mandatory=True
@@ -106,7 +116,8 @@ def check_fortran_verbose_flag(self, *k, **kw):
 @conf
 def check_fortran_clib(self, autoadd=True, *k, **kw):
 	"""
-	what does this actually do?
+	Obtain flags for linking with the c library
+	if this check works, add uselib='CLIB' to your task generators
 	"""
 	if not self.env.FC_VERBOSE_FLAG:
 		self.fatal('env.FC_VERBOSE_FLAG is not set: execute check_fortran_verbose_flag?')
@@ -121,11 +132,13 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 		)
 	except:
 		self.end_msg(False)
+		if kw.get('mandatory', True):
+			conf.fatal('Could not find the c library flags')
 	else:
 		out = self.test_bld.err
 		flags = parse_fortran_link(out.splitlines())
 		self.end_msg('ok (%s)' % ' '.join(flags))
-		self.env.FC_CLIB_LINKFLAGS = self.env.FC_VERBOSE_FLAG # TODO unused???
+		self.env.CLIB_LINKFLAGS = flags
 		return flags
 	return []
 
@@ -425,6 +438,4 @@ def apply_special_link(self):
 def add_some_uselib_vars(self):
 	#if sys.platform == ...
 	self.uselib += ' DEBUG'
-
-
 
