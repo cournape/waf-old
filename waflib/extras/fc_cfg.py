@@ -541,6 +541,9 @@ def fc_flags(conf):
 	v['fcshlib_LINKFLAGS'] = ['-shared']
 	v['fcshlib_PATTERN']   = 'lib%s.so'
 
+	v['fcstlib_PATTERN']   = 'lib%s.a'
+
+
 @feature('flink_with_c++')
 @after('apply_core')
 @before('apply_link', 'apply_lib_vars', 'apply_fortran_link')

@@ -26,23 +26,23 @@ def configure(conf):
 	conf.check_fortran_dummy_main()
 
 def build(bld):
-	"try using:       waf --zones=task_gen"
 
-#	bld(
-#		features = 'fc fcprogram',
-#		source = 'hello.f',
-#		target = 'hello')
-#
-#	bld(
-#		features = 'fc fcshlib',
-#		source = 'foo.f',
-#		target = 'foo')
-#
-#	bld(
-#		features = 'fc fcstaticlib',
-#		source = 'foo.f',
-#		target = 'foo')
-#
+	bld(
+		features = 'fc fcprogram',
+		source = 'hello.f',
+		target = 'hello')
+
+	bld(
+		features = 'fc fcshlib',
+		source = 'foo.f',
+		target = 'foo')
+
+	bld(
+		features = 'fc fcstlib',
+		source = 'foo.f',
+		target = 'foo')
+
+	return
 #	bld(
 #		features = 'fc fcprogram',
 #		source = 'foo_pp.F',
