@@ -129,7 +129,7 @@ class static_link(link_task):
 			pass
 		return Task.Task.run(self)
 
-@feature('cc', 'cxx', 'd', 'go')
+@feature('cc', 'cxx', 'd', 'go', 'fc')
 @after('process_source')
 def apply_link(self):
 	"""executes after process_source for collecting 'compiled_tasks' and creating a 'link_task'"""
@@ -242,7 +242,7 @@ def get_uselib_vars(self):
 			_vars |= USELIB_VARS[x]
 	return _vars
 
-@feature('cc', 'cxx', 'd')
+@feature('cc', 'cxx', 'd', 'fc')
 @after('apply_uselib_local')
 def propagate_uselib_vars(self):
 	_vars = self.get_uselib_vars()
@@ -263,7 +263,7 @@ def propagate_uselib_vars(self):
 			env.append_value(var, env[compvar])
 
 	# 3. the case of the libs defined outside
-	for x in self.uselib:
+	for x in self.to_list(getattr(self, 'uselib', [])):
 		for v in _vars:
 			env.append_value(v, env[v + '_' + x])
 
