@@ -245,6 +245,39 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 
 # ------------------------------------------------------------------------
 
+# subroutines.f  fc fcstaticlib -> subroutines
+ROUTINES_CODE = """\
+      subroutine foobar()
+      return
+      end
+      subroutine foo_bar()
+      return
+      end
+"""
+
+# main.c cc cprogram -> app  (uselib_local=subroutines)
+MAIN_CODE = """
+void %(dummy_func_nounder)s(void);
+void %(dummy_func_under)s(void);
+int main() {
+  %(dummy_func_nounder)s();
+  %(dummy_func_under)s();
+  return 0;
+}
+"""
+
+@feature('link_main_routines_func')
+@before('process_source')
+def link_main_routines_tg_method(self):
+	"""the configuration test declares a unique task generator - so we create other task generators from there"""
+	def write_test_file(task):
+		task.outputs[0].write(task.generator.code)
+	bld = self.bld
+	bld(rule=write_test_file, target='main.c', code=MAIN_CODE % self.__dict__)
+	bld(rule=write_test_file, target='test.f', code=ROUTINES_CODE)
+	bld(features='fc fcstlib', source='test.f', target='test')
+	bld(features='cc cprogram', source='main.c', target='app', uselib_local='test')
+
 @conf
 def link_main_routines(self, *k, **kw):
 	"""
@@ -256,107 +289,23 @@ def link_main_routines(self, *k, **kw):
 		as used in the C program matches the mangling scheme of the fortran
 		compiler
 	"""
-	routines_compile_mode = 'fortran'
-	routines_type = 'fstaticlib'
 
-	routines_f_name = "subroutines.f"
-	routines_code = """\
-      subroutine foobar()
-      return
-      end
-      subroutine foo_bar()
-      return
-      end
-"""
+	assert("dummy_func_nounder" in kw)
+	assert("dummy_func_under" in kw)
+	if not self.env.CC:
+		self.fatal('A c compiler is required for link_main_routines')
+	if not self.env.FC:
+		self.fatal('A fortran compiler is required for link_main_routines')
 
-	main_compile_mode = 'cc'
-	main_type = 'cprogram'
-	main_f_name = "main.c"
-	# XXX: handle dummy main...
-	main_code = """\
-      void %s(void);
-      void %s(void);
-      int main() {
-      %s();
-      %s();
-      return 0;
-      }
-""" % (kw['dummy_func_under'], kw['dummy_func_nounder'],
-		kw['dummy_func_under'], kw['dummy_func_nounder'])
-
-
-	# create a small folder for testing
-	dir = os.path.join(self.blddir, '.wscript-trybuild')
-
-	# if the folder already exists, remove it
-	try:
-		shutil.rmtree(dir)
-	except OSError:
-		pass
-	os.makedirs(dir)
-
-	bdir = os.path.join(dir, 'testbuild')
-
-	if not os.path.exists(bdir):
-		os.makedirs(bdir)
-
-	env = self.env.copy()
-
-	dest = open(os.path.join(dir, routines_f_name), 'w')
-	dest.write(routines_code)
-	dest.close()
-
-	dest = open(os.path.join(dir, main_f_name), 'w')
-	dest.write(main_code)
-	dest.close()
-
-	back = os.path.abspath('.')
-
-	bld = Build.BuildContext()
-	bld.log = self.log
-	bld.all_envs.update(self.all_envs)
-	bld.all_envs['default'] = env
-	bld.lst_variants = bld.all_envs.keys()
-	bld.load_dirs(dir, bdir)
-
-	os.chdir(dir)
-
-	bld.rescan(bld.srcnode)
-
-	routines_task = bld(
-			features=[routines_compile_mode, routines_type],
-			source=routines_f_name, target='subroutines')
-
-	main_task = bld(
-			features=[main_compile_mode, main_type],
-			source=main_f_name, target='main')
-	main_task.uselib_local = 'subroutines'
-	env['LIB'] = ['subroutines']
-
-	for k, v in kw.iteritems():
-		setattr(routines_task, k, v)
-
-	for k, v in kw.iteritems():
-		setattr(main_task, k, v)
-
-	self.log.write("==>\nsubroutines.f\n%s\n<==\n" % routines_code)
-	self.log.write("==>\nmain.c\n%s\n<==\n" % main_code)
-
-	try:
-		bld.compile()
-	except:
-		ret = Utils.ex_stack()
-	else:
-		ret = 0
-
-	# chdir before returning
-	os.chdir(back)
-
-	if ret:
-		self.log.write('command returned %r' % ret)
-		self.fatal(str(ret))
-
-	return ret
+	return self.check_cc(
+		compile_filename = [],
+		features         = 'link_main_routines_func',
+		dummy_func_nounder = kw['dummy_func_nounder'],
+		dummy_func_under = kw['dummy_func_under'],
+		msg = 'nomsg',
+		errmsg = 'nomsg',
+		mandatory=True
+	)
 
 def _RecursiveGenerator(*sets):
 	"""
