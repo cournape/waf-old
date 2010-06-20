@@ -3,6 +3,10 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
+"""
+fortran support
+"""
+
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
@@ -109,23 +113,10 @@ class fcstlib(ccroot.static_link):
 	"""just use ar normally"""
 	pass # do not remove the pass statement
 
-#################################################### Task generators
 
-# we reuse a lot of code from ccroot.py
+# what was that fortranmodpath story?
+
 """
-FORTRAN = 'init_f default_cc apply_incpaths apply_defines_cc apply_type_vars apply_lib_vars add_extra_flags apply_obj_vars_cc'.split()
-FPROGRAM = 'apply_verif vars_target_cprogram install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
-FSHLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib install_target_cshlib apply_objdeps apply_obj_vars apply_vnum'.split()
-FSTATICLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
-
-TaskGen.bind_feature('fortran', FORTRAN)
-TaskGen.bind_feature('fprogram', FPROGRAM)
-TaskGen.bind_feature('fshlib', FSHLIB)
-TaskGen.bind_feature('fstaticlib', FSTATICLIB)
-
-TaskGen.declare_order('init_f', 'apply_lib_vars')
-TaskGen.declare_order('default_cc', 'apply_core')
-
 @feature('fortran')
 @before('apply_type_vars')
 @after('default_cc')
@@ -137,9 +128,7 @@ def init_f(self):
 	self.p_flag_vars = ['FC', 'FCFLAGS', 'RPATH', 'LINKFLAGS',
 			'FORTRANMODPATH', 'CPPPATH', 'FORTRANMODOUTPATH', '_CCINCFLAGS']
 	self.p_type_vars = ['FCFLAGS', 'LINKFLAGS']
-"""
 
-"""
 @feature('fortran')
 @after('apply_incpaths', 'apply_obj_vars_cc')
 def apply_fortran_type_vars(self):
@@ -174,37 +163,5 @@ def apply_fortran_type_vars(self):
 	#else:
 	#	# XXX: assume that compiler put .mod in cwd by default
 	#	app('_FCINCFLAGS', self.env['FCPATH_ST'] % self.bld.bdir)
-
-@feature('fprogram', 'fshlib', 'fstaticlib')
-@after('apply_core')
-@before('apply_link', 'apply_lib_vars')
-def apply_fortran_link(self):
-	# override the normal apply_link with c or c++ - just in case cprogram is given too
-	try: self.meths.remove('apply_link')
-	except ValueError: pass
-
-	link = 'fortran_link'
-	if 'fstaticlib' in self.features:
-		link = 'ar_link_static'
-
-	def get_name():
-		if 'fprogram' in self.features:
-			return '%s'
-		elif 'fshlib' in self.features:
-			return 'lib%s.so'
-		else:
-			return 'lib%s.a'
-
-	linktask = self.create_task(link)
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare(get_name() % self.target))
-	linktask.chmod = self.chmod
-
-	self.link_task = linktask
 """
-
-
-#################################################### Configuration
-
 
