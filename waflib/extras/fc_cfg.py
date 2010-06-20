@@ -86,7 +86,6 @@ def check_fortran_verbose_flag(self, *k, **kw):
 	"""
 	check what kind of -v flag works, then set it to env.FC_VERBOSE_FLAG
 	"""
-
 	self.start_msg('fortran link verbose flag')
 	for x in ['-v', '--verbose', '-verbose', '-V']:
 		try:
@@ -97,15 +96,13 @@ def check_fortran_verbose_flag(self, *k, **kw):
 				linkflags = [x],
 				mandatory=True
 				)
-		except:
+		except self.errors.ConfigurationError:
 			pass
 		else:
 			# output is on stderr
 			if self.is_link_verbose(self.test_bld.err):
 				self.end_msg(x)
-			else:
-				continue
-			break
+				break
 	else:
 		self.end_msg('failure')
 		self.fatal('Could not obtain the fortran link verbose flag (see config.log)')
