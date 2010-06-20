@@ -87,19 +87,18 @@ def check_fortran_dummy_main(self, *k, **kw):
 
 # ------------------------------------------------------------------------
 
-
 GCC_DRIVER_LINE = re.compile('^Driving:')
 POSIX_STATIC_EXT = re.compile('\S+\.a')
 POSIX_LIB_FLAGS = re.compile('-l\S+')
 
 @conf
-def is_link_verbose(self, output):
-	"""Return true if 'useful' link options can be found in output."""
+def is_link_verbose(self, txt):
+	"""Return True if 'useful' link options can be found in txt"""
 	if sys.platform == 'win32':
 		raise NotImplementedError("FIXME: not implemented on win32")
 
-	assert isinstance(output, str)
-	for line in output.splitlines():
+	assert isinstance(txt, str)
+	for line in txt.splitlines():
 		if not GCC_DRIVER_LINE.search(line):
 			if POSIX_STATIC_EXT.search(line) or POSIX_LIB_FLAGS.search(line):
 				return True
