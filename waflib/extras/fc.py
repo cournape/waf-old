@@ -92,7 +92,7 @@ class fcprogram_test(fcprogram):
 			ret = Task.RUN_ME
 		return ret
 
-	def exec_command2(self, cmd, **kw):
+	def exec_command(self, cmd, **kw):
 		"""store the compiler output on the build context, to bld.out"""
 		bld = self.generator.bld
 

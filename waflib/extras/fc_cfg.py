@@ -78,17 +78,20 @@ def check_fortran_verbose_flag(self, *k, **kw):
 	for x in ['-v', '--verbose', '-verbose', '-V']:
 		try:
 			self.check_cc(
-				features = 'fc fcprogram',
+				features = 'fc fcprogram_test',
 				fragment = '        PROGRAM MAIN\n        END\n', # TODO why not use FC_FRAGMENT?
 				compile_filename = 'test.f',
-				fcflags = [x]
+				fcflags = [x],
+				mandatory=True
 				)
 		except:
 			pass
 		else:
-			#print id(self.test_bld), type(self.test_bld)
+			print "the output is", self.test_bld.out
 			if self.is_link_verbose(self.test_bld.out):
 				self.end_msg(x)
+			else:
+				continue
 			break
 	else:
 		self.end_msg('failure')
