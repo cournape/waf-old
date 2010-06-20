@@ -50,7 +50,7 @@ def build(bld):
 		features = 'fc fcprogram',
 		source   = 'foo_pp.F',
 		target   = 'foo',
-		defines  = ['USEFOO', 'Hmm'])
+		defines  = ['USEFOO', 'blah=1'])
 
 	return
 	bld(

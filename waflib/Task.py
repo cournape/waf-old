@@ -609,9 +609,9 @@ def compile_fun_shell(line):
 		elif meth:
 			if meth.startswith(':'):
 				app('" ".join([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
+				dvars.extend([var, meth[1:]])
 			else:
 				app('" ".join(%s%s)' % (var, meth))
-			# TODO extract more dvars here
 		else:
 			if not var in dvars: dvars.append(var)
 			app("p('%s')" % var)
@@ -652,9 +652,9 @@ def compile_fun_noshell(line):
 		elif meth:
 			if meth.startswith(':'):
 				app('lst.extend([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
+				dvars.extend([var, meth[1:]])
 			else:
 				app('lst.extend(%s%s)' % (var, meth))
-			# TODO extract more dvars here
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
