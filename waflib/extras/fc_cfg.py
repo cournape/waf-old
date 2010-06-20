@@ -264,13 +264,15 @@ def _RecursiveGenerator(*sets):
 
 @conf
 def link_main_routines(self, *k, **kw):
-	# This function tests one mangling scheme, defined by the correspondance
-	# fortran name <-> C name. It works as follows:
-	#	* build a fortran library subroutines with dummy functions
-	#	* compile a C main program which calls the dummy functions, and link
-	#	against the fortran library. If the link succeeds, it means the names
-	#	as used in the C program matches the mangling scheme of the fortran
-	#	compiler.
+	"""
+	This function tests one mangling scheme, defined by the correspondance
+	 fortran name <-> C name. It works as follows:
+		* build a fortran library subroutines with dummy functions
+		* compile a C main program which calls the dummy functions, and link
+		against the fortran library. If the link succeeds, it means the names
+		as used in the C program matches the mangling scheme of the fortran
+		compiler
+	"""
 	routines_compile_mode = 'fortran'
 	routines_type = 'fstaticlib'
 
@@ -375,6 +377,11 @@ def link_main_routines(self, *k, **kw):
 
 @conf
 def check_fortran_mangling(self, *k, **kw):
+	"""
+	and the funny thing is, we do not even have to overload the existing code
+	"""
+
+
 	# XXX: what's the best way to return a second result ?
 	kw['msg'] = kw.get('msg', 'Getting fortran mangling scheme')
 	kw['errmsg'] = kw.get('errmsg', 'Failed !')

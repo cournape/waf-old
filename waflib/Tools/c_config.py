@@ -450,8 +450,6 @@ def check(self, *k, **kw):
 
 @conf
 def run_c_code(self, *k, **kw):
-	test_f_name = kw['compile_filename']
-
 	lst = [str(v) for (p, v) in kw.items() if p != 'env']
 	h = Utils.h_list(lst)
 	dir = self.bldnode.abspath() + os.sep + '.conf_check_' + Utils.to_hex(h)
@@ -471,25 +469,21 @@ def run_c_code(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-		dest = None
-		try:
-			dest = open(os.path.join(dir, test_f_name), 'w')
-			dest.write(kw['code'])
-		finally:
-			if dest:
-				dest.close()
-
 	self.test_bld = bld = Build.BuildContext() # keep the temporary build context on an attribute for debugging
 	bld.top_dir = dir
 	bld.out_dir = bld.variant_dir = bdir # mandatory
 	bld.load() # configuration test cache
 	bld.targets = '*'
 
+	if kw['compile_filename']:
+		node = bld.srcnode.make_node(kw['compile_filename'])
+		node.write(kw['code'])
+
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = kw['env']
 
-	o = bld(features=kw['features'], source=test_f_name, target='testprog')
+	o = bld(features=kw['features'], source=kw['compile_filename'], target='testprog')
 
 	for k, v in kw.items():
 		setattr(o, k, v)
