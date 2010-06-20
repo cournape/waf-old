@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
+# DC 2008
+# Thomas Nagy 2010 (ita)
 
 import re
 

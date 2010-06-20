@@ -1,7 +1,46 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# DC 2008
+# Thomas Nagy 2010 (ita)
+
 import re, shutil, os, sys, string, shlex
 from waflib.Configure import conf
 from waflib.TaskGen import feature, after, before
 from waflib import Build, Utils
+
+@conf
+def check_fortran_dummy_main(self, *k, **kw):
+	"""For a given main , compile the code snippet with the C compiler, and
+	link with the Fortran compiler
+
+	TODO:
+	- handling dialects (F77, F90, etc... -> needs core support first)
+	- handling dependencies between config checks ?
+	- fix dummy main check (AC_FC_DUMMY_MAIN vs AC_FC_MAIN)
+	"""
+
+	lst = ['MAIN__', '__MAIN', '_MAIN', 'MAIN_', 'MAIN']
+	lst.extend([m.lower() for m in mains])
+	lst.append('')
+
+	self.start_msg('Detecting whether we need a dummy main')
+	for main in lst:
+		kw['fortran_main'] = main
+		try:
+			self.check_cc(
+				fragment = 'int %s() { return 0; }\n' % (main or 'test'),
+				features = 'cc fcprogram'
+			)
+			if not main:
+				self.end_msg('no')
+			else:
+				self.end_msg('yes %s' % main)
+			break
+		except self.errors.ConfigurationError:
+			pass
+	else:
+		self.end_msg('not found')
+		self.fatal('could not detect whether fortran requires a dummy main, see the config.log')
 
 #from myconfig import MyBuildContext
 
@@ -40,42 +79,6 @@ class MyBuildContext(Build.BuildContext):
 		ret, self.out = _log_exec_command(cmd, **kw)
 		return ret
 
-# TODO:
-#	- remove the mycompile_code calls -> check or run_c_code should be usable
-#	instead, using the suggestions from the waf-users ML (1/02/2009)
-#	- handling dialects (F77, F90, etc... -> needs core support first)
-#	- handling dependencies between config checks ?
-#	- fix dummy main check (AC_FC_DUMMY_MAIN vs AC_FC_MAIN)
-#----------------------
-# Detecting dummy main
-#----------------------
-@conf
-def check_fortran_dummy_main(self, *k, **kw):
-	"""For a given main , compile the code snippet with the C compiler, and
-	link with the Fortran compiler"""
-
-	mains = ['MAIN__', '__MAIN', '_MAIN', 'MAIN_', 'MAIN']
-	mains.extend([m.lower() for m in mains])
-	mains.append('')
-
-	self.start_msg('Detecting whether we need a dummy main')
-	for main in mains:
-		kw['fortran_main'] = main
-		try:
-			self.check_cc(
-				fragment = 'int %s() { return 0; }\n' % (main or 'test'),
-				features = 'cc fcprogram'
-			)
-			if not main:
-				self.end_msg('no')
-			else:
-				self.end_msg('yes %s' % main)
-			break
-		except self.errors.ConfigurationError:
-			pass
-	else:
-		self.end_msg('not found')
-		self.fatal('could not detect whether fortran requires a dummy main, see the config.log')
 
 #-----------------------------
 # Detecting verbose link flag

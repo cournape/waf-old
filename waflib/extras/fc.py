@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
+# DC 2008
+# Thomas Nagy 2010 (ita)
 
 import re
 
@@ -13,6 +15,11 @@ ccroot.USELIB_VARS['fc'] = set([])
 ccroot.USELIB_VARS['fcprogram'] = set([])
 ccroot.USELIB_VARS['fcshlib'] = set([])
 ccroot.USELIB_VARS['fcstlib'] = set([])
+
+@feature('fcprogram', 'fcshlib', 'fcstlib')
+def dummy(self):
+	pass
+
 
 
 #def fortran_compile(task):
