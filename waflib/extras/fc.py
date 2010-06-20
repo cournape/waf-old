@@ -9,10 +9,10 @@ from waflib.extras import fc_cfg, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
-ccroot.USELIB_VARS['fc'] = []
-ccroot.USELIB_VARS[''] = []
-ccroot.USELIB_VARS[''] = []
-ccroot.USELIB_VARS[''] = []
+ccroot.USELIB_VARS['fc'] = set([])
+ccroot.USELIB_VARS['fcprogram'] = set([])
+ccroot.USELIB_VARS['fcshlib'] = set([])
+ccroot.USELIB_VARS['fcstlib'] = set([])
 
 
 @TaskGen.extension('.f')
@@ -89,25 +89,25 @@ class fcstlib(ccroot.static_link):
 #	'${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}',
 #	color='YELLOW', ext_in=EXT_OBJ)
 
-@extension(EXT_FC)
-def fortran_hook(self, node):
-	obj_ext = '_%d.o' % self.idx
-
-	task = self.create_task('fortran')
-	task.inputs = [node]
-	task.outputs = [node.change_ext(obj_ext)]
-	self.compiled_tasks.append(task)
-	return task
-
-@extension(EXT_FCPP)
-def fortranpp_hook(self, node):
-	obj_ext = '_%d.o' % self.idx
-
-	task = self.create_task('fortranpp')
-	task.inputs = [node]
-	task.outputs = [node.change_ext(obj_ext)]
-	self.compiled_tasks.append(task)
-	return task
+#@extension(EXT_FC)
+#def fortran_hook(self, node):
+#	obj_ext = '_%d.o' % self.idx
+#
+#	task = self.create_task('fortran')
+#	task.inputs = [node]
+#	task.outputs = [node.change_ext(obj_ext)]
+#	self.compiled_tasks.append(task)
+#	return task
+#
+#@extension(EXT_FCPP)
+#def fortranpp_hook(self, node):
+#	obj_ext = '_%d.o' % self.idx
+#
+#	task = self.create_task('fortranpp')
+#	task.inputs = [node]
+#	task.outputs = [node.change_ext(obj_ext)]
+#	self.compiled_tasks.append(task)
+#	return task
 
 #################################################### Task generators
 
