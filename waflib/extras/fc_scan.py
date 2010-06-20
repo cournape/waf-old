@@ -4,8 +4,6 @@
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
-import waflib.Tools.ccroot
-from waflib.extras import fortran_cfg # <- leave this
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 

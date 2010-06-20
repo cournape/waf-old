@@ -3,7 +3,7 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
-from waflib.extras import fortran
+from waflib.extras import fc
 from Configure import conf
 
 @conf

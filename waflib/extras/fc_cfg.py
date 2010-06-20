@@ -584,9 +584,9 @@ FC_FRAGMENT = '''        program main
 
 @conf
 def check_fortran(self, *k, **kw):
-	conf.check_cc(
-		fragment=FC_FRAGMENT,
-		compile_filename='test.f',
-		features='fc fcprogram',
-		msg='Compiling a simple fortran app')
+	self.check_cc(
+		fragment         = FC_FRAGMENT,
+		compile_filename = 'test.f',
+		features         = 'fc fcprogram',
+		msg              = 'Compiling a simple fortran app')
 
