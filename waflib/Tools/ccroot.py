@@ -69,10 +69,7 @@ def apply_incpaths(self):
 	after process_source because some processing may add include paths
 	"""
 
-	paths = self.to_list(getattr(self, 'includes', []))
-	for lib in self.to_list(getattr(self, 'uselib', [])):
-		for path in self.env['INCLUDES_' + lib]:
-			paths.append(path)
+	paths = self.to_list(getattr(self, 'includes', [])) + self.env['INCLUDES']
 
 	lst = []
 	seen = set([])
