@@ -20,8 +20,7 @@ ccroot.USELIB_VARS['fcstlib'] = set(['LINKFLAGS'])
 def dummy(self):
 	pass
 
-
-
+# FIXME what was this for??????
 #def fortran_compile(task):
 #	env = task.env
 #	def tolist(xx):
@@ -43,21 +42,6 @@ def dummy(self):
 #	ret = task.exec_command(*cmd)
 #	return ret
 
-#fcompiler = Task.task_type_from_func('fortran',
-#	vars=["FC", "FCFLAGS", "_FCINCFLAGS", "FC_TGT_F", "FC_SRC_F", "FORTRANMODPATHFLAG"],
-#	func=fortran_compile,
-#	color='GREEN',
-#	ext_out=EXT_OBJ,
-#	ext_in=EXT_FC)
-#fcompiler.scan = scan
-
-#Task.simple_task_type('fortranpp',
-#	'${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ',
-#	'GREEN',
-#	ext_out=EXT_OBJ,
-#	ext_in=EXT_FCPP)
-
-
 @TaskGen.extension('.f')
 def fc_hook(self, node):
 	return self.create_compiled_task('fc', node)
@@ -73,6 +57,7 @@ def fcpp_hook(self, node):
 	return self.create_compiled_task('fcpp', node)
 
 class fcpp(Task.Task):
+	# FIXME why another task? what's the problem?
 	color = 'GREEN'
 	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
 
@@ -85,6 +70,8 @@ class fcshlib(fcprogram):
 	inst_to = '${LIBDIR}'
 
 class fcprogram_test(fcprogram):
+	"""custom link task to obtain the compiler outputs"""
+
 	def runnable_status(self):
 		"""make sure the link task is always executed"""
 		ret = super(fcprogram_test, self).runnable_status()
@@ -93,7 +80,7 @@ class fcprogram_test(fcprogram):
 		return ret
 
 	def exec_command(self, cmd, **kw):
-		"""store the compiler output on the build context, to bld.out"""
+		"""store the compiler std our/err onto the build context, to bld.out + bld.err"""
 		bld = self.generator.bld
 
 		kw['shell'] = isinstance(cmd, str)
@@ -121,30 +108,6 @@ class fcprogram_test(fcprogram):
 class fcstlib(ccroot.static_link):
 	"""just use ar normally"""
 	pass # do not remove the pass statement
-
-#Task.simple_task_type('fortran_link',
-#	'${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}',
-#	color='YELLOW', ext_in=EXT_OBJ)
-
-#@extension(EXT_FC)
-#def fortran_hook(self, node):
-#	obj_ext = '_%d.o' % self.idx
-#
-#	task = self.create_task('fortran')
-#	task.inputs = [node]
-#	task.outputs = [node.change_ext(obj_ext)]
-#	self.compiled_tasks.append(task)
-#	return task
-#
-#@extension(EXT_FCPP)
-#def fortranpp_hook(self, node):
-#	obj_ext = '_%d.o' % self.idx
-#
-#	task = self.create_task('fortranpp')
-#	task.inputs = [node]
-#	task.outputs = [node.change_ext(obj_ext)]
-#	self.compiled_tasks.append(task)
-#	return task
 
 #################################################### Task generators
 
