@@ -145,10 +145,10 @@ RLINKFLAGS_IGNORED = [re.compile(f) for f in LINKFLAGS_IGNORED]
 
 def _match_ignore(line):
 	"""True if the line should be ignored."""
-	if [i for i in RLINKFLAGS_IGNORED if i.match(line)]:
-		return True
-	else:
-		return False
+	for i in RLINKFLAGS_IGNORED:
+		if i.match(line):
+			return True
+	return False
 
 def parse_fortran_link(lines):
 	"""Given the output of verbose link of Fortran compiler, this returns a
