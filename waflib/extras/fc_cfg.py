@@ -72,8 +72,6 @@ def is_link_verbose(self, output):
 
 @conf
 def check_fortran_verbose_flag(self, *k, **kw):
-	"""TODO incomplete"""
-
 	self.start_msg('fortran link verbose flag')
 	for x in ['-v', '--verbose', '-verbose', '-V']:
 		try:
@@ -81,14 +79,14 @@ def check_fortran_verbose_flag(self, *k, **kw):
 				features = 'fc fcprogram_test',
 				fragment = '        PROGRAM MAIN\n        END\n', # TODO why not use FC_FRAGMENT?
 				compile_filename = 'test.f',
-				fcflags = [x],
+				linkflags = [x],
 				mandatory=True
 				)
 		except:
 			pass
 		else:
-			print "the output is", self.test_bld.out
-			if self.is_link_verbose(self.test_bld.out):
+			# output is on stderr
+			if self.is_link_verbose(self.test_bld.err):
 				self.end_msg(x)
 			else:
 				continue

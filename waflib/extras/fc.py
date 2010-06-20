@@ -101,21 +101,12 @@ class fcprogram_test(fcprogram):
 		kw['cwd'] = bld.variant_dir
 		bld.out = ''
 
-		"""
-		print id(bld)
-
-		print type(bld)
-		out = Utils.cmd_output(cmd, **kw)
-		print out
-		return None
-		"""
-
 		try:
 			proc = Utils.subprocess.Popen(cmd, **kw)
-			(out, err) = proc.communicate()
+			(bld.out, bld.err) = proc.communicate()
 		except OSError:
 			return -1
-		bld.out = out
+
 		return proc.returncode
 
 class fcstlib(ccroot.static_link):
