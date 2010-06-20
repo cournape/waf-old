@@ -19,7 +19,7 @@ def check_fortran(self, *k, **kw):
 	self.check_cc(
 		fragment         = FC_FRAGMENT,
 		compile_filename = 'test.f',
-		features         = 'fc fcprogram',
+		features         = 'fc fcprogram_test',
 		msg              = 'Compiling a simple fortran app')
 
 @conf
@@ -79,13 +79,14 @@ def check_fortran_verbose_flag(self, *k, **kw):
 		try:
 			self.check_cc(
 				features = 'fc fcprogram',
-				fragment = '        \nPROGRAM MAIN        \nEND', # TODO why not use FC_FRAGMENT?
+				fragment = '        PROGRAM MAIN\n        END\n', # TODO why not use FC_FRAGMENT?
 				compile_filename = 'test.f',
 				fcflags = [x]
 				)
 		except:
 			pass
 		else:
+			#print id(self.test_bld), type(self.test_bld)
 			if self.is_link_verbose(self.test_bld.out):
 				self.end_msg(x)
 			break

@@ -12,11 +12,11 @@ from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
 ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
-ccroot.USELIB_VARS['fcprogram'] = set(['LINKFLAGS'])
+ccroot.USELIB_VARS['fcprogram_test'] = ccroot.USELIB_VARS['fcprogram'] = set(['LINKFLAGS'])
 ccroot.USELIB_VARS['fcshlib'] = set(['LINKFLAGS'])
 ccroot.USELIB_VARS['fcstlib'] = set(['LINKFLAGS'])
 
-@feature('fcprogram', 'fcshlib', 'fcstlib')
+@feature('fcprogram', 'fcshlib', 'fcstlib', 'fcprogram_test')
 def dummy(self):
 	pass
 
@@ -83,6 +83,40 @@ class fcprogram(ccroot.link_task):
 
 class fcshlib(fcprogram):
 	inst_to = '${LIBDIR}'
+
+class fcprogram_test(fcprogram):
+	def runnable_status(self):
+		"""make sure the link task is always executed"""
+		ret = super(fcprogram_test, self).runnable_status()
+		if ret == Task.SKIP_ME:
+			ret = Task.RUN_ME
+		return ret
+
+	def exec_command2(self, cmd, **kw):
+		"""store the compiler output on the build context, to bld.out"""
+		bld = self.generator.bld
+
+		kw['shell'] = isinstance(cmd, str)
+		kw['stdout'] = kw['stderr'] = Utils.subprocess.PIPE
+		kw['cwd'] = bld.variant_dir
+		bld.out = ''
+
+		"""
+		print id(bld)
+
+		print type(bld)
+		out = Utils.cmd_output(cmd, **kw)
+		print out
+		return None
+		"""
+
+		try:
+			proc = Utils.subprocess.Popen(cmd, **kw)
+			(out, err) = proc.communicate()
+		except OSError:
+			return -1
+		bld.out = out
+		return proc.returncode
 
 class fcstlib(ccroot.static_link):
 	"""just use ar normally"""
