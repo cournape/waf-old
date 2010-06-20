@@ -479,7 +479,7 @@ def run_c_code(self, *k, **kw):
 			if dest:
 				dest.close()
 
-	bld = Build.BuildContext()
+	self.test_bld = bld = Build.BuildContext() # keep the temporary build context on an attribute for debugging
 	bld.top_dir = dir
 	bld.out_dir = bld.variant_dir = bdir # mandatory
 	bld.load() # configuration test cache
