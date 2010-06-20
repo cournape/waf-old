@@ -11,7 +11,7 @@ import re
 
 from waflib import Utils, Task, TaskGen, Logs
 from waflib.Tools import ccroot
-from waflib.extras import fc_cfg, fc_scan
+from waflib.extras import fc_config, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
