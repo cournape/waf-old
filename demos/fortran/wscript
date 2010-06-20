@@ -20,7 +20,7 @@ def configure(conf):
 
 	conf.check_fortran()
 	conf.check_fortran_verbose_flag()
-	#conf.check_fortran_clib()
+	conf.check_fortran_clib()
 
 	#st, mangler = conf.check_fortran_mangling()
 	#if not st:

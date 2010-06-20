@@ -9,7 +9,7 @@ from waflib.TaskGen import feature, after, before
 from waflib import Build, Utils
 
 FC_FRAGMENT = '        program main\n        end     program main\n'
-FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n'
+FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n' # what's the actual difference between these?
 
 GCC_DRIVER_LINE = re.compile('^Driving:')
 POSIX_STATIC_EXT = re.compile('\S+\.a')
