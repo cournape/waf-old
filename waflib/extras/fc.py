@@ -11,10 +11,10 @@ from waflib.extras import fc_cfg, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
-ccroot.USELIB_VARS['fc'] = set([])
-ccroot.USELIB_VARS['fcprogram'] = set([])
-ccroot.USELIB_VARS['fcshlib'] = set([])
-ccroot.USELIB_VARS['fcstlib'] = set([])
+ccroot.USELIB_VARS['fc'] = set(['FCFLAGS'])
+ccroot.USELIB_VARS['fcprogram'] = set(['LINKFLAGS'])
+ccroot.USELIB_VARS['fcshlib'] = set(['LINKFLAGS'])
+ccroot.USELIB_VARS['fcstlib'] = set(['LINKFLAGS'])
 
 @feature('fcprogram', 'fcshlib', 'fcstlib')
 def dummy(self):
