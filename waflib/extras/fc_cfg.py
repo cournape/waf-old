@@ -20,7 +20,7 @@ def check_fortran_dummy_main(self, *k, **kw):
 	"""
 
 	lst = ['MAIN__', '__MAIN', '_MAIN', 'MAIN_', 'MAIN']
-	lst.extend([m.lower() for m in mains])
+	lst.extend([m.lower() for m in lst])
 	lst.append('')
 
 	self.start_msg('Detecting whether we need a dummy main')
@@ -29,7 +29,8 @@ def check_fortran_dummy_main(self, *k, **kw):
 		try:
 			self.check_cc(
 				fragment = 'int %s() { return 0; }\n' % (main or 'test'),
-				features = 'cc fcprogram'
+				features = 'cc fcprogram',
+				mandatory = True
 			)
 			if not main:
 				self.end_msg('no')
