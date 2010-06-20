@@ -104,6 +104,11 @@ class fortran_parser(object):
 			self.tryfind_module(x)
 
 def scan(self):
+
+
+	#FIXME
+	return [[], []]
+
 	env = self.env
 	gruik = fortran_parser(env, env['INC_PATHS'], env["MODULE_SEARCH_PATH"])
 	gruik.start(self.inputs[0])
