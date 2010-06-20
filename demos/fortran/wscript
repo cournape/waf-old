@@ -14,7 +14,7 @@ def configure(conf):
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 	#conf.env['FORTRANMODPATH'] = ['mfloupi']
 	#conf.env['FORTRANMODOUTPATH'] = ['floupi']
-	#conf.env['CPPPATH'] = ['hfloupi']
+	#conf.env['INCLUDES'] = ['hfloupi']
 
 	conf.check_fortran()
 
