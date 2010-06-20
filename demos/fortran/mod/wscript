@@ -3,8 +3,8 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def options(opt):
 	opt.tool_options('fakecc', tooldir='.')
@@ -13,7 +13,5 @@ def configure(conf):
 	conf.check_tool('fakecc', tooldir='.')
 
 def build(bld):
-	bld(
-		features = 'fakecc',
-		source   = 'hello_main.a hello.a',
-		target   = 'hello')
+	bld(source='hello_main.a hello.a', target='hello')
+
