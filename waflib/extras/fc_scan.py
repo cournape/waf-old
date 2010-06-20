@@ -24,13 +24,11 @@ EXT_OBJ = ".o"
 #   - windows...
 
 class fortran_parser(object):
-	def __init__(self, env, incpaths, modsearchpath):
+	def __init__(self, incpaths, modsearchpath):
 		self.allnames = []
 
 		self.re_inc = re.compile(INCLUDE_REGEX, re.IGNORECASE)
 		self.re_use = re.compile(USE_REGEX, re.IGNORECASE)
-
-		self.env = env
 
 		self.nodes = []
 		self.names = []
@@ -84,7 +82,7 @@ class fortran_parser(object):
 			self.iter(nd)
 
 	def iter(self, node):
-		path = node.abspath(self.env) # obtain the absolute path
+		path = node.abspath() # obtain the absolute path
 		code = open(path, 'r')
 		hnames, mnames = self.find_deps(code)
 		for x in hnames:
@@ -106,18 +104,9 @@ class fortran_parser(object):
 			self.tryfind_module(x)
 
 def scan(self):
-
-
-	#FIXME
-	return [[], []]
-
-	env = self.env
-	gruik = fortran_parser(env, env['INC_PATHS'], env["MODULE_SEARCH_PATH"])
-	gruik.start(self.inputs[0])
-
-	#print self.inputs, gruik.nodes, gruik.names
+	tmp = fortran_parser(self.generator.includes_nodes, self.env["MODULE_SEARCH_PATH"])
+	tmp.start(self.inputs[0])
 	if Logs.verbose:
-		Logs.debug('deps: nodes found for %s: %s %s' % (str(self.inputs[0]), str(gruik.nodes), str(gruik.names)))
-		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
-	return (gruik.nodes, gruik.names)
+		Logs.debug('deps: deps for %r: %r; unresolved %r' % (self.inputs, tmp.nodes, tmp.names))
+	return (tmp.nodes, tmp.names)
 
