@@ -101,6 +101,9 @@ class fcprogram_test(fcprogram):
 		kw['cwd'] = bld.variant_dir
 		bld.out = bld.err = ''
 
+		if bld.log:
+			bld.log.write('command: %s\n' % cmd)
+
 		try:
 			proc = Utils.subprocess.Popen(cmd, **kw)
 			(bld.out, bld.err) = proc.communicate()

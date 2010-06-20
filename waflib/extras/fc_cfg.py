@@ -9,6 +9,7 @@ from waflib.TaskGen import feature, after, before
 from waflib import Build, Utils
 
 FC_FRAGMENT = '        program main\n        end     program main\n'
+FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n'
 
 GCC_DRIVER_LINE = re.compile('^Driving:')
 POSIX_STATIC_EXT = re.compile('\S+\.a')
@@ -72,6 +73,10 @@ def is_link_verbose(self, output):
 
 @conf
 def check_fortran_verbose_flag(self, *k, **kw):
+	"""
+	check what kind of -v flag works, then set it to env.FC_VERBOSE_FLAG
+	"""
+
 	self.start_msg('fortran link verbose flag')
 	for x in ['-v', '--verbose', '-verbose', '-V']:
 		try:
@@ -97,6 +102,33 @@ def check_fortran_verbose_flag(self, *k, **kw):
 
 	self.env.FC_VERBOSE_FLAG = x
 	return x
+
+@conf
+def check_fortran_clib(self, autoadd=True, *k, **kw):
+	"""
+	what does this actually do?
+	"""
+	if not self.env.FC_VERBOSE_FLAG:
+		self.fatal('env.FC_VERBOSE_FLAG is not set: execute check_fortran_verbose_flag?')
+
+	self.start_msg('Getting fortran runtime link flags')
+	try:
+		self.check_cc(
+			fragment = FC_FRAGMENT2,
+			compile_filename = 'test.f',
+			features = 'fc fcprogram_test',
+			linkflags = [self.env.FC_VERBOSE_FLAG]
+		)
+	except:
+		self.end_msg(False)
+	else:
+		out = self.test_bld.err
+		flags = parse_fortran_link(out.splitlines())
+		self.end_msg('ok (%s)' % ' '.join(flags))
+		self.env.FC_CLIB_LINKFLAGS = self.env.FC_VERBOSE_FLAG # TODO unused???
+		return flags
+	return []
+
 
 #------------------------------------
 # Detecting fortran runtime libraries
@@ -182,53 +214,6 @@ def _parse_flink_line(line, final_flags):
 
 	final_flags.extend(tmp_flags)
 	return final_flags
-
-@conf
-def check_fortran_clib(self, autoadd=True, *k, **kw):
-	# Get verbose flag
-	try:
-		flag = self.env["FC_VERBOSE_FLAG"]
-		if len(flag) < 1:
-			raise KeyError
-	except KeyError:
-		if self.check_fortran_verbose():
-			return 1
-
-	flag = self.env["FC_VERBOSE_FLAG"]
-
-	kw["compile_filename"] = "test.f"
-	kw["code"] = """\
-       PROGRAM MAIN
-       END
-	"""
-
-	kw['compile_mode'] = 'fortran'
-	kw['type'] = 'fprogram'
-	kw['env'] = self.env.copy()
-	kw['execute'] = 0
-
-	kw['msg'] = kw.get('msg', 'Getting fortran runtime link flags')
-	kw['errmsg'] = kw.get('errmsg', 'bad luck')
-
-	self.check_message_1(kw['msg'])
-	kw['env']['LINKFLAGS'] = flag
-	try:
-		ret, out = self.mycompile_code(*k, **kw)
-	except:
-		ret = 1
-		out = ""
-
-	if ret == 0:
-		flags = parse_fortran_link(out.splitlines())
-
-	if ret == 0:
-		self.check_message_2('ok (%s)' % " ".join(flags), 'GREEN')
-		if autoadd:
-			self.env["FC_CLIB_LDFLAGS"] = flag
-	else:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-
-	return ret
 
 #-------------------------
 # Fortran mangling scheme
