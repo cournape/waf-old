@@ -88,64 +88,43 @@ GCC_DRIVER_LINE = re.compile('^Driving:')
 POSIX_STATIC_EXT = re.compile('\S+\.a')
 POSIX_LIB_FLAGS = re.compile('-l\S+')
 
-def _got_link_verbose_posix(lines):
-	"""Returns true if useful link options can be found in output.
+def is_link_verbose(lines):
+	"""Return true if useful link option can be found in output."""
+	if sys.platform == 'win32':
+		raise NotImplementedError("FIXME: not implemented on win32")
 
-	POSIX implementation.
-
-	Expect lines to be a list of lines."""
-	for line in lines:
+	assert isinstance(lines, str)
+	for line in lines.splitlines():
 		if not GCC_DRIVER_LINE.search(line):
 			if POSIX_STATIC_EXT.search(line) or POSIX_LIB_FLAGS.search(line):
 				return True
 	return False
 
-def _got_link_verbose(lines):
-	"""Return true if useful link option can be found in output."""
-	if sys.platform == 'win32':
-		raise NotImplementedError("FIXME: not implemented on win32")
-	else:
-		return _got_link_verbose_posix(lines)
-
 @conf
-def check_fortran_verbose(self, autoadd=True, *k, **kw):
-	kw["compile_filename"] = "test.f"
-	kw["code"] = """\
-       PROGRAM MAIN
-       END
-	"""
+def check_fortran_verbose_flag(self, *k, **kw):
+	"""TODO incomplete"""
 
-	kw['compile_mode'] = 'fortran'
-	kw['type'] = 'fprogram'
-	kw['env'] = self.env.copy()
-	kw['execute'] = 0
-
-	kw['msg'] = kw.get('msg', 'Getting fortran link verbose flag')
-	kw['errmsg'] = kw.get('errmsg', 'bad luck')
-
-	self.check_message_1(kw['msg'])
-	flags = ['-v', '--verbose', '-verbose', '-V']
-	gotflag = False
-	for flag in flags:
-		kw['env']['LINKFLAGS'] = flag
+	self.start_msg('fortran link verbose flag')
+	for x in ['-v', '--verbose', '-verbose', '-V']:
 		try:
-			ret, out = self.mycompile_code(*k, **kw)
+			self.check_cc(
+				features = 'fc fcprogram',
+				fragment = '        \nPROGRAM MAIN        \nEND',
+				compile_filename = 'test.f',
+				fcflags = [x]
+				)
 		except:
-			ret = 1
-			out = ""
-
-		if ret == 0 and _got_link_verbose(out.splitlines()):
-			gotflag = True
+			pass
+		else:
+			if is_link_verbose(self.prev_bld.out):
+				self.end_msg(x)
 			break
-
-	if gotflag:
-		self.check_message_2('ok (%s)' % flag, 'GREEN')
-		if autoadd:
-			self.env["FC_VERBOSE_FLAG"] = flag
 	else:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
+		self.end_msg('failure')
+		self.fatal('Could not obtain the fortran link verbose flag (see config.log)')
 
-	return ret
+	self.env.FC_VERBOSE_FLAG = x
+	return x
 
 #------------------------------------
 # Detecting fortran runtime libraries

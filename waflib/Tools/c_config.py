@@ -354,7 +354,7 @@ def validate_c(self, kw):
 		# in custom headers
 		kw['code'] = kw['fragment']
 		if not 'msg' in kw:
-			kw['msg'] = 'Checking for custom code'
+			kw['msg'] = 'Checking for code snippet'
 		if not 'errmsg' in kw:
 			kw['errmsg'] = 'fail'
 
