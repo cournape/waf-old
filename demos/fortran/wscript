@@ -16,8 +16,7 @@ def configure(conf):
 	#conf.env['FORTRANMODOUTPATH'] = ['floupi']
 	#conf.env['CPPPATH'] = ['hfloupi']
 
-	if not conf.check_fortran():
-		conf.fatal('cannot compile a simple fortran program!')
+	conf.check_fortran()
 
 	#conf.check_fortran_clib()
 	#st, mangler = conf.check_fortran_mangling()
