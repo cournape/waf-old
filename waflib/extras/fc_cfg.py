@@ -51,53 +51,31 @@ class MyBuildContext(Build.BuildContext):
 #----------------------
 @conf
 def check_fortran_dummy_main(self, *k, **kw):
-	kw['msg'] = kw.get('msg', 'Detecting whether we need a dummy main')
-	kw['errmsg'] = kw.get('errmsg', 'Failed !')
+	"""For a given main , compile the code snippet with the C compiler, and
+	link with the Fortran compiler"""
 
-	self.check_message_1(kw['msg'])
+	mains = ['MAIN__', '__MAIN', '_MAIN', 'MAIN_', 'MAIN']
+	mains.extend([m.lower() for m in mains])
+	mains.append('')
 
-	mains = ["MAIN__", "__MAIN", "_MAIN", "MAIN_"]
-	mains.extend([string.lower(m) for m in mains])
-	mains.extend(["", "MAIN", "main"])
+	self.start_msg('Detecting whether we need a dummy main')
 	for main in mains:
 		kw['fortran_main'] = main
 		try:
-			st, m = self._check_dummy_main(*k, **kw)
-			if st == 0:
-				break
-		except self.errors.ConfigurationError, e:
-			st = 1
-
-	if st == 0:
-		if m == '':
-			self.check_message_2('no', 'GREEN')
-		else:
-			self.check_message_2('yes (%s)' % m, 'GREEN')
-		ret = True
+			self.check_cc(
+				fragment = 'int %s() { return 0; }\n' % (main or 'test'),
+				features = 'cc fcprogram'
+			)
+			if not main:
+				self.end_msg('no')
+			else:
+				self.end_msg('yes %s' % main)
+			break
+		except self.errors.ConfigurationError:
+			pass
 	else:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-		ret = False
-
-	return ret
-
-@conf
-def _check_dummy_main(self, *k, **kw):
-	# For a given main , we compile the code snippet with the C compiler, and
-	# link with the Fortran compiler.
-	main = kw['fortran_main']
-	fcn_tmpl = """
-int %s() { return 0; }
-"""
-	prog = fcn_tmpl % main
-	kw['compile_filename'] = 'test.c'
-	kw['fragment'] = fcn_tmpl % main
-	kw['code'] = kw['fragment']
-	kw['type'] = 'fprogram'
-	kw['compile_mode'] = 'cc'
-	kw['env'] = self.env.copy()
-	kw['execute'] = 0
-	st = self.run_c_code(*k, **kw)
-	return st, main
+		self.end_msg('not found')
+		self.fatal('could not detect whether fortran requires a dummy main, see the config.log')
 
 #-----------------------------
 # Detecting verbose link flag

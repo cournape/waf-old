@@ -15,16 +15,6 @@ ccroot.USELIB_VARS['fcshlib'] = set([])
 ccroot.USELIB_VARS['fcstlib'] = set([])
 
 
-@TaskGen.extension('.f')
-def fc_hook(self, node):
-	return self.create_compiled_task('fc', node)
-
-class fc(Task.Task):
-	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${_FCINCFLAGS} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
-	vars = ["FORTRANMODPATHFLAG"]
-	scan = fc_scan.scan
-
 #def fortran_compile(task):
 #	env = task.env
 #	def tolist(xx):
@@ -54,24 +44,33 @@ class fc(Task.Task):
 #	ext_in=EXT_FC)
 #fcompiler.scan = scan
 
-# Task to compile fortran source which needs to be preprocessed by cpp first
+#Task.simple_task_type('fortranpp',
+#	'${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ',
+#	'GREEN',
+#	ext_out=EXT_OBJ,
+#	ext_in=EXT_FCPP)
+
+
+@TaskGen.extension('.f')
+def fc_hook(self, node):
+	return self.create_compiled_task('fc', node)
+
+class fc(Task.Task):
+	color = 'GREEN'
+	run_str = '${FC} ${FCFLAGS} ${FCINPATH_ST:INCPATHS} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	vars = ["FORTRANMODPATHFLAG"]
+	scan = fc_scan.scan
 
 @extension('.F')
 def fcpp_hook(self, node):
-	"""capital letter tricks will not work on win32"""
+	"""capital letter tricks will not work on win32 - use .F.pp.f ?"""
 	out = node.change_ext('.f')
 	self.source.append(out)
 	return self.create_compiled_task('fcpp', node, out)
 
 class fcpp(Task.Task):
 	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
-
-#Task.simple_task_type('fortranpp',
-#	'${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ',
-#	'GREEN',
-#	ext_out=EXT_OBJ,
-#	ext_in=EXT_FCPP)
+	run_str = '${FC} ${FCFLAGS} ${FCPATH_ST:INCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
