@@ -75,8 +75,10 @@ def check_fortran_dummy_main(self, *k, **kw):
 				mandatory = True
 			)
 			if not main:
+				self.env.FC_MAIN = -1
 				self.end_msg('no')
 			else:
+				self.env.FC_MAIN = main
 				self.end_msg('yes %s' % main)
 			break
 		except self.errors.ConfigurationError:
@@ -257,7 +259,7 @@ ROUTINES_CODE = """\
 MAIN_CODE = """
 void %(dummy_func_nounder)s(void);
 void %(dummy_func_under)s(void);
-int main() {
+int %(main_func_name)s() {
   %(dummy_func_nounder)s();
   %(dummy_func_under)s();
   return 0;
@@ -298,11 +300,15 @@ def mangle_name(u, du, c, name):
 def check_fortran_mangling(self, *k, **kw):
 	"""
 	detect the mangling scheme, sets FORTRAN_MANGLING to the triplet found
+
+	compile a fortran static library, then link a c app against it
 	"""
 	if not self.env.CC:
 		self.fatal('A c compiler is required for link_main_routines')
 	if not self.env.FC:
 		self.fatal('A fortran compiler is required for link_main_routines')
+	if not self.env.FC_MAIN:
+		self.fatal('Checking for mangling requires self.env.FC_MAIN (execute "check_fortran_dummy_main" first?)')
 
 	self.start_msg('Getting fortran mangling scheme')
 	for (u, du, c) in mangling_schemes():
@@ -315,6 +321,7 @@ def check_fortran_mangling(self, *k, **kw):
 				mandatory=True,
 				dummy_func_nounder = mangle_name(u, du, c, "foobar"),
 				dummy_func_under   = mangle_name(u, du, c, "foo_bar"),
+				main_func_name     = self.env.FC_MAIN
 			)
 		except self.errors.ConfigurationError:
 			pass
