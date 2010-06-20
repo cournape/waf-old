@@ -245,7 +245,6 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 
 # ------------------------------------------------------------------------
 
-# subroutines.f  fc fcstaticlib -> subroutines
 ROUTINES_CODE = """\
       subroutine foobar()
       return
@@ -255,7 +254,6 @@ ROUTINES_CODE = """\
       end
 """
 
-# main.c cc cprogram -> app  (uselib_local=subroutines)
 MAIN_CODE = """
 void %(dummy_func_nounder)s(void);
 void %(dummy_func_under)s(void);
@@ -269,7 +267,10 @@ int main() {
 @feature('link_main_routines_func')
 @before('process_source')
 def link_main_routines_tg_method(self):
-	"""the configuration test declares a unique task generator - so we create other task generators from there"""
+	"""
+	the configuration test declares a unique task generator,
+	so we create other task generators from there
+	"""
 	def write_test_file(task):
 		task.outputs[0].write(task.generator.code)
 	bld = self.bld
@@ -278,94 +279,52 @@ def link_main_routines_tg_method(self):
 	bld(features='fc fcstlib', source='test.f', target='test')
 	bld(features='cc cprogram', source='main.c', target='app', uselib_local='test')
 
-@conf
-def link_main_routines(self, *k, **kw):
+def mangling_schemes():
 	"""
-	This function tests one mangling scheme, defined by the correspondance
-	 fortran name <-> C name. It works as follows:
-		* build a fortran library subroutines with dummy functions
-		* compile a C main program which calls the dummy functions, and link
-		against the fortran library. If the link succeeds, it means the names
-		as used in the C program matches the mangling scheme of the fortran
-		compiler
+	generate triplets for use with mangle_name
+	(used in check_fortran_mangling)
+	the order is tuned for gfortan
 	"""
+	for u in ['_', '']:
+		for du in ['', '_']:
+			for c in ["lower", "upper"]:
+				yield (u, du, c)
 
-	assert("dummy_func_nounder" in kw)
-	assert("dummy_func_under" in kw)
+def mangle_name(u, du, c, name):
+	"""mangle a name from a triplet (used in check_fortran_mangling)"""
+	return getattr(string, c)(name) + u + (name.find('_') != -1 and du or '')
+
+@conf
+def check_fortran_mangling(self, *k, **kw):
+	"""
+	detect the mangling scheme, sets FORTRAN_MANGLING to the triplet found
+	"""
 	if not self.env.CC:
 		self.fatal('A c compiler is required for link_main_routines')
 	if not self.env.FC:
 		self.fatal('A fortran compiler is required for link_main_routines')
 
-	return self.check_cc(
-		compile_filename = [],
-		features         = 'link_main_routines_func',
-		dummy_func_nounder = kw['dummy_func_nounder'],
-		dummy_func_under = kw['dummy_func_under'],
-		msg = 'nomsg',
-		errmsg = 'nomsg',
-		mandatory=True
-	)
-
-def _RecursiveGenerator(*sets):
-	"""
-	Helper to generate combinations of lists
-
-	Returns a generator that yields one tuple per element combination.
-	A set may be any iterable to which the not operator is applicable.
-	"""
-	if not sets:
-		return
-
-	def calc(sets):
-		head, tail = sets[0], sets[1:]
-		if not tail:
-			for e in head:
-				yield (e,)
-		else:
-			for e in head:
-				for t in calc(tail):
-					  yield (e,) + t
-	return calc(sets)
-
-@conf
-def check_fortran_mangling(self, *k, **kw):
-	"""
-	and the funny thing is, we do not even have to overload the existing code
-	"""
-
 	self.start_msg('Getting fortran mangling scheme')
-
-	# order tuned for gfortan
-	under = ['_', '']
-	doubleunder = ['', '_']
-	casefcn = ["lower", "upper"]
-
-	gen = _RecursiveGenerator(under, doubleunder, casefcn)
-	while True:
+	for (u, du, c) in mangling_schemes():
 		try:
-			u, du, c = gen.next()
-			def make_mangler(u, du, c):
-				return lambda n: getattr(string, c)(n) + u + (n.find('_') != -1 and du or '')
-
-			mangler = make_mangler(u, du, c)
-			kw['dummy_func_nounder'] = mangler("foobar")
-			kw['dummy_func_under'] = mangler("foo_bar")
-			try:
-				ret = self.link_main_routines(*k, **kw)
-			except self.errors.ConfigurationError, e:
-				ret = 1
-			else:
-				break
-		except StopIteration:
-			# We ran out, mangling scheme is unknown ...
-			result = mangler = u = du = c = None
+			self.check_cc(
+				compile_filename = [],
+				features         = 'link_main_routines_func',
+				msg = 'nomsg',
+				errmsg = 'nomsg',
+				mandatory=True,
+				dummy_func_nounder = mangle_name(u, du, c, "foobar"),
+				dummy_func_under   = mangle_name(u, du, c, "foo_bar"),
+			)
+		except self.errors.ConfigurationError:
+			pass
+		else:
+			self.end_msg("ok ('%s', '%s', '%s-case')" % (u, du, c))
+			self.env.FORTRAN_MANGLING = (u, du, c)
 			break
-
-	if mangler is None:
-		self.end_msg('not found', 'YELLOW')
-		self.fatal('mangler not found')
 	else:
-		self.end_msg("ok ('%s', '%s', '%s-case')" % (u, du, c))
-	return mangler
+		self.end_msg(False)
+		self.fatal('mangler not found')
+
+	return (u, du, c)
 
