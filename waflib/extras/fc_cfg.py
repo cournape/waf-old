@@ -420,22 +420,3 @@ def fc_flags(conf):
 
 	v['fcstlib_PATTERN']   = 'lib%s.a'
 
-
-@feature('flink_with_c++')
-@after('apply_core')
-@before('apply_link', 'apply_lib_vars', 'apply_fortran_link')
-def apply_special_link(self):
-	linktask = self.create_task('fortran_link')
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare("and_without_target"))
-	linktask.chmod = self.chmod
-	self.link_task = linktask
-
-@feature('flink_with_c++')
-@before('apply_lib_vars')
-@after('default_cc')
-def add_some_uselib_vars(self):
-	#if sys.platform == ...
-	self.uselib += ' DEBUG'
-

@@ -16,6 +16,7 @@ def gfortran_flags(conf):
 	v = conf.env
 	v['fcshlib_FCFLAGS']   = ['-fPIC']
 	v['FORTRANMODFLAG']  = ['-M', ''] # template for module path
+	v['FCFLAGS_DEBUG'] = ['-Werror'] # why not
 
 def configure(conf):
 	conf.find_gfortran()
