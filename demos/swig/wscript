@@ -32,7 +32,7 @@ def build(bld):
 	# use swig_flags = '-c++ -python -dump_classes' for debugging
 
 	obj = bld(
-		features = 'cxx cprogram pyembed',
+		features = 'cxx cxxprogram pyembed',
 		source = 'embed/src1.cpp embed/bind.swig',
 		target = 'embed/embed_demo',
 		swig_flags = '-c++ -python -Wall',
@@ -47,7 +47,7 @@ def build(bld):
 	# to the source of extend/python/_test_swig_waf and remeve uselib_local
 
 	bld(
-		features = 'cxx cshlib',
+		features = 'cxx cxxshlib',
 		source = 'extend/a.cpp',
 		target = 'extend/mylib',
 		includes = 'extend',
@@ -56,7 +56,7 @@ def build(bld):
 		name = 'mylib')
 
 	bld(
-		features = 'cxx cshlib pyext',
+		features = 'cxx cxxshlib pyext',
 		source = 'extend/python/test_swig_waf.i',
 		target = 'extend/python/_test_swig_waf',
 		swig_flags = '-c++ -python -Wall',
@@ -69,7 +69,7 @@ def build(bld):
 
 def inst_py(bld):
 	node = bld.path.find_or_declare('extend/python/test_swig_waf.py')
-	bld.install_files('${PREFIX}/lib', node.abspath(bld.env), postpone=False)
+	bld.install_files('${PREFIX}/lib', node.abspath(), postpone=False)
 
 def exec_test(bld):
 	import os, stat
