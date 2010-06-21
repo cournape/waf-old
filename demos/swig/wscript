@@ -75,8 +75,8 @@ def exec_test(bld):
 	import os, stat
 	try:
 		print os.popen('''
-PYTHONPATH=$PYTHONPATH:build/default/extend/python
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:build/default/extend/python:build/default/extend
+PYTHONPATH=$PYTHONPATH:build/extend/python
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:build/extend/python:build/extend
 python -c "import test_swig_waf; a=test_swig_waf.A(); print 'Testing: a.add(2, 3) ->', a.add(2, 3)"
 '''.replace('\n', ' ')).read()
 	except:
@@ -84,9 +84,8 @@ python -c "import test_swig_waf; a=test_swig_waf.A(); print 'Testing: a.add(2, 3
 
 	# why does this fail now on mandriva???
 	try:
-		os.stat('build/default/embed/embed_demo')
-		print os.popen('PYTHONPATH=$PYTHONPATH:build/default/embed/ build/default/embed/embed_demo').read()
+		os.stat('build/embed/embed_demo')
+		print os.popen('PYTHONPATH=$PYTHONPATH:build/embed/ build/embed/embed_demo').read()
 	except:
 		pass
-
 
