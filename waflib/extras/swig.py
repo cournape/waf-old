@@ -25,7 +25,7 @@ re_3 = re.compile('#include "(.*)"', re.M)
 
 class swig(Task.Task):
 	color   = 'BLUE'
-	run_str = '${SWIG} ${SWIGFLAGS} ${SWIGPATH_ST:INCLUDES} ${SRC}'
+	run_str = '${SWIG} ${SWIGFLAGS} ${SWIGPATH_ST:INCPATHS} ${SRC}'
 	ext_out = ['.h'] # might produce .h files although it is not mandatory
 
 	def runnable_status(self):
@@ -106,14 +106,14 @@ def swig_c(self):
 	out_node = self.inputs[0].parent.find_or_declare(self.module + ext)
 
 	if '-c++' in flags:
-		task = self.generator.cxx_hook(out_node)
+		c_tsk = self.generator.cxx_hook(out_node)
 	else:
-		task = self.generator.cc_hook(out_node)
+		c_tsk = self.generator.cc_hook(out_node)
 
-	task.set_run_after(self)
+	c_tsk.set_run_after(self)
 
 	ge = self.generator.bld.producer
-	ge.outstanding.insert(0, task)
+	ge.outstanding.insert(0, c_tsk)
 	ge.total += 1
 
 	try:
@@ -121,7 +121,8 @@ def swig_c(self):
 	except AttributeError:
 		pass
 	else:
-		ltask.inputs.append(task.outputs[0])
+		ltask.set_run_after(c_tsk)
+		ltask.inputs.append(c_tsk.outputs[0])
 
 	self.outputs.append(out_node)
 
@@ -148,8 +149,7 @@ def i_file(self, node):
 	tsk.env['SWIGFLAGS'] = flags
 
 	if not '-outdir' in flags:
-		flags.append('-outdir')
-		flags.append(node.parent.abspath())
+		tsk.env.append_value('SWIGFLAGS', ['-outdir', node.parent.abspath()])
 
 @conf
 def check_swig_version(self, minver=None):
