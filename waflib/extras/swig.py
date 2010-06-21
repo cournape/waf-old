@@ -25,7 +25,7 @@ re_3 = re.compile('#include "(.*)"', re.M)
 
 class swig(Task.Task):
 	color   = 'BLUE'
-	run_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
+	run_str = '${SWIG} ${SWIGFLAGS} ${SWIGPATH_ST:INCLUDES} ${SRC}'
 	ext_out = ['.h'] # might produce .h files although it is not mandatory
 
 	def runnable_status(self):
@@ -83,7 +83,7 @@ class swig(Task.Task):
 			# find .i files and project headers
 			names = re_2.findall(code) + re_3.findall(code)
 			for n in names:
-				for d in self.generator.swig_dir_nodes + [node.parent]:
+				for d in self.generator.includes_nodes + [node.parent]:
 					u = d.find_resource(n)
 					if u:
 						to_see.append(u)
@@ -137,19 +137,8 @@ def swig_ocaml(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.ml'))
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.mli'))
 
-@feature('swig')
-@after('apply_incpaths')
-def add_swig_paths(self):
-	"""the attribute 'after' is not used here, the method is added directly at the end"""
-
-	self.swig_dir_nodes = self.includes_nodes
-	self.env.append_unique('SWIGFLAGS', ["-I%s" % f for f in self.swig_dir_nodes])
-
 @extension(*SWIG_EXTS)
 def i_file(self, node):
-	if not 'add_swig_paths' in self.meths:
-		self.meths.append('add_swig_paths')
-
 	# the task instance
 	tsk = self.create_task('swig')
 	tsk.set_inputs(node)
@@ -190,4 +179,5 @@ def check_swig_version(self, minver=None):
 
 def configure(conf):
 	swig = conf.find_program('swig', var='SWIG')
+	conf.env.SWIGPATH_ST = '-I%s'
 
