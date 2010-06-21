@@ -24,6 +24,8 @@ ccroot.USELIB_VARS['fcstlib'] = set(['LINKFLAGS'])
 def dummy(self):
 	pass
 
+
+
 # FIXME what was this for??????
 #def fortran_compile(task):
 #	env = task.env
@@ -52,9 +54,65 @@ def fc_hook(self, node):
 
 class fc(Task.Task):
 	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT[0].abspath()} ${FC_SRC_F}${SRC[0].abspath()}'
 	vars = ["FORTRANMODPATHFLAG"]
 	scan = fc_scan.scan
+
+	def runnable_status(self):
+		"""just when you thought it was over, hidden dependencies between fortran files walked in"""
+		if getattr(self, 'mod_fortran_done', None):
+			return super(fc, self).runnable_status()
+
+		bld = self.generator.bld
+
+		# TODO wait for all the .f tasks to have the status RUN_ME or SKIP_ME
+		#if getattr(self, 'no_counter', None):
+		#	return Task.ASK_LATER
+
+		lst = [tsk for tsk in bld.producer.outstanding if isinstance(tsk, fc)]
+		for tsk in lst:
+			# first of all, avoid recursion
+			tsk.mod_fortran_done = True
+
+		for tsk in lst:
+			# ensure that the scanners are called at least once
+			tsk.runnable_status()
+
+		ins = Utils.defaultdict(set)
+		outs = Utils.defaultdict(set)
+
+		for tsk in lst:
+			try:
+				delattr(tsk, 'cache_sig')
+			except AttributeError:
+				pass
+
+		for tsk in lst:
+			key = tsk.unique_id()
+			for x in bld.raw_deps[key]:
+				if x.startswith('MOD@'):
+					name = x.replace('MOD@', '') + '.mod'
+					node = bld.srcnode.find_or_declare(name)
+					tsk.set_outputs(node)
+					outs[id(node)].add(tsk)
+
+		for tsk in lst:
+			key = tsk.unique_id()
+			for x in bld.raw_deps[key]:
+				if x.startswith('USE@'):
+					name = x.replace('USE@', '') + '.mod'
+					node = bld.srcnode.find_resource(name)
+					if node:
+						if not node in bld.node_deps[key]:
+							bld.node_deps[key].append(node)
+						ins[id(node)].add(tsk)
+
+		for k in ins.keys():
+			for a in ins[k]:
+				print "run after", a, outs[k]
+				a.run_after.update(outs[k])
+
+		return super(fc, self).runnable_status()
 
 @extension('.F')
 def fcpp_hook(self, node):
