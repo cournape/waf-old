@@ -70,9 +70,9 @@ class swig(Task.Task):
 
 		while to_see:
 			node = to_see.pop(0)
-			if node.id in seen:
+			if node in seen:
 				continue
-			seen.append(node.id)
+			seen.append(node)
 			lst_src.append(node)
 
 			# read the file
@@ -95,7 +95,7 @@ class swig(Task.Task):
 
 # provide additional language processing
 swig_langs = {}
-def swig(fun):
+def swigf(fun):
 	swig_langs[fun.__name__.replace('swig_', '')] = fun
 
 def swig_c(self):
@@ -112,7 +112,7 @@ def swig_c(self):
 
 	task.set_run_after(self)
 
-	ge = self.generator.bld.generator
+	ge = self.generator.bld.producer
 	ge.outstanding.insert(0, task)
 	ge.total += 1
 
@@ -126,14 +126,13 @@ def swig_c(self):
 	self.outputs.append(out_node)
 
 	if not '-o' in self.env['SWIGFLAGS']:
-		self.env.append_value('SWIGFLAGS', '-o')
-		self.env.append_value('SWIGFLAGS', self.outputs[0].abspath(self.env))
+		self.env.append_value('SWIGFLAGS', ['-o', self.outputs[0].abspath()])
 
-@swig
+@swigf
 def swig_python(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.py'))
 
-@swig
+@swigf
 def swig_ocaml(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.ml'))
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.mli'))
@@ -143,9 +142,8 @@ def swig_ocaml(tsk):
 def add_swig_paths(self):
 	"""the attribute 'after' is not used here, the method is added directly at the end"""
 
-	self.swig_dir_nodes = self.env['INC_PATHS']
-	include_flags = self.env['_CXXINCFLAGS'] or self.env['_CCINCFLAGS']
-	self.env.append_unique('SWIGFLAGS', [f.replace("/I", "-I") for f in include_flags])
+	self.swig_dir_nodes = self.includes_nodes
+	self.env.append_unique('SWIGFLAGS', ["-I%s" % f for f in self.swig_dir_nodes])
 
 @extension(*SWIG_EXTS)
 def i_file(self, node):
@@ -162,7 +160,7 @@ def i_file(self, node):
 
 	if not '-outdir' in flags:
 		flags.append('-outdir')
-		flags.append(node.parent.abspath(self.env))
+		flags.append(node.parent.abspath())
 
 @conf
 def check_swig_version(self, minver=None):

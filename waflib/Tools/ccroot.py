@@ -158,6 +158,7 @@ def apply_link(self):
 			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env, chmod=self.link_task.chmod)
 
 @feature('cc', 'cxx', 'd')
+@before('apply_incpaths')
 @after('apply_link')
 def apply_uselib_local(self):
 	"""
@@ -169,6 +170,7 @@ def apply_uselib_local(self):
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
+	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'uselib_local', []))
 	get = self.bld.get_tgen_by_name
 	seen = set([])
