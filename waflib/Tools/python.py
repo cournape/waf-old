@@ -28,23 +28,6 @@ int main()
 }
 '''
 
-@feature('pyext')
-@before('propagate_uselib_vars')
-def init_pyext(self):
-	self.install_path = '${PYTHONDIR}'
-	self.uselib = self.to_list(getattr(self, 'uselib', ''))
-	if not 'PYEXT' in self.uselib:
-		self.uselib.append('PYEXT')
-	# override shlib_PATTERN set by the osx module
-	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] =self.env['pyext_PATTERN']
-
-@before('propagate_uselib_vars')
-@feature('pyembed')
-def init_pyembed(self):
-	self.uselib = self.to_list(getattr(self, 'uselib', ''))
-	if not 'PYEMBED' in self.uselib:
-		self.uselib.append('PYEMBED')
-
 @extension('.py')
 def process_py(self, node):
 	try:
@@ -92,6 +75,27 @@ for pyfile in sys.argv[1:]:
 			ret = Utils.subprocess.Popen(argv).wait()
 			if ret:
 				raise Errors.WafError('bytecode compilation failed %r' % path)
+
+@feature('py')
+def feature_py(self):
+	pass
+
+@feature('pyext')
+@before('propagate_uselib_vars')
+def init_pyext(self):
+	self.install_path = '${PYTHONDIR}'
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
+	if not 'PYEXT' in self.uselib:
+		self.uselib.append('PYEXT')
+	# override shlib_PATTERN set by the osx module
+	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['pyext_PATTERN']
+
+@before('propagate_uselib_vars')
+@feature('pyembed')
+def init_pyembed(self):
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
+	if not 'PYEMBED' in self.uselib:
+		self.uselib.append('PYEMBED')
 
 @conf
 def get_python_variables(conf, python_exe, variables, imports=['import sys']):
