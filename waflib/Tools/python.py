@@ -11,7 +11,7 @@ from waflib.Logs import debug, warn, info
 from waflib.TaskGen import extension, taskgen_method, before, after, feature
 from waflib.Configure import conf
 
-FRAG_2 = '''
+FRAG = '''
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -261,17 +261,8 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])
 
 	# See if it compiles
-	test_env = env.derive()
-	a = test_env.append_value
-	a('INCLUDES', env['INCLUDES_PYEMBED'])
-	a('LIBPATH', env['LIBPATH_PYEMBED'])
-	a('LIB', env['LIB_PYEMBED'])
-	a('LINKFLAGS', env['LINKFLAGS_PYEMBED'])
-	a('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
-	a('CCFLAGS', env['CCFLAGS_PYEMBED'])
-
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
-		   env=test_env, fragment=FRAG_2,
+		   uselib='PYEMBED', fragment=FRAG,
 		   errmsg='Could not find the python development headers', mandatory=True)
 
 @conf
