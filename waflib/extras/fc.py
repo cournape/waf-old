@@ -59,34 +59,37 @@ class fc(Task.Task):
 	scan = fc_scan.scan
 
 	def runnable_status(self):
-		"""just when you thought it was over, hidden dependencies between fortran files walked in"""
+		"""
+		set the mod file outputs and the dependencies on the mod files over all the fortran tasks
+		there are no concurrency issues since the method runnable_status is executed by the main thread
+		"""
 		if getattr(self, 'mod_fortran_done', None):
 			return super(fc, self).runnable_status()
 
+		# now, if we reach this part it is because this fortran task is the first in the list
 		bld = self.generator.bld
 
-		# TODO wait for all the .f tasks to have the status RUN_ME or SKIP_ME
-		#if getattr(self, 'no_counter', None):
-		#	return Task.ASK_LATER
-
+		# obtain the fortran tasks
 		lst = [tsk for tsk in bld.producer.outstanding if isinstance(tsk, fc)]
+
+		# disable this method for other tasks
 		for tsk in lst:
-			# first of all, avoid recursion
 			tsk.mod_fortran_done = True
 
+		# wait for all the .f tasks to be ready for execution
+		# and ensure that the scanners are called at least once
 		for tsk in lst:
-			# ensure that the scanners are called at least once
-			tsk.runnable_status()
+			ret = tsk.runnable_status()
+			if ret == Task.ASK_LATER:
+				self.mod_fortran_done = None
+				# this may deadlock if there are dependencies between the fortran tasks
+				# but this should not happen (we are setting them here!)
+				return Task.ASK_LATER
 
 		ins = Utils.defaultdict(set)
 		outs = Utils.defaultdict(set)
 
-		for tsk in lst:
-			try:
-				delattr(tsk, 'cache_sig')
-			except AttributeError:
-				pass
-
+		# the .mod files to create
 		for tsk in lst:
 			key = tsk.unique_id()
 			for x in bld.raw_deps[key]:
@@ -96,6 +99,7 @@ class fc(Task.Task):
 					tsk.set_outputs(node)
 					outs[id(node)].add(tsk)
 
+		# the .mod files to use
 		for tsk in lst:
 			key = tsk.unique_id()
 			for x in bld.raw_deps[key]:
@@ -107,10 +111,17 @@ class fc(Task.Task):
 							bld.node_deps[key].append(node)
 						ins[id(node)].add(tsk)
 
+		# if the intersection matches, set the order
 		for k in ins.keys():
 			for a in ins[k]:
-				print "run after", a, outs[k]
 				a.run_after.update(outs[k])
+
+		# the task objects have changed: clear the signature cache
+		for tsk in lst:
+			try:
+				delattr(tsk, 'cache_sig')
+			except AttributeError:
+				pass
 
 		return super(fc, self).runnable_status()
 
