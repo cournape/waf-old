@@ -14,8 +14,6 @@ def configure(conf):
 	conf.check_tool('compiler_cc')
 	conf.check_tool('compiler_fc')
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
-	#conf.env['FORTRANMODPATH'] = ['mfloupi']
-	#conf.env['FORTRANMODOUTPATH'] = ['floupi']
 	#conf.env['INCLUDES'] = ['hfloupi']
 
 	conf.check_fortran()
@@ -58,11 +56,8 @@ def build(bld):
 		source   = 'src/hello_inc.f',
 		target   = 'hello_inc')
 
-	return
 	bld(
 		features = 'fc fcprogram',
 		source   = 'src/calculator_main.f src/calculator.f',
-		#source  = 'src/calculator.f src/calculator_main.f',
-		#source  = 'src/calculator.f',
 		target   = 'calculator')
 
