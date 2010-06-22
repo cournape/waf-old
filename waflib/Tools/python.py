@@ -6,7 +6,7 @@
 "Python support"
 
 import os, sys
-from waflib import TaskGen, Utils, Utils, Runner, Options, Build
+from waflib import TaskGen, Utils, Utils, Runner, Options, Build, Errors
 from waflib.Logs import debug, warn, info
 from waflib.TaskGen import extension, taskgen_method, before, after, feature
 from waflib.Configure import conf
@@ -37,17 +37,22 @@ for pyfile in sys.argv[1:]:
 @extension('.py')
 def process_py(self, node):
 	try:
-		self.is_install
+		self.bld.is_install
 	except:
 		return
+
+	if not getattr(self, 'install_path', None):
+		self.install_path = '${PYTHONDIR}'
+
 	def inst_py(ctx):
 		install_pyfile(self, node)
 	self.bld.add_post_fun(inst_py)
 
 def install_pyfile(self, node):
-	path = self.bld.get_install_path('${PYTHONDIR}/%s' %node.name, self.env)
+	self.bld.install_files(self.install_path, [node], postpone=False)
+	path = Utils.subst_vars(self.install_path, self.env)
+	path = os.path.join(path, node.name)
 
-	self.bld.install_files('${PYTHONDIR}', [node], self.env, self.chmod, postpone=False)
 	if self.bld.is_install < 0:
 		info("* removing byte compiled python files")
 		for x in 'co':
