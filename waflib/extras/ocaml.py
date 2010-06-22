@@ -201,6 +201,7 @@ def ml_hook(self, node):
 		self.bytecode_tasks.append(task)
 
 def compile_may_start(self):
+
 	if not getattr(self, 'flag_deps', ''):
 		self.flag_deps = 1
 
@@ -262,12 +263,17 @@ class ocamlyacc(Task.Task):
 	before  = ['ocamlcmi', 'ocaml', 'ocamlcc']
 
 def link_may_start(self):
+
+	if getattr(self, 'bytecode', 0): alltasks = self.generator.bytecode_tasks
+	else: alltasks = self.generator.native_tasks
+
+	for x in alltasks:
+		if not x.hasrun:
+			return Task.ASK_LATER
+
 	if not getattr(self, 'order', ''):
 
 		# now reorder the inputs given the task dependencies
-		if getattr(self, 'bytecode', 0): alltasks = self.generator.bytecode_tasks
-		else: alltasks = self.generator.native_tasks
-
 		# this part is difficult, we do not have a total order on the tasks
 		# if the dependencies are wrong, this may not stop
 		seen = []
