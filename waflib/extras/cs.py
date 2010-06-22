@@ -2,32 +2,15 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2010 (ita)
 
-"C# support"
+"""
+C# support
+"""
 
-import TaskGen, Utils, Task, Options
-from Logs import error
-from TaskGen import before, after, taskgen, feature
+from waflib import TaskGen, Utils, Task, Options, Logs
+from TaskGen import before, after, feature
+from waflib.Tools import ccroot
 
-flag_vars= ['FLAGS', 'ASSEMBLIES']
-
-@feature('cs')
-def init_cs(self):
-	Utils.def_attrs(self,
-		flags = '',
-		assemblies = '',
-		resources = '',
-		uselib = '')
-
-@feature('cs')
-@after('init_cs')
-def apply_uselib_cs(self):
-	if not self.uselib:
-		return
-	global flag_vars
-	for var in self.to_list(self.uselib):
-		for v in self.flag_vars:
-			val = self.env[v+'_'+var]
-			if val: self.env.append_value(v, val)
+ccroot.USELIB_VARS['cs'] = set(['FLAGS', 'ASSEMBLIES', 'RESOURCES'])
 
 @feature('cs')
 @after('apply_uselib_cs')
