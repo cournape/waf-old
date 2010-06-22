@@ -6,10 +6,13 @@
 Compile fluid files (fltk graphic library). Use the 'fluid' feature in conjuction with the 'cxx' feature.
 """
 
-import Task
-from TaskGen import extension
+from waflib import Task
+from waflib.TaskGen import extension
 
-Task.task_factory('fluid', '${FLUID} -c -o ${TGT[0].abspath(env)} -h ${TGT[1].abspath(env)} ${SRC}', color='BLUE', ext_out='.cxx')
+class fluid(Task.Task):
+	color   = 'BLUE'
+	ext_out = ['.h']
+	run_str = '${FLUID} -c -o ${TGT[0].abspath(env)} -h ${TGT[1].abspath()} ${SRC}'
 
 @extension('.fl')
 def fluid(self, node):
@@ -22,6 +25,6 @@ def fluid(self, node):
 		self.source.append(cpp)
 
 def configure(conf):
-    conf.find_program('fluid', var='FLUID', mandatory=True)
+    conf.find_program('fluid', var='FLUID')
     conf.check_cfg(path='fltk-config', package='', args='--cxxflags --ldflags', uselib_store='FLTK', mandatory=True)
 
