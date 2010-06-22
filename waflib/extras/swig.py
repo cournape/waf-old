@@ -148,8 +148,9 @@ def i_file(self, node):
 	flags = self.to_list(getattr(self, 'swig_flags', []))
 	tsk.env['SWIGFLAGS'] = flags
 
-	if not '-outdir' in flags:
-		tsk.env.append_value('SWIGFLAGS', ['-outdir', node.parent.abspath()])
+	# looks like this is causing problems
+	#if not '-outdir' in flags:
+	#	tsk.env.append_value('SWIGFLAGS', ['-outdir', node.parent.abspath()])
 
 @conf
 def check_swig_version(self, minver=None):
