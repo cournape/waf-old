@@ -49,9 +49,8 @@ def process_py(self, node):
 	self.bld.add_post_fun(inst_py)
 
 def install_pyfile(self, node):
-	self.bld.install_files(self.install_path, [node], postpone=False)
-	path = Utils.subst_vars(self.install_path, self.env)
-	path = os.path.join(path, node.name)
+	tsk = self.bld.install_files(self.install_path, [node], postpone=False)
+	path = os.path.join(tsk.get_install_path(), node.name)
 
 	if self.bld.is_install < 0:
 		info("* removing byte compiled python files")
@@ -63,7 +62,7 @@ def install_pyfile(self, node):
 
 	if self.bld.is_install > 0:
 		if self.env['PYC'] or self.env['PYO']:
-			info("* byte compiling %r" % path)
+			info("+ byte compiling %r" % path)
 
 		if self.env['PYC']:
 			argv = [self.env['PYTHON'], '-c', INST % 'c', path]
