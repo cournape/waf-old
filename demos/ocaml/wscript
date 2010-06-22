@@ -19,6 +19,6 @@ def build(bld):
 		features = 'ocaml',
 		kind     = 'all',
 		includes = '.',
-		target   = 'camlprog'
+		target   = 'camlprog',
 		source   = bld.path.ant_glob('*.ml'))
 

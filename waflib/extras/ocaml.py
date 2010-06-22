@@ -7,7 +7,7 @@
 import os, re
 import TaskGen, Utils, Task, Build
 from Logs import error
-from TaskGen import taskgen, feature, before, after, extension
+from TaskGen import feature, before, after, extension
 
 EXT_MLL = ['.mll']
 EXT_MLY = ['.mly']
@@ -285,8 +285,8 @@ def configure(conf):
 	v = conf.env
 	v['OCAMLC']       = occ
 	v['OCAMLOPT']     = opt
-	v['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX')
-	v['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC')
+	v['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX', mandatory=False)
+	v['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC', mandatory=False)
 	v['OCAMLFLAGS']   = ''
 	v['OCAMLLIB']     = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
 	v['LIBPATH_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
