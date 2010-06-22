@@ -22,6 +22,8 @@ class WafError(Exception):
 					self.stack[i] = [pyfile] + list(tup[1:])
 					break
 
+		self.verbose_msg = '\n'.join(traceback.format_list(self.stack))
+
 	def __str__(self):
 		return self.msg
 

@@ -136,7 +136,7 @@ def debug(*k, **kw):
 
 def error(*k, **kw):
 	logging.error(*k, **kw)
-	if verbose > 1:
+	if verbose > 2:
 		st = traceback.extract_stack()
 		if st:
 			st = st[:-1]

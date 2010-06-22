@@ -89,8 +89,7 @@ def waf_entry_point(current_directory, version, wafdir):
 	try:
 		set_main_module(Context.run_dir + os.sep + Context.WSCRIPT_FILE)
 	except Errors.WafError as e:
-		if Logs.verbose:
-			print(e.stack)
+		Logs.pprint('RED', e.verbose_msg)
 		Logs.error(str(e))
 		sys.exit(1)
 	except Exception as e:
@@ -109,9 +108,9 @@ def waf_entry_point(current_directory, version, wafdir):
 	try:
 		run_commands()
 	except Errors.WafError as e:
-
-		#traceback.print_exc(file=sys.stdout)
-		Logs.error(str(e))
+		if Logs.verbose > 1:
+			Logs.pprint('RED', e.verbose_msg)
+		Logs.error(e.msg)
 		sys.exit(1)
 	except Exception as e:
 		traceback.print_exc(file=sys.stdout)
