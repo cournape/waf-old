@@ -391,7 +391,7 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 						ret = x
 
 	filename = Utils.to_list(filename)
-	self.msg('Checking for program ' + ','.join(filename), ret)
+	self.msg('Checking for program ' + ','.join(filename), ret or False)
 	self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 
 	if not ret and mandatory:

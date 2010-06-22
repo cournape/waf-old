@@ -18,7 +18,7 @@ in the computation of the signature:
 * implicit dependencies (nodes given by an optional scanner method)
 * hashed data (from the data set associated)
 
-Custom task clases may be created by subclassing or factories (TODO)
+Custom task clases may be created by subclassing or factories
 """
 
 import os, shutil, re

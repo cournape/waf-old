@@ -106,13 +106,13 @@ def waf_entry_point(current_directory, version, wafdir):
 	"""
 	try:
 		run_commands()
-	except Exception as e:
-		traceback.print_exc(file=sys.stdout)
-		sys.exit(2)
 	except Errors.WafError as e:
 		traceback.print_exc(file=sys.stdout)
 		Logs.error(str(e))
 		sys.exit(1)
+	except Exception as e:
+		traceback.print_exc(file=sys.stdout)
+		sys.exit(2)
 	except KeyboardInterrupt:
 		Logs.pprint('RED', 'Interrupted')
 		sys.exit(68)
