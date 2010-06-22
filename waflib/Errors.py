@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
-import traceback
+import traceback, os
 
 class WafError(Exception):
 	"""Base for all waf errors"""
