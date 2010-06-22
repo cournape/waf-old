@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # daniel.svensson at purplescout.se 2008
+# Thomas Nagy 2010 (ita)
 
 import os
 from waflib import Task, Options, Utils
@@ -8,10 +9,10 @@ from waflib.TaskGen import before, feature, after
 from waflib.Configure import conf
 
 @feature('rubyext')
-@before('apply_incpaths', 'apply_lib_vars', 'apply_bundle')
+@before('apply_incpaths', 'apply_lib_vars', 'apply_bundle', 'apply_link')
 @after('vars_target_cshlib')
 def init_rubyext(self):
-	self.default_install_path = '${ARCHDIR_RUBY}'
+	self.install_path = '${ARCHDIR_RUBY}'
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'RUBY' in self.uselib:
 		self.uselib.append('RUBY')
@@ -19,7 +20,7 @@ def init_rubyext(self):
 		self.uselib.append('RUBYEXT')
 
 @feature('rubyext')
-@before('apply_link')
+@before('apply_link', 'propagate_uselib')
 def apply_ruby_so_name(self):
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['rubyext_PATTERN']
 
@@ -53,7 +54,7 @@ def check_ruby_version(self, minver=()):
 	if minver:
 		if ver < minver:
 			self.fatal('ruby is too old %r' % ver)
-		cver = ".".join(str(x) for x in minver)
+		cver = '.'.join(str(x) for x in minver)
 
 	self.msg('ruby', cver)
 
@@ -87,7 +88,7 @@ def check_ruby_ext_devel(self):
 	self.env.LIBPATH_RUBYEXT = read_config('libdir')
 	self.env.LIBPATH_RUBYEXT += archdir
 	self.env.INCLUDES_RUBYEXT = cpppath
-	self.env.CCFLAGS_RUBYEXT = read_config("CCDLFLAGS")
+	self.env.CCFLAGS_RUBYEXT = read_config('CCDLFLAGS')
 	self.env.rubyext_PATTERN = '%s.' + read_config('DLEXT')[0]
 
 	# ok this is really stupid, but the command and flags are combined.
@@ -101,8 +102,8 @@ def check_ruby_ext_devel(self):
 		flags = flags[2:]
 
 	self.env.LINKFLAGS_RUBYEXT = flags
-	self.env.LINKFLAGS_RUBYEXT += read_config("LIBS")
-	self.env.LINKFLAGS_RUBYEXT += read_config("LIBRUBYARG_SHARED")
+	self.env.LINKFLAGS_RUBYEXT += read_config('LIBS')
+	self.env.LINKFLAGS_RUBYEXT += read_config('LIBRUBYARG_SHARED')
 
 	if Options.options.rubyarchdir:
 		self.env.ARCHDIR_RUBY = Options.options.rubyarchdir

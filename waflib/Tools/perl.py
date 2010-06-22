@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # andersg at 0x63.nu 2007
+# Thomas Nagy 2010 (ita)
 
 import os
 from waflib import Task, Options, Utils
 from waflib.Configure import conf
 from waflib.TaskGen import extension, feature, before
 
-@before('apply_incpaths', 'propagate_uselib_vars')
+@before('apply_incpaths', 'apply_link', 'propagate_uselib_vars')
 @feature('perlext')
 def init_perlext(self):
-	self.uselib = self.to_list(getattr(self, 'uselib', ''))
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	if not 'PERLEXT' in self.uselib: self.uselib.append('PERLEXT')
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['perlext_PATTERN']
 
@@ -33,7 +34,6 @@ def check_perl_version(self, minver=None):
 	If installed the variable PERL will be set in environment.
 
 	Perl binary can be overridden by --with-perl-binary config variable
-
 	"""
 	res = True
 
@@ -97,14 +97,14 @@ def check_perl_ext_devel(self):
 		self.fatal('find perl first')
 
 	def read_out(cmd):
-		return Utils.to_list(self.cmd_and_log(perl + cmd).encode())
+		return Utils.to_list(self.cmd_and_log(perl + cmd))
 
-	env["LINKFLAGS_PERLEXT"] = read_out(" -MConfig -e'print $Config{lddlflags}'")
-	env["INCLUDES_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")
-	env["CCFLAGS_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")
+	env['LINKFLAGS_PERLEXT'] = read_out(" -MConfig -e'print $Config{lddlflags}'")
+	env['INCLUDES_PERLEXT'] = read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")
+	env['CCFLAGS_PERLEXT'] = read_out(" -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")
 
-	env["XSUBPP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")
-	env["EXTUTILS_TYPEMAP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")
+	env['XSUBPP'] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")
+	env['EXTUTILS_TYPEMAP'] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")
 
 	if not getattr(Options.options, 'perlarchdir', None):
 		env['ARCHDIR_PERL'] = self.cmd_and_log(perl + " -MConfig -e'print $Config{sitearch}'")
