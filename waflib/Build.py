@@ -702,7 +702,13 @@ class InstallContext(BuildContext):
 		else:
 			Logs.info('- symlink %s (to %s)' % (tgt, src))
 
-	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True):
+	def run_task_now(self, tsk, postpone):
+		if not postpone:
+			if tsk.runnable_status() == Task.ASK_LATER:
+				raise self.WafError('cannot post the task %r' % tsk)
+			tsk.run()
+
+	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True, postpone=True):
 		"""the attribute 'relative_trick' is used to preserve the folder hierarchy (install folders)"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -716,9 +722,10 @@ class InstallContext(BuildContext):
 		tsk.exec_task = tsk.exec_install_files
 		tsk.relative_trick = relative_trick
 		if add: self.add_to_group(tsk)
+		self.run_task_now(tsk, postpone)
 		return tsk
 
-	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None, add=True):
+	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None, add=True, postpone=True):
 		"""example: bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -728,9 +735,10 @@ class InstallContext(BuildContext):
 		tsk.dest = dest
 		tsk.exec_task = tsk.exec_install_as
 		if add: self.add_to_group(tsk)
+		self.run_task_now(tsk, postpone)
 		return tsk
 
-	def symlink_as(self, dest, src, env=None, cwd=None, add=True):
+	def symlink_as(self, dest, src, env=None, cwd=None, add=True, postpone=True):
 		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
 
 		if sys.platform == 'win32':
@@ -745,6 +753,7 @@ class InstallContext(BuildContext):
 		tsk.link = src
 		tsk.exec_task = tsk.exec_symlink_as
 		if add: self.add_to_group(tsk)
+		self.run_task_now(tsk, postpone)
 		return tsk
 
 class UninstallContext(InstallContext):
