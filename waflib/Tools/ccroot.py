@@ -241,7 +241,7 @@ def get_uselib_vars(self):
 			_vars |= USELIB_VARS[x]
 	return _vars
 
-@feature('cc', 'cxx', 'd', 'fc', 'cs')
+@feature('cc', 'cxx', 'd', 'fc', 'cs', 'uselib')
 @after('apply_uselib_local')
 def propagate_uselib_vars(self):
 	_vars = self.get_uselib_vars()
