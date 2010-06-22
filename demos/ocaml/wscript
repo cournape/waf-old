@@ -20,5 +20,5 @@ def build(bld):
 		kind     = 'all',
 		includes = '.',
 		target   = 'camlprog',
-		source   = bld.path.ant_glob('*.ml', flat=True))
+		source   = bld.path.ant_glob('*.ml'))
 

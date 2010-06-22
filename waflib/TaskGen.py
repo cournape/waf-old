@@ -313,6 +313,8 @@ def process_source(self):
 				raise Errors.WafError("source not found: '%s' in '%s'" % (el, self.path))
 		else:
 			node = el
+			if not node.is_child_of(self.bld.bldnode):
+				node.compute_sig()
 		lst.append(node)
 	self.source = lst
 
