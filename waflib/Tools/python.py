@@ -28,6 +28,12 @@ int main()
 }
 '''
 
+INST = '''
+import sys, py_compile
+for pyfile in sys.argv[1:]:
+	py_compile.compile(pyfile, pyfile + %r)
+'''
+
 @extension('.py')
 def process_py(self, node):
 	try:
@@ -55,26 +61,16 @@ def install_pyfile(self, node):
 			info("* byte compiling %r" % path)
 
 		if self.env['PYC']:
-			program = ("""
-import sys, py_compile
-for pyfile in sys.argv[1:]:
-	py_compile.compile(pyfile, pyfile + 'c')
-""")
-			argv = [self.env['PYTHON'], '-c', program, path]
+			argv = [self.env['PYTHON'], '-c', INST % 'c', path]
 			ret = Utils.subprocess.Popen(argv).wait()
 			if ret:
-				raise Errors.WafError('bytecode compilation failed %r' % path)
+				raise Errors.WafError('pyc compilation failed %r' % path)
 
 		if self.env['PYO']:
-			program = ("""
-import sys, py_compile
-for pyfile in sys.argv[1:]:
-	py_compile.compile(pyfile, pyfile + 'o')
-""")
-			argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], '-c', program, path]
+			argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], '-c', INST % 'o', path]
 			ret = Utils.subprocess.Popen(argv).wait()
 			if ret:
-				raise Errors.WafError('bytecode compilation failed %r' % path)
+				raise Errors.WafError('pyo compilation failed %r' % path)
 
 @feature('py')
 def feature_py(self):
