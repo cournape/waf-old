@@ -104,8 +104,8 @@ def apply_incpaths_ml(self):
 		if not node:
 			error("node not found: " + str(dir))
 			continue
-		self.bld.rescan(node)
-		if not node in lst: lst.append(node)
+		if not node in lst:
+			lst.append(node)
 		self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self.incpaths_lst
 
@@ -115,17 +115,11 @@ def apply_vars_ml(self):
 	for i in self.incpaths_lst:
 		if self.bytecode_env:
 			app = self.bytecode_env.append_value
-			app('OCAMLPATH', '-I')
-			app('OCAMLPATH', i.srcpath(self.env))
-			app('OCAMLPATH', '-I')
-			app('OCAMLPATH', i.bldpath(self.env))
+			app('OCAMLPATH', ['-I', i.bldpath(), '-I', i.srcpath()])
 
 		if self.native_env:
 			app = self.native_env.append_value
-			app('OCAMLPATH', '-I')
-			app('OCAMLPATH', i.bldpath(self.env))
-			app('OCAMLPATH', '-I')
-			app('OCAMLPATH', i.srcpath(self.env))
+			app('OCAMLPATH', ['-I', i.bldpath(), '-I', i.srcpath()])
 
 	varnames = ['INCLUDES', 'OCAMLFLAGS', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
 	for name in self.uselib.split():
@@ -145,7 +139,6 @@ def apply_link_ml(self):
 		linktask = self.create_task('ocalink')
 		linktask.bytecode = 1
 		linktask.set_outputs(self.path.find_or_declare(self.target + ext))
-		linktask.obj = self
 		linktask.env = self.bytecode_env
 		self.linktasks.append(linktask)
 
@@ -156,7 +149,6 @@ def apply_link_ml(self):
 
 		linktask = self.create_task('ocalinkx')
 		linktask.set_outputs(self.path.find_or_declare(self.target + ext))
-		linktask.obj = self
 		linktask.env = self.native_env
 		self.linktasks.append(linktask)
 
@@ -165,40 +157,45 @@ def apply_link_ml(self):
 
 @extension(*EXT_MLL)
 def mll_hook(self, node):
-	mll_task = self.create_task('ocamllex', node, node.change_ext('.ml'), env=self.native_env)
+	mll_task = self.create_task('ocamllex', node, node.change_ext('.ml'))
+	mll_task.env = self.native_env.derive()
 	self.mlltasks.append(mll_task)
 
 	self.source.append(mll_task.outputs[0])
 
 @extension(*EXT_MLY)
 def mly_hook(self, node):
-	mly_task = self.create_task('ocamlyacc', node, [node.change_ext('.ml'), node.change_ext('.mli')], env=self.native_env)
+	mly_task = self.create_task('ocamlyacc', node, [node.change_ext('.ml'), node.change_ext('.mli')])
+	mly_task.env = self.native_env.derive()
 	self.mlytasks.append(mly_task)
 	self.source.append(mly_task.outputs[0])
 
-	task = self.create_task('ocamlcmi', mly_task.outputs[1], mly_task.outputs[1].change_ext('.cmi'), env=self.native_env)
+	task = self.create_task('ocamlcmi', mly_task.outputs[1], mly_task.outputs[1].change_ext('.cmi'))
+	task.env = self.native_env.derive()
 
 @extension(*EXT_MLI)
 def mli_hook(self, node):
-	task = self.create_task('ocamlcmi', node, node.change_ext('.cmi'), env=self.native_env)
+	task = self.create_task('ocamlcmi', node, node.change_ext('.cmi'))
+	task.env = self.native_env.derive()
 	self.mlitasks.append(task)
 
 @extension(*EXT_MLC)
 def mlc_hook(self, node):
-	task = self.create_task('ocamlcc', node, node.change_ext('.o'), env=self.native_env)
+	task = self.create_task('ocamlcc', node, node.change_ext('.o'))
+	task.env = self.native_env.derive()
 	self.compiled_tasks.append(task)
 
 @extension(*EXT_ML)
 def ml_hook(self, node):
 	if self.native_env:
-		task = self.create_task('ocamlx', node, node.change_ext('.cmx'), env=self.native_env)
-		task.obj = self
+		task = self.create_task('ocamlx', node, node.change_ext('.cmx'))
+		task.env = self.native_env.derive()
 		task.incpaths = self.bld_incpaths_lst
 		self.native_tasks.append(task)
 
 	if self.bytecode_env:
-		task = self.create_task('ocaml', node, node.change_ext('.cmo'), env=self.bytecode_env)
-		task.obj = self
+		task = self.create_task('ocaml', node, node.change_ext('.cmo'))
+		task.env = self.bytecode_env.derive()
 		task.bytecode = 1
 		task.incpaths = self.bld_incpaths_lst
 		self.bytecode_tasks.append(task)
@@ -209,8 +206,8 @@ def compile_may_start(self):
 
 		# the evil part is that we can only compute the dependencies after the
 		# source files can be read (this means actually producing the source files)
-		if getattr(self, 'bytecode', ''): alltasks = self.obj.bytecode_tasks
-		else: alltasks = self.obj.native_tasks
+		if getattr(self, 'bytecode', ''): alltasks = self.generator.bytecode_tasks
+		else: alltasks = self.generator.native_tasks
 
 		self.signature() # ensure that files are scanned - unfortunately
 		tree = self.generator.bld
@@ -268,8 +265,8 @@ def link_may_start(self):
 	if not getattr(self, 'order', ''):
 
 		# now reorder the inputs given the task dependencies
-		if getattr(self, 'bytecode', 0): alltasks = self.obj.bytecode_tasks
-		else: alltasks = self.obj.native_tasks
+		if getattr(self, 'bytecode', 0): alltasks = self.generator.bytecode_tasks
+		else: alltasks = self.generator.native_tasks
 
 		# this part is difficult, we do not have a total order on the tasks
 		# if the dependencies are wrong, this may not stop
@@ -288,14 +285,14 @@ def link_may_start(self):
 		self.order = 1
 	return Task.Task.runnable_status(self)
 
-class ocamlprog(Task.Task):
+class ocalink(Task.Task):
 	"""bytecode caml link"""
 	color   = 'YELLOW'
 	run_str = '${OCAMLC} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}'
 	runnable_status = link_may_start
 	after = ['ocaml', 'ocamlcc']
 
-class ocamlxprog(Task.Task):
+class ocalinkx(Task.Task):
 	"""native caml link"""
 	color   = 'YELLOW'
 	run_str = '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}'
