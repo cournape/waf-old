@@ -34,5 +34,4 @@ NEW IN WAF 1.6.0
 * waf list to list the possible targets
 * waf step --file=main.c
 * post task generators in a lazy manner
-* new syntax for check_cfg: conf.check_cfg('cppunit > 1.0')
 

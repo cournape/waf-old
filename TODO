@@ -3,7 +3,7 @@ Waf 1.6
 
 General
 
-- update the waf tools
+- fix the installation for all tools
 - broken pkg-config apis
 - better apis for shell compilation in Task.py and remove misc.py
 - refactor the environment thing
