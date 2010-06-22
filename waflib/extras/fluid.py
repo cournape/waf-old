@@ -25,6 +25,6 @@ def fluid(self, node):
 		self.source.append(cpp)
 
 def configure(conf):
-    conf.find_program('fluid', var='FLUID')
-    conf.check_cfg(path='fltk-config', package='', args='--cxxflags --ldflags', uselib_store='FLTK', mandatory=True)
+	conf.find_program('fluid', var='FLUID')
+	conf.check_cfg(path='fltk-config', package='', args='--cxxflags --ldflags', uselib_store='FLTK', mandatory=True)
 
