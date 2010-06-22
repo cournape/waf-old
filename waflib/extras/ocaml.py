@@ -232,12 +232,14 @@ class ocamlx(Task.Task):
 	color   = 'GREEN'
 	run_str = '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}'
 	scan    = scan
+	runnable_status = compile_may_start
 
 class ocaml(Task.Task):
 	"""bytecode caml compilation"""
 	color   = 'GREEN'
 	run_str = '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}'
 	scan    = scan
+	runnable_status = compile_may_start
 
 class ocamlcmi(Task.Task):
 	"""interface generator (the .i files?)"""
