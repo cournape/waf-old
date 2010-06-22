@@ -28,7 +28,7 @@ def filter_comments(txt):
 
 def scan(self):
 	node = self.inputs[0]
-	code = filter_comments(node.read(self.env))
+	code = filter_comments(node.read())
 
 	global open_re
 	names = []
