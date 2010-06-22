@@ -390,7 +390,7 @@ class Task(TaskBase):
 		for x in self.inputs + getattr(self, 'dep_nodes', []):
 			try:
 				upd(x.sig)
-			except AttributeError:
+			except (AttributeError, TypeError):
 				raise Errors.WafError('Missing node signature for %r (required by %r)' % (x, self))
 
 		# manual dependencies, they can slow down the builds
