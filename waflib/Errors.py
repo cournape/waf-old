@@ -8,6 +8,7 @@ class WafError(Exception):
 	"""Base for all waf errors"""
 	def __init__(self, msg, pyfile=None):
 		self.msg = msg
+
 		if isinstance(msg, Exception):
 			self.msg = str(msg)
 			self.stack = traceback.extract_tb(sys.exc_info()[2])
@@ -21,6 +22,8 @@ class WafError(Exception):
 					self.msg = "%s:%d %s" % (pyfile, tup[1], self.msg)
 					self.stack[i] = [pyfile] + list(tup[1:])
 					break
+			else:
+				self.msg = self.msg.replace('<string>', pyfile)
 
 		self.verbose_msg = ''.join(traceback.format_list(self.stack))
 
