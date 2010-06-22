@@ -1,3 +1,13 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2010 (ita)
+
+"""
+# TODO
+
+a waf tool that modifies the task signature scheme to store and obtain
+information about the task execution (why it must run, etc)
+"""
 
 def signature(self):
 	# compute the result one time, and suppose the scan_signature will give the good result
