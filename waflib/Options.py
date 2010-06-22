@@ -123,7 +123,7 @@ class OptionsContext(Context.Context):
 
 	def tool_options(self, tool_list, *k, **kw):
 		#if not k[0]:
-		#	raise Utils.WscriptError('invalid tool_options call %r %r' % (k, kw))
+		#	raise Utils.WafError('invalid tool_options call %r %r' % (k, kw))
 		tools = Utils.to_list(tool_list)
 
 		path = Utils.to_list(kw.get('tooldir', ''))

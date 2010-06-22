@@ -2,48 +2,27 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
-import traceback, os
+import traceback, os, sys
 
 class WafError(Exception):
 	"""Base for all waf errors"""
-	def __init__(self, *args):
-		self.args = args
-		try:
-			self.stack = traceback.extract_stack()
-		except:
-			pass
-		Exception.__init__(self, *args)
-	def __str__(self):
-		return str(len(self.args) == 1 and self.args[0] or self.args)
-
-class WscriptError(WafError):
-	"""Waf errors that come from python code"""
-	def __init__(self, message, pyfile=None):
-		if pyfile:
-			self.pyfile = pyfile
-			self.pyline = None
+	def __init__(self, msg, pyfile=None):
+		self.msg = msg
+		if isinstance(msg, Exception):
+			self.msg = str(msg)
+			self.stack = traceback.extract_tb(sys.exc_info()[2])
 		else:
-			try:
-				(self.pyfile, self.pyline) = self.locate_error()
-			except:
-				(self.pyfile, self.pyline) = (None, None)
+			self.stack = traceback.extract_stack()
 
-		msg_file_line = ''
-		if self.pyfile:
-			msg_file_line = "%s:" % self.pyfile
-			if self.pyline:
-				msg_file_line += "%s:" % self.pyline
-		err_message = "%s error: %s" % (msg_file_line, message)
-		WafError.__init__(self, err_message)
+		for i in range(len(self.stack)):
+			tup = self.stack[i]
+			if tup[0] == '<string>':
+				self.msg = "%s:%d %s" % (pyfile, tup[1], self.msg)
+				self.stack[i] = [pyfile] + list(tup[1:])
+				break
 
-	def locate_error(self):
-		stack = traceback.extract_stack()
-		stack.reverse()
-		for frame in stack:
-			file_name = os.path.basename(frame[0])
-			if file_name.find(WSCRIPT_FILE) > -1:
-				return (frame[0], frame[1])
-		return (None, None)
+	def __str__(self):
+		return self.msg
 
 class BuildError(WafError):
 	"""Error raised during the build and install phases"""
@@ -58,7 +37,7 @@ class BuildError(WafError):
 			if txt: lst.append(txt)
 		return '\n'.join(lst)
 
-class ConfigurationError(WscriptError):
+class ConfigurationError(WafError):
 	"""configuration exception"""
 	pass
 

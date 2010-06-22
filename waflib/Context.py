@@ -181,19 +181,19 @@ class Context(ctx):
 
 				try:
 					exec(function_code, self.exec_dict)
-				except Exception:
-					raise Errors.WscriptError(traceback.format_exc(), d)
+				except Exception as e:
+					raise Errors.WafError(e, d)
 				self.post_recurse(node)
 
 			else:
 				node = self.root.find_node(WSCRIPT)
 				if not node:
-					raise Errors.WscriptError('No wscript file in directory %s' % d)
+					raise Errors.WafError('No wscript file in directory %s' % d)
 				self.pre_recurse(node)
 				wscript_module = load_module(node.abspath())
 				user_function = getattr(wscript_module, self.fun, None)
 				if not user_function:
-					raise Errors.WscriptError('No function %s defined in %s' % (self.fun, node.abspath()))
+					raise Errors.WafError('No function %s defined in %s' % (self.fun, node.abspath()))
 				user_function(self)
 				self.post_recurse(node)
 
@@ -272,7 +272,7 @@ def load_module(file_path):
 	try:
 		code = Utils.readf(file_path, m='rU')
 	except (IOError, OSError):
-		raise Errors.WscriptError('Could not read the file %r' % file_path)
+		raise Errors.WafError('Could not read the file %r' % file_path)
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
@@ -280,12 +280,7 @@ def load_module(file_path):
 	try:
 		exec(code, module.__dict__)
 	except Exception as e:
-		try:
-			ex = Errors.WscriptError(Utils.ex_stack(), file_path)
-		except:
-			raise e
-		else:
-			raise ex
+		raise Errors.WafError(e, file_path)
 	sys.path.remove(module_dir)
 
 	cache_modules[file_path] = module
@@ -311,7 +306,7 @@ def load_tool(tool, tooldir=None):
 			__import__(tool)
 			return sys.modules[tool]
 		except ImportError:
-			raise Errors.WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
+			raise Errors.WafError('Could not load the tool %r in %r' % (tool, sys.path))
 		for d in tooldir:
 			sys.path.remove(d)
 	else:
