@@ -14,12 +14,13 @@ class WafError(Exception):
 		else:
 			self.stack = traceback.extract_stack()
 
-		for i in range(len(self.stack)):
-			tup = self.stack[i]
-			if tup[0] == '<string>':
-				self.msg = "%s:%d %s" % (pyfile, tup[1], self.msg)
-				self.stack[i] = [pyfile] + list(tup[1:])
-				break
+		if pyfile:
+			for i in range(len(self.stack)):
+				tup = self.stack[i]
+				if tup[0] == '<string>':
+					self.msg = "%s:%d %s" % (pyfile, tup[1], self.msg)
+					self.stack[i] = [pyfile] + list(tup[1:])
+					break
 
 	def __str__(self):
 		return self.msg
