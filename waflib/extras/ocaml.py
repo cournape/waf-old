@@ -229,23 +229,40 @@ def compile_may_start(self):
 
 	return Task.Task.runnable_status(self)
 
-b = Task.task_factory
-cls = b('ocamlx', '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
-cls.runnable_status = compile_may_start
-cls.scan = scan
+class ocamlx(Task.Task):
+	"""native caml compilation"""
+	color   = 'GREEN'
+	run_str = '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}'
+	scan    = scan
 
-b = Task.task_factory
-cls = b('ocaml', '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
-cls.runnable_status = compile_may_start
-cls.scan = scan
+class ocaml(Task.Task):
+	"""bytecode caml compilation"""
+	color   = 'GREEN'
+	run_str = '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}'
+	scan    = scan
 
+class ocamlcmi(Task.Task):
+	"""interface generator (the .i files?)"""
+	color   = 'BLUE'
+	run_str = '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}'
+	before  = ['ocamlcc', 'ocaml', 'ocamlcc']
 
-b('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', before="ocaml ocamlcc ocamlx")
-b('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
+class ocamlcc(Task.Task):
+	"""ocaml to c interfaces"""
+	color   = 'GREEN'
+	run_str = 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}'
 
-b('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
-b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bld_base(env)} ${SRC}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
+class ocamllex(Task.Task):
+	"""lexical generator"""
+	color   = 'BLUE'
+	run_str = '${OCAMLLEX} ${SRC} -o ${TGT}'
+	before  = ['ocamlcmi', 'ocaml', 'ocamlcc']
 
+class ocamlyacc(Task.Task):
+	"""parser generator"""
+	color   = 'BLUE'
+	run_str = '${OCAMLYACC} -b ${TGT[0].bld_base(env)} ${SRC}'
+	before  = ['ocamlcmi', 'ocaml', 'ocamlcc']
 
 def link_may_start(self):
 	if not getattr(self, 'order', ''):
@@ -271,14 +288,23 @@ def link_may_start(self):
 		self.order = 1
 	return Task.Task.runnable_status(self)
 
-act = b('ocalink', '${OCAMLC} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', after="ocaml ocamlcc")
-act.runnable_status = link_may_start
-act = b('ocalinkx', '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', after="ocamlx ocamlcc")
-act.runnable_status = link_may_start
+class ocamlprog(Task.Task):
+	"""bytecode caml link"""
+	color   = 'YELLOW'
+	run_str = '${OCAMLC} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}'
+	runnable_status = link_may_start
+	after = ['ocaml', 'ocamlcc']
+
+class ocamlxprog(Task.Task):
+	"""native caml link"""
+	color   = 'YELLOW'
+	run_str = '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}'
+	runnable_status = link_may_start
+	after = ['ocamlx', 'ocamlcc']
 
 def configure(conf):
-	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
-	occ = conf.find_program('ocamlc', var='OCAMLC')
+	opt = conf.find_program('ocamlopt', var='OCAMLOPT', mandatory=False)
+	occ = conf.find_program('ocamlc', var='OCAMLC', mandatory=False)
 	if (not opt) or (not occ):
 		conf.fatal('The objective caml compiler was not found:\ninstall it or make it available in your PATH')
 
