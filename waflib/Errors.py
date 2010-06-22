@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
+import traceback
+
 class WafError(Exception):
 	"""Base for all waf errors"""
 	def __init__(self, *args):
