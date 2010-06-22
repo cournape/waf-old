@@ -281,7 +281,7 @@ def load_module(file_path):
 		exec(code, module.__dict__)
 	except Exception as e:
 		try:
-			ex = Errors.WscriptError(traceback.format_exc(), file_path)
+			ex = Errors.WscriptError(Utils.ex_stack(), file_path)
 		except:
 			raise e
 		else:
