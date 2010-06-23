@@ -70,7 +70,7 @@ class fc(Task.Task):
 		bld = self.generator.bld
 
 		# obtain the fortran tasks
-		lst = [tsk for tsk in bld.producer.outstanding if isinstance(tsk, fc)]
+		lst = [tsk for tsk in bld.producer.outstanding + bld.producer.frozen if isinstance(tsk, fc)]
 
 		# disable this method for other tasks
 		for tsk in lst:
@@ -81,9 +81,13 @@ class fc(Task.Task):
 		for tsk in lst:
 			ret = tsk.runnable_status()
 			if ret == Task.ASK_LATER:
-				self.mod_fortran_done = None
+				# we have to wait for one of the other fortran tasks to be ready
 				# this may deadlock if there are dependencies between the fortran tasks
 				# but this should not happen (we are setting them here!)
+				for x in lst:
+					x.mod_fortran_done = None
+
+				# TODO sort the list of tasks in bld.producer.outstanding to put all fortran tasks at the end
 				return Task.ASK_LATER
 
 		ins = Utils.defaultdict(set)
