@@ -1,0 +1,40 @@
+Upgrade to waf 1.6 (draft)
+=========================
+:author: Thomas Nagy
+:quotes.++:
+
+[preface]
+== Introduction
+
+Copyright (C) 2010 Thomas Nagy
+
+Copies of this book may be redistributed, verbatim, and for non-commercial
+purposes. The license for this book is
+ http://creativecommons.org/licenses/by-nc-nd/3.0/[by-nc-nd license].
+
+=== Purpose of this document
+
+The goal of this document is to present the new features added to waf 1.6. It is probably only relevant for projects upgrading from waf 1.5.
+The waf book for waf 1.6 should be a better guide for new users and for projects upgrading from previous waf versions such as waf 1.4.
+
+=== Waf 1.6 objectives
+
+The waf build system was first created to provide an alternative for the autotool-based build systems based on a single programming language. To ease the development, a few assumptions were made, and over the time it became clear that they had become a limitation for specific corner cases, among others:
+
+- sometimes, some files are generated in the source directory and are kept in the source control system
+- there may be more than one kind of build command
+- some configuration apis may be useful in the build section
+- it may be interesting to use waf as a library from another system
+- some apis were private (node objects)
+
+The aim of waf 1.6 are three fold:
+
+1 remove most assumptions/restrictions present in waf 1.5 (nodes, build directory, reduce the coupling between the modules)
+2 optimize the code base (execution time, source code size, compatibility with different python versions)
+3 improve the apis (make the apis more intuitive, expose more classes and functions, improve the error handling)
+
+////
+-- include::.txt[]
+////
+
+
