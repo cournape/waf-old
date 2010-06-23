@@ -571,24 +571,46 @@ class BuildContext(Context.Context):
 			yield []
 
 class inst_task(Task.Task):
-	"""task used for installing files and symlinks"""
+	"""
+    task used for installing files and symlinks
+
+    several design possibilities:
+    1. get the source nodes immediately (but then the declaration order matters)
+    2. get the source nodes once the build has started
+      a. and set the dependencies based on the files
+      b. and force the installation tasks to be executed last
+    3. execute the installation in a post build routine
+
+    For now, we use 2.a
+	"""
 	color = 'CYAN'
 	def runnable_status(self):
 		"""
 		installation tasks are always executed
-		this method is also used for finding the source files in a non-threaded manner
+		this method is executed by the main thread (so it is safe to find nodes)
 		"""
-		buf = []
-		for x in self.source:
-			if isinstance(x, waflib.Node.Node):
-				y = x
-			else:
-				y = self.path.find_resource(x)
-				if not y:
-					raise Errors.WafError('could not find %r in %r' % (x, self.path))
-			buf.append(y)
-		self.set_inputs(buf)
-		return Task.RUN_ME
+
+		if not getattr(self, 'done_deps', None):
+			self.done_deps = True
+			buf = []
+			for x in self.source:
+				if isinstance(x, waflib.Node.Node):
+					y = x
+				else:
+					y = self.path.find_resource(x)
+					if not y:
+						raise Errors.WafError('could not find %r in %r' % (x, self.path))
+				buf.append(y)
+			self.set_inputs(buf)
+
+			bld = self.generator.bld
+			for tsk in bld.producer.outstanding + bld.producer.frozen:
+				for x in self.inputs:
+					if x in getattr(tsk, 'outputs', []):
+						self.set_run_after(tsk)
+						break
+
+		return super(inst_task, self).runnable_status()
 
 	def __str__(self):
 		"""no display"""
