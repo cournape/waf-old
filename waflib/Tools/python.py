@@ -53,7 +53,7 @@ def install_pyfile(self, node):
 	path = os.path.join(tsk.get_install_path(), node.name)
 
 	if self.bld.is_install < 0:
-		info("* removing byte compiled python files")
+		info("+ removing byte compiled python files")
 		for x in 'co':
 			try:
 				os.remove(path + x)
