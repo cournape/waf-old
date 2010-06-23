@@ -101,20 +101,21 @@ class link_task(Task.Task):
 	chmod   = Utils.O644
 
 	def add_target(self, target):
-		pattern = self.env[self.__class__.__name__ + '_PATTERN']
-		if not pattern:
-			pattern = '%s'
-		folder, name = os.path.split(target)
+		if isinstance(target, str):
+			pattern = self.env[self.__class__.__name__ + '_PATTERN']
+			if not pattern:
+				pattern = '%s'
+			folder, name = os.path.split(target)
 
-		if self.__class__.__name__.find('shlib') > 0:
-			if self.generator.get_dest_binfmt() == 'pe' and getattr(self.generator, 'vnum', None):
-				# include the version in the dll file name,
-				# the import lib file name stays unversionned.
-				name = name + '-' + self.generator.vnum.split('.')[0]
+			if self.__class__.__name__.find('shlib') > 0:
+				if self.generator.get_dest_binfmt() == 'pe' and getattr(self.generator, 'vnum', None):
+					# include the version in the dll file name,
+					# the import lib file name stays unversionned.
+					name = name + '-' + self.generator.vnum.split('.')[0]
 
-		tmp = folder + os.sep + pattern % name
-		node = self.generator.path.find_or_declare(tmp)
-		self.set_outputs(node)
+			tmp = folder + os.sep + pattern % name
+			target = self.generator.path.find_or_declare(tmp)
+		self.set_outputs(target)
 
 class static_link(link_task):
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
