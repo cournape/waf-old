@@ -7,6 +7,7 @@ import traceback, os, sys
 class WafError(Exception):
 	"""Base for all waf errors"""
 	def __init__(self, msg, pyfile=None):
+		"""the parameter msg can be an error message or an exception"""
 		self.msg = msg
 
 		if isinstance(msg, Exception):
@@ -15,6 +16,7 @@ class WafError(Exception):
 		else:
 			self.stack = traceback.extract_stack()
 
+		# modify the stack
 		if pyfile:
 			for i in range(len(self.stack)):
 				tup = self.stack[i]
@@ -28,7 +30,7 @@ class WafError(Exception):
 		self.verbose_msg = ''.join(traceback.format_list(self.stack))
 
 	def __str__(self):
-		return self.msg
+		return str(self.msg)
 
 class BuildError(WafError):
 	"""Error raised during the build and install phases"""
