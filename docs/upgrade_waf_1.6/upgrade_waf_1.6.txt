@@ -110,12 +110,56 @@ def build(bld):
 
 === New commands
 
-waf list
-* new command "waf list" to list the x for "waf build --targets=x"
+==== waf list
 
-waf step
-* waf step --file=main.c
+A new command named 'list' is used to list the valid targets (task generators) for "waf build --targets=x"
 
+[source,python]
+---------------
+$ waf list
+foo.exe
+my_shared_lib
+my_static_lib
+test_shared_link
+test_static_link
+'list' finished successfully (0.029s)
+
+$ waf clean --targets=foo.exe
+Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
+[1/2] cc: program/main.c -> build/program/main.c.0.o
+[2/2] cprogram: build/program/main.c.0.o -> build/foo.exe
+Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
+'build' finished successfully (0.154s)
+---------------
+
+==== waf step
+
+The new command 'step' is used to execute specific tasks and to return the exit status or any error message:
+
+[source,python]
+---------------
+waf clean step --file=test_shlib.c
+'clean' finished successfully (0.017s)
+Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
+cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+ -> 0
+cshlib: build/shlib/test_shlib.c.1.o -> build/shlib/libmy_shared_lib.so
+ -> 0
+Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
+'step' finished successfully (0.146s)
+---------------
+
+To restrict the tasks to execute, just prefix the names by 'in:' or 'out:':
+
+[source,python]
+---------------
+waf step --file=out:build/shlib/test_shlib.c.1.o
+Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
+cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+ -> 0
+Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
+'step' finished successfully (0.091s)
+---------------
 
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
