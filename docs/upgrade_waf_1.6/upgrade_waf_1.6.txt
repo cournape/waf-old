@@ -37,4 +37,111 @@ The aim of waf 1.6 are three fold:
 -- include::.txt[]
 ////
 
+== stuff
+
+Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
+is then converted for python 2.3 to 2.5 if necessary.
+
+==== Targets in the source directory or in any location
+
+The waf commands may now use Node objects in the source attribute. As a consequence, the build may update files that are to be kept versioned under the source directory.
+In this case, the task signature may not be used as node signature (source files signatures are computed from a hash of the file). Here is an example:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	# create the node next to the current wscript file - no build directory
+	node = bld.path.make_node('foo.txt')
+	bld(rule='touch ${TARGET}', always=True, update_outputs=True, target=node)
+---------------
+
+In the general case, the task class may have to be modified to set the file hash on the node objects instead of the task signature:
+
+[source,python]
+---------------
+import Task
+class cls(Task.Task):
+	run_str = '${CP} ${SRC} ${TGT}'
+cls = Task.update_outputs(go)
+---------------
+
+==== The method options
+
+The method set_options has been renamed to 'options':
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def options(opt):
+	pass
+
+def configure(ctx):
+	pass
+---------------
+
+==== Tool declaration
+
+For consistency, the method 'detect' in waf tools has been renamed to 'configure'. The method 'set_options' is now called 'options' and is the same as in waf scripts.
+
+==== Task generator declaration
+
+The build context method 'new_task_gen' disappears, and is replaced by '__call__'. The task generator subclasses have been removed completely, so only keyword arguments are accepted. Here is an example:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(bld):
+	# bld.new_task_gen('cc', 'cprogram', source='main.c', target='app')
+	bld(features='cc cprogram', source='main.c', target='app')
+---------------
+
+=== New commands
+
+waf list
+* new command "waf list" to list the x for "waf build --targets=x"
+
+waf step
+* waf step --file=main.c
+
+
+* Environment -> ConfigSet
+* only lists are allowed in ConfigSet
+* Utils.load_tool -> Context.load_tool
+* only the build-related commands require a configured project
+* new variant system + build context commands
+* removed the pseudo glob in installation methods
+* eliminate find_sources_in_dirs
+* node.__class__.bld → node.ctx
+* network updates for waf tools
+* accept node objects in the source and includes attributes
+* remove task_gen.allnodes: modify self.source directly
+* merge the include system for c, c+, d, gas and nasm
+* allow top == out (no build directory)
+* merge the Tool/wscript system (detect->configure, set_options->options)
+* rename apply_core -> process_source
+* rename apply_rule -> process_rule
+* rename Task.TaskBase.classes -> Task.classes
+* the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
+* remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
+* remove program_USELIB, shlib_USELIB staticlib_USELIB support
+* use tasks for target installation
+* improve the exception handling (WscriptError was removed, use WafError)
+
+* let the commands access node objects
+* infer the build directory from the lock filename
+* waf list to list the possible targets
+* post task generators in a lazy manner
 
