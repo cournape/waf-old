@@ -136,6 +136,32 @@ class cls(Task.Task):
 cls = Task.update_outputs(cls)
 ---------------
 
+=== Allow the top-level directory to be the build directory
+
+Although discouraged, it is possible to avoid the use of a build directory:
+
+[source,python]
+---------------
+top = '.'
+out = '.'
+
+def configure(ctx):
+    pass
+---------------
+
+=== Allow nodes in several attributes
+
+[source,python]
+---------------
+def configure(ctx):
+    pass
+
+def build(ctx):
+	src = ctx.path.find_resource('main.c')
+	tgt = ctx.path.find_or_declare('foo.exe')
+
+	bld(features='cc cprogram', source=[src], target=[tgt], includes=[bld.path])
+---------------
 
 
 
@@ -216,7 +242,6 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 * accept node objects in the source and includes attributes
 * remove task_gen.allnodes: modify self.source directly
 * merge the include system for c, c+, d, gas and nasm
-* allow top == out (no build directory)
 * merge the Tool/wscript system (detect->configure, set_options->options)
 * rename apply_core -> process_source
 * rename apply_rule -> process_rule
@@ -230,4 +255,5 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 * let the commands access node objects
 * infer the build directory from the lock filename
 * post task generators in a lazy manner
+* use configuration apis from the build
 
