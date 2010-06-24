@@ -70,7 +70,7 @@ The context class for all commands has a unique method named 'recurse'. The meth
 [source,python]
 ---------------
 def options(opt):
-    #ctx.sub_options('src') # old
+	#ctx.sub_options('src') # old
 	ctx.recurse('src')
 
 def configure(ctx):
@@ -209,9 +209,9 @@ The output will be:
 $ waf -v
 Waf: Entering directory `/foo/test/build'
 [1/2] cc: main.c -> build/main.c.0.o
-03:01:20 runner system command -> ['/usr/bin/gcc', '-I/foo/test', '../main.c', '-c', '-o', 'main.c.0.o']
+03:01:20 runner ['/usr/bin/gcc', '-I/foo/test', '../main.c', '-c', '-o', 'main.c.0.o']
 [2/2] cc: main.c -> build/main.c.1.o
-03:01:20 runner system command -> ['/usr/bin/gcc', '-I/foo/test/build', '../main.c', '-c', '-o', 'main.c.1.o']
+03:01:20 runner ['/usr/bin/gcc', '-I/foo/test/bld', '../main.c', '-c', '-o', 'main.c.1.o']
 Waf: Leaving directory `/foo/test/build'
 'build' finished successfully (0.476s)
 ---------------
