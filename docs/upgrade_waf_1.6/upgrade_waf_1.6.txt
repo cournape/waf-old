@@ -16,10 +16,10 @@ purposes. The license for this document is
 
 The waf build system was first created to provide an alternative for the autotool-based build systems based on a single programming language. To ease the development, a few assumptions were made, and over the time it became clear that they had become a limitation for specific corner cases, among others:
 
-- sometimes, some files are generated in the source directory and are kept in the source control system
+- in some projects, files are generated in the source directory and are kept in the source control system
 - there may be more than one kind of build command
 - some configuration apis may be useful in the build section
-- it may be interesting to use waf as a library from another system
+- it may be interesting to use waf as a library in another system
 - some apis were private (node objects)
 
 === Goals of Waf 1.6
