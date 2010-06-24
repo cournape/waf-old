@@ -30,9 +30,9 @@ The waf build system was first created to provide an alternative for the autotoo
 
 The main goals of waf 1.6 are:
 
-1 to remove most assumptions/restrictions present in waf 1.5 (nodes, build directory, reduce the coupling between the modules)
-2 to optimize the code base (execution time, source code size, compatibility with different python versions)
-3 to improve the apis and the user experience (make the apis more intuitive, expose more classes and functions, improve the error handling)
+. to remove most assumptions/restrictions present in waf 1.5 (nodes, build directory, reduce the coupling between the modules)
+. to optimize the code base (execution time, source code size, compatibility with different python versions)
+. to improve the apis and the user experience (make the apis more intuitive, expose more classes and functions, improve the error handling)
 
 === Purpose of this document
 
@@ -181,7 +181,7 @@ class copy(Task.Task):
 	run_str = '${CP} ${SRC} ${TGT}'
 ---------------
 
-=== Allow the top-level directory to be the build directory
+=== Enable the top-level directory to be the build directory
 
 Although discouraged, it is possible to avoid the use of a build directory:
 
@@ -194,7 +194,7 @@ def configure(ctx):
     pass
 ---------------
 
-=== Allow nodes in several attributes
+=== Enable nodes in several attributes
 
 Nodes are now accepted in the task inputs and outputs
 
