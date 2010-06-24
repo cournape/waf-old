@@ -130,9 +130,10 @@ For nodes present out of the build directory, the node signature must be set to 
 [source,python]
 ---------------
 import Task
-class cls(Task.Task):
+
+@Task.update_outputs
+class copy(Task.Task):
 	run_str = '${CP} ${SRC} ${TGT}'
-cls = Task.update_outputs(cls)
 ---------------
 
 === Allow the top-level directory to be the build directory
