@@ -47,6 +47,21 @@ The waf book for waf 1.6 should be the reference for new users and for projects 
 
 == Changes in the user scripts
 
+=== The attributes 'srcdir' and 'blddir'
+
+The attributes 'srcdir' and 'blddir' have been renamed to 'top' and 'out' respectively:
+
+[source,python]
+---------------
+#srcdir = '.' # old
+#blddir = 'build' # old
+top = '.'
+out = 'build'
+
+def configure(ctx):
+    pass
+---------------
+
 === The command 'options'
 
 The method set_options has been renamed to 'options':
@@ -105,7 +120,7 @@ def build(bld):
 
 === Configuration apis
 
-The configuration apis may be used during the build phase. The only inconvenience is to provide a log file for the configuration output:
+The configuration apis may be used during the build phase. The only inconvenience is to provide a log file to obtain some output:
 
 [source,python]
 ---------------
@@ -129,6 +144,11 @@ def build(bld):
             bld.log.close() # always close the file or it may be empty
             bld.log = None
 ---------------
+
+
+
+
+
 
 == Node classes
 
@@ -216,12 +236,26 @@ Waf: Leaving directory `/foo/test/build'
 'build' finished successfully (0.476s)
 ---------------
 
+Because node objects are accepted directly, the attribute allnodes has been removed, and the nodes should be added to the list of source directly:
+
+[source,python]
+---------------
+from waflib.TaskGen import extension
+@extension('.c.in')
+def some_method(self, node):
+	out_node = node.change_ext('.c')
+	task = self.create_task('in2c', node, out_node)
+
+	#self.allnodes.append(out_node) # old
+	self.source.append(out_node)
+---------------
+
 == Internal apis
 
-=== Python 3 syntax
+=== Syntax
 
 Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
-is then converted for python 2.3, 2.4 and 2.5 if necessary.
+is then converted for python 2.3, 2.4 and 2.5 if necessary. It is far easier to modify Python3 code to run on Python2 than porting Python 2 code to Python 3.
 
 
 
@@ -229,6 +263,17 @@ is then converted for python 2.3, 2.4 and 2.5 if necessary.
 
 
 == New commands
+
+=== Obtaining waf tools from the network
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('swig')
+---------------
 
 === waf list
 
@@ -283,28 +328,31 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
-* Utils.load_tool -> Context.load_tool
 * only the build-related commands require a configured project
 * new variant system + build context commands
-* removed the pseudo glob in installation methods
-* eliminate find_sources_in_dirs
-* node.__class__.bld → node.ctx
-* network updates for waf tools
-* accept node objects in the source and includes attributes
-* remove task_gen.allnodes: modify self.source directly
 * merge the include system for c, c+, d, gas and nasm
-* merge the Tool/wscript system (detect->configure, set_options->options)
 * rename apply_core -> process_source
 * rename apply_rule -> process_rule
 * rename Task.TaskBase.classes -> Task.classes
-* the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
 * remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
 * remove program_USELIB, shlib_USELIB staticlib_USELIB support
-* use tasks for target installation
-* improve the exception handling (WscriptError was removed, use WafError)
-
-* let the commands access node objects
 * infer the build directory from the lock filename
+
+installation methods
+* use tasks for target installation
+
+nodes
+* removed the pseudo glob in installation methods
+* eliminate find_sources_in_dirs
+* node.__class__.bld → node.ctx
 * post task generators in a lazy manner
-* use configuration apis from the build
+
+context and commands
+* Utils.load_tool -> Context.load_tool
+* let the commands access node objects
+
+modules
+* the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
+* improve the exception handling (WscriptError was removed, use WafError)
+* eliminate Constants
 
