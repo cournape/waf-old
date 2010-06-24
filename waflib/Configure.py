@@ -47,6 +47,13 @@ conf_template = '''# project %(app)s configured on %(now)s by
 #
 '''
 
+def download_check(path):
+	"""
+	hook to check for the tools which are downloaded
+	a white list is a possibility (list of sha1 hashes for example)
+	"""
+	Logs.warn('replace me to check %r' % path)
+
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
 	for x in Utils.to_list(Context.remote_repo):
@@ -71,6 +78,7 @@ def download_tool(tool, force=False):
 					if loc:
 						loc.close()
 				Logs.warn('downloaded %s from %s' % (tool, url))
+				download_check(tmp)
 				try:
 					module = Context.load_tool(tool)
 				except:
