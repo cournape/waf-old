@@ -16,12 +16,7 @@ Copies of this book may be redistributed, verbatim, and for non-commercial
 purposes. The license for this book is
  http://creativecommons.org/licenses/by-nc-nd/3.0/[by-nc-nd license].
 
-=== Purpose of this document
-
-The goal of this document is to present the new features added to waf 1.6. It is probably only relevant for projects upgrading from waf 1.5.
-The waf book for waf 1.6 should be a better guide for new users and for projects upgrading from previous waf versions such as waf 1.4.
-
-=== Waf 1.6 objectives
+=== Waf 1.5 limitations
 
 The waf build system was first created to provide an alternative for the autotool-based build systems based on a single programming language. To ease the development, a few assumptions were made, and over the time it became clear that they had become a limitation for specific corner cases, among others:
 
@@ -31,22 +26,86 @@ The waf build system was first created to provide an alternative for the autotoo
 - it may be interesting to use waf as a library from another system
 - some apis were private (node objects)
 
-The aim of waf 1.6 are three fold:
+=== Goals of Waf 1.6
 
-1 remove most assumptions/restrictions present in waf 1.5 (nodes, build directory, reduce the coupling between the modules)
-2 optimize the code base (execution time, source code size, compatibility with different python versions)
-3 improve the apis (make the apis more intuitive, expose more classes and functions, improve the error handling)
+The main goals of waf 1.6 are:
 
-////
--- include::.txt[]
-////
+1 to remove most assumptions/restrictions present in waf 1.5 (nodes, build directory, reduce the coupling between the modules)
+2 to optimize the code base (execution time, source code size, compatibility with different python versions)
+3 to improve the apis and the user experience (make the apis more intuitive, expose more classes and functions, improve the error handling)
 
-== New functionality
+=== Purpose of this document
 
-=== Syntax
+The apis had to be changed to make the changes described in the previous section, the apis (modules, classes. functions).
+This document describes the main changes compared to the previous version, waf 1.5.
+The waf book for waf 1.6 should be the reference for new users and for projects upgrading from previous waf versions such as waf 1.4.
 
-Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
-is then converted for python 2.3 to 2.5 if necessary.
+
+
+
+
+
+== Changes in the user scripts
+
+=== The command 'options'
+
+The method set_options has been renamed to 'options':
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def options(opt):
+	pass
+
+def configure(ctx):
+	pass
+---------------
+
+=== The method 'recurse'
+
+The context class for all commands has a unique method named 'recurse'. The methods 'add_subdirs', 'sub_config' and 'sub_options' disappear:
+
+[source,python]
+---------------
+def options(opt):
+    #ctx.sub_options('src') # old
+	ctx.recurse('src')
+
+def configure(ctx):
+	#ctx.sub_config('src') # old
+	ctx.recurse('src')
+
+def build(ctx):
+	#ctx.add_subdirs('src') # old
+	ctx.recurse('src')
+---------------
+
+=== Tool declaration
+
+For consistency with the user scripts, the method 'detect' in waf tools has been renamed to 'configure'. The method 'set_options' is now called 'options' and is consistent with waf scripts.
+
+=== Task generator declaration
+
+The build context method 'new_task_gen' disappears, and is replaced by '__call__'. The task generator subclasses have been removed completely, so only keyword arguments are accepted. For example:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(bld):
+	# bld.new_task_gen('cc', 'cprogram', source='main.c', target='app') # old
+	bld(features='cc cprogram', source='main.c', target='app')
+---------------
+
+
+
+== Node classes
 
 === Targets in the source directory or in any location
 
@@ -67,52 +126,30 @@ def build(ctx):
 	bld(rule='touch ${TARGET}', always=True, update_outputs=True, target=node)
 ---------------
 
-In the general case, the task class may have to be modified to set the file hash on the node objects instead of the task signature:
+For nodes present out of the build directory, the node signature must be set to the file hash immediately after the file is created or modified (not the task signature set by default):
 
 [source,python]
 ---------------
 import Task
 class cls(Task.Task):
 	run_str = '${CP} ${SRC} ${TGT}'
-cls = Task.update_outputs(go)
+cls = Task.update_outputs(cls)
 ---------------
 
-=== The method options
 
-The method set_options has been renamed to 'options':
 
-[source,python]
----------------
-top = '.'
-out = 'build'
 
-def options(opt):
-	pass
+== Internal apis
 
-def configure(ctx):
-	pass
----------------
+=== Python 3 syntax
 
-=== Tool declaration
+Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
+is then converted for python 2.3, 2.4 and 2.5 if necessary.
 
-For consistency, the method 'detect' in waf tools has been renamed to 'configure'. The method 'set_options' is now called 'options' and is the same as in waf scripts.
 
-=== Task generator declaration
 
-The build context method 'new_task_gen' disappears, and is replaced by '__call__'. The task generator subclasses have been removed completely, so only keyword arguments are accepted. Here is an example:
 
-[source,python]
----------------
-top = '.'
-out = 'build'
 
-def configure(ctx):
-	pass
-
-def build(bld):
-	# bld.new_task_gen('cc', 'cprogram', source='main.c', target='app')
-	bld(features='cc cprogram', source='main.c', target='app')
----------------
 
 == New commands
 
@@ -192,6 +229,5 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 
 * let the commands access node objects
 * infer the build directory from the lock filename
-* waf list to list the possible targets
 * post task generators in a lazy manner
 
