@@ -109,8 +109,7 @@ def build(bld):
 
 === Targets in the source directory or in any location
 
-The waf commands may now use Node objects in the source attribute. As a consequence, the build may update files that are to be kept versioned under the source directory.
-In this case, the task signature may not be used as node signature (source files signatures are computed from a hash of the file). Here is an example:
+The build may now update files under the source directory (versioned files). In this case, the task signature may not be used as node signature (source files signatures are computed from a hash of the file). Here is an example:
 
 [source,python]
 ---------------
@@ -151,19 +150,45 @@ def configure(ctx):
 
 === Allow nodes in several attributes
 
+Nodes are now accepted in the task inputs and outputs
+
 [source,python]
 ---------------
 def configure(ctx):
     pass
 
 def build(ctx):
-	src = ctx.path.find_resource('main.c')
-	tgt = ctx.path.find_or_declare('foo.exe')
+    src = ctx.path.find_resource('foo.a')
+    tgt = ctx.path.find_or_declare('foo.b')
 
-	bld(features='cc cprogram', source=[src], target=[tgt], includes=[bld.path])
+    bld(rule='cp ${SRC} ${TGT}', source=[src], target=[tgt])
 ---------------
 
+In the case of includes, the node may be used to control exactly the include path to add:
 
+[source,python]
+---------------
+def configure(ctx):
+    ctx.check_tool('gcc')
+
+def build(ctx):
+	bld(features='cc', source='main.c', includes=[bld.path])
+	bld(features='cc', source='main.c', includes=[bld.path.get_bld()])
+---------------
+
+The output will be:
+
+[source,shishell]
+---------------
+> waf -v
+Waf: Entering directory `/foo/test/build'
+[1/2] cc: main.c -> build/main.c.0.o
+03:01:20 runner system command -> ['/usr/bin/gcc', '-I/foo/test', '../main.c', '-c', '-o', 'main.c.0.o']
+[2/2] cc: main.c -> build/main.c.1.o
+03:01:20 runner system command -> ['/usr/bin/gcc', '-I/foo/test/build', '../main.c', '-c', '-o', 'main.c.1.o']
+Waf: Leaving directory `/foo/test/build'
+'build' finished successfully (0.476s)
+---------------
 
 == Internal apis
 
