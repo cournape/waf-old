@@ -10,30 +10,7 @@ import traceback, os, imp, sys
 from waflib import Utils, Errors, Logs
 import waflib.Node
 
-launch_dir = ''
-"""Where Waf was executed"""
-run_dir = ''
-"""The wscript file to use as the entry point"""
-top_dir = ''
-"""project directory (top), if the project was configured"""
-out_dir = ''
-"""build directory (out), if the project was configured"""
-waf_dir = ''
-"""directory for the waf modules"""
-
-local_repo = ''
-"""local repository for the plugins"""
-remote_repo = 'http://waf.googlecode.com/svn/'
-"""remote directory for the plugins"""
-
-g_module = None
-"""
-wscript file representing the entry point of the project
-"""
-
-WSCRIPT_FILE = 'wscript'
-
-# do not touch these 5 lines, they are updated automatically
+# the following 3 constants are updated on each new release (do not touch)
 HEXVERSION = 0x106000
 """constant updated on new releases"""
 
@@ -60,6 +37,32 @@ SRCDIR  = 'top'
 
 BLDDIR  = 'out'
 """constant"""
+
+WSCRIPT_FILE = 'wscript'
+"""constant"""
+
+
+launch_dir = ''
+"""Where Waf was executed"""
+run_dir = ''
+"""The wscript file to use as the entry point"""
+top_dir = ''
+"""project directory (top), if the project was configured"""
+out_dir = ''
+"""build directory (out), if the project was configured"""
+waf_dir = ''
+"""directory for the waf modules"""
+
+local_repo = ''
+"""local repository for the plugins"""
+remote_repo = 'http://waf.googlecode.com/svn/'
+"""remote directory for the plugins"""
+remote_locs = ['branches/waf-%s/waflib/extras' % WAFVERSION, 'trunk/waflib/extras']
+
+g_module = None
+"""
+wscript file representing the entry point of the project
+"""
 
 classes = []
 def create_context(cmd_name, *k, **kw):

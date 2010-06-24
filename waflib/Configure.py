@@ -57,7 +57,7 @@ def download_check(path):
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
 	for x in Utils.to_list(Context.remote_repo):
-		for sub in ['branches/waf-%s/waflib/extras' % Context.WAFVERSION, 'trunk/waflib/extras']:
+		for sub in Utils.to_list(Context.remote_locs):
 			url = '/'.join((x, sub, tool + '.py'))
 			try:
 				web = urlopen(url)
