@@ -22,7 +22,7 @@ Custom task clases may be created by subclassing or factories
 """
 
 import os, shutil, re
-from waflib import Utils, Node, Logs, Options, Errors
+from waflib import Utils, Logs, Options, Errors
 
 # task state
 NOT_RUN = 0
@@ -403,7 +403,7 @@ class Task(TaskBase):
 					continue
 
 				for v in d:
-					if isinstance(v, Node.Node):
+					if isinstance(v, bld.root.__class__):
 						try:
 							v = v.sig
 						except AttributeError:
