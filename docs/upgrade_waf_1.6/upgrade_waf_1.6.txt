@@ -118,6 +118,149 @@ def build(bld):
 
 
 
+== Waf modules
+
+=== Syntax and namespaces
+
+Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
+is then converted for python 2.3, 2.4 and 2.5 if necessary. It is far easier to modify Python3 code to run on Python2 than porting Python 2 code to Python 3.
+
+The waf tools and modules have been reorganized in the following directory structure:
+
+[source,shishell]
+---------------
+waflib
+|- extras
+`- Tools
+---------------
+
+To avoid conflicts with other projects, python namespaces are now used in the waf library. This means that the import system has changed:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	# import Options, Utils # old
+	from waflib import Options, Utils
+
+	print(Options.options)
+	print(Utils.to_list("a b c"))
+---------------
+
+=== Core modules added and removed
+
+The following modules have been removed:
+
+- py3fixes: the code uses the python 3 syntax by default
+- Constants.py: the constants have been moved to the modules that use them
+- pproc.py: the system subprocess module is now used by default
+
+The following modules have been added:
+
+- Context.py: base class for waf commands (build context, configuration context, etc)
+- Errors.py: exceptions used in the waf code
+- fixpy2.py: routines to make the waf code executable on python 2.3, 2.4 and 2.6
+
+The module Environment.py has been renamed to ConfigSet.py
+
+=== Module dependencies
+
+The core modules have been refactored to remove the cyclic imports. The following diagram represents the global
+dependencies between the core modules. The non-essential dependencies - such as the module 'Scripting' using the module 'Utils' are hidden.
+
+image::core.eps["Dependencies between Waf core modules",height=600]
+
+
+
+
+== Context classes
+
+=== Context subclasses
+
+The following will create a build context subclass that will be instantiated when calling 'waf build'. It will execute the user function 'build' from the scripts.
+
+[source,python]
+---------------
+from waflib.Build import BuildContext
+class debug_context(BuildContext):
+    cmd = 'debug'
+    fun = 'build'
+---------------
+
+=== Context subclasses and nodes
+
+Nodes objects are now accessible from the command contexts.
+
+[source,python]
+---------------
+from waflib.Context import Context
+class package_class(Context):
+    cmd = 'package'
+    fun = 'package'
+
+def package(ctx):
+    print(ctx.path.ant_glob('wscript'))
+---------------
+
+The output will be:
+
+[source,shishell]
+---------------
+$ waf package
+[/disk/comp/waf-1.6/demos/c/wscript]
+'package' finished successfully (0.006s)
+---------------
+
+=== New variant system
+
+The variant system present in the previous waf versions has been removed. The new system makes it easier to declare an output directory for the tasks:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+    ctx.check_tool('gcc')
+
+def build(ctx):
+    tg = ctx(features='cc', source='main.c')
+    if ctx.cmd == 'debug':
+        tg.ccflags = ['-g']
+
+from waflib.Build import BuildContext, CleanContext
+class debug_build(BuildContext):
+    cmd = 'debug'
+    variant = 'debug_'
+
+class debug_clean(CleanContext):
+    cmd = 'clean_debug'
+    variant = 'debug_'
+---------------
+
+The outputs from the default build will be written to 'build/' but the outputs from the debug one will go into 'build/debug_':
+
+[source,shishell]
+---------------
+waf clean clean_debug build debug -v
+'clean' finished successfully (0.034s)
+'clean_debug' finished successfully (0.007s)
+Waf: Entering directory `/disk/comp/waf-1.6/demos/c/gnu/build'
+[1/1] cc: main.c -> build/main.c.0.o
+00:36:41 runner ['/usr/bin/gcc', '../main.c', '-c', '-o', 'main.c.0.o']
+Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/gnu/build'
+'build' finished successfully (0.075s)
+Waf: Entering directory `/disk/comp/waf-1.6/demos/c/gnu/build/debug_'
+[1/1] cc: main.c -> build/debug_/main.c.0.o
+00:36:41 runner ['/usr/bin/gcc', '-g', '../../main.c', '-c', '-o', 'main.c.0.o']
+Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/gnu/build/debug_'
+'debug' finished successfully (0.082s)
+---------------
+
+
+
 == The 'Node' class
 
 === Design of the node class
@@ -252,67 +395,6 @@ def some_method(self, node):
 	#self.allnodes.append(out_node) # old
 	self.source.append(out_node)
 ---------------
-
-
-
-== Waf modules
-
-=== Syntax and namespaces
-
-Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
-is then converted for python 2.3, 2.4 and 2.5 if necessary. It is far easier to modify Python3 code to run on Python2 than porting Python 2 code to Python 3.
-
-The waf tools and modules have been reorganized in the following directory structure:
-
-[source,shishell]
----------------
-waflib
-|- extras
-`- Tools
----------------
-
-To avoid conflicts with other projects, python namespaces are now used in the waf library. This means that the import system has changed:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(ctx):
-	# import Options, Utils # old
-	from waflib import Options, Utils
-
-	print(Options.options)
-	print(Utils.to_list("a b c"))
----------------
-
-=== Core modules added and removed
-
-The following modules have been removed:
-
-- py3fixes: the code uses the python 3 syntax by default
-- Constants.py: the constants have been moved to the modules that use them
-- pproc.py: the system subprocess module is now used by default
-
-The following modules have been added:
-
-- Context.py: base class for waf commands (build context, configuration context, etc)
-- Errors.py: exceptions used in the waf code
-- fixpy2.py: routines to make the waf code executable on python 2.3, 2.4 and 2.6
-
-The module Environment.py has been renamed to ConfigSet.py
-
-=== Module dependencies
-
-The core modules have been refactored to remove the cyclic imports. The following diagram represents the global
-dependencies between the core modules. The non-essential dependencies - such as the module 'Scripting' using the module 'Utils' are hidden.
-
-image::core.eps["Dependencies between Waf core modules",height=600]
-
-
-
-
-
 
 
 
@@ -494,7 +576,5 @@ context and commands
 * let the commands access node objects
 
 modules
-* the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
 * improve the exception handling (WscriptError was removed, use WafError)
-* eliminate Constants
 
