@@ -50,7 +50,7 @@ class opt_parser(optparse.OptionParser):
 			else:
 				default_prefix = '/usr/local/'
 		gr.add_option('--prefix', dest='prefix', default=default_prefix, help='installation prefix [default: %r]' % default_prefix)
-		gr.add_option('-d', '--download', dest='dl_tools', default='', action='store', help='download a plugin, e.g. "swig"')
+		gr.add_option('--download', dest='download', default=False, action='store_true', help='try to download the tools if missing')
 
 
 		gr = optparse.OptionGroup(self, 'build and install options')

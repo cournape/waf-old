@@ -57,17 +57,30 @@ def download_tool(tool, force=False):
 				if web.getcode() != 200:
 					continue
 			except Exception as e:
+				# on python3 urlopen throws an exception
 				continue
 			else:
+
+				loc = None
 				try:
 					tmp = os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py'))
 					loc = open(tmp, 'wb')
 					loc.write(web.read())
 					web.close()
 				finally:
-					loc.close()
+					if loc:
+						loc.close()
 				Logs.warn('downloaded %s from %s' % (tool, url))
-				return Context.load_tool(tool)
+				try:
+					module = Context.load_tool(tool)
+				except:
+					Logs.warn('module %s from %s is unusable' % (tool, url))
+					try:
+						os.unlink(tmp)
+					except:
+						pass
+					continue
+				return module
 		else:
 				break
 		raise Errors.WafError('Could not load the tool')
@@ -224,12 +237,19 @@ class ConfigurationContext(Context.Context):
 				continue
 			self.tool_cache.append(mag)
 
-			#try:
-			module = Context.load_tool(tool, tooldir)
-			#except Exception as e:
-			#	if 1:
-			#		raise self.errors.ConfigurationError(e)
-			#	module = download_tool(tool)
+			module = None
+			try:
+				module = Context.load_tool(tool, tooldir)
+			except Exception as e:
+				ex = e
+				if Options.options.download:
+					module = download_tool(tool)
+					if not module:
+						Logs.error('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
+						raise ex
+				else:
+					Logs.error('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
+					raise ex
 
 			if funs is not None:
 				self.eval_rules(funs)
