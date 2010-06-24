@@ -250,10 +250,34 @@ def some_method(self, node):
 
 == Waf modules
 
-=== Syntax
+=== Syntax and namespaces
 
 Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
 is then converted for python 2.3, 2.4 and 2.5 if necessary. It is far easier to modify Python3 code to run on Python2 than porting Python 2 code to Python 3.
+
+The waf tools and modules have been reorganized in the following directory structure:
+
+[source,shishell]
+---------------
+waflib
+|- extras
+`- Tools
+---------------
+
+To avoid conflicts with other projects, python namespaces are now used in the waf library. This means that the import system has changed:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	# import Options, Utils # old
+	from waflib import Options, Utils
+
+	print(Options.options)
+	print(Utils.to_list("a b c"))
+---------------
 
 === Core modules added and removed
 
@@ -271,7 +295,12 @@ The following modules have been added:
 
 The module Environment.py has been renamed to ConfigSet.py
 
-image::core.eps["Dependencies between modules",width=600]
+=== Dependencies between the modules
+
+The core modules have been refactored to remove the cyclic imports. The following diagram represents the main
+dependencies between the core modules. The non-essential dependencies - such as the module 'Scripting' using the module 'Utils' are hidden.
+
+image::core.eps["Dependencies between Waf core modules",height=600]
 
 == New commands
 
