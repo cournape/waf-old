@@ -6,10 +6,6 @@ Upgrade to waf 1.6 (draft)
 [preface]
 == Introduction
 
-////
-a2x -L -a toc --icons-dir=.   -v   --icons -d article -f pdf upgrade_waf_1.6.txt
-////
-
 Copyright (C) 2010 Thomas Nagy
 
 Copies of this document may be redistributed, verbatim, and for non-commercial
@@ -120,7 +116,7 @@ def build(bld):
 
 === Configuration apis
 
-The configuration apis may be used during the build phase. The only inconvenience is to provide a log file to obtain some output:
+The configuration apis may be used during the build phase. The only limitation is the log file requirement to obtain some output:
 
 [source,python]
 ---------------
@@ -250,21 +246,36 @@ def some_method(self, node):
 	self.source.append(out_node)
 ---------------
 
-== Internal apis
+
+
+== Waf modules
 
 === Syntax
 
 Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
 is then converted for python 2.3, 2.4 and 2.5 if necessary. It is far easier to modify Python3 code to run on Python2 than porting Python 2 code to Python 3.
 
+=== Core modules added and removed
 
+The following modules have been removed:
 
+- py3fixes: the code uses the python 3 syntax by default
+- Constants.py: the constants have been moved to the modules that use them
+- pproc.py: the system subprocess module is now used by default
 
+The following modules have been added:
 
+- Context.py: base class for waf commands (build context, configuration context, etc)
+- Errors.py: exceptions used in the waf code
+- fixpy2.py: routines to make the waf code executable on python 2.3, 2.4 and 2.6
+
+The module Environment.py has been renamed to ConfigSet.py
+
+image::core.eps["Dependencies between modules",width=600]
 
 == New commands
 
-=== Obtaining waf tools from the network
+=== Downloading Waf tools
 
 The call to 'conf.check_tool' will normally fail if the tool cannot be found.
 
@@ -315,7 +326,7 @@ def configure(conf):
     conf.check_tool('swig')
 ---------------
 
-=== waf list
+=== The command 'list'
 
 A new command named 'list' is used to list the valid targets (task generators) for "waf build --targets=x"
 
@@ -337,7 +348,7 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 'build' finished successfully (0.154s)
 ---------------
 
-=== waf step
+=== The command 'step'
 
 The new command 'step' is used to execute specific tasks and to return the exit status or any error message. It is particularly useful for debugging:
 
@@ -365,6 +376,9 @@ cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
 Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 'step' finished successfully (0.091s)
 ---------------
+
+
+
 
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet

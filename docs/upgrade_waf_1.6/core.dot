@@ -1,0 +1,64 @@
+digraph G {
+	label="Dependencies between core modules";
+
+	Build -> Runner;
+	Build -> TaskGen;
+	Build -> Utils;
+	Build -> "Node";
+	Build -> ConfigSet;
+	Build -> Task;
+	Build -> Logs;
+	Build -> Options;
+	Build -> Context;
+	Build -> Errors;
+
+	ConfigSet -> Utils;
+	ConfigSet -> Logs;
+
+	Configure -> ConfigSet;
+	Configure -> Utils;
+	Configure -> Options;
+	Configure -> Logs;
+	Configure -> Context;
+	Configure -> Build;
+
+	Context -> Utils;
+	Context -> Errors;
+	Context -> Logs;
+	Context -> "Node";
+
+	"Node" -> Utils;
+	"Node" -> Errors;
+
+	Options -> Logs;
+	Options -> Utils;
+	Options -> Context;
+
+	Runner -> Utils;
+	Runner -> Logs;
+	Runner -> Options;
+	Runner -> Task;
+	Runner -> Errors;
+
+	Scripting -> Utils;
+	Scripting -> Configure;
+	Scripting -> Logs;
+	Scripting -> Options;
+	Scripting -> ConfigSet;
+	Scripting -> Context;
+	Scripting -> Errors;
+	Scripting -> Build;
+
+	TaskGen -> Task;
+	TaskGen -> Utils;
+	TaskGen -> Logs;
+	TaskGen -> Errors
+
+	Task -> Utils;
+	Task -> Logs;
+	Task -> Options;
+	Task -> Errors
+
+	Utils -> Errors;
+}
+
