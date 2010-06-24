@@ -139,10 +139,10 @@ class TaskBase(evil):
 
 	def exec_command(self, cmd, **kw):
 		"""'runner' zone is printed out for waf -v, see waflib/Options.py"""
-		Logs.debug('runner: system command -> %s' % cmd)
+		Logs.debug('runner: %r' % cmd)
 		bld = self.generator.bld
 		if bld.log:
-			bld.log.write('%s\n' % cmd)
+			bld.log.write('%r\n' % cmd)
 			kw['log'] = bld.log
 
 		# ensure that a command is always frun from somewhere
