@@ -266,6 +266,8 @@ is then converted for python 2.3, 2.4 and 2.5 if necessary. It is far easier to 
 
 === Obtaining waf tools from the network
 
+The call to 'conf.check_tool' will normally fail if the tool cannot be found.
+
 [source,python]
 ---------------
 top = '.'
@@ -273,6 +275,20 @@ out = 'build'
 
 def configure(conf):
 	conf.check_tool('swig')
+---------------
+
+By configuring with the option '--download', it is possible to go and download a specific tool
+from a remote repository.
+
+[source,shishell]
+---------------
+$ ./waf configure --download
+Checking for Setting top to              : /comp/test
+Checking for Setting out to              : /comp/test/build
+http://waf.googlecode.com/svn//branches/waf-1.6/waflib/extras/swig.py
+downloaded swig from http://waf.googlecode.com/svn//branches/waf-1.6/waflib/extras/swig.py
+Checking for Checking for program swig   : /usr/bin/swig
+'configure' finished successfully (0.408s)
 ---------------
 
 === waf list
