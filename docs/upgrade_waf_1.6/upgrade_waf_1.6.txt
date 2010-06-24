@@ -114,34 +114,6 @@ def build(bld):
 	bld(features='cc cprogram', source='main.c', target='app')
 ---------------
 
-=== Configuration apis
-
-The configuration apis may be used during the build phase. The only limitation is the log file requirement to obtain some output:
-
-[source,python]
----------------
-def options(opt):
-    opt.tool_options('compiler_cxx')
-
-def configure(conf):
-    conf.check_tool('compiler_cxx')
-    conf.check(header_name='stdio.h', features='cxx cprogram')
-
-def build(bld):
-
-    if bld.cmd != 'clean':
-        bld.log = open('test.log', 'w')
-        try:
-            bld.find_program('gpg', var='GPG')
-            bld.check(header_name='sadlib.h', features='cxx cprogram')
-        except bld.errors.ConfigurationError:
-            pass
-        finally:
-            bld.log.close() # always close the file or it may be empty
-            bld.log = None
----------------
-
-
 
 
 
@@ -302,7 +274,44 @@ dependencies between the core modules. The non-essential dependencies - such as 
 
 image::core.eps["Dependencies between Waf core modules",height=600]
 
-== New commands
+
+
+
+
+
+
+
+
+== New features
+
+=== Configuration apis
+
+The configuration apis may be used during the build phase. The only limitation is to provide a log file to redirect the output:
+
+[source,python]
+---------------
+def options(opt):
+    opt.tool_options('compiler_cxx')
+
+def configure(conf):
+    conf.check_tool('compiler_cxx')
+    conf.check(header_name='stdio.h', features='cxx cprogram')
+
+def build(bld):
+
+    if bld.cmd != 'clean':
+        bld.log = open('test.log', 'w')
+        try:
+            bld.find_program('gpg', var='GPG')
+            bld.check(header_name='sadlib.h', features='cxx cprogram')
+        except bld.errors.ConfigurationError:
+            pass
+        finally:
+            bld.log.close() # always close the file or it may be empty
+            bld.log = None
+---------------
+
+The decorator '@conf' is now binding the methods to both ConfigurationContext and BuildContext classes.
 
 === Downloading Waf tools
 
@@ -407,7 +416,7 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 ---------------
 
 
-
+* it is now less necessary to provide the ext_in/ext_out/before/after attributes if the order can be computed from the files
 
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
