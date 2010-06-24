@@ -277,7 +277,7 @@ def configure(conf):
 	conf.check_tool('swig')
 ---------------
 
-By configuring with the option '--download', it is possible to go and download a specific tool
+By configuring with the option '--download', it is possible to go and download the missing tools
 from a remote repository.
 
 [source,shishell]
@@ -289,6 +289,30 @@ http://waf.googlecode.com/svn//branches/waf-1.6/waflib/extras/swig.py
 downloaded swig from http://waf.googlecode.com/svn//branches/waf-1.6/waflib/extras/swig.py
 Checking for Checking for program swig   : /usr/bin/swig
 'configure' finished successfully (0.408s)
+---------------
+
+The list of remote and locations may be configured from the user scripts. It is also
+recommended to change the function 'Configure.download_check' to check the downloaded tool
+from a white list and to avoid potential security issues. This may be unnecessary on local
+networks.
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+from waflib import Configure, Utils, Context
+
+Context.remote_repo = ['http://waf.googlecode.com/svn/']
+Context.remote_locs = ['branches/waf1.6/waflib/extras']
+
+def check(path):
+	if not Utils.h_file(path) in whitelist:
+		raise ValueError('corrupt file, try again')
+Configure.download_check = check
+
+def configure(conf):
+    conf.check_tool('swig')
 ---------------
 
 === waf list
