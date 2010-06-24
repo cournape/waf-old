@@ -7,13 +7,13 @@ Upgrade to waf 1.6 (draft)
 == Introduction
 
 ////
-a2x -L -a toc --icons-dir=.   -v   --icons -d book -f pdf upgrade_waf_1.6.txt
+a2x -L -a toc --icons-dir=.   -v   --icons -d article -f pdf upgrade_waf_1.6.txt
 ////
 
 Copyright (C) 2010 Thomas Nagy
 
-Copies of this book may be redistributed, verbatim, and for non-commercial
-purposes. The license for this book is
+Copies of this document may be redistributed, verbatim, and for non-commercial
+purposes. The license for this document is
  http://creativecommons.org/licenses/by-nc-nd/3.0/[by-nc-nd license].
 
 === Waf 1.5 limitations
@@ -194,9 +194,9 @@ def configure(ctx):
     pass
 ---------------
 
-=== Enable nodes in several attributes
+=== Enable nodes in various attributes
 
-Nodes are now accepted in the task inputs and outputs
+Nodes are now accepted in the task generator source and target attributes
 
 [source,python]
 ---------------
