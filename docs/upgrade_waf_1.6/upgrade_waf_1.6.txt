@@ -103,7 +103,32 @@ def build(bld):
 	bld(features='cc cprogram', source='main.c', target='app')
 ---------------
 
+=== Configuration apis
 
+The configuration apis may be used during the build phase. The only inconvenience is to provide a log file for the configuration output:
+
+[source,python]
+---------------
+def options(opt):
+    opt.tool_options('compiler_cxx')
+
+def configure(conf):
+    conf.check_tool('compiler_cxx')
+    conf.check(header_name='stdio.h', features='cxx cprogram')
+
+def build(bld):
+
+    if bld.cmd != 'clean':
+        bld.log = open('test.log', 'w')
+        try:
+            bld.find_program('gpg', var='GPG')
+            bld.check(header_name='sadlib.h', features='cxx cprogram')
+        except bld.errors.ConfigurationError:
+            pass
+        finally:
+            bld.log.close() # always close the file or it may be empty
+            bld.log = None
+---------------
 
 == Node classes
 
@@ -181,7 +206,7 @@ The output will be:
 
 [source,shishell]
 ---------------
-> waf -v
+$ waf -v
 Waf: Entering directory `/foo/test/build'
 [1/2] cc: main.c -> build/main.c.0.o
 03:01:20 runner system command -> ['/usr/bin/gcc', '-I/foo/test', '../main.c', '-c', '-o', 'main.c.0.o']
@@ -233,7 +258,7 @@ The new command 'step' is used to execute specific tasks and to return the exit 
 
 [source,shishell]
 ---------------
-waf clean step --file=test_shlib.c
+$ waf clean step --file=test_shlib.c
 'clean' finished successfully (0.017s)
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
 cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
@@ -248,7 +273,7 @@ To restrict the tasks to execute, just prefix the names by 'in:' or 'out:':
 
 [source,shishell]
 ---------------
-waf step --file=out:build/shlib/test_shlib.c.1.o
+$ waf step --file=out:build/shlib/test_shlib.c.1.o
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
 cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
  -> 0
