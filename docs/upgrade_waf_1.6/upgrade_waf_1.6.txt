@@ -118,7 +118,42 @@ def build(bld):
 
 
 
-== Node classes
+== The 'Node' class
+
+=== Design of the node class
+
+The node objects are used to to represent files or and folders. In waf 1.6 the build folders are no more virtual and do not depend on the variant anymore. They are represented by exactly one node:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+    pass
+
+def build(ctx):
+	#print(ctx.path.abspath(bld.env)) # old
+	print(ctx.path.get_bld().abspath()) # waf 1.6
+---------------
+
+The method 'ant_glob' no longer accepts the 'bld' argument to enumerate the build files:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+    pass
+
+def build(ctx):
+    # ctx.path.ant_glob('*.o', src=False, bld=True, dir=False) # old
+    ctx.path.get_bld().ant_glob('*.o', src=True, dir=False) # equivalent in waf 1.6
+---------------
+
+The methods 'find_sources_in_dirs' and 'find_iter' have been removed, and the node method 'ant_glob' should be used whenever possible
+
 
 === Targets in the source directory or in any location
 
@@ -162,7 +197,7 @@ def configure(ctx):
     pass
 ---------------
 
-=== Enable nodes in various attributes
+=== Use nodes in various attributes
 
 Nodes are now accepted in the task generator source and target attributes
 
@@ -267,9 +302,9 @@ The following modules have been added:
 
 The module Environment.py has been renamed to ConfigSet.py
 
-=== Dependencies between the modules
+=== Module dependencies
 
-The core modules have been refactored to remove the cyclic imports. The following diagram represents the main
+The core modules have been refactored to remove the cyclic imports. The following diagram represents the global
 dependencies between the core modules. The non-essential dependencies - such as the module 'Scripting' using the module 'Utils' are hidden.
 
 image::core.eps["Dependencies between Waf core modules",height=600]
@@ -282,7 +317,28 @@ image::core.eps["Dependencies between Waf core modules",height=600]
 
 
 
-== New features
+== New functionality
+
+=== Task dependencies
+
+The method 'BuildContext.use_the_magic' disappears, and a heuristic based on the task input and outputs is used to set the compilation
+order over the tasks. For compilation chains and indirect dependencies it will still be necessary to provide the extension symbols, for
+example:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	ctx.check_tool('gcc')
+
+def build(ctx):
+	ctx(rule='touch ${TGT}', target='foo.h', ext_out=['.h'])
+	ctx(features='cc cprogram', source='main.c', target='app')
+---------------
+
+In this case, the '.h' extension is used to indicate that the unique task produced by this rule-based task generator must be processed before the c/cxx compilation (the c and cxx tasks have ext_in=['.h']).
 
 === Configuration apis
 
@@ -311,7 +367,7 @@ def build(bld):
             bld.log = None
 ---------------
 
-The decorator '@conf' is now binding the methods to both ConfigurationContext and BuildContext classes.
+The decorator '@conf' is now binding the methods to both the ConfigurationContext and BuildContext classes.
 
 === Downloading Waf tools
 
@@ -416,8 +472,6 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 ---------------
 
 
-* it is now less necessary to provide the ext_in/ext_out/before/after attributes if the order can be computed from the files
-
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
 * only the build-related commands require a configured project
@@ -429,15 +483,11 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 * remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
 * remove program_USELIB, shlib_USELIB staticlib_USELIB support
 * infer the build directory from the lock filename
+* post task generators in a lazy manner
 
 installation methods
 * use tasks for target installation
-
-nodes
 * removed the pseudo glob in installation methods
-* eliminate find_sources_in_dirs
-* node.__class__.bld → node.ctx
-* post task generators in a lazy manner
 
 context and commands
 * Utils.load_tool -> Context.load_tool
