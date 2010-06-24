@@ -12,9 +12,8 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
 """
 
 import os, shutil, sys, platform
-import TaskGen, Task, Build, Options, Utils
-from TaskGen import taskgen_method, feature, after, before
-from Logs import error, debug
+from waflib import TaskGen, Task, Build, Options, Utils
+from waflib.TaskGen import taskgen_method, feature, after, before
 
 # plist template
 app_info = '''
@@ -87,7 +86,7 @@ def create_task_macapp(self):
 		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
 
 		apptask.set_outputs([n1])
-		apptask.chmod = 0755
+		apptask.chmod = Utils.O755
 		apptask.install_path = os.path.join(self.install_path, name, 'Contents', 'MacOS')
 		self.apptask = apptask
 
