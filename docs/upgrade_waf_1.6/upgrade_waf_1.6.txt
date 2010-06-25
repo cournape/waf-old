@@ -80,7 +80,7 @@ The context class for all commands has a unique method named 'recurse'. The meth
 
 [source,python]
 ---------------
-def options(opt):
+def options(ctx):
 	#ctx.sub_options('src') # old
 	ctx.recurse('src')
 
@@ -482,12 +482,12 @@ The configuration apis may be used during the build phase. The only limitation i
 
 [source,python]
 ---------------
-def options(opt):
-    opt.tool_options('compiler_cxx')
+def options(ctx):
+    ctx.tool_options('compiler_cxx')
 
-def configure(conf):
-    conf.check_tool('compiler_cxx')
-    conf.check(header_name='stdio.h', features='cxx cxxprogram')
+def configure(ctx):
+    ctx.check_tool('compiler_cxx')
+    ctx.check(header_name='stdio.h', features='cxx cxxprogram')
 
 def build(ctx):
 
