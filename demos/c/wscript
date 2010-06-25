@@ -40,3 +40,13 @@ def build(bld):
 	bld.env.ST = '-L%s'
 	bld(rule='echo ${ST:FOO}', always=True, shell=1)
 
+
+from waflib.Context import Context
+class package_class(Context):
+	"""just a test, try calling 'waf package' """
+	cmd = 'package'
+	fun = 'package'
+
+def package(ctx):
+	print(ctx.path.ant_glob('wscript'))
+
