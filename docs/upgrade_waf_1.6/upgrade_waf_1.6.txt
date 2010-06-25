@@ -109,9 +109,9 @@ out = 'build'
 def configure(ctx):
 	pass
 
-def build(bld):
-	# bld.new_task_gen('cc', 'cprogram', source='main.c', target='app') # old
-	bld(features='cc cprogram', source='main.c', target='app')
+def build(ctx):
+	# ctx.new_task_gen('cc', 'cprogram', source='main.c', target='app') # old
+	ctx(features='cc cprogram', source='main.c', target='app')
 ---------------
 
 
@@ -276,7 +276,7 @@ def configure(ctx):
     pass
 
 def build(ctx):
-	#print(ctx.path.abspath(bld.env)) # old
+	#print(ctx.path.abspath(ctx.env)) # old
 	print(ctx.path.get_bld().abspath()) # Waf 1.6
 ---------------
 
@@ -312,8 +312,8 @@ def configure(ctx):
 
 def build(ctx):
 	# create the node next to the current wscript file - no build directory
-	node = bld.path.make_node('foo.txt')
-	bld(rule='touch ${TARGET}', always=True, update_outputs=True, target=node)
+	node = ctx.path.make_node('foo.txt')
+	ctx(rule='touch ${TARGET}', always=True, update_outputs=True, target=node)
 ---------------
 
 For nodes present out of the build directory, the node signature must be set to the file hash immediately after the file is created or modified (not the task signature set by default):
@@ -351,7 +351,7 @@ def build(ctx):
     src = ctx.path.find_resource('foo.a')
     tgt = ctx.path.find_or_declare('foo.b')
 
-    bld(rule='cp ${SRC} ${TGT}', source=[src], target=[tgt])
+    ctx(rule='cp ${SRC} ${TGT}', source=[src], target=[tgt])
 ---------------
 
 In the case of includes, the node may be used to control exactly the include path to add:
@@ -362,8 +362,8 @@ def configure(ctx):
     ctx.check_tool('gcc')
 
 def build(ctx):
-	bld(features='cc', source='main.c', includes=[bld.path])
-	bld(features='cc', source='main.c', includes=[bld.path.get_bld()])
+	ctx(features='cc', source='main.c', includes=[ctx.path])
+	ctx(features='cc', source='main.c', includes=[ctx.path.get_bld()])
 ---------------
 
 The output will be:
@@ -489,18 +489,18 @@ def configure(conf):
     conf.check_tool('compiler_cxx')
     conf.check(header_name='stdio.h', features='cxx cxxprogram')
 
-def build(bld):
+def build(ctx):
 
-    if bld.cmd != 'clean':
-        bld.log = open('test.log', 'w')
+    if ctx.cmd != 'clean':
+        ctx.log = open('test.log', 'w')
         try:
-            bld.find_program('gpg', var='GPG')
-            bld.check(header_name='sadlib.h', features='cxx cxxprogram')
-        except bld.errors.ConfigurationError:
+            ctx.find_program('gpg', var='GPG')
+            ctx.check(header_name='sadlib.h', features='cxx cxxprogram')
+        except ctx.errors.ConfigurationError:
             pass
         finally:
-            bld.log.close() # always close the file or it may be empty
-            bld.log = None
+            ctx.log.close() # always close the file or it may be empty
+            ctx.log = None
 ---------------
 
 The decorator '@conf' is now binding the methods to both the ConfigurationContext and BuildContext classes.
