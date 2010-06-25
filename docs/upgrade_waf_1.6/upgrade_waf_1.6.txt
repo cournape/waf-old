@@ -1,4 +1,4 @@
-Upgrade to waf 1.6 (draft)
+Upgrade to Waf 1.6 (draft)
 =========================
 :author: Thomas Nagy
 :quotes.++:
@@ -14,27 +14,27 @@ purposes. The license for this document is
 
 === Waf 1.5 limitations
 
-The waf build system was first created to provide an alternative for the autotool-based build systems based on a single programming language. To ease the development, a few assumptions were made, and over the time it became clear that they had become a limitation for specific corner cases, among others:
+The Waf build system was first created to provide an alternative for the autotool-based build systems based on a single programming language. To ease the development, a few assumptions were made, and over the time it became clear that they had become a limitation for specific corner cases, among others:
 
 - in some projects, files are generated in the source directory and are kept in the source control system
 - there may be more than one kind of build command
 - some configuration apis may be useful in the build section
-- it may be interesting to use waf as a library in another system
+- it may be interesting to use Waf as a library in another system
 - some apis were private (node objects)
 
 === Goals of Waf 1.6
 
-The main goals of waf 1.6 are:
+The main goals of Waf 1.6 are:
 
-. to remove most assumptions/restrictions present in waf 1.5 (nodes, build directory, reduce the coupling between the modules)
+. to remove most assumptions/restrictions present in Waf 1.5 (nodes, build directory, reduce the coupling between the modules)
 . to optimize the code base (execution time, source code size, compatibility with different python versions)
 . to improve the apis and the user experience (make the apis more intuitive, expose more classes and functions, improve the error handling)
 
 === Purpose of this document
 
 The apis had to be changed to make the changes described in the previous section, the apis (modules, classes. functions).
-This document describes the main changes compared to the previous version, waf 1.5.
-The waf book for waf 1.6 should be the reference for new users and for projects upgrading from previous waf versions such as waf 1.4.
+This document describes the main changes compared to the previous version, Waf 1.5.
+The Waf book for Waf 1.6 should be the reference for new users and for projects upgrading from previous Waf versions such as Waf 1.4.
 
 
 
@@ -95,7 +95,7 @@ def build(ctx):
 
 === Tool declaration
 
-For consistency with the user scripts, the method 'detect' in waf tools has been renamed to 'configure'. The method 'set_options' is now called 'options' and is consistent with waf scripts.
+For consistency with the user scripts, the method 'detect' in Waf tools has been renamed to 'configure'. The method 'set_options' is now called 'options' and is consistent with Waf scripts.
 
 === Task generator declaration
 
@@ -125,7 +125,7 @@ def build(bld):
 Python 3 is now the default syntax. Waf now runs unmodified for 2.6, 2.7, 3.0 and 3.1. Upon execution, a detection is performed and the code
 is then converted for python 2.3, 2.4 and 2.5 if necessary. It is far easier to modify Python3 code to run on Python2 than porting Python 2 code to Python 3.
 
-The waf tools and modules have been reorganized in the following directory structure:
+The Waf tools and modules have been reorganized in the following directory structure:
 
 [source,shishell]
 ---------------
@@ -134,7 +134,7 @@ waflib
 `- Tools
 ---------------
 
-To avoid conflicts with other projects, python namespaces are now used in the waf library. This means that the import system has changed:
+To avoid conflicts with other projects, python namespaces are now used in the Waf library. This means that the import system has changed:
 
 [source,python]
 ---------------
@@ -159,9 +159,9 @@ The following modules have been removed:
 
 The following modules have been added:
 
-- Context.py: base class for waf commands (build context, configuration context, etc)
-- Errors.py: exceptions used in the waf code
-- fixpy2.py: routines to make the waf code executable on python 2.3, 2.4 and 2.6
+- Context.py: base class for Waf commands (build context, configuration context, etc)
+- Errors.py: exceptions used in the Waf code
+- fixpy2.py: routines to make the Waf code executable on python 2.3, 2.4 and 2.6
 
 The module Environment.py has been renamed to ConfigSet.py
 
@@ -215,7 +215,7 @@ $ waf package
 
 === New variant system
 
-The variant system present in the previous waf versions has been removed. The new system makes it easier to declare an output directory for the tasks:
+The variant system present in the previous Waf versions has been removed. The new system makes it easier to declare an output directory for the tasks:
 
 [source,python]
 ---------------
@@ -265,7 +265,7 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/gnu/build/debug_'
 
 === New node class design
 
-The node objects are used to to represent files or and folders. In waf 1.6 the build folders are no more virtual and do not depend on the variant anymore. They are represented by exactly one node:
+The node objects are used to to represent files or and folders. In Waf 1.6 the build folders are no more virtual and do not depend on the variant anymore. They are represented by exactly one node:
 
 [source,python]
 ---------------
@@ -277,7 +277,7 @@ def configure(ctx):
 
 def build(ctx):
 	#print(ctx.path.abspath(bld.env)) # old
-	print(ctx.path.get_bld().abspath()) # waf 1.6
+	print(ctx.path.get_bld().abspath()) # Waf 1.6
 ---------------
 
 The method 'ant_glob' no longer accepts the 'bld' argument to enumerate the build files, and must be called with the appropriate node:
@@ -292,7 +292,7 @@ def configure(ctx):
 
 def build(ctx):
     # ctx.path.ant_glob('*.o', src=False, bld=True, dir=False) # old
-    ctx.path.get_bld().ant_glob('*.o', src=True, dir=False) # equivalent in waf 1.6
+    ctx.path.get_bld().ant_glob('*.o', src=True, dir=False) # equivalent in Waf 1.6
 ---------------
 
 The method 'ant_glob' is now the default for finding files and folders. As a consequence, the methods 'Node.find_iter', 'task_gen.find_sources_in_dirs' and the glob functionality in 'bld.install_files' have been removed.
@@ -380,7 +380,7 @@ Waf: Leaving directory `/foo/test/build'
 'build' finished successfully (0.476s)
 ---------------
 
-Because node objects are accepted directly, the attribute allnodes has been removed, and the nodes should be added to the list of source directly:
+Because node objects are accepted directly, the attribute 'allnodes' has been removed, and the nodes should be added to the list of source directly:
 
 [source,python]
 ---------------
@@ -455,7 +455,7 @@ def build(ctx):
 
 
 
-== New functionalities
+== New features
 
 === Task dependencies
 
@@ -489,7 +489,7 @@ def options(opt):
 
 def configure(conf):
     conf.check_tool('compiler_cxx')
-    conf.check(header_name='stdio.h', features='cxx cprogram')
+    conf.check(header_name='stdio.h', features='cxx cxxprogram')
 
 def build(bld):
 
@@ -497,7 +497,7 @@ def build(bld):
         bld.log = open('test.log', 'w')
         try:
             bld.find_program('gpg', var='GPG')
-            bld.check(header_name='sadlib.h', features='cxx cprogram')
+            bld.check(header_name='sadlib.h', features='cxx cxxprogram')
         except bld.errors.ConfigurationError:
             pass
         finally:
