@@ -20,6 +20,12 @@ $ cp waf demos/c/
 $ cd demos/c/
 $ ./waf configure build
 
+API DOCS
+--------
+
+Use this command:
+epydoc -v -o wafdoc16 --name epydoc --css white waflib/
+
 ---------------------------
 Thomas Nagy, 2010 (ita)
 
