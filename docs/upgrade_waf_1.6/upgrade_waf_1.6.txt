@@ -41,7 +41,7 @@ The waf book for waf 1.6 should be the reference for new users and for projects 
 
 
 
-== Changes in the user scripts
+== Main changes in user scripts
 
 === The attributes 'srcdir' and 'blddir'
 
@@ -76,7 +76,7 @@ def configure(ctx):
 
 === The method 'recurse'
 
-The context class for all commands has a unique method named 'recurse'. The methods 'add_subdirs', 'sub_config' and 'sub_options' disappear:
+The context class for all commands has a unique method named 'recurse'. The methods 'add_subdirs', 'sub_config' and 'sub_options' have been removed:
 
 [source,python]
 ---------------
@@ -118,7 +118,7 @@ def build(bld):
 
 
 
-== Waf modules
+== Waf modules refactoring
 
 === Syntax and namespaces
 
@@ -175,7 +175,7 @@ image::core.eps["Dependencies between Waf core modules",height=600]
 
 
 
-== Context classes
+== New context classes
 
 === Context subclasses
 
@@ -263,7 +263,7 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/gnu/build/debug_'
 
 == The 'Node' class
 
-=== Design of the node class
+=== New node class design
 
 The node objects are used to to represent files or and folders. In waf 1.6 the build folders are no more virtual and do not depend on the variant anymore. They are represented by exactly one node:
 
@@ -280,7 +280,7 @@ def build(ctx):
 	print(ctx.path.get_bld().abspath()) # waf 1.6
 ---------------
 
-The method 'ant_glob' no longer accepts the 'bld' argument to enumerate the build files:
+The method 'ant_glob' no longer accepts the 'bld' argument to enumerate the build files, and must be called with the appropriate node:
 
 [source,python]
 ---------------
@@ -295,7 +295,7 @@ def build(ctx):
     ctx.path.get_bld().ant_glob('*.o', src=True, dir=False) # equivalent in waf 1.6
 ---------------
 
-The methods 'find_sources_in_dirs' and 'find_iter' have been removed, and the node method 'ant_glob' should be used whenever possible
+The method 'ant_glob' is now the default for finding files and folders. As a consequence, the methods 'Node.find_iter', 'task_gen.find_sources_in_dirs' and the glob functionality in 'bld.install_files' have been removed.
 
 
 === Targets in the source directory or in any location
@@ -327,9 +327,7 @@ class copy(Task.Task):
 	run_str = '${CP} ${SRC} ${TGT}'
 ---------------
 
-=== Enable the top-level directory to be the build directory
-
-Although discouraged, it is possible to avoid the use of a build directory:
+Although discouraged, it is even possible to avoid the use of a build directory:
 
 [source,python]
 ---------------
@@ -399,13 +397,60 @@ def some_method(self, node):
 
 
 
-== New functionality
+
+
+
+== Refactoring of the tools for c/cxx/d/go
+
+The support for the languages 'c', 'cxx', 'd', 'fortran', 'assembly', and 'go' is now based on 4 methods executed in the following order: 'apply_link', 'apply_uselib_local', 'propagate_uselib_vars' and 'apply_incpaths'.
+
+=== apply_link
+
+The task generator method apply_link scans the task generator attribute for the feature names and tries to find a corresponding task class, if possible. If a task class is found and has the attribute 'inst_to' set, it will be used to create a link task. The tasks stored in the attribute 'compiled_tasks' will be used to set the input object files (.o) to the link task.
+
+The following classes are now used and match the names of the task generator attribute 'features': cprogram, cshlib, cstlib, cxxprogram, cxxshlib, cxxstlib, dprogram, dshlib and dstlib.
+
+The method 'create_compiled_tasks' should be used to create tasks that provide '.o' files, as it adds the tasks to the attribute 'compiled_tasks', for use with the method 'apply_link'. This is of course optional.
+
+=== apply_uselib_local
+
+The method apply_uselib_local has been changed to take into account static and shared library types. Two base classes for link tasks have been added in the module 'waflib.Tools.ccroot': 'link_task' and 'static_link'.
+
+////
+a class diagram maybe?
+////
+
+=== propagate_uselib_vars
+
+The uselib attribute processing has been split from the local library processing. The main operations are the following:
+
+. the variables names are extracted from the task generator attribute 'features', for example 'CCFLAGS' and 'LINKFLAGS'
+. for each variable, the task generator attributes in lowercase are processed, for example the contents of 'tg.ccflags' is added to 'tg.env.CCFLAGS'
+. for each feature, the corresponding variables are added if they are set, for example, if 'tg.features = "cc cprogram"' is set, then 'cc_CCFLAGS' and 'cshlib_CCFLAGS' are added to 'tg.env.CCFLAGS'
+. for each variable defined in the task generator attribute 'uselib', add the corresponding variable, for example, if 'tg.uselib = "M"' is set, then 'tg.env.CCFLAGS_M' is added to 'tg.env.CCFLAGS'
+
+The variable names are defined in 'waflib.Tools.ccroot.USELIB_VARS' and are bound to the feature names.
+
+=== apply_incpaths
+
+The task generator method apply_incpaths no longer processes the attribute 'CPPPATH' but the attribute 'INCLUDES' which is consistent with the task generator attribute 'tg.includes'. After execution, two variables are set:
+
+. 'tg.env.INCPATHS' contains the list of paths to add to the command-line (without the '-I' flags)
+. 'tg.includes_nodes' contains the list of paths as node objects for use by other methods or scanners
+
+
+
+
+
+
+
+== New functionalities
 
 === Task dependencies
 
 The method 'BuildContext.use_the_magic' disappears, and a heuristic based on the task input and outputs is used to set the compilation
-order over the tasks. For compilation chains and indirect dependencies it will still be necessary to provide the extension symbols, for
-example:
+order over the tasks. For compilation chains and indirect dependencies it will still be necessary to provide the extension symbols, but this
+will be the exception. For example:
 
 [source,python]
 ---------------
@@ -453,7 +498,7 @@ The decorator '@conf' is now binding the methods to both the ConfigurationContex
 
 === Downloading Waf tools
 
-The call to 'conf.check_tool' will normally fail if the tool cannot be found.
+The call to 'conf.check_tool' will normally fail if a tool cannot be found.
 
 [source,python]
 ---------------
@@ -554,27 +599,19 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 ---------------
 
 
+
+
+
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
 * only the build-related commands require a configured project
-* new variant system + build context commands
-* merge the include system for c, c+, d, gas and nasm
 * rename apply_core -> process_source
 * rename apply_rule -> process_rule
 * rename Task.TaskBase.classes -> Task.classes
 * remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
-* remove program_USELIB, shlib_USELIB staticlib_USELIB support
 * infer the build directory from the lock filename
 * post task generators in a lazy manner
-
-installation methods
 * use tasks for target installation
-* removed the pseudo glob in installation methods
-
-context and commands
 * Utils.load_tool -> Context.load_tool
-* let the commands access node objects
-
-modules
 * improve the exception handling (WscriptError was removed, use WafError)
 
