@@ -56,6 +56,7 @@ def process_src(self, node): <3>
 	tg.post() <5>
 
 	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <6>
+	self.allnodes.append(tsk.outputs[0])
 
 	name = tg.link_task.outputs[0].abspath(tg.env) <7>
 	tsk.env.COMP = name <8>
