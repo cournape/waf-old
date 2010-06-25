@@ -400,7 +400,7 @@ def some_method(self, node):
 
 
 
-== Refactoring of the tools for c/cxx/d/go
+== c/cxx/d/fortran/assembly/go
 
 The support for the languages 'c', 'cxx', 'd', 'fortran', 'assembly', and 'go' is now based on 4 methods executed in the following order: 'apply_link', 'apply_uselib_local', 'propagate_uselib_vars' and 'apply_incpaths'.
 
@@ -438,8 +438,19 @@ The task generator method apply_incpaths no longer processes the attribute 'CPPP
 . 'tg.env.INCPATHS' contains the list of paths to add to the command-line (without the '-I' flags)
 . 'tg.includes_nodes' contains the list of paths as node objects for use by other methods or scanners
 
+=== New wrappers for programs and libraries
 
+For convenience, the following wrappers 'program', 'shlib' and 'stlib' have been added. The following declarations are equivalent:
 
+[source,python]
+---------------
+def build(ctx):
+	ctx(features='cxx cxxprogram', source='main.cpp', target='app1')
+	ctx.program(source='main.cpp', target='app2')
+
+	ctx(features='cc cstlib', source='main.cpp', target='app3')
+	ctx.stlib(source='main.cpp', target='app4')
+---------------
 
 
 
@@ -600,8 +611,7 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 
 
 
-
-
+////
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
 * only the build-related commands require a configured project
@@ -614,4 +624,5 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 * use tasks for target installation
 * Utils.load_tool -> Context.load_tool
 * improve the exception handling (WscriptError was removed, use WafError)
+////
 
