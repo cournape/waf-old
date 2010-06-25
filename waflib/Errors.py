@@ -16,7 +16,7 @@ class WafError(Exception):
 		else:
 			self.stack = traceback.extract_stack()
 
-		# modify the stack
+		# modify the stack to add the file name
 		if pyfile:
 			for i in range(len(self.stack)):
 				tup = self.stack[i]
@@ -39,6 +39,7 @@ class BuildError(WafError):
 		WafError.__init__(self, self.format_error())
 
 	def format_error(self):
+		"""format the error messages from the tasks that failed"""
 		lst = ['Build failed']
 		for tsk in self.tasks:
 			txt = tsk.format_error()

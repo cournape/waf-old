@@ -78,16 +78,20 @@ def get_color(cl):
 	if not colors_lst['USE']: return ''
 	return colors_lst.get(cl, '')
 
-class foo(object):
+class color_dict(object):
+	"""attribute-based color access, eg: colors.PINK"""
 	def __getattr__(self, a):
 		return get_color(a)
 	def __call__(self, a):
 		return get_color(a)
 
-colors = foo()
+colors = color_dict()
 
 re_log = re.compile(r'(\w+): (.*)', re.M)
 class log_filter(logging.Filter):
+	"""
+	The waf logs are of the form 'name: message', and can be filtered by 'waf --zones=name'
+	"""
 	def __init__(self, name=None):
 		pass
 
@@ -135,6 +139,9 @@ def debug(*k, **kw):
 		logging.debug(*k, **kw)
 
 def error(*k, **kw):
+	"""
+	wrap logging.errors, display the origin of the message when '-vv' is set
+	"""
 	logging.error(*k, **kw)
 	if verbose > 2:
 		st = traceback.extract_stack()
@@ -151,6 +158,7 @@ warn = logging.warn
 info = logging.info
 
 def init_log():
+	"""initialize the loggers"""
 	log = logging.getLogger()
 	log.handlers = []
 	log.filters = []

@@ -178,7 +178,7 @@ class ConfigurationContext(Context.Context):
 		env.store(Context.out_dir + os.sep + Options.lockfile)
 
 	def post_init(self):
-
+		"""TODO remove this method, ugh"""
 		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
 
 		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)

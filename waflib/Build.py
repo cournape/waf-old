@@ -252,8 +252,6 @@ class BuildContext(Context.Context):
 		except OSError: pass
 		os.rename(db + '.tmp', db)
 
-	# ======================================= #
-
 	def compile(self):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
 		Logs.debug('build: compile()')
@@ -282,8 +280,10 @@ class BuildContext(Context.Context):
 		if hasattr(module, "setup"): module.setup(self)
 
 	def get_env(self):
+		"""getter for the env property""""
 		return self.env_of_name('default')
 	def set_env(self, name, val):
+		"""setter for the env property"""
 		self.all_envs[name] = val
 
 	env = property(get_env, set_env)
@@ -725,6 +725,7 @@ class InstallContext(BuildContext):
 			Logs.info('- symlink %s (to %s)' % (tgt, src))
 
 	def run_task_now(self, tsk, postpone):
+		"""execute an installation task immediately"""
 		if not postpone:
 			if tsk.runnable_status() == Task.ASK_LATER:
 				raise self.WafError('cannot post the task %r' % tsk)
@@ -854,6 +855,7 @@ class CleanContext(BuildContext):
 			self.save()
 
 	def clean(self):
+		"""clean the data and some files in the build dir .. well, TODO"""
 		Logs.debug('build: clean called')
 
 		# TODO clean could remove the files except the ones listed in env[CFG_FILES]
