@@ -176,8 +176,8 @@ Now suppose that the idl processing outputs will be shared by several task gener
 
 [source,python]
 ---------------
-srcdir = '.'
-blddir = 'out'
+top = '.'
+out = 'out'
 
 def configure(ctx):
 	ctx.check_tool('g++')
