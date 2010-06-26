@@ -377,14 +377,16 @@ $ waf --help
 waf [command] [options]
 
 Main commands (example: ./waf build -j4)
-  build    : builds the project
-  clean    : removes the build files
+  build    : executes the build
+  clean    : cleans the project
   configure: configures the project
   dist     : makes a tarball for redistributing the sources
-  distcheck: checks if the sources compile (tarball from 'dist')
+  distcheck: checks if the project compiles (tarball from 'dist')
   distclean: removes the build directory
-  install  : installs the build files
-  uninstall: removes the installed files
+  install  : installs the targets on the system
+  list     : lists the targets to execute
+  step     : executes tasks in a step-by-step fashion, for debugging
+  uninstall: removes the targets installed
 
 Options:
   --version             show program's version number and exit
@@ -394,14 +396,21 @@ Options:
   -v, --verbose         verbosity level -v -vv or -vvv [default: 0]
   --nocache             ignore the WAFCACHE (if set)
   --zones=ZONES         debugging zones (task_gen, deps, tasks, etc)
-  -p, --progress        -p: progress bar; -pp: ide output
-  --targets=COMPILE_TARGETS
-                        build given task generators, e.g. "target1,target2"
 
-  configuration options:
-    --prefix=PREFIX     installation prefix (configuration) [default: '/usr/local/']
+  configure options:
+    -o OUT, --out=OUT   build dir for the project
+    -t TOP, --top=TOP   src dir for the project
+    --prefix=PREFIX     installation prefix [default: '/usr/local/']
+    --download          try to download the tools if missing
 
-  installation options:
+  build and install options:
+    -p, --progress      -p: progress bar; -pp: ide output
+    --targets=TARGETS   task generators, e.g. "target1,target2"
+
+  step options:
+    --files=FILES       files to process, by regexp, e.g. "*/main.c,*/test/main.o"
+
+  install/uninstall options:
     --destdir=DESTDIR   installation root [default: '']
     -f, --force         force file installation
 ---------------
