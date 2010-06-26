@@ -57,7 +57,7 @@ def build(bld):
 
 	if Options.options.exe:
 		def exe(ctx):
-			p = Utils.pproc.Popen('firefox build/single.html', shell=True)
+			p = Utils.subprocess.Popen('firefox build/single.html', shell=True)
 			p.wait()
 		bld.add_post_fun(exe)
 
