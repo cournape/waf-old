@@ -349,6 +349,7 @@ class Node(object):
 	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True):
 
 		dircont = self.listdir()
+		dircont.sort()
 
 		try:
 			lst = set(self.children.keys())
