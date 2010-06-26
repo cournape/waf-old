@@ -583,7 +583,7 @@ def compile_fun_shell(line):
 	The reserved keywords TGT and SRC represent the task input and output nodes
 
 	quick test:
-	bld.new_task_gen(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
+	bld(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
 	"""
 
 	extr = []
@@ -611,7 +611,7 @@ def compile_fun_shell(line):
 				app('" ".join([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
 				dvars.extend([var, meth[1:]])
 			else:
-				app('" ".join(%s%s)' % (var, meth))
+				app('%s%s' % (var, meth))
 		else:
 			if not var in dvars: dvars.append(var)
 			app("p('%s')" % var)
@@ -654,7 +654,7 @@ def compile_fun_noshell(line):
 				app('lst.extend([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
 				dvars.extend([var, meth[1:]])
 			else:
-				app('lst.extend(%s%s)' % (var, meth))
+				app('lst.extend(Utils.to_list(%s%s))' % (var, meth))
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
