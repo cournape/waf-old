@@ -103,7 +103,7 @@ There are the important points to remember:
 . The includes are always given relative to the directory containing the wscript file
 . The includes add both the source directory and the corresponding build directory for the task generator variant
 . Commands are executed from the build directory, so the include paths must be converted
-. System include paths should be defined during the configuration and added to CPPPATH variables (uselib)
+. System include paths should be defined during the configuration and added to INCLUDES variables (uselib)
 
 ==== The Waf preprocessor
 
@@ -235,7 +235,7 @@ To link an application against various 'system libraries', several compilation f
 [source,python]
 ---------------
 def configure(conf):
-	conf.env.CPPPATH_TEST = ['/usr/include'] <1>
+	conf.env.INCLUDES_TEST = ['/usr/include'] <1>
 
 	if sys.platform != win32: <2>
 		conf.env.CCDEFINES_TEST = ['TEST']
@@ -243,7 +243,7 @@ def configure(conf):
 		conf.env.LIB_TEST       = 'test'
 		conf.env.LIBPATH_TEST   = ['/usr/lib'] <4>
 		conf.env.LINKFLAGS_TEST = ['-g']
-		conf.env.CPPPATH_TEST   = ['/opt/gnome/include']
+		conf.env.INCLUDES_TEST   = ['/opt/gnome/include']
 
 def build(bld):
 	mylib = bld(
@@ -256,7 +256,7 @@ def build(bld):
 		mylib.cxxflags = ['-O2'] <6>
 ---------------
 
-<1> For portability reasons, it is recommended to use CPPPATH instead of giving flags of the form -I/include. Note that the CPPPATH use used by both c and c++
+<1> For portability reasons, it is recommended to use INCLUDES instead of giving flags of the form -I/include. Note that the INCLUDES use used by both c and c++
 <2> Variables may be left undefined in platform-specific settings, yet the build scripts will remain identical.
 <3> Declare a few variables during the configuration, the variables follow the convention VAR_NAME
 <4> Values should be declared as lists excepts for LIB and STATICLIB
@@ -275,10 +275,10 @@ The variables used for c/c++ are the following:
 |RPATH    |rpath    | list of paths to hard-code into the binary during linking time
 |CXXFLAGS |cxxflags | flags to use during the compilation of c++ files
 |CCFLAGS  |ccflags  | flags to use during the compilation of c files
-|CPPPATH  |includes | include paths
+|INCLUDES |includes | include paths
 |CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
-|CCDEFINES,CXXDEFINES|defines| list of defines in the form ['key=value', 'key', ...]
+|DEFINES  |defines  | list of defines in the form ['key=value', 'key', ...]
 |FRAMEWORK|framework| list of frameworks to use, requires the waf tool 'osx'
 |FRAMEWORKPATH|frameworkpath| list of framework paths to use, requires the waf tool 'osx'
 |=================
@@ -507,8 +507,8 @@ After such a configuration, the configuration set contents will be similar to th
 [source,python]
 ---------------
 CCFLAGS_OPEN_MPI = ['-pthread']
-CPPPATH_OPEN_MPI = ['/usr/lib64/mpi/gcc/openmpi/include/openmpi']
-CPPPATH_PANGO = ['/usr/include/pango-1.0', '/usr/include/glib-2.0']
+INCLUDES_OPEN_MPI = ['/usr/lib64/mpi/gcc/openmpi/include/openmpi']
+INCLUDES_PANGO = ['/usr/include/pango-1.0', '/usr/include/glib-2.0']
 CXXFLAGS_OPEN_MPI = ['-pthread']
 HAVE_MYPANGO = 1
 HAVE_OPEN_MPI = 1
