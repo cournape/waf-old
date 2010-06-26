@@ -9,7 +9,9 @@ The current Waf version requires an interpreter for the Python programming langu
 
 The Waf binary does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it into \'waf' if necessary:
 
-[source,shishell]
+{set:shishell:{backend@docbook:[source,shishell]:}}
+
+{shishell}
 ---------------
 $ wget http://waf.googlecode.com/files/waf-1.6.0
 $ mv waf-1.6.0 waf && chmod 755 waf
@@ -19,7 +21,7 @@ $ mv waf-1.6.0 waf && chmod 755 waf
 
 The Waf binary creation requires a Python interpreter in version 2.4 to 2.6. The source code is processed to support Python 2.3 and Python 3.
 
-[source,shishell]
+{shishell}
 ---------------
 $ wget http://waf.googlecode.com/files/waf-1.6.0.tar.bz2
 $ tar xjvf waf-1.6.0.tar.bz2
@@ -31,21 +33,21 @@ $ ./waf-light --make-waf
 
 The 'waf' script can be used directly from a writeable folder:
 
-[source,shishell]
+{shishell}
 ---------------
 $ ./waf
 ---------------
 
 Or, if the executable permissions are not set properly:
 
-[source,shishell]
+{shishell}
 ---------------
 $ python waf
 ---------------
 
 The 'waf' file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
 
-[source,shishell]
+{shishell}
 ---------------
 $ ls -ld .waf*
 .waf-1.6.0-2c924e3f453eb715218b9cc852291170
@@ -70,7 +72,7 @@ Installing Waf on a system is unnecessary and discouraged:
 
 Installation require a Python interpreter in the versions 2.4 to 2.6. It may require administrator or root privileges, depending on the target folder (prefix).
 
-[source,shishell]
+{shishell}
 ---------------
 # ./waf-light configure --prefix=/usr/
 # ./waf-light install
@@ -78,7 +80,7 @@ Installation require a Python interpreter in the versions 2.4 to 2.6. It may req
 
 Likewise, Waf can be uninstalled using:
 
-[source,shishell]
+{shishell}
 ---------------
 # ./waf-light --prefix=/usr/
 # ./waf-light uninstall
