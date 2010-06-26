@@ -80,10 +80,10 @@ def build(ctx):
 
 	def do_it():
 
-		import Environment, Build
+		import ConfigSet, Build
 		bld = Build.BuildContext() <1>
 		bld.load_dirs('/tmp', '/tmp/build') <2>
-		env = Environment.Environment()
+		env = ConfigSet.ConfigSet()
 		bld.all_envs['default'] = env <3>
 		bld.init_variants() <4>
 

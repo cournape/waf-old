@@ -13,8 +13,8 @@ Waf is based on only 12 modules which constitute the core library. They are loca
 |Module    | Role
 |Build     | Defines the build context class, which holds the data for one build (paths, configuration data)
 |Configure | Contains the configuration context class, which is used for launching configuration tests, and the extension system
-|Constants | Provides the constants used in the project
-|Environment | Contains a dictionary class which supports a lightweight copy scheme and provides persistence services
+|ConfigSet | Contains a dictionary class which supports a lightweight copy scheme and provides persistence services
+|Context   | Contains the base class for all context classes (used by waf commands)
 |Logs        | Loggging system
 |Node        | Contains the file system representation class
 |Options     | Provides a custom command-line option processing system based on optparse

@@ -4,7 +4,7 @@ The configuration step is used to check if the requiremements for working on a p
 
 === Storing configuration sets
 
-Configuration sets are instances of the class 'Environment'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
+Configuration sets are instances of the class 'ConfigSet'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
 
 [source,python]
 ---------------
@@ -70,8 +70,8 @@ def configure(conf):
 
 	conf.env.store('/tmp/env.txt') <9>
 
-	import Environment
-	env = Environment.Environment()
+	import ConfigSet
+	env = ConfigSet.ConfigSet()
 	env.load('/tmp/env.txt') <10>
 
 ---------------
@@ -85,7 +85,7 @@ def configure(conf):
 <7> Format and print the contents
 <8> Substitute the values in a formatted string
 <9> Serialize and store the contents into a file, one key=value by line.
-<10> Instantiate a new Environment and load the contents from a file
+<10> Instantiate a new ConfigSet and load the contents from a file
 
 Upon execution, the output will be the following:
 
