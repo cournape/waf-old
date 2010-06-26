@@ -36,9 +36,9 @@ def set_options(opt):
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(conf):
-	conf.find_program('a2x', var='A2X', mandatory=True)
-	conf.find_program('asciidoc', var='ADOC', mandatory=True)
-
+	conf.find_program('a2x', var='A2X')
+	conf.find_program('asciidoc', var='ADOC')
+	conf.find_program('dia', var='DIA')
 
 re_size = re.compile('''width=(\d+)\\]''', re.M)
 def repl(m):
@@ -66,19 +66,16 @@ TaskGen.declare_chain(
 )
 
 def build(bld):
-	for k in ['pics']:
-		files = os.listdir(k)
-		for x in files:
-			if x == '.svn':
-				continue
-			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
+	for x in bld.path.ant_glob('*.dia'):
+		bld(rule='${DIA} -t eps ${SRC} -e ${TGT}', source=[x], target=[x.change_ext('.eps')], ext_out=['.eps'])
 
+	return
 	for k in ['callouts']:
 		files = os.listdir(k)
 		for x in files:
 			if x == '.svn':
 				continue
-			bld.new_task_gen(name='copy', rule='cp ${SRC} ${SRC[0].parent.abspath(env)}/${SRC[0].name}', source=k+'/'+x)
+			bld(name='copy', rule='cp ${SRC} ${SRC[0].parent.abspath(env)}/${SRC[0].name}', source=k+'/'+x)
 
 
 	bld(source=bld.path.ant_glob('*.txt', src=True, bld=False, dir=False))
@@ -86,7 +83,7 @@ def build(bld):
 
 	if 1 == 1:
 		bld(rule='${ADOC} -a icons=true -a iconsdir=. -a toc -n -d book -o ${TGT} -v ${SRC}',
-			source='waf_ug.txt', target='single.html', after='copy copysym repl', name='single', scan=ascii_doc_scan)
+			source='waf_ug.txt', target='single.html', ext_in=['.eps'], after='copy copysym repl', name='single', scan=ascii_doc_scan)
 
 	if 1 == 1:
 		bld(rule='${A2X} -L -a toc --icons-dir=.   -v   --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}',
