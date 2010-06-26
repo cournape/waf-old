@@ -313,8 +313,6 @@ def to_nodes(self, lst, path=None):
 				raise Errors.WafError("source not found: %r in %r" % (x, path))
 		else:
 			node = x
-			if not node.is_child_of(self.bld.bldnode):
-				node.compute_sig()
 		tmp.append(node)
 	return tmp
 

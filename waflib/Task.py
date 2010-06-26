@@ -389,7 +389,7 @@ class Task(TaskBase):
 		# the inputs
 		for x in self.inputs + getattr(self, 'dep_nodes', []):
 			try:
-				upd(x.sig)
+				upd(x.get_bld_sig())
 			except (AttributeError, TypeError):
 				raise Errors.WafError('Missing node signature for %r (required by %r)' % (x, self))
 
@@ -405,7 +405,7 @@ class Task(TaskBase):
 				for v in d:
 					if isinstance(v, bld.root.__class__):
 						try:
-							v = v.sig
+							v = v.get_bld_sig()
 						except AttributeError:
 							raise Errors.WafError('Missing node signature for %r (required by %r)' % (v, self))
 					elif hasattr(v, '__call__'):
@@ -413,7 +413,7 @@ class Task(TaskBase):
 					upd(v)
 
 		for x in self.deps_nodes:
-			upd(x.sig)
+			upd(x.get_bld_sig())
 		return self.m.digest()
 
 	def sig_vars(self):
@@ -484,13 +484,13 @@ class Task(TaskBase):
 		try:
 			for k in bld.node_deps.get(self.unique_id(), []):
 				# can do an optimization here
-				upd(k.sig)
+				upd(k.get_bld_sig())
 		except AttributeError:
 			# do it again to display a meaningful error message
 			nodes = []
 			for k in bld.node_deps.get(self.unique_id(), []):
 				try:
-					k.sig
+					k.get_bld_sig()
 				except AttributeError:
 					nodes.append(k)
 			raise Errors.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))

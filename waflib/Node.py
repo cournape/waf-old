@@ -456,6 +456,7 @@ class Node(object):
 	# --------------------------------------------------------------------------------
 
 	def is_src(self):
+		"""note: !is_src does not imply is_bld()"""
 		cur = self
 		x = id(self.ctx.srcnode)
 		y = id(self.ctx.bldnode)
@@ -467,7 +468,18 @@ class Node(object):
 			cur = cur.parent
 		return False
 
+	def is_bld(self):
+		"""note: !is_bld does not imply is_src"""
+		cur = self
+		y = id(self.ctx.bldnode)
+		while cur.parent:
+			if id(cur) == y:
+				return True
+			cur = cur.parent
+		return False
+
 	def get_src(self):
+		"""for a build node, will return the equivalent src node (or self if not possible)"""
 		cur = self
 		x = id(self.ctx.srcnode)
 		y = id(self.ctx.bldnode)
@@ -483,6 +495,7 @@ class Node(object):
 		return self
 
 	def get_bld(self):
+		"""for a src node, will return the equivalent bld node (or self if not possible)"""
 		cur = self
 		x = id(self.ctx.srcnode)
 		y = id(self.ctx.bldnode)
@@ -497,15 +510,6 @@ class Node(object):
 			cur = cur.parent
 		return self
 
-	def is_bld(self):
-		cur = self
-		y = id(self.ctx.bldnode)
-		while cur.parent:
-			if id(cur) == y:
-				return True
-			cur = cur.parent
-		return False
-
 	def find_resource(self, lst):
 		"""
 		try to find a declared build node or a source file
@@ -515,21 +519,15 @@ class Node(object):
 
 		node = self.get_bld().search(lst)
 		if node:
-			if not node.is_child_of(self.ctx.bldnode):
-				node.compute_sig()
 			return node
 
 		self = self.get_src()
 		node = self.search(lst)
 		if node:
-			# compute the signature only once
-			node.compute_sig()
 			return node
 
 		node = self.find_node(lst)
 		if node:
-			# compute the signature only once
-			node.compute_sig()
 			return node
 
 		return node
@@ -624,6 +622,19 @@ class Node(object):
 		"build path without the extension: src/dir/foo(.cpp)"
 		s = os.path.splitext(self.name)[0]
 		return self.bld_dir() + os.sep + s
+
+	def get_bld_sig(self):
+		try:
+			if id(self) in self.ctx.hash_cache:
+				return self.sig
+		except AttributeError:
+			self.ctx.hash_cache = {}
+
+		if not self.is_bld():
+			self.sig = Utils.h_file(self.abspath())
+		ret = self.sig
+		self.ctx.hash_cache[id(self)] = True
+		return ret
 
 
 
