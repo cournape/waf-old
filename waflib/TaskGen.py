@@ -295,30 +295,40 @@ def extension(*k):
 # The following methods are task generator methods commonly used
 # they are almost examples, the rest of waf core does not depend on them
 
+@taskgen_method
+def to_nodes(self, lst, path=None):
+	"""convert @lst to a list of nodes, used by process_source and process_rule"""
+	tmp = []
+	path = path or self.path
+	find = path.find_resource
+
+	if isinstance(lst, self.path.__class__):
+		lst = [lst]
+
+	# either a list or a string, convert to a list of nodes
+	for x in Utils.to_list(lst):
+		if isinstance(x, str):
+			node = find(x)
+			if not node:
+				raise Errors.WafError("source not found: %r in %r" % (x, path))
+		else:
+			node = x
+			if not node.is_child_of(self.bld.bldnode):
+				node.compute_sig()
+		tmp.append(node)
+	return tmp
+
 @feature('*')
 def process_source(self):
 	"""
 	Process each element in the attribute 'source', assuming it represents
-	a list of source (nodes or file names)
-	process the files by extension"""
+	a list of source (a node, a string, or a list of nodes or file names)
+	process the files by extension
 
-	if isinstance(self.source, str):
-		self.source = Utils.to_list(self.source)
+	No error will be raised if 'self.source' is not defined.
+	"""
 
-	lst = []
-	find = self.path.find_resource
-	for el in self.source:
-		if isinstance(el, str):
-			node = find(el)
-			if not node:
-				raise Errors.WafError("source not found: '%s' in '%s'" % (el, self.path))
-		else:
-			node = el
-			if not node.is_child_of(self.bld.bldnode):
-				node.compute_sig()
-		lst.append(node)
-	self.source = lst
-
+	self.source = self.to_nodes(getattr(self, 'source', []))
 	for node in self.source:
 		# self.mappings or task_gen.mappings map the file extension to a function
 		x = self.get_hook(node)
@@ -334,12 +344,6 @@ def process_rule(self):
 	"""
 	if not getattr(self, 'rule', None):
 		return
-
-	try:
-		self.meths.remove('process_source')
-	except ValueError:
-		# already removed?
-		pass
 
 	# get the function and the variables
 	func = self.rule
@@ -358,33 +362,21 @@ def process_rule(self):
 
 	# create the task class
 	name = getattr(self, 'name', None) or self.target or self.rule
-	cls = Task.task_factory(name, func, vars)
+	cls = Task.task_factory(name, func, vars, quiet=True)
 	cls.color = getattr(self, 'color', 'BLUE')
 
 	# now create one instance
 	tsk = self.create_task(name)
 
 	if getattr(self, 'target', None):
-		cls.quiet = True
-
 		if not isinstance(self.target, list):
 			self.target = [self.target]
 		tsk.outputs = [isinstance(x, str) and self.path.find_or_declare(x) or x for x in self.target]
 
 	if getattr(self, 'source', None):
-		cls.quiet = True
-		tsk.inputs = []
-		for x in self.to_list(self.source):
-			# TODO we have the same code somewhere else, refactor it?
-			if isinstance(x, str):
-				y = self.path.find_resource(x)
-				if not y:
-					raise Errors.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
-			else:
-				y = x
-				if not y.is_child_of(self.bld.bldnode):
-					y.compute_sig()
-			tsk.inputs.append(y)
+		tsk.inputs = self.to_nodes(self.source)
+		# bypass the execution of process_source by setting the source to an empty list
+		self.source = []
 
 	if getattr(self, 'always', None):
 		Task.always_run(cls)
