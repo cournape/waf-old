@@ -3,6 +3,7 @@ Waf 1.6
 
 General
 
+- logging for the configuration stuff
 - broken conf.check_cfg
 - better apis for shell compilation in Task.py and remove misc.py
 - refactor the environment thing ?
