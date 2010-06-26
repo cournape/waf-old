@@ -87,7 +87,8 @@ class task_gen(object):
 			return self._name
 		except AttributeError:
 			if isinstance(self.target, list):
-				name = self._name = ','.join(self.target)
+				lst = [str(x) for x in self.target]
+				name = self._name = ','.join(lst)
 			else:
 				name = self._name = str(self.target)
 			return name
@@ -374,9 +375,15 @@ def process_rule(self):
 		cls.quiet = True
 		tsk.inputs = []
 		for x in self.to_list(self.source):
-			y = self.path.find_resource(x)
-			if not y:
-				raise Errors.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
+			# TODO we have the same code somewhere else, refactor it?
+			if isinstance(x, str):
+				y = self.path.find_resource(x)
+				if not y:
+					raise Errors.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
+			else:
+				y = x
+				if not y.is_child_of(self.bld.bldnode):
+					y.compute_sig()
 			tsk.inputs.append(y)
 
 	if getattr(self, 'always', None):
