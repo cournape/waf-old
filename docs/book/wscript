@@ -73,7 +73,7 @@ def build(bld):
 		bld(rule='${ADOC} -a icons=true -a iconsdir=. -a toc -n -d book -o ${TGT} -v ${SRC}',
 			source='waf.txt', target='single.html', ext_in=['.eps'], name='single', scan=ascii_doc_scan)
 
-	if 1 == 1:
+	if 0 == 1:
 		bld(rule='${A2X} -L -a toc --icons-dir=. -v --stylesheet=waf.css --icons -D ${gen.path.get_bld().abspath()} -d book -f pdf ${SRC}',
 		source='waf.txt', target='waf.pdf', ext_in=['.eps'], name='single', scan=ascii_doc_scan)
 
@@ -116,6 +116,7 @@ Set the following values in asciidoc-dblatex.xsl:
   <xsl:param name="latex.output.revhistory">0</xsl:param>
 
 for source-highlight, /usr/local/share/source-highlight/default.style has:
+
 normal black ;
 keyword blue b ;
 type darkgreen ;
@@ -126,6 +127,13 @@ preproc teal b ;
 symbol black ;
 function black ;
 cbracket black ;
+optionalargument purple;
 
+then a file /usr/local/share/source-highlight/shishell.lang must have
+   optionalargument = '^(\$|#)(.*?)$'
+and be declared in /usr/local/share/source-highlight/lang.map
+
+the syntax highlighter never fails, so you might want to use:
+   waf step --files=single.html
 """
 
