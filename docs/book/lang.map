@@ -87,6 +87,7 @@ txt = nohilite.lang
 sql = sql.lang
 bib = bib.lang
 makefile = makefile.lang
+make = makefile.lang
 am = makefile.lang
 in = makefile.lang
 css = css.lang
