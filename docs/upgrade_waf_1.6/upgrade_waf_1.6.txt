@@ -609,6 +609,12 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 
 
 
+
+== Compatibility layer
+
+The module 'waflib.extras.compat15' provides a compatibility layer so that existing project scripts should not require too many modifications.
+
+
 ////
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
