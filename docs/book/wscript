@@ -19,10 +19,10 @@ def ascii_doc_scan(self):
 	depnodes = []
 	while node_lst:
 		nd = node_lst.pop(0)
-		if nd.id in seen: continue
-		seen.append(nd.id)
+		if nd in seen: continue
+		seen.append(nd)
 
-		code = nd.read(self.env)
+		code = nd.read()
 		for m in re_xi.finditer(code):
 			name = m.group(2)
 			k = p.find_resource(name)
@@ -47,13 +47,13 @@ def repl(m):
 	return ''
 
 def repli(task):
-	txt = Utils.readf(task.inputs[0].abspath(task.env))
+	txt = Utils.readf(task.inputs[0].abspath())
 	txt = txt.replace('.txt[', '_ug.txt[')
 	txt = txt.replace('.eps[', '.png[')
 	txt = txt.replace('[source,make]', '[source,makefile]')
 	txt = txt.replace('[source,shishell]', '')
 	txt = re_size.sub(repl, txt)
-	f = open(task.outputs[0].abspath(task.env), 'w')
+	f = open(task.outputs[0].abspath(), 'w')
 	f.write(txt)
 	f.close()
 
@@ -67,23 +67,23 @@ TaskGen.declare_chain(
 
 def build(bld):
 	for x in bld.path.ant_glob('*.dia'):
-		bld(rule='${DIA} -t eps ${SRC} -e ${TGT}', source=[x], target=[x.change_ext('.eps')], ext_out=['.eps'])
+		bld(rule='${DIA} -t eps ${SRC} -e ${TGT}', source=x, target=x.change_ext('.eps'), ext_out=['.eps'])
+
+	if 1 == 1:
+		bld(rule='${ADOC} -a icons=true -a iconsdir=. -a toc -n -d book -o ${TGT} -v ${SRC}',
+			source='waf.txt', target='single.html', ext_in=['.eps'], name='single', scan=ascii_doc_scan)
 
 	return
+
 	for k in ['callouts']:
 		files = os.listdir(k)
 		for x in files:
 			if x == '.svn':
 				continue
-			bld(name='copy', rule='cp ${SRC} ${SRC[0].parent.abspath(env)}/${SRC[0].name}', source=k+'/'+x)
-
+			bld(name='copy', rule='cp ${SRC} ${SRC[0].parent.abspath()}/${SRC[0].name}', source=k+'/'+x)
 
 	bld(source=bld.path.ant_glob('*.txt', src=True, bld=False, dir=False))
 	bld(name='copysym', rule='cp ${SRC} symbols.lang', source='symbols.lang.in', before='single')
-
-	if 1 == 1:
-		bld(rule='${ADOC} -a icons=true -a iconsdir=. -a toc -n -d book -o ${TGT} -v ${SRC}',
-			source='waf_ug.txt', target='single.html', ext_in=['.eps'], after='copy copysym repl', name='single', scan=ascii_doc_scan)
 
 	if 1 == 1:
 		bld(rule='${A2X} -L -a toc --icons-dir=.   -v   --stylesheet=waf.css --icons -D default -d book -f pdf ${SRC}',
