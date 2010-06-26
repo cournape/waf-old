@@ -56,6 +56,7 @@ def process_src(self, node): <3>
 	tg.post() <5>
 
 	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <6>
+	self.source.append(tsk.outputs[0])
 
 	name = tg.link_task.outputs[0].abspath(tg.env) <7>
 	tsk.env.COMP = name <8>
@@ -141,7 +142,7 @@ Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', color='BLUE', before='cxx') <1>
 def process_idl(self, node):
 	cc_node = node.change_ext('.cpp')
 	self.create_task('idl', [node], [cc_node]) <2>
-	self.allnodes.append(cc_node) <3>
+	self.source.append(cc_node) <3>
 ---------------
 
 <1> The ext_out symbol is to force the idl execution before any c++ file is processed. In practice the rule to use would be like `omniidl -bcxx ${SRC} -C${TGT}`
@@ -223,7 +224,7 @@ def process_add_source(self): <4>
 		y.post() <7>
 
 		if getattr(y, 'more_source', None):
-			self.allnodes.extend(y.more_source) <8>
+			self.source.extend(y.more_source) <8>
 ---------------
 
 <1> The idl processing must be performed before any c++ task is executed

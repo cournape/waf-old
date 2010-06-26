@@ -362,9 +362,9 @@ Note that most attributes are common between the two function factories. More us
 
 === Source attribute processing
 
-The first step in processing the source file attribute is to convert all file names into Nodes. Special methods may be mapped to intercept names by the exact file name entry (no extension). The Node objects are then added to the task generator attribute 'allnodes'.
+The first step in processing the source file attribute is to convert all file names into Nodes. Special methods may be mapped to intercept names by the exact file name entry (no extension). The Node objects are then added to the task generator attribute 'source'.
 
-The list of nodes is then consumed by regular extension mappings. Extension methods may re-inject the output nodes for further processing by appending them to the the attribute 'allnodes' (hence the name re-entrant provided in declare_chain).
+The list of nodes is then consumed by regular extension mappings. Extension methods may re-inject the output nodes for further processing by appending them to the the attribute 'source' (hence the name re-entrant provided in declare_chain).
 
 image::source.eps["Source attribute processing",width=500]
 
