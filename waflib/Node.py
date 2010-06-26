@@ -358,6 +358,98 @@ class Node(object):
 			p = p.parent
 		return id(p) == id(node)
 
+	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True):
+
+		dircont = self.listdir()
+
+		try:
+			lst = set(self.children.keys())
+			for x in lst - set(dircont):
+				del self.children[x]
+		except:
+			self.children = {}
+
+		for name in dircont:
+
+			npats = accept(name, pats)
+			if npats and npats[0]:
+				accepted = [] in npats[0]
+
+				node = self.make_node([name])
+
+				isdir = os.path.isdir(node.abspath())
+				if accepted:
+					if isdir:
+						if dir:
+							yield node
+					else:
+						if src:
+							yield node
+
+				if getattr(node, 'cache_isdir', None) or isdir:
+					node.cache_isdir = True
+					if maxdepth:
+						for k in node.ant_iter(accept=accept, maxdepth=maxdepth - 1, pats=npats):
+							yield k
+		raise StopIteration
+
+	def ant_glob(self, *k, **kw):
+
+		src = kw.get('src', True)
+		dir = kw.get('dir', False)
+
+		excl = kw.get('excl', exclude_regs)
+		incl = k and k[0] or kw.get('incl', '**')
+
+		def to_pat(s):
+			lst = Utils.to_list(s)
+			ret = []
+			for x in lst:
+				x = x.replace('//', '/')
+				if x.endswith('/'):
+					x += '**'
+				lst2 = x.split('/')
+				accu = []
+				for k in lst2:
+					if k == '**':
+						accu.append(k)
+					else:
+						k = k.replace('.', '[.]').replace('*', '.*').replace('?', '.')
+						k = '^%s$' % k
+						#print "pattern", k
+						accu.append(re.compile(k))
+				ret.append(accu)
+			return ret
+
+		def filtre(name, nn):
+			ret = []
+			for lst in nn:
+				if not lst:
+					pass
+				elif lst[0] == '**':
+					ret.append(lst)
+					if len(lst) > 1:
+						if lst[1].match(name):
+							ret.append(lst[2:])
+					else:
+						ret.append([])
+				elif lst[0].match(name):
+					ret.append(lst[1:])
+			return ret
+
+		def accept(name, pats):
+			nacc = filtre(name, pats[0])
+			nrej = filtre(name, pats[1])
+			if [] in nrej:
+				nacc = []
+			return [nacc, nrej]
+
+		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25, dir=dir, src=src)]
+		if kw.get('flat', False):
+			return ' '.join([x.path_from(self) for x in ret])
+
+		return ret
+
 	# --------------------------------------------------------------------------------
 	# the following methods require the source/build folders (bld.srcnode/bld.bldnode)
 	# using a subclass is a possibility, but is that really necessary?
@@ -534,99 +626,6 @@ class Node(object):
 		return self.bld_dir() + os.sep + s
 
 
-	# complicated stuff below
-
-	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True):
-
-		dircont = self.listdir()
-
-		try:
-			lst = set(self.children.keys())
-			for x in lst - set(dircont):
-				del self.children[x]
-		except:
-			self.children = {}
-
-		for name in dircont:
-
-			npats = accept(name, pats)
-			if npats and npats[0]:
-				accepted = [] in npats[0]
-
-				node = self.make_node([name])
-
-				isdir = os.path.isdir(node.abspath())
-				if accepted:
-					if isdir:
-						if dir:
-							yield node
-					else:
-						if src:
-							yield node
-
-				if getattr(node, 'cache_isdir', None) or isdir:
-					node.cache_isdir = True
-					if maxdepth:
-						for k in node.ant_iter(accept=accept, maxdepth=maxdepth - 1, pats=npats):
-							yield k
-		raise StopIteration
-
-	def ant_glob(self, *k, **kw):
-
-		src = kw.get('src', True)
-		dir = kw.get('dir', False)
-
-		excl = kw.get('excl', exclude_regs)
-		incl = k and k[0] or kw.get('incl', '**')
-
-		def to_pat(s):
-			lst = Utils.to_list(s)
-			ret = []
-			for x in lst:
-				x = x.replace('//', '/')
-				if x.endswith('/'):
-					x += '**'
-				lst2 = x.split('/')
-				accu = []
-				for k in lst2:
-					if k == '**':
-						accu.append(k)
-					else:
-						k = k.replace('.', '[.]').replace('*', '.*').replace('?', '.')
-						k = '^%s$' % k
-						#print "pattern", k
-						accu.append(re.compile(k))
-				ret.append(accu)
-			return ret
-
-		def filtre(name, nn):
-			ret = []
-			for lst in nn:
-				if not lst:
-					pass
-				elif lst[0] == '**':
-					ret.append(lst)
-					if len(lst) > 1:
-						if lst[1].match(name):
-							ret.append(lst[2:])
-					else:
-						ret.append([])
-				elif lst[0].match(name):
-					ret.append(lst[1:])
-			return ret
-
-		def accept(name, pats):
-			nacc = filtre(name, pats[0])
-			nrej = filtre(name, pats[1])
-			if [] in nrej:
-				nacc = []
-			return [nacc, nrej]
-
-		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25, dir=dir, src=src)]
-		if kw.get('flat', False):
-			return ' '.join([x.path_from(self) for x in ret])
-
-		return ret
 
 pickle_lock = Utils.threading.Lock()
 """thread-safe node serialization requires this"""
