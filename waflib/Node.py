@@ -173,18 +173,6 @@ class Node(object):
 			val += 1
 		return val
 
-	def compute_sig(self):
-		"compute the signature if it is a file"
-		try:
-			if id(self) in self.ctx.hash_cache:
-				return
-		except AttributeError:
-			self.ctx.hash_cache = {}
-
-		self.ctx.hash_cache[id(self)] = True
-
-		self.sig = Utils.h_file(self.abspath())
-
 	def listdir(self):
 		"list the directory contents"
 		return Utils.listdir(self.abspath())
