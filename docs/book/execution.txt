@@ -225,7 +225,7 @@ The default compression format is http://www.bzip.org/[bzip2]. It may be changed
 
 [source,python]
 ---------------
-import Scripting
+from waflib import Scripting
 Scripting.g_gz = 'gz'
 ---------------
 
@@ -233,7 +233,7 @@ Or 'zip' for http://en.wikipedia.org/wiki/ZIP_%28file_format%29[zip] files:
 
 [source,python]
 ---------------
-import Scripting
+from waflib import Scripting
 Scripting.g_gz = 'zip'
 ---------------
 
@@ -415,7 +415,7 @@ out = 'build_directory'
 
 def configure(ctx):
 
-	import Options
+	from waflib import Options
 	print('→ prefix is ' + Options.options.prefix)
 ---------------
 
@@ -440,7 +440,7 @@ def set_options(ctx):
 
 def configure(ctx):
 
-	import Options
+	from waflib import Options
 	print('→ the value of foo is %r' % Options.options.foo)
 ---------------
 

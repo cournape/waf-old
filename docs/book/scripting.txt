@@ -11,7 +11,7 @@ The context for a command is created automatically, and is derived from the clas
 def foo(ctx):
 	pass
 
-import Utils
+from waflib import Utils
 class foo_context(Utils.Context):
 	def __init__(self):
 		print("a context for 'foo'")
@@ -26,7 +26,7 @@ New commands may be injected in the following manner:
 
 [source,python]
 ---------------
-import Scripting
+from waflib import Scripting
 def foo(ctx):
 	Scripting.commands += ['build', 'clean']
 ---------------
@@ -41,7 +41,7 @@ APPNAME = 'my_testcase'
 top = '.'
 out = 'build'
 
-import Scripting
+from waflib import Scripting
 
 def test(ctx):
 	lst = 'distclean configure setup build modify build'.split()
@@ -82,7 +82,7 @@ Because the context objects usually derive from different classes, it is usually
 top = '.'
 out = 'out'
 
-import Scripting, Options
+from waflib import Scripting, Options
 
 def configure(conf):
 	conf.check_tool('gcc')
@@ -144,7 +144,7 @@ Now our tool 'some_tool.py', located next to the 'wscript' file, will contain th
 [source,python]
 ---------------
 import os
-import Utils, ConfigSet, Options, Build
+from waflib import Utils, ConfigSet, Options, Build
 
 def set_options(opt): <1>
 	pass

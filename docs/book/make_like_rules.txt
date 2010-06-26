@@ -96,7 +96,7 @@ def build(bld):
 		src = task.inputs[0].srcpath(task.env) <3>
 		tgt = task.outputs[0].bldpath(task.env) <4>
 
-		import Utils
+		from waflib import Utils
 		cmd = 'cp %s %s' % (src, tgt)
 		print(cmd)
 		return Utils.exec_command(cmd) <5>
@@ -292,7 +292,7 @@ Data sharing is performed through the configuration set. The following example i
 top = '.'
 out = 'out'
 
-import Options
+from waflib import Options
 
 def configure(conf):
 	print('prefix: %r' % conf.env.PREFIX)

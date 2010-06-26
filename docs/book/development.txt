@@ -77,7 +77,7 @@ The time taken to create the tasks and to resolve the dependencies can be obtain
 [source,python]
 ---------------
 def build(bld):
-	import Task
+	from waflib import Task
 	def touch_func(task):
 		for x in task.outputs:
 			open(x.abspath(task.env), 'w').close()
@@ -93,10 +93,10 @@ Profiling information is obtained by calling the module cProfile and by injectin
 
 [source,python]
 ---------------
-import Build
+from waflib import Build
 def ncomp(self):
 	import cProfile, pstats
-	cProfile.run('import Build; Build.bld.rep_compile()', 'profi.txt')
+	cProfile.run('from waflib import Build; Build.bld.rep_compile()', 'profi.txt')
 	p = pstats.Stats('profi.txt')
 	p.sort_stats('time').print_stats(150)
 

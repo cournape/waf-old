@@ -84,7 +84,7 @@ When waf is executed, it reads the variable 'WAFLOCK' on an internal variable, w
 
 [source,python]
 ---------------
-import Options
+from waflib import Options
 Options.lockfile = '.lockfilename'
 ---------------
 
@@ -192,7 +192,7 @@ A cloning scheme is provided for duplicating task generators for several variant
 top = '.'
 out = 'build'
 
-import Options
+from waflib import Options
 
 def set_options(opt):
 	opt.add_option('--build_kind', action='store', default='debug,release', help='build the selected variants') <1>

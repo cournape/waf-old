@@ -148,7 +148,7 @@ For performance reasons, the dependencies are not added onto system headers by d
 
 [source,python]
 ---------------
-import preproc
+from waflib import preproc
 preproc.go_absolute = True
 ---------------
 

@@ -64,13 +64,13 @@ def configure(conf):
 	my_copy = conf.env.copy() <6>
 	print(conf.env) <7>
 
-	import Utils
+	from waflib import Utils
 	s = Utils.subst_vars('${PREFIX}/bin', conf.env) <8>
 	print(s)
 
 	conf.env.store('/tmp/env.txt') <9>
 
-	import ConfigSet
+	from waflib import ConfigSet
 	env = ConfigSet.ConfigSet()
 	env.load('/tmp/env.txt') <10>
 
@@ -111,7 +111,7 @@ def set_options(ctx):
 	ctx.add_option('--foo', action='store', default=False, help='Silly test')
 
 def configure(ctx):
-	import Options
+	from waflib import Options
 	ctx.env.FOO = Options.options.foo
 	ctx.find_program('touch', var='TOUCH', mandatory=True) # a configuration helper
 
@@ -150,7 +150,7 @@ When a test fails, the exception 'Configure.ConfigurationException' is raised. F
 [source,python]
 ---------------
 def configure(conf):
-	import Configure
+	from waflib import Configure
 	try:
 		conf.find_program('missing_app', mandatory=True)
 	except Configuration.ConfigurationError:
@@ -194,20 +194,20 @@ Tools usually provide additional routines, and may modify existing classes to ex
 
 [source,python]
 ---------------
-from Configure import conftest <1>
+from Configure import conf <1>
 
-@conftest
+@conf
 def detect(conf): <2>
 	print('→ detect from dang!')
 
-@conftest
+@conf
 def test_hello(conf):
 	print('→ test from dang!')
 
 def build_hello(self):
 	print('→ build hello from dang!')
 
-import Build
+from waflib import Build
 Build.BuildContext.build_hello = build_hello <3>
 ---------------
 
@@ -222,11 +222,11 @@ For loading a tool, the method 'check_tool' must be used during the configuratio
 top = '.'
 out = 'build'
 
-#import config_c <1>
+#from waflib import c_config <1>
 
 def configure(conf):
 
-	#import config_c <2>
+	#from waflib import c_config <2>
 
 	def is_check_cc_present():
 		try:
@@ -278,14 +278,13 @@ An error handler attached to the conf object is used for catching the Configurat
 
 [source,python]
 ---------------
-import Constants
-from Configure import conf
+from waflib.Configure import conf, BREAK, CONTINUE
 
 @conf
 def error_handler(fun, exc):
 	print('exception %r' % exc)
-	# other optionals return values: Constants.CONTINUE or anything else to re-raise the exception
-	return Constants.BREAK
+	# other optionals return values: CONTINUE or anything else to re-raise the exception
+	return BREAK
 ---------------
 
 The following diagram illustrates the test execution loop performed from conf.check_tool

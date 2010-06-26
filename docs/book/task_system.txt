@@ -113,7 +113,7 @@ The attributes 'before' and 'after' are used to declare ordering constraints bet
 
 [source,python]
 ---------------
-import Task
+from waflib import Task
 class task_test_a(Task.TaskBase):
 	before = 'task_test_b'
 class task_test_b(Task.TaskBase):
@@ -124,7 +124,7 @@ Another way to declare precedence constraints is to declare a file extension pro
 
 [source,python]
 ---------------
-import Task
+from waflib import Task
 class task_test_a(Task.TaskBase):
 	ext_in = '.c'
 class task_test_b(Task.TaskBase):
@@ -166,7 +166,7 @@ Here is an example illustrating the different kinds of dependencies:
 
 [source,python]
 ---------------
-import Task
+from waflib import Task
 class task_demo(Task.Task):
 	vars = ['CXXFLAGS', 'LINKFLAGS'] <1>
 	def scan(self): <2>

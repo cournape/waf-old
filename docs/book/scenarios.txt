@@ -44,12 +44,12 @@ The code to support this scenario may be added in the wscript file or into a waf
 
 [source,python]
 ---------------
-import Task
+from waflib import Task
 Task.simple_task_type('src2cpp',
 	'${COMP} ${SRC} ${TGT}', <1>
 	color='PINK', before='cxx') <2>
 
-from TaskGen import extension
+from waflib.TaskGen import extension
 @extension('.src')
 def process_src(self, node): <3>
 	tg = self.bld.name_to_obj('comp', self.env) <4>
@@ -132,8 +132,8 @@ Here is the code to support this scenario:
 
 [source,python]
 ---------------
-import Task
-from TaskGen import extension
+from waflib import Task
+from waflib.TaskGen import extension
 
 Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', color='BLUE', before='cxx') <1>
 
@@ -202,8 +202,8 @@ The code to support this scenario will be the following:
 
 [source,python]
 ---------------
-import Task
-from TaskGen import feature, before, extension
+from waflib import Task
+from waflib TaskGen import feature, before, extension
 Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', before='cxx') <1>
 
 @extension('.idl')
@@ -282,7 +282,7 @@ def configure(conf):
 def build(bld):
 	bld.new_task_gen(features='cxx cprogram', source='main.cpp', target='test')
 
-from TaskGen import after, feature
+from waflib.TaskGen import after, feature
 
 @feature('cxx')
 @after('apply_obj_vars_cxx')
@@ -370,12 +370,9 @@ def build(bld):
 ## INTERNAL CODE BELOW ##
 
 import os
-import TaskGen, Task, Utils, Build
-from TaskGen import taskgen, feature, before, after, extension
-from logging import debug
-from Constants import *
+from waflib import TaskGen, Task, Utils, Build, Logs
+from TaskGen import feature, before, after, extension
 
-@taskgen
 @after('apply_link')
 @extension('.shpip')
 def process_shpip(self, node): <2>
@@ -473,7 +470,7 @@ class shpip_task(Task.Task): <3>
 		try:
 			time = tree.node_sigs[variant][node.id]
 		except KeyError:
-			debug("run task #%d - the first node does not exist" % self.idx, 'task')
+			Logs.debug("run task #%d - the first node does not exist" % self.idx, 'task')
 			try: new_sig = self.signature()
 			except KeyError:
 				return RUN_ME

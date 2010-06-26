@@ -32,7 +32,7 @@ def build(bld):
 	v.myattr = 'Hello, world!' <1>
 	v.myMethod() <2>
 
-import TaskGen
+from waflib import TaskGen
 
 @TaskGen.taskgen <3>
 def myMethod(tgen): <4>
@@ -75,7 +75,7 @@ def configure(conf):
 def build(bld):
 	bld(myattr='Hello, world!')
 
-import TaskGen
+from waflib import TaskGen
 
 @TaskGen.taskgen <1>
 @TaskGen.feature('*') <2>
@@ -129,7 +129,7 @@ def build(bld):
 	bld(features='ping')
 	bld(features='ping pong')
 
-import TaskGen
+from waflib import TaskGen
 
 @TaskGen.feature('ping')
 def ping(self):
@@ -185,7 +185,7 @@ def configure(conf):
 def build(bld):
 	bld(myattr='Hello, world!')
 
-import TaskGen
+from waflib import TaskGen
 
 @TaskGen.feature('*')
 @TaskGen.before('apply_core', 'exec_rule')
@@ -226,7 +226,7 @@ The order constraints on the methods (after/before), are used to sort the list o
 
 [source,python]
 ---------------
-from TaskGen import feature
+from waflib.TaskGen import feature
 
 @feature('*')
 def infinite_loop(self):
@@ -237,7 +237,7 @@ Likewise, methods may be removed from the list of methods to execute:
 
 [source,python]
 ---------------
-from TaskGen import feature
+from waflib.TaskGen import feature
 
 @feature('*')
 @before('apply_core')
@@ -294,7 +294,7 @@ def build(bld):
     bld(rule='echo A', always=True, name='A')
     bld(rule='echo B', always=True, name='B', depends_on='A')
 
-from TaskGen import feature, before
+from waflib.TaskGen import feature, before
 @feature('*') <1>
 @before('apply_rule')
 def post_the_other(self):

@@ -80,7 +80,7 @@ def build(ctx):
 
 	def do_it():
 
-		import ConfigSet, Build
+		from waflib import ConfigSet, Build
 		bld = Build.BuildContext() <1>
 		bld.load_dirs('/tmp', '/tmp/build') <2>
 		env = ConfigSet.ConfigSet()
