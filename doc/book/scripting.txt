@@ -154,7 +154,7 @@ def list_targets(ctx): <2>
 
 	bld = Build.BuildContext() <3>
 	proj = Environment.Environment(Options.lockfile) <4>
-	bld.load_dirs(proj['srcdir'], proj['blddir']) <5>
+	bld.load_dirs(proj['top'], proj['out']) <5>
 	bld.load_envs()
 
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]]) <6>
