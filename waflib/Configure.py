@@ -455,3 +455,8 @@ def cmd_and_log(self, cmd, **kw):
 				kw['errmsg'] = 'failure (%r)' % retcode
 		self.fatal(kw['errmsg'])
 
+@conf
+def to_log(self, var):
+	if getattr(self, 'log', None):
+		self.log.write(var)
+
