@@ -32,6 +32,7 @@ ConfigSet.ConfigSet.set_variant = Utils.nada
 
 Build.BuildContext.add_subdirs = Build.BuildContext.recurse
 Build.BuildContext.name_to_obj = Build.BuildContext.get_tgen_by_name
+Build.BuildContext.new_task_gen = Build.BuildContext.__call__
 
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
 Configure.conftest = Configure.conf
@@ -63,6 +64,10 @@ def load_module(file_path):
 	ret = rev(file_path)
 	if 'set_options' in ret.__dict__:
 		ret.options = ret.set_options
+	if 'srcdir' in ret.__dict__:
+		ret.top = ret.srcdir
+	if 'blddir' in ret.__dict__:
+		ret.out = ret.blddir
 	return ret
 Context.load_module = load_module
 

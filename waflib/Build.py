@@ -280,7 +280,7 @@ class BuildContext(Context.Context):
 		if hasattr(module, "setup"): module.setup(self)
 
 	def get_env(self):
-		"""getter for the env property""""
+		"""getter for the env property"""
 		return self.env_of_name('default')
 	def set_env(self, name, val):
 		"""setter for the env property"""
