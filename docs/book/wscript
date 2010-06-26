@@ -45,6 +45,9 @@ def build(bld):
 		bld(rule='${DIA} -t eps ${SRC} -e ${TGT}', source=x, target=x.change_ext('.eps'), ext_out=['.eps'])
 		bld(rule='${DIA} -t png ${SRC} -e ${TGT}', source=x, target=x.change_ext('.png'), ext_out=['.eps'])
 
+	for x in bld.path.ant_glob('pics/*.png'):
+		bld(rule='cp ${SRC} ${TGT}', source=x, target=x.name)
+
 	bld(rule='mkdir -p ${SRC[0].parent.get_bld().abspath()} && cp ${SRC} ${SRC[0].parent.get_bld().abspath()}',
 		source=bld.path.ant_glob('callouts/*.png'))
 
