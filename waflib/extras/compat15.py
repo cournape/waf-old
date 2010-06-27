@@ -52,39 +52,40 @@ from waflib import Context
 eld = Context.load_tool
 def load_tool(*k, **kw):
 	ret = eld(*k, **kw)
-	return ret
 	if 'set_options' in ret.__dict__:
+		Logs.warn('compat: rename "set_options" to options')
 		ret.options = ret.set_options
-	if 'detect' in ret.__dict__ and not 'configure' in ret.__dict__:
+	if 'detect' in ret.__dict__:
+		Logs.warn('compat: rename "detect" to "configure"')
 		ret.configure = ret.detect
 Context.load_tool = load_tool
 
 rev = Context.load_module
-def load_module(file_path):
-	ret = rev(file_path)
+def load_module(path):
+	ret = rev(path)
 	if 'set_options' in ret.__dict__:
+		Logs.warn('compat: rename "set_options" to "options" (%r)' % path)
 		ret.options = ret.set_options
 	if 'srcdir' in ret.__dict__:
+		Logs.warn('compat: rename "srcdir" to "top" (%r)' % path)
 		ret.top = ret.srcdir
 	if 'blddir' in ret.__dict__:
+		Logs.warn('compat: rename "blddir" to "out" (%r)' % path)
 		ret.out = ret.blddir
 	return ret
 Context.load_module = load_module
-
-old = Scripting.set_main_module
-def set_main_module(f):
-	old(f)
-	if 'set_options' in Context.g_module.__dict__:
-		Context.g_module.options = Context.g_module.set_options
-Scripting.set_main_module = set_main_module
 
 old_apply = TaskGen.task_gen.apply
 def apply(self):
 	self.features = self.to_list(self.features)
 	if 'cstaticlib' in self.features:
-		Logs.warn('The feature cstaticlib does not exist anymore (use cstlib or cxxstlib)')
+		Logs.warn('compat: the feature cstaticlib does not exist anymore (use cstlib or cxxstlib)')
 		self.features.remove('cstaticlib')
 		self.features.append(('cxx' in self.features) and 'cxxstlib' or 'cstlib')
 	old_apply(self)
 TaskGen.task_gen.apply = apply
+
+def waf_version(*k, **kw):
+	Logs.warn('wrong version (waf_version was removed in waf 1.6)')
+Utils.waf_version = waf_version
 
