@@ -42,6 +42,10 @@ Options.OptionsContext.sub_options = Options.OptionsContext.recurse
 
 Task.simple_task_type = Task.task_type_from_func = Task.task_factory
 
+@TaskGen.feature('cstaticlib')
+def cstaticlib_was_removed(self):
+	raise Errors.WafError('cstaticlib does not exist anymore, replace by cstlib')
+
 @TaskGen.feature('d')
 @TaskGen.before('apply_incpaths')
 def old_importpaths(self):
@@ -81,9 +85,6 @@ Scripting.set_main_module = set_main_module
 old_apply = TaskGen.task_gen.apply
 def apply(self):
 	self.features = self.to_list(self.features)
-	if 'cstaticlib' in self.features:
-		self.features.append('cstlib')
-		self.features.remove('cstaticlib')
 	old_apply(self)
 TaskGen.task_gen.apply = apply
 
