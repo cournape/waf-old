@@ -597,36 +597,25 @@ def have_define(self, name):
 	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(name)
 
 @conf
-def write_config_header(self, configfile='', env='', guard='', top=False):
+def write_config_header(self, configfile='', guard='', top=False):
 	"save the defines into a file"
 	if not configfile: configfile = WAF_CONFIG_H
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
 
-	# configfile -> absolute path
-	# there is a good reason to concatenate first and to split afterwards
-	if not env: env = self.env
-	if top:
-		diff = ''
-	else:
-		diff = Utils.diff_path(self.srcdir, self.curdir)
-	full = os.sep.join([self.blddir, diff, configfile])
-	full = os.path.normpath(full)
-	(dir, base) = os.path.split(full)
+	node = top and self.path or self.bldnode
+	node = node.make_node(configfile)
+	node.parent.mkdir()
 
-	try: os.makedirs(dir)
-	except: pass
+	lst = []
+	lst.append('/* Configuration header created by Waf - do not edit */')
+	lst.append('#ifndef %s\n#define %s\n' % (waf_guard, waf_guard))
+	lst.append(self.get_config_header())
+	lst.append('\n#endif /* %s */\n' % waf_guard)
 
-	dest = open(full, 'w')
-	dest.write('/* Configuration header created by Waf - do not edit */\n')
-	dest.write('#ifndef %s\n#define %s\n\n' % (waf_guard, waf_guard))
-
-	dest.write(self.get_config_header())
+	node.write('\n'.join(lst))
 
 	# config files are not removed on "waf clean"
-	env.append_value(Build.CFG_FILES, [os.path.join(diff, configfile)])
-
-	dest.write('\n#endif /* %s */\n' % waf_guard)
-	dest.close()
+	self.env.append_value(Build.CFG_FILES, node.path_from(self.bldnode))
 
 @conf
 def get_config_header(self):
