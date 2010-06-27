@@ -256,7 +256,7 @@ class BuildContext(Context.Context):
 		Logs.debug('build: compile()')
 
 		# use another object to perform the producer-consumer logic (reduce the complexity)
-		self.producer = Runner.Parallel(self)
+		self.producer = Runner.Parallel(self, Options.options.jobs)
 		self.producer.biter = self.get_build_iterator()
 		try:
 			self.producer.start() # vroom

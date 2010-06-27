@@ -77,10 +77,10 @@ class Parallel(object):
 	keep the consumer threads busy, and avoid consuming cpu cycles
 	when no more tasks can be added (end of the build, etc)
 	"""
-	def __init__(self, bld):
+	def __init__(self, bld, j=2):
 
 		# number of consumers
-		self.numjobs = Options.options.jobs
+		self.numjobs = j
 
 		self.bld = bld # build context
 
@@ -152,6 +152,13 @@ class Parallel(object):
 
 	def start(self):
 		"execute the tasks"
+
+		if TaskConsumer.consumers:
+			# the worker pool is usually loaded lazily (see below)
+			# in case it is re-used with a different value of numjobs:
+			while len(TaskConsumer.consumers) < self.numjobs:
+				TaskConsumer.consumers.append(TaskConsumer())
+
 		while not self.stop:
 
 			self.refill_task_list()
@@ -174,9 +181,12 @@ class Parallel(object):
 			try:
 				st = tsk.runnable_status()
 			except Exception as e:
+				self.processed += 1
+				if self.stop and not Options.options.keep:
+					tsk.hasrun = Task.SKIPPED
+					continue
 				tsk.err_msg = Utils.ex_stack()
 				tsk.hasrun = Task.EXCEPTION
-				self.processed += 1
 				self.error_handler(tsk)
 				continue
 
