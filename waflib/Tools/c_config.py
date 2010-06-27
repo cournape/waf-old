@@ -615,7 +615,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None):
 	node.write('\n'.join(lst))
 
 	# config files are not removed on "waf clean"
-	(env or self.env).append_unique(Build.CFG_FILES, node.path_from(self.bldnode))
+	(env or self.env).append_unique(Build.CFG_FILES, [node.path_from(self.bldnode)])
 
 @conf
 def get_config_header(self):
