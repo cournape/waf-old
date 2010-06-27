@@ -3,6 +3,6 @@
 bld(
 	features   = 'cc cprogram',
 	source     = 'main.c',
-	includes   = '.',
+	includes   = '. ..',
 	ccflags    = '-O3',
 	target     = 'myprogram')

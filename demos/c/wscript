@@ -22,7 +22,8 @@ def configure(conf):
 	conf.check_tool('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
 
-	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True)
+	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
+	conf.write_config_header('config.h')
 
 def build(bld):
 
@@ -48,5 +49,5 @@ class package_class(Context):
 	fun = 'package'
 
 def package(ctx):
-	print(ctx.path.ant_glob('wscript'))
+	print('just a test', ctx.path.ant_glob('wscript'))
 
