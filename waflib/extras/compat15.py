@@ -58,6 +58,7 @@ def load_tool(*k, **kw):
 	if 'detect' in ret.__dict__:
 		Logs.warn('compat: rename "detect" to "configure"')
 		ret.configure = ret.detect
+	return ret
 Context.load_tool = load_tool
 
 rev = Context.load_module
