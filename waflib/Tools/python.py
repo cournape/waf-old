@@ -160,7 +160,7 @@ def check_python_headers(conf):
 	except RuntimeError:
 		conf.fatal("Python development headers not found (-v for details).")
 
-	conf.log.write("""Configuration returned from %r:
+	conf.to_log("""Configuration returned from %r:
 python_prefix = %r
 python_SO = %r
 python_SYSLIBS = %r
@@ -200,16 +200,16 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	if python_LIBDIR is not None:
 		path = [python_LIBDIR]
-		conf.log.write("\n\n# Trying LIBDIR: %r\n" % path)
+		conf.to_log("\n\n# Trying LIBDIR: %r\n" % path)
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
 	if not result and python_LIBPL is not None:
-		conf.log.write("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
+		conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
 		path = [python_LIBPL]
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
 	if not result:
-		conf.log.write("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
+		conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
 		path = [os.path.join(python_prefix, "libs")]
 		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
@@ -218,7 +218,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		env['LIBPATH_PYEMBED'] = path
 		env.append_value('LIB_PYEMBED', [name])
 	else:
-		conf.log.write("\n\n### LIB NOT FOUND\n")
+		conf.to_log("\n\n### LIB NOT FOUND\n")
 
 	# under certain conditions, python extensions must link to
 	# python libraries, not just python embedding programs.
@@ -246,12 +246,12 @@ MACOSX_DEPLOYMENT_TARGET = %r
 			# append include path, unless already given
 			if incstr not in includes:
 				includes.append(incstr)
-		conf.log.write("Include path for Python extensions "
+		conf.to_log("Include path for Python extensions "
 			       "(found via python-config --includes): %r\n" % (includes,))
 		env['INCLUDES_PYEXT'] = includes
 		env['INCLUDES_PYEMBED'] = includes
 	else:
-		conf.log.write("Include path for Python extensions "
+		conf.to_log("Include path for Python extensions "
 			       "(found via distutils module): %r\n" % (INCLUDEPY,))
 		env['INCLUDES_PYEXT'] = [INCLUDEPY]
 		env['INCLUDES_PYEMBED'] = [INCLUDEPY]

@@ -348,7 +348,7 @@ def cmd_output(cmd, **kw):
 		(out, err) = p.communicate()
 	except Exception as e:
 		try:
-			self.log.write(str(err))
+			kw['log'].write(str(err))
 		except:
 			pass
 		raise Errors.WafError('execution failure %r' % e)

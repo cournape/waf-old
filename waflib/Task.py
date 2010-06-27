@@ -147,7 +147,7 @@ class TaskBase(evil):
 		Logs.debug('runner: %r' % cmd)
 		bld = self.generator.bld
 		if bld.log:
-			bld.log.write('%r\n' % cmd)
+			bld.to_log('%r\n' % cmd)
 			kw['log'] = bld.log
 
 		# ensure that a command is always frun from somewhere
@@ -821,7 +821,7 @@ def can_retrieve_cache(self):
 	for node in self.outputs:
 		node.sig = sig
 		if Options.options.progress_bar < 1:
-			self.generator.bld.printout('restoring from cache %r\n' % node.abspath())
+			self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
 
 	self.cached = True
 	return True

@@ -41,7 +41,7 @@ def process_task(tsk):
 		return
 
 	try:
-		tsk.generator.bld.printout(tsk.display())
+		tsk.generator.bld.to_log(tsk.display())
 		if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
 		# actual call to task's run() function
 		else: ret = tsk.call_run()

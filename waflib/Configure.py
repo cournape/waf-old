@@ -113,7 +113,6 @@ class ConfigurationContext(Context.Context):
 
 		self.setenv('default')
 
-		self.log = None
 		self.hash = 0
 		self.files = []
 
@@ -202,7 +201,7 @@ class ConfigurationContext(Context.Context):
 		args = " ".join(sys.argv)
 		wafver = Context.WAFVERSION
 		abi = Context.ABI
-		self.log.write(conf_template % vars())
+		self.to_log(conf_template % vars())
 
 	def prepare_env(self, env):
 		"""insert various variables in the environment"""
@@ -420,7 +419,7 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 
 	filename = Utils.to_list(filename)
 	self.msg('Checking for program ' + ','.join(filename), ret or False)
-	self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
+	self.to_log('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 
 	if not ret and mandatory:
 		self.fatal('The program %r could not be found' % filename)
@@ -442,11 +441,10 @@ def cmd_and_log(self, cmd, **kw):
 		return Utils.cmd_output(cmd, **kw)
 	except self.errors.WafError as e:
 		retcode = getattr(e, 'returncode', None)
-		if log:
-			if retcode:
-				log.write('command exit code: %r\n' % retcode)
-			else:
-				log.write('error: ' % e)
+		if retcode:
+			self.to_log('command exit code: %r\n' % retcode)
+		else:
+			self.to_log('error: ' % e)
 
 		if not kw.get('errmsg', ''):
 			if kw.get('mandatory', False):
@@ -455,8 +453,4 @@ def cmd_and_log(self, cmd, **kw):
 				kw['errmsg'] = 'failure (%r)' % retcode
 		self.fatal(kw['errmsg'])
 
-@conf
-def to_log(self, var):
-	if getattr(self, 'log', None):
-		self.log.write(var)
 

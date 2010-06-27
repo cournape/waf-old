@@ -166,7 +166,7 @@ class fcprogram_test(fcprogram):
 		bld.out = bld.err = ''
 
 		if bld.log:
-			bld.log.write('command: %s\n' % cmd)
+			bld.to_log('command: %s\n' % cmd)
 
 		try:
 			proc = Utils.subprocess.Popen(cmd, **kw)
@@ -176,9 +176,9 @@ class fcprogram_test(fcprogram):
 
 		if bld.log:
 			if bld.out:
-				bld.log.write("out: %s\n" % bld.out)
+				bld.to_log("out: %s\n" % bld.out)
 			if bld.err:
-				bld.log.write("err: %s\n" % bld.err)
+				bld.to_log("err: %s\n" % bld.err)
 
 		return proc.returncode
 

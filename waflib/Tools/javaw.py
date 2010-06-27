@@ -211,7 +211,7 @@ def check_java_class(self, classname, with_classpath=None):
 
 	# Try to run the app
 	cmd = self.env['JAVA'] + ['-cp', classpath, 'Test', classname]
-	self.log.write("%s\n" % str(cmd))
+	self.to_log("%s\n" % str(cmd))
 	found = Utils.exec_command(cmd, shell=False, log=self.log)
 
 	self.msg('Checking for java class %s' % classname, not found)

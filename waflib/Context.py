@@ -200,6 +200,14 @@ class Context(ctx):
 				user_function(self)
 				self.post_recurse(node)
 
+	def to_log(self, var):
+		if not var:
+			return
+		if getattr(self, 'log', None):
+			self.log.write(var)
+		else:
+			sys.stderr.write(var)
+
 	def msg(self, msg, result, color=None):
 		"""Prints a configuration message 'Checking for xxx: ok'"""
 		self.start_msg('Checking for ' + msg)
@@ -225,7 +233,7 @@ class Context(ctx):
 			self.line_just = max(40, len(msg))
 		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
 			if self.log:
-				self.log.write(x)
+				self.to_log(x)
 		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
 	def end_msg(self, result, color=None):
@@ -245,8 +253,8 @@ class Context(ctx):
 
 		color = color or defcolor
 		if self.log:
-			self.log.write(msg)
-			self.log.write('\n')
+			self.to_log(msg)
+			self.to_log('\n')
 		Logs.pprint(color, msg)
 
 

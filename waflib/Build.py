@@ -391,13 +391,6 @@ class BuildContext(Context.Context):
 		"""alias for TaskGen.declare_chain (wrapper provided for convenience - avoid the import)"""
 		return TaskGen.declare_chain(*k, **kw)
 
-	def printout(self, s):
-		"""for printing stuff TODO remove?"""
-		if s:
-			f = self.log or sys.stderr
-			f.write(s)
-		#f.flush()
-
 	def pre_build(self):
 		"""executes the user-defined methods before the build starts"""
 		for m in getattr(self, 'pre_funs', []):
