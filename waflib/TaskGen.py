@@ -343,25 +343,11 @@ def process_rule(self):
 	if not getattr(self, 'rule', None):
 		return
 
-	# get the function and the variables
-	func = self.rule
-	vars2 = []
-	if isinstance(func, str):
-		# use the shell by default for user-defined commands
-		(func, vars2) = Task.compile_fun(self.rule, shell=getattr(self, 'shell', True))
-		func.code = self.rule
-
-	vars = getattr(self, 'vars', vars2)
-	if not vars:
-		if isinstance(self.rule, str):
-			vars = self.rule
-		else:
-			vars = Utils.h_fun(self.rule)
-
 	# create the task class
 	name = getattr(self, 'name', None) or self.target or self.rule
-	cls = Task.task_factory(name, func, vars, quiet=True)
-	cls.color = getattr(self, 'color', 'BLUE')
+	cls = Task.task_factory(name, self.rule,
+		getattr(self, 'vars', []), quiet=True,
+		shell=getattr(self, 'shell', True), color=getattr(self, 'color', 'BLUE'))
 
 	# now create one instance
 	tsk = self.create_task(name)

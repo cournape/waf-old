@@ -79,9 +79,11 @@ class store_task_type(type):
 			if getattr(cls, 'run_str', None):
 				# if a string is provided, convert it to a method
 				(f, dvars) = compile_fun(cls.run_str, cls.shell)
-				f.code = cls.run_str
+				cls.hcode = cls.run_str
 				cls.run = f
 				cls.vars.extend(dvars)
+			elif getattr(cls, 'run', None) and not getattr(cls, 'hcode', None):
+				cls.hcode = Utils.h_fun(cls.run)
 
 # avoid a metaclass, code can run in python 2.6 and 3.x unmodified
 evil = store_task_type('evil', (object,), {})
@@ -115,6 +117,9 @@ class TaskBase(evil):
 
 	after = []
 	"""list of task class names to execute after instances of this class"""
+
+	hcode = ''
+	"""string representing an additional hash for the class representation"""
 
 	def __init__(self, *k, **kw):
 		self.hasrun = NOT_RUN
@@ -275,12 +280,9 @@ class Task(TaskBase):
 			m = Utils.md5()
 			up = m.update
 			up(self.__class__.__name__.encode())
-			p = None
+			up(self.__class__.hcode.encode())
 			for x in self.inputs + self.outputs:
-				if p != id(x.parent):
-					p = id(x.parent)
-					up(x.parent.abspath().encode())
-				up(x.name.encode())
+				up(x.abspath().encode())
 			self.uid = m.digest()
 			return self.uid
 
@@ -654,7 +656,7 @@ def compile_fun_noshell(line):
 				app('lst.extend([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
 				dvars.extend([var, meth[1:]])
 			else:
-				app('lst.extend(Utils.to_list(%s%s))' % (var, meth))
+				app('lst.extend(gen.to_list(%s%s))' % (var, meth))
 		else:
 			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
@@ -680,14 +682,7 @@ def compile_fun(line, shell=False):
 def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
 
-	if isinstance(func, str):
-		(f, dvars) = compile_fun(func, shell)
-		f.code = func
-		func = f
-		vars = Utils.to_list(vars) + dvars
-
 	params = {
-		'run': func,
 		'vars': vars,
 		'color': color,
 		'name': name,
@@ -698,6 +693,11 @@ def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[],
 		'quiet': quiet,
 		'scan': scan,
 	}
+
+	if isinstance(func, str):
+		params['run_str'] = func
+	else:
+		params['run'] = func
 
 	cls = type(Task)(name, (Task,), params)
 	global classes
