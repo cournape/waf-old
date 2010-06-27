@@ -433,7 +433,7 @@ def no_autodetect(conf):
 	conf.eval_rules(detect.replace('autodetect', ''))
 
 
-detect = '''
+configure = '''
 autodetect
 find_msvc
 msvc_common_flags

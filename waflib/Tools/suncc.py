@@ -64,7 +64,7 @@ def scc_common_flags(conf):
 	v['stlib_LINKFLAGS'] = ['-Bstatic']
 	v['cstlib_PATTERN']   = 'lib%s.a'
 
-detect = '''
+configure = '''
 find_scc
 find_ar
 scc_common_flags

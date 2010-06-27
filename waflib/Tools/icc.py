@@ -25,7 +25,7 @@ def find_icc(conf):
 	v['CC'] = cc
 	v['CC_NAME'] = 'icc'
 
-detect = '''
+configure = '''
 find_icc
 find_ar
 gcc_common_flags

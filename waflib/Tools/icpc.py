@@ -23,7 +23,7 @@ def find_icpc(conf):
 	v['CXX'] = cxx
 	v['CXX_NAME'] = 'icc'
 
-detect = '''
+configure = '''
 find_icpc
 find_ar
 gxx_common_flags

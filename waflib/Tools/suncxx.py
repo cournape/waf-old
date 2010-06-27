@@ -61,7 +61,7 @@ def sxx_common_flags(conf):
 	v['stlib_LINKFLAGS'] = ['-Bstatic']
 	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
-detect = '''
+configure = '''
 find_sxx
 find_ar
 sxx_common_flags
