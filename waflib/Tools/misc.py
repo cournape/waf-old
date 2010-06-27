@@ -62,7 +62,7 @@ def apply_copy(self):
 
 		tsk = self.create_task('copy', node, newnode)
 		tsk.fun = self.fun
-		tsk.chmod = self.chmod
+		tsk.chmod = getattr(self, 'chmod', Utils.O644)
 
 		if not tsk.env:
 			tsk.debug()
@@ -99,7 +99,6 @@ def subst_func(tsk):
 @before('process_source')
 def apply_subst(self):
 	Utils.def_attrs(self, fun=subst_func)
-	self.default_install_path = 0
 	lst = self.to_list(self.source)
 	self.meths.remove('process_source')
 
@@ -130,8 +129,7 @@ def apply_subst(self):
 		tsk.fun = self.fun
 		tsk.dict = self.dict
 		tsk.dep_vars = ['DICT_HASH']
-		tsk.install_path = self.install_path
-		tsk.chmod = self.chmod
+		tsk.chmod = getattr(self, 'chmod', Utils.O644)
 
 		if not tsk.env:
 			tsk.debug()
