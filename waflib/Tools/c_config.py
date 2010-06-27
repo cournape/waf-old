@@ -597,7 +597,7 @@ def have_define(self, name):
 	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(name)
 
 @conf
-def write_config_header(self, configfile='', guard='', top=False):
+def write_config_header(self, configfile='', guard='', top=False, env=None):
 	"save the defines into a file"
 	if not configfile: configfile = WAF_CONFIG_H
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
@@ -615,7 +615,7 @@ def write_config_header(self, configfile='', guard='', top=False):
 	node.write('\n'.join(lst))
 
 	# config files are not removed on "waf clean"
-	self.env.append_value(Build.CFG_FILES, node.path_from(self.bldnode))
+	(env or self.env).append_unique(Build.CFG_FILES, node.path_from(self.bldnode))
 
 @conf
 def get_config_header(self):
