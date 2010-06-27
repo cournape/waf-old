@@ -137,29 +137,16 @@ def exec_command(s, **kw):
 		del(kw['log'])
 	kw['shell'] = isinstance(s, str)
 
+	if is_win32 and isinstance(s, str) and len(s) > 2000:
+		startupinfo = subprocess.STARTUPINFO()
+		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		kw['startupinfo'] = startupinfo
+
 	try:
 		proc = subprocess.Popen(s, **kw)
 		return proc.wait()
 	except OSError:
 		return -1
-
-if is_win32:
-	def exec_command(s, **kw):
-		if 'log' in kw:
-			kw['stdout'] = kw['stderr'] = kw['log']
-			del(kw['log'])
-		kw['shell'] = isinstance(s, str)
-
-		if isinstance(s, str) and len(s) > 2000:
-			startupinfo = subprocess.STARTUPINFO()
-			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			kw['startupinfo'] = startupinfo
-
-		try:
-			proc = subprocess.Popen(s,**kw)
-			return proc.wait()
-		except OSError:
-			return -1
 
 listdir = os.listdir
 if is_win32:

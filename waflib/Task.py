@@ -146,11 +146,11 @@ class TaskBase(evil):
 		"""'runner' zone is printed out for waf -v, see waflib/Options.py"""
 		Logs.debug('runner: %r' % cmd)
 		bld = self.generator.bld
-		if bld.log:
+		if getattr(bld, 'log', None):
 			bld.to_log('%r\n' % cmd)
 			kw['log'] = bld.log
 
-		# ensure that a command is always frun from somewhere
+		# ensure that a command is always run from somewhere
 		try:
 			if not kw.get('cwd', None):
 				kw['cwd'] = bld.cwd

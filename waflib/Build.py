@@ -83,7 +83,6 @@ class BuildContext(Context.Context):
 		self.cache_dir_contents = {}
 
 		self.task_gen_cache_names = {}
-		self.log = None
 
 		self.targets = Options.options.targets
 		self.launch_dir = Context.launch_dir
