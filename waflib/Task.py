@@ -280,7 +280,6 @@ class Task(TaskBase):
 			m = Utils.md5()
 			up = m.update
 			up(self.__class__.__name__.encode())
-			up(self.__class__.hcode.encode())
 			for x in self.inputs + self.outputs:
 				up(x.abspath().encode())
 			self.uid = m.digest()
@@ -311,6 +310,7 @@ class Task(TaskBase):
 		except AttributeError: pass
 
 		self.m = Utils.md5()
+		self.m.update(self.hcode)
 
 		# explicit deps
 		self.sig_explicit_deps()
