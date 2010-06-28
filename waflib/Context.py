@@ -32,10 +32,10 @@ APPNAME = 'APPNAME'
 VERSION = 'VERSION'
 """constant"""
 
-SRCDIR  = 'top'
+TOP  = 'top'
 """constant"""
 
-BLDDIR  = 'out'
+OUT  = 'out'
 """constant"""
 
 WSCRIPT_FILE = 'wscript'

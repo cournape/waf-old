@@ -122,7 +122,7 @@ class ConfigurationContext(Context.Context):
 		"""See Context.prepare"""
 		top = Options.options.top
 		if not top:
-			top = getattr(Context.g_module, Context.SRCDIR, None)
+			top = getattr(Context.g_module, Context.TOP, None)
 		if not top:
 			top = os.path.abspath('.')
 			self.msg('Setting top to', top)
@@ -130,7 +130,7 @@ class ConfigurationContext(Context.Context):
 
 		out = Options.options.out
 		if not out:
-			out = getattr(Context.g_module, Context.BLDDIR, None)
+			out = getattr(Context.g_module, Context.OUT, None)
 		if not out:
 			out = Options.lockfile.replace('.lock-waf', '')
 			out = os.path.abspath(out)

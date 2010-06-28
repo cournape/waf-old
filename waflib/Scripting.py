@@ -270,7 +270,7 @@ def distclean(ctx):
 					pass
 				except OSError as e:
 					if e.errno != errno.ENOENT:
-						Logs.warn('project %r cannot be removed' % proj[Context.BLDDIR])
+						Logs.warn('project %r cannot be removed' % proj[Context.OUT])
 			else:
 				distclean_dir(proj['out_dir'])
 
@@ -307,7 +307,7 @@ def dist(ctx):
 		pass
 
 	# copy the files into the temporary folder
-	copytree('.', tmp_folder, getattr(Context.g_module, Context.BLDDIR, None))
+	copytree('.', tmp_folder, getattr(Context.g_module, Context.OUT, None))
 
 	# undocumented hook for additional cleanup
 	dist_hook = getattr(Context.g_module, 'dist_hook', None)
