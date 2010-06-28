@@ -6,7 +6,8 @@
 Utilities and cross-platform fixes.
 """
 
-import os, sys, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
+import os, sys, errno, traceback, inspect, re, shutil, datetime, gc
+import subprocess # leave this line exactly as it is (enable module replacement if necessary)
 from collections import deque # do not touch
 from waflib import Errors
 
