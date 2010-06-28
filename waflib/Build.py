@@ -60,10 +60,8 @@ class BuildContext(Context.Context):
 		# output directory - may be set until the nodes are considered
 		self.out_dir = kw.get('out_dir', Context.out_dir)
 
-		self.variant_dir = kw.get('variant_dir', self.out_dir)
-
-		if self.variant:
-			self.variant_dir = os.path.join(self.out_dir, self.variant)
+		# important note: self.variant_dir is the real output directory and is set automatically
+		self.variant_dir = None
 
 		self.cache_dir = kw.get('cache_dir', None)
 		if not self.cache_dir:
@@ -149,12 +147,21 @@ class BuildContext(Context.Context):
 						h = Utils.SIG_NIL
 					newnode.sig = h
 
-	def init_dirs(self, src, bld):
+	def init_dirs(self):
 		"""Initializes the project directory and the build directory"""
+
+		assert(os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir))
+
 		if not self.root:
 			self.root = self.node_class('', None)
-		self.path = self.srcnode = self.root.find_dir(src)
-		self.bldnode = self.root.make_node(bld)
+		self.path = self.srcnode = self.root.find_dir(self.top_dir)
+
+		if self.variant:
+			self.variant_dir = os.path.join(self.out_dir, self.variant)
+		else:
+			self.variant_dir = self.out_dir
+
+		self.bldnode = self.root.make_node(self.variant_dir)
 		self.bldnode.mkdir()
 		self.variant_dir = self.bldnode.abspath()
 
@@ -222,7 +229,8 @@ class BuildContext(Context.Context):
 		finally:
 			if f:
 				f.close()
-		self.init_dirs(self.top_dir, self.variant_dir)
+
+		self.init_dirs()
 
 	def save(self):
 		"Stores the cache on disk (pickle), see self.load - uses a temporary file to avoid problems with ctrl+c"
