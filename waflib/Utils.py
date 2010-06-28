@@ -322,12 +322,12 @@ def cmd_output(cmd, **kw):
 
 	if 'log' in kw:
 		if out:
-			kw['log'].write('out: %r\n' % out)
+			kw['log'].write('out: %r\n' % out.decode())
 		if err:
-			kw['log'].write('err: %r\n' % err)
+			kw['log'].write('err: %r\n' % err.decode())
 
 	if not isinstance(out, str):
-		out = out.decode('utf-8')
+		out = out.decode()
 
 	if p.returncode:
 		e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))

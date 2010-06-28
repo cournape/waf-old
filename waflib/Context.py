@@ -230,9 +230,9 @@ class Context(ctx):
 				p = subprocess.Popen(s, **kw)
 				(err, out) = p.communicate()
 				if out:
-					self.to_log('out: %s\n' % out)
+					self.to_log('out: %s\n' % out.decode())
 				if err:
-					self.to_log('err: %s\n' % err)
+					self.to_log('err: %s\n' % err.decode())
 				return p.returncode
 			else:
 				proc = subprocess.Popen(s, **kw)
