@@ -143,21 +143,17 @@ class TaskBase(evil):
 		return id(self)
 
 	def exec_command(self, cmd, **kw):
-		"""'runner' zone is printed out for waf -v, see waflib/Options.py"""
-		Logs.debug('runner: %r' % cmd)
+		"""
+		'runner' zone is printed out for waf -v, see waflib/Options.py
+		also, ensure that a command is always run from somewhere
+		"""
 		bld = self.generator.bld
-		if getattr(bld, 'log', None):
-			bld.to_log('%r\n' % cmd)
-			kw['log'] = bld.log
-
-		# ensure that a command is always run from somewhere
 		try:
 			if not kw.get('cwd', None):
 				kw['cwd'] = bld.cwd
 		except AttributeError:
 			bld.cwd = kw['cwd'] = bld.variant_dir
-
-		return Utils.exec_command(cmd, **kw)
+		return bld.exec_command(cmd, **kw)
 
 	def runnable_status(self):
 		"RUN_ME SKIP_ME or ASK_LATER"

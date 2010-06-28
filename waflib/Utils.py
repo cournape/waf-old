@@ -128,27 +128,6 @@ class ordered_dict(UserDict):
 		if key not in self.allkeys: self.allkeys.append(key)
 		UserDict.__setitem__(self, key, item)
 
-def exec_command(s, **kw):
-	"""
-	@param s: args for subprocess.Popen
-	@param log: logger for suppressing the output at configuration time
-	"""
-	if 'log' in kw:
-		kw['stdout'] = kw['stderr'] = kw['log']
-		del(kw['log'])
-	kw['shell'] = isinstance(s, str)
-
-	if is_win32 and isinstance(s, str) and len(s) > 2000:
-		startupinfo = subprocess.STARTUPINFO()
-		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-		kw['startupinfo'] = startupinfo
-
-	try:
-		proc = subprocess.Popen(s, **kw)
-		return proc.wait()
-	except OSError:
-		return -1
-
 listdir = os.listdir
 if is_win32:
 	def listdir_win32(s):

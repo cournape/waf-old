@@ -208,6 +208,38 @@ class Context(ctx):
 		else:
 			sys.stderr.write(var)
 
+	def exec_command(self, s, **kw):
+		"""
+		@param s: args for subprocess.Popen
+		@param log: flag for logging the output
+		"""
+		subprocess = Utils.subprocess
+		kw['shell'] = isinstance(s, str)
+		Logs.debug('runner: %r' % s)
+
+		if Utils.is_win32 and isinstance(s, str) and len(s) > 2000:
+			# win32 stuff
+			startupinfo = subprocess.STARTUPINFO()
+			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			kw['startupinfo'] = startupinfo
+
+		try:
+			if getattr(self, 'log', None):
+				# warning: may deadlock with a lot of output (subprocess limitation)
+				kw['stdout'] = kw['stderr'] = subprocess.PIPE
+				p = subprocess.Popen(s, **kw)
+				(err, out) = p.communicate()
+				if out:
+					self.to_log('out: %s\n' % out)
+				if err:
+					self.to_log('err: %s\n' % err)
+				return p.returncode
+			else:
+				proc = subprocess.Popen(s, **kw)
+				return proc.wait()
+		except OSError:
+			return -1
+
 	def msg(self, msg, result, color=None):
 		"""Prints a configuration message 'Checking for xxx: ok'"""
 		self.start_msg('Checking for ' + msg)
