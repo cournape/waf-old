@@ -7,9 +7,6 @@ from waflib.Tools import ccroot
 from waflib import Utils, Configure, Options
 from waflib.Logs import debug
 
-def build(bld):
-	print test
-
 c_compiler = {
 'win32':  ['msvc', 'gcc'],
 'cygwin': ['gcc'],
