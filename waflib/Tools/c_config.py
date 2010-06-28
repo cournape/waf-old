@@ -469,9 +469,7 @@ def run_c_code(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-	self.test_bld = bld = Build.BuildContext() # keep the temporary build context on an attribute for debugging
-	bld.top_dir = dir
-	bld.out_dir = bdir # mandatory
+	self.test_bld = bld = Build.BuildContext(top_dir=dir, out_dir=bdir) # keep the temporary build context on an attribute for debugging
 	bld.load() # configuration test cache
 	bld.targets = '*'
 

@@ -60,9 +60,6 @@ class BuildContext(Context.Context):
 		# output directory - may be set until the nodes are considered
 		self.out_dir = kw.get('out_dir', Context.out_dir)
 
-		# important note: self.variant_dir is the real output directory and is set automatically
-		self.variant_dir = None
-
 		self.cache_dir = kw.get('cache_dir', None)
 		if not self.cache_dir:
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
@@ -94,6 +91,13 @@ class BuildContext(Context.Context):
 		self.current_group = 0
 		self.groups = []
 		self.group_names = {}
+
+	def get_variant_dir(self):
+		"""getter for the variant_dir property"""
+		if not self.variant:
+			return self.out_dir
+		return os.path.join(self.out_dir, self.variant)
+	variant_dir = property(get_variant_dir, None)
 
 	def __call__(self, *k, **kw):
 		"""Creates a task generator"""
@@ -156,14 +160,8 @@ class BuildContext(Context.Context):
 			self.root = self.node_class('', None)
 		self.path = self.srcnode = self.root.find_dir(self.top_dir)
 
-		if self.variant:
-			self.variant_dir = os.path.join(self.out_dir, self.variant)
-		else:
-			self.variant_dir = self.out_dir
-
 		self.bldnode = self.root.make_node(self.variant_dir)
 		self.bldnode.mkdir()
-		self.variant_dir = self.bldnode.abspath()
 
 	def execute(self):
 		"""see Context.execute"""
