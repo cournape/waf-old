@@ -125,6 +125,7 @@ class Context(ctx):
 
 		self.stack_path = []
 		self.exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
+		self.logger = None
 
 	def call_execute(self):
 		"""leave this indirection if necessary"""
@@ -143,8 +144,7 @@ class Context(ctx):
 		close the log file (config.log) or any log file if present (__del__ does not work properly everywher)
 		override this method if necessary
 		"""
-		if hasattr(self, 'log') and self.log:
-			self.log.close()
+		pass
 
 	def pre_recurse(self, node):
 		"""from the context class"""
@@ -203,8 +203,8 @@ class Context(ctx):
 	def to_log(self, var):
 		if not var:
 			return
-		if getattr(self, 'log', None):
-			self.log.write(var)
+		if self.logger:
+			self.logger.info(var)
 		else:
 			sys.stderr.write(var)
 
@@ -307,8 +307,7 @@ class Context(ctx):
 		except AttributeError:
 			self.line_just = max(40, len(msg))
 		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
-			if self.log:
-				self.to_log(x)
+			self.to_log(x)
 		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
 	def end_msg(self, result, color=None):
@@ -326,11 +325,9 @@ class Context(ctx):
 		else:
 			msg = str(result)
 
-		color = color or defcolor
-		if self.log:
-			self.to_log(msg)
-			self.to_log('\n')
-		Logs.pprint(color, msg)
+		self.to_log(msg)
+		self.to_log('\n')
+		Logs.pprint(color or defcolor, msg)
 
 
 cache_modules = {}

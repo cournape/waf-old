@@ -132,17 +132,21 @@ class formatter(logging.Formatter):
 				return rec.c1+rec.msg+rec.c2
 		return logging.Formatter.format(self, rec)
 
+log = None
+
 def debug(*k, **kw):
 	if verbose:
 		k = list(k)
 		k[0] = k[0].replace('\n', ' ')
-		logging.debug(*k, **kw)
+		global log
+		log.debug(*k, **kw)
 
 def error(*k, **kw):
 	"""
 	wrap logging.errors, display the origin of the message when '-vv' is set
 	"""
-	logging.error(*k, **kw)
+	global log
+	log.error(*k, **kw)
 	if verbose > 2:
 		st = traceback.extract_stack()
 		if st:
@@ -152,14 +156,20 @@ def error(*k, **kw):
 				buf.append('  File "%s", line %d, in %s' % (filename, lineno, name))
 				if line:
 					buf.append('	%s' % line.strip())
-			if buf: logging.error("\n".join(buf))
+			if buf: log.error("\n".join(buf))
 
-warn = logging.warn
-info = logging.info
+def warn(*k, **kw):
+	global log
+	log.warn(*k, **kw)
+
+def info(*k, **kw):
+	global log
+	log.info(*k, **kw)
 
 def init_log():
 	"""initialize the loggers"""
-	log = logging.getLogger()
+	global log
+	log = logging.getLogger('waflib')
 	log.handlers = []
 	log.filters = []
 	hdlr = logging.StreamHandler()

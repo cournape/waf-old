@@ -477,7 +477,7 @@ def run_c_code(self, *k, **kw):
 		node = bld.srcnode.make_node(kw['compile_filename'])
 		node.write(kw['code'])
 
-	bld.log = self.log
+	bld.logger = self.logger
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = kw['env']
 

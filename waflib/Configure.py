@@ -181,6 +181,17 @@ class ConfigurationContext(Context.Context):
 		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
 
 		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
+
+		import logging
+		logger = logging.getLogger('cfg')
+		hdlr = logging.FileHandler(path, 'w')
+		formatter = logging.Formatter('%(message)s')
+		hdlr.setFormatter(formatter)
+		logger.addHandler(hdlr)
+		logger.setLevel(logging.INFO)
+		self.logger = logger
+
+		"""
 		try: os.unlink(path)
 		except (OSError, IOError): pass
 
@@ -188,6 +199,7 @@ class ConfigurationContext(Context.Context):
 			self.log = open(path, 'w')
 		except (OSError, IOError):
 			self.fatal('could not open %r for writing' % path)
+		"""
 
 		app = getattr(Context.g_module, 'APPNAME', '')
 		if app:
