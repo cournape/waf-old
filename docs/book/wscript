@@ -53,7 +53,7 @@ def configure(conf):
 def build(bld):
 	for x in bld.path.ant_glob('*.dia'):
 		tg = bld(rule='${DIA} -t eps ${SRC} -e ${TGT}', source=x, target=x.change_ext('.eps'), ext_out=['.eps'])
-		bld(rule='${CONVERT} -thumbnail "600x600>" ${SRC} ${TGT}', source=tg.target, target=tg.target.change_ext('.png'), ext_in=['.eps'], ext_out=['.png'])
+		bld(rule='${CONVERT} -thumbnail "600x600>" ${SRC} ${TGT}', source=tg.target, target=tg.target.change_ext('.png'), ext_out=['.png'])
 
 	for x in bld.path.ant_glob('pics/*.png'):
 		bld(rule='cp ${SRC} ${TGT}', source=x, target=x.name)
