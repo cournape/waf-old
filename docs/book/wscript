@@ -27,9 +27,9 @@ def ascii_doc_scan(self):
 			name = m.group(2)
 			if m.group(3) == '{PIC}':
 
-				ext = 'pdf'
+				ext = '.eps'
 				if self.generator.rule.rfind('A2X') > 0:
-					ext = 'png'
+					ext = '.png'
 
 				k = p.find_resource(name.replace('{PIC}', ext))
 				if k:
