@@ -428,29 +428,4 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 		self.env[var] = ret
 	return ret
 
-@conf
-def cmd_and_log(self, cmd, **kw):
-	"""wrapper for Utils.cmd_output to copy the std out/err to the log file"""
-
-	Logs.debug('runner: %s\n' % cmd)
-	log = getattr(self, 'log', None)
-	if log:
-		kw['log'] = log
-
-	try:
-		return Utils.cmd_output(cmd, **kw)
-	except self.errors.WafError as e:
-		retcode = getattr(e, 'returncode', None)
-		if retcode:
-			self.to_log('command exit code: %r\n' % retcode)
-		else:
-			self.to_log('error: ' % e)
-
-		if not kw.get('errmsg', ''):
-			if kw.get('mandatory', False):
-				kw['errmsg'] = out.strip()
-			else:
-				kw['errmsg'] = 'failure (%r)' % retcode
-		self.fatal(kw['errmsg'])
-
 

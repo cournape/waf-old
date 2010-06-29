@@ -240,6 +240,62 @@ class Context(ctx):
 		except OSError:
 			return -1
 
+	def cmd_and_log(self, cmd, **kw):
+		"""the problem with executing commands is how to log the outputs"""
+
+		subprocess = Utils.subprocess
+		Logs.debug('runner: %s\n' % cmd)
+		log = getattr(self, 'log', None)
+		if log:
+			kw['log'] = log
+
+		try:
+			args = {}
+			args['shell'] = isinstance(cmd, str)
+			args['stderr'] = args['stdout'] = subprocess.PIPE
+			if 'env' in kw:
+				args['env'] = kw['env']
+
+			try:
+				p = subprocess.Popen(cmd, **args)
+				(out, err) = p.communicate()
+			except Exception as e:
+				try:
+					kw['log'].write(str(err))
+				except:
+					pass
+				raise Errors.WafError('execution failure %r' % e)
+
+			if 'log' in kw:
+				if out:
+					kw['log'].write('out: %r\n' % out.decode())
+				if err:
+					kw['log'].write('err: %r\n' % err.decode())
+
+			if not isinstance(out, str):
+				out = out.decode()
+
+			if p.returncode:
+				e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))
+				e.returncode = p.returncode
+				raise e
+			return out
+
+			#return Utils.cmd_output(cmd, **kw)
+		except self.errors.WafError as e:
+			retcode = getattr(e, 'returncode', None)
+			if retcode:
+				self.to_log('command exit code: %r\n' % retcode)
+			else:
+				self.to_log('error: ' % e)
+
+			if not kw.get('errmsg', ''):
+				if kw.get('mandatory', False):
+					kw['errmsg'] = out.strip()
+				else:
+					kw['errmsg'] = 'failure (%r)' % retcode
+			self.fatal(kw['errmsg'])
+
 	def msg(self, msg, result, color=None):
 		"""Prints a configuration message 'Checking for xxx: ok'"""
 		self.start_msg('Checking for ' + msg)

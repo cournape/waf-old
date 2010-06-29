@@ -294,47 +294,6 @@ def h_fun(fun):
 			pass
 		return h
 
-def cmd_output(cmd, **kw):
-	"""
-	Execute a command and return its output as a string.
-	@param cmd: Command line or list of arguments for subprocess.Popen
-	@rtype: string
-	@return: Command output or throws a WafError
-	"""
-	if 'log' in kw:
-		kw['log'].write('command: %s\n' % cmd)
-
-	args = {}
-	args['shell'] = isinstance(cmd, str)
-	args['stderr'] = args['stdout'] = subprocess.PIPE
-	if 'env' in kw:
-		args['env'] = kw['env']
-
-	try:
-		p = subprocess.Popen(cmd, **args)
-		(out, err) = p.communicate()
-	except Exception as e:
-		try:
-			kw['log'].write(str(err))
-		except:
-			pass
-		raise Errors.WafError('execution failure %r' % e)
-
-	if 'log' in kw:
-		if out:
-			kw['log'].write('out: %r\n' % out.decode())
-		if err:
-			kw['log'].write('err: %r\n' % err.decode())
-
-	if not isinstance(out, str):
-		out = out.decode()
-
-	if p.returncode:
-		e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))
-		e.returncode = p.returncode
-		raise e
-	return out
-
 reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
 	"""
@@ -399,32 +358,6 @@ def unversioned_sys_platform():
 		else: s = s.lower()
 	if s == 'win32' or s.endswith('os2') and s != 'sunos2': return s
 	return re.split('\d+$', s)[0]
-
-def job_count():
-	"""
-	Amount of threads to use
-	"""
-	count = int(os.environ.get('JOBS', 0))
-	if count < 1:
-		if sys.platform == 'win32':
-			# on Windows, use the NUMBER_OF_PROCESSORS environmental variable
-			count = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
-		else:
-			# on everything else, first try the POSIX sysconf values
-			if hasattr(os, 'sysconf_names'):
-				if 'SC_NPROCESSORS_ONLN' in os.sysconf_names:
-					count = int(os.sysconf('SC_NPROCESSORS_ONLN'))
-				elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
-					count = int(os.sysconf('SC_NPROCESSORS_CONF'))
-			else:
-				tmp = cmd_output(['sysctl', '-n', 'hw.ncpu'])
-				if re.match('^[0-9]+$', tmp):
-					count = int(tmp)
-	if count < 1:
-		count = 1
-	elif count > 1024:
-		count = 1024
-	return count
 
 def nada(*k, **kw):
 	"""A function that does nothing."""

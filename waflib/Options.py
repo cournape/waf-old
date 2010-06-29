@@ -5,7 +5,7 @@
 
 "Custom command-line options"
 
-import os, types, tempfile, optparse
+import os, types, tempfile, optparse, sys
 from waflib import Logs, Utils, Context
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -22,14 +22,15 @@ platform = Utils.unversioned_sys_platform()
 
 
 class opt_parser(optparse.OptionParser):
-	def __init__(self):
-		optparse.OptionParser.__init__(self, conflict_handler="resolve", version = 'waf %s (%s)' % (Context.WAFVERSION, Context.WAFREVISION))
+	def __init__(self, ctx):
+		optparse.OptionParser.__init__(self, conflict_handler="resolve", version='waf %s (%s)' % (Context.WAFVERSION, Context.WAFREVISION))
 
 		self.formatter.width = Logs.get_term_cols()
 		p = self.add_option
+		self.ctx = ctx
 
-		jobs = Utils.job_count()
-		p('-j', '--jobs',     dest='jobs',    default=jobs, type='int', help='amount of parallel jobs (%r)' % jobs)
+		jobs = ctx.jobs()
+		p('-j', '--jobs',     dest='jobs',    default=jobs, type='int', help='amount of parallel jobs (%r)' % ctx)
 		p('-k', '--keep',     dest='keep',    default=False, action='store_true', help='keep running happily on independent task groups')
 		p('-v', '--verbose',  dest='verbose', default=0,     action='count', help='verbosity level -v -vv or -vvv [default: 0]')
 		p('--nocache',        dest='nocache', default=False, action='store_true', help='ignore the WAFCACHE (if set)')
@@ -111,7 +112,33 @@ class OptionsContext(Context.Context):
 
 	def __init__(self):
 		super(self.__class__, self).__init__()
-		self.parser = opt_parser()
+		self.parser = opt_parser(self)
+
+	def jobs(self):
+		"""
+		Amount of threads to use
+		"""
+		count = int(os.environ.get('JOBS', 0))
+		if count < 1:
+			if sys.platform == 'win32':
+				# on Windows, use the NUMBER_OF_PROCESSORS environment variable
+				count = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
+			else:
+				# on everything else, first try the POSIX sysconf values
+				if hasattr(os, 'sysconf_names'):
+					if 'SC_NPROCESSORS_ONLN' in os.sysconf_names:
+						count = int(os.sysconf('SC_NPROCESSORS_ONLN'))
+					elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
+						count = int(os.sysconf('SC_NPROCESSORS_CONF'))
+				else:
+					tmp = self.cmd_and_log(['sysctl', '-n', 'hw.ncpu'])
+					if re.match('^[0-9]+$', tmp):
+						count = int(tmp)
+		if count < 1:
+			count = 1
+		elif count > 1024:
+			count = 1024
+		return count
 
 	# pass through to optparse
 	def add_option(self, *k, **kw):
