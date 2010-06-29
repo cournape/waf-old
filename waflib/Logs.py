@@ -180,7 +180,7 @@ def init_log():
 
 def make_logger(path, name):
 	"""create a logger (more likely for context commands)"""
-	logger = logging.getLogger('cfg')
+	logger = logging.getLogger(name)
 	hdlr = logging.FileHandler(path, 'w')
 	formatter = logging.Formatter('%(message)s')
 	hdlr.setFormatter(formatter)
