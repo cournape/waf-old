@@ -3,8 +3,8 @@ Waf 1.6
 
 General
 
-- logging for the configuration stuff
-- broken conf.check_cfg
+- how to perform a full compilation for the configuration?
+- broken conf.check_cfg and problems with default uselib (capital letters)
 - better apis for shell compilation in Task.py and remove misc.py
 - refactor the environment thing ?
 
