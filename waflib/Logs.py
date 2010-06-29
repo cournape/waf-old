@@ -178,6 +178,16 @@ def init_log():
 	log.addFilter(log_filter())
 	log.setLevel(logging.DEBUG)
 
+def make_logger(path, name):
+	"""create a logger (more likely for context commands)"""
+	logger = logging.getLogger('cfg')
+	hdlr = logging.FileHandler(path, 'w')
+	formatter = logging.Formatter('%(message)s')
+	hdlr.setFormatter(formatter)
+	logger.addHandler(hdlr)
+	logger.setLevel(logging.INFO)
+	return logger
+
 def pprint(col, str, label='', sep='\n'):
 	"print messages in color"
 	sys.stderr.write("%s%s%s %s%s" % (colors(col), str, colors.NORMAL, label, sep))

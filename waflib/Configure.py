@@ -118,6 +118,48 @@ class ConfigurationContext(Context.Context):
 
 		self.tool_cache = []
 
+	def post_init(self):
+		"""TODO remove this method, ugh"""
+		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
+
+		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
+		self.logger = Logs.make_logger(path, 'cfg')
+
+		"""
+		import logging
+		logger = logging.getLogger('cfg')
+		hdlr = logging.FileHandler(path, 'w')
+		formatter = logging.Formatter('%(message)s')
+		hdlr.setFormatter(formatter)
+		logger.addHandler(hdlr)
+		logger.setLevel(logging.INFO)
+		self.logger = logger
+		"""
+		"""
+		try: os.unlink(path)
+		except (OSError, IOError): pass
+
+		try:
+			self.log = open(path, 'w')
+		except (OSError, IOError):
+			self.fatal('could not open %r for writing' % path)
+		"""
+
+		app = getattr(Context.g_module, 'APPNAME', '')
+		if app:
+			ver = getattr(Context.g_module, 'VERSION', '')
+			if ver:
+				app = "%s (%s)" % (app, ver)
+
+		now = time.ctime()
+		pyver = sys.hexversion
+		systype = sys.platform
+		args = " ".join(sys.argv)
+		wafver = Context.WAFVERSION
+		abi = Context.ABI
+		self.to_log(conf_template % vars())
+
+
 	def execute(self):
 		"""See Context.prepare"""
 		top = Options.options.top
@@ -175,45 +217,6 @@ class ConfigurationContext(Context.Context):
 		env.store(Context.run_dir + os.sep + Options.lockfile)
 		env.store(Context.top_dir + os.sep + Options.lockfile)
 		env.store(Context.out_dir + os.sep + Options.lockfile)
-
-	def post_init(self):
-		"""TODO remove this method, ugh"""
-		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
-
-		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
-
-		import logging
-		logger = logging.getLogger('cfg')
-		hdlr = logging.FileHandler(path, 'w')
-		formatter = logging.Formatter('%(message)s')
-		hdlr.setFormatter(formatter)
-		logger.addHandler(hdlr)
-		logger.setLevel(logging.INFO)
-		self.logger = logger
-
-		"""
-		try: os.unlink(path)
-		except (OSError, IOError): pass
-
-		try:
-			self.log = open(path, 'w')
-		except (OSError, IOError):
-			self.fatal('could not open %r for writing' % path)
-		"""
-
-		app = getattr(Context.g_module, 'APPNAME', '')
-		if app:
-			ver = getattr(Context.g_module, 'VERSION', '')
-			if ver:
-				app = "%s (%s)" % (app, ver)
-
-		now = time.ctime()
-		pyver = sys.hexversion
-		systype = sys.platform
-		args = " ".join(sys.argv)
-		wafver = Context.WAFVERSION
-		abi = Context.ABI
-		self.to_log(conf_template % vars())
 
 	def prepare_env(self, env):
 		"""insert various variables in the environment"""
