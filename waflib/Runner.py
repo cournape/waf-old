@@ -16,7 +16,7 @@ MAXJOBS = 999
 
 class TaskConsumer(Utils.threading.Thread):
 	ready = Queue(0)
-	consumers = []
+	pool = []
 
 	def __init__(self):
 		Utils.threading.Thread.__init__(self)
@@ -79,7 +79,7 @@ class Parallel(object):
 	"""
 	def __init__(self, bld, j=2):
 
-		# number of consumers
+		# number of consumers in the pool
 		self.numjobs = j
 
 		self.bld = bld # build context
@@ -93,7 +93,7 @@ class Parallel(object):
 		# tasks that are awaiting for another task to complete
 		self.frozen = []
 
-		# tasks waiting to be run by the consumers
+		# tasks waiting to be run by the consumers pool
 		self.out = Queue(0)
 
 		self.count = 0 # tasks not in the producer area
@@ -153,11 +153,11 @@ class Parallel(object):
 	def start(self):
 		"execute the tasks"
 
-		if TaskConsumer.consumers:
+		if TaskConsumer.pool:
 			# the worker pool is usually loaded lazily (see below)
 			# in case it is re-used with a different value of numjobs:
-			while len(TaskConsumer.consumers) < self.numjobs:
-				TaskConsumer.consumers.append(TaskConsumer())
+			while len(TaskConsumer.pool) < self.numjobs:
+				TaskConsumer.pool.append(TaskConsumer())
 
 		while not self.stop:
 
@@ -207,8 +207,8 @@ class Parallel(object):
 				else:
 					TaskConsumer.ready.put(tsk)
 					# create the consumer threads only if there is something to consume
-					if not TaskConsumer.consumers:
-						TaskConsumer.consumers = [TaskConsumer() for i in range(self.numjobs)]
+					if not TaskConsumer.pool:
+						TaskConsumer.pool = [TaskConsumer() for i in range(self.numjobs)]
 
 
 		# self.count represents the tasks that have been made available to the consumer threads
