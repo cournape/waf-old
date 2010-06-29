@@ -478,7 +478,8 @@ In this case, the '.h' extension is used to indicate that the unique task produc
 
 === Configuration apis
 
-The configuration apis may be used during the build phase. The only limitation is to provide a log file to redirect the output:
+The configuration methods bound to the ConfigurationContext by the decorator '@conf' are now bound to the BuildContext class too.
+This means that the configuration apis may be used during the build phase.
 
 [source,python]
 ---------------
@@ -489,21 +490,32 @@ def configure(ctx):
     ctx.check_tool('compiler_cxx')
     ctx.check(header_name='stdio.h', features='cxx cxxprogram')
 
-def build(ctx):
-
-    if ctx.cmd != 'clean':
-        ctx.log = open('test.log', 'w')
-        try:
-            ctx.find_program('gpg', var='GPG')
-            ctx.check(header_name='sadlib.h', features='cxx cxxprogram')
-        except ctx.errors.ConfigurationError:
-            pass
-        finally:
-            ctx.log.close() # always close the file or it may be empty
-            ctx.log = None
+def build(bld):
+	bld.program(source='main.cpp', target='app')
+	if bld.cmd != 'clean':
+		bld.check(header_name='sadlib.h', features='cxx cprogram')
 ---------------
 
-The decorator '@conf' is now binding the methods to both the ConfigurationContext and BuildContext classes.
+To redirect the output, a logger (from the python logging module) must be provided. Here is an example demonstrating a convenience method for creating the logger:
+
+[source,python]
+---------------
+def options(ctx):
+    ctx.tool_options('compiler_cxx')
+
+def configure(ctx):
+    ctx.check_tool('compiler_cxx')
+    ctx.check(header_name='stdio.h', features='cxx cxxprogram')
+
+def build(bld):
+	if bld.cmd != 'clean':
+		from waflib import Logs
+		bld.logger = Logs.make_logger('test.log', 'build')
+		bld.check(header_name='sadlib.h', features='cxx cprogram')
+		bld.logger = None
+---------------
+
+Note that the logger must be removed after the configuration apis are used, else the build output will be redirected as well.
 
 === Downloading Waf tools
 
