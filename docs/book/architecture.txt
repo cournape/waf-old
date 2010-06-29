@@ -14,7 +14,8 @@ Waf is based on only 12 modules which constitute the core library. They are loca
 |Build     | Defines the build context class, which holds the data for one build (paths, configuration data)
 |Configure | Contains the configuration context class, which is used for launching configuration tests, and the extension system
 |ConfigSet | Contains a dictionary class which supports a lightweight copy scheme and provides persistence services
-|Context   | Contains the base class for all context classes (used by waf commands)
+|Context   | Contains the base class for all waf commands (context parameters)
+|Errors    | Exceptions used in the Waf code
 |Logs        | Loggging system
 |Node        | Contains the file system representation class
 |Options     | Provides a custom command-line option processing system based on optparse
@@ -25,10 +26,15 @@ Waf is based on only 12 modules which constitute the core library. They are loca
 |Utils       | Contains the support functions and classes re-used in other Waf modules
 |=================
 
+When using Waf as a library, some modules may be more important than others. The main dependencies are represented on the following diagram:
+
+image::core{PIC}["Main classes"{backend@docbook:,height=500:}]
+
+=== Classes
+
 The essential classes and methods from the core library are represented on the following diagram:
 
 image::classes{PIC}["Main classes"{backend@docbook:,width=500:}]
-
 
 === Build context instances
 

@@ -196,9 +196,8 @@ Tools usually provide additional routines, and may modify existing classes to ex
 ---------------
 from Configure import conf <1>
 
-@conf
-def detect(conf): <2>
-	print('→ detect from dang!')
+def configure(conf): <2>
+	print('→ configure from dang!')
 
 @conf
 def test_hello(conf):
@@ -212,7 +211,7 @@ Build.BuildContext.build_hello = build_hello <3>
 ---------------
 
 <1> The decorator 'conftest' is used to bind functions as new methods to the 'configuration context class'
-<2> The default detection method to execute when the tool is loaded is called 'detect'
+<2> The default detection method to execute when the tool is loaded is called 'configure'
 <3> New methods may be bound at runtime onto various classes, here the build context class
 
 For loading a tool, the method 'check_tool' must be used during the configuration. The same tools are then loaded during the build.:
@@ -250,7 +249,7 @@ def build(bld):
 <2> By loading a Waf tool using 'import', the tool will not be loaded at build time (discouraged)
 <3> Just an example to show if the method 'check_cc' is present on the configuration context class
 <4> Load the tool providing configuration routines for c and c++ support (the method check_cc)
-<5> When tools provide a method named 'detect', it is executed during 'conf.check_tool'
+<5> When tools provide a method named 'configure', it is executed during 'conf.check_tool'
 <6> Use specific functions instead of calling the default
 <7> To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
 <8> Use the build context method defined in dang.py
@@ -263,7 +262,7 @@ $ waf distclean configure build
 'distclean' finished successfully (0.002s)
 → there is no method conf.check_cc
 → method conf.check_cc (ConfigurationContext.check_cc)
-→ detect from dang!
+→ configure from dang!
 → test from dang!
 'configure' finished successfully (0.003s)
 Waf: Entering directory `/tmp/smallproject/build'
