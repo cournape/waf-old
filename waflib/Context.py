@@ -343,11 +343,8 @@ private cache
 def load_module(file_path):
 	"""
 	Load a Python source file containing user code.
-	@type  file_path: string
-	@param file_path: Directory of the python file
-	@type  name: string
-	@param name: Basename of file with user code (default: "wscript")
-	@rtype: module
+	@type file_path: string
+	@param file_path: file path
 	@return: Loaded Python module
 	"""
 	try:

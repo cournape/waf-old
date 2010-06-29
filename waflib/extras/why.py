@@ -48,5 +48,6 @@ def debug_why(self, old_sigs):
 		if (new_sigs[x] != old_sigs[x]):
 			debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
+from waflib import Task
 Task.Task.debug_why = debug_why
 

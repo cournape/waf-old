@@ -10,9 +10,9 @@ TaskGen.declare_chain(
 	rule = '${LUAC} -s -o ${TGT} ${SRC}',
 	ext_in = '.lua',
 	ext_out = '.luac',
-	reentrant = False,
-	install = 'LUADIR', # env variable
+	reentrant = False
 )
+	#install = 'LUADIR', # env variable TODO
 
 @TaskGen.feature('lua')
 def init_lua(self):

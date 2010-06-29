@@ -6,7 +6,7 @@
 # Michael Kuhn, 2009
 
 import os, sys
-from waflib import ccroot, ar
+from waflib.Tools import ccroot, ar
 from waflib.Configure import conf
 
 @conf

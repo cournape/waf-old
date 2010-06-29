@@ -4,7 +4,7 @@
 # Thomas Nagy 2010 (ita)
 
 from waflib.extras import fc
-from Configure import conf
+from waflib.Configure import conf
 
 @conf
 def find_gfortran(conf):

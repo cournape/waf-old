@@ -5,13 +5,13 @@
 "GLib2 support"
 
 from waflib import Task, Utils
-from waflib.TaskGen import taskgen, before, after, feature
+from waflib.TaskGen import taskgen_method, before, after, feature
 
 #
 # glib-genmarshal
 #
 
-@taskgen
+@taskgen_method
 def add_marshal_file(self, filename, prefix):
 	if not hasattr(self, 'marshal_list'):
 		self.marshal_list = []
@@ -67,7 +67,7 @@ def genmarshal_func(self):
 # glib-mkenums
 #
 
-@taskgen
+@taskgen_method
 def add_enums_from_template(self, source='', target='', template='', comments=''):
 	if not hasattr(self, 'enums_list'):
 		self.enums_list = []
@@ -84,7 +84,7 @@ def add_enums_from_template(self, source='', target='', template='', comments=''
 	                        'value-tail': '',
 	                        'comments': comments})
 
-@taskgen
+@taskgen_method
 def add_enums(self, source='', target='',
               file_head='', file_prod='', file_tail='', enum_prod='',
               value_head='', value_prod='', value_tail='', comments=''):

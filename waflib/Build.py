@@ -575,11 +575,11 @@ class inst_task(Task.Task):
     task used for installing files and symlinks
 
     several design possibilities:
-    1. get the source nodes immediately (but then the declaration order matters)
-    2. get the source nodes once the build has started
-      a. and set the dependencies based on the files
-      b. and force the installation tasks to be executed last
-    3. execute the installation in a post build routine
+      1. get the source nodes immediately (but then the declaration order matters)
+      2. get the source nodes once the build has started
+        a. and set the dependencies based on the files
+        b. and force the installation tasks to be executed last
+      3. execute the installation in a post build routine
 
     For now, we use 2.a
 	"""
