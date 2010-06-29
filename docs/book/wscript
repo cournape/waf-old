@@ -11,7 +11,7 @@ from waflib import Utils, Options, TaskGen
 top = '.'
 out = 'build'
 
-re_xi = re.compile('''^(include|image)::([^.]*.(txt|png|eps))\[''', re.M)
+re_xi = re.compile('''^(include|image)::([^.]*.(txt|\\{PIC\\}))\[''', re.M)
 def ascii_doc_scan(self):
 	p = self.inputs[0].parent
 	node_lst = [self.inputs[0]]
@@ -25,10 +25,19 @@ def ascii_doc_scan(self):
 		code = nd.read()
 		for m in re_xi.finditer(code):
 			name = m.group(2)
-			k = p.find_resource(name)
-			if k:
-				depnodes.append(k)
-				if k.name.rfind('.txt') > 0:
+			if m.group(3) == '{PIC}':
+
+				ext = 'pdf'
+				if self.generator.rule.rfind('A2X') > 0:
+					ext = 'png'
+
+				k = p.find_resource(name.replace('{PIC}', ext))
+				if k:
+					depnodes.append(k)
+			else:
+				k = p.find_resource(name)
+				if k:
+					depnodes.append(k)
 					node_lst.append(k)
 	return [depnodes, ()]
 
@@ -44,7 +53,7 @@ def configure(conf):
 def build(bld):
 	for x in bld.path.ant_glob('*.dia'):
 		tg = bld(rule='${DIA} -t eps ${SRC} -e ${TGT}', source=x, target=x.change_ext('.eps'), ext_out=['.eps'])
-		bld(rule='${CONVERT} -thumbnail "600x600>" ${SRC} ${TGT}', source=tg.target, target=tg.target.change_ext('.png'), ext_in=['.eps'])
+		bld(rule='${CONVERT} -thumbnail "600x600>" ${SRC} ${TGT}', source=tg.target, target=tg.target.change_ext('.png'), ext_in=['.eps'], ext_out=['.png'])
 
 	for x in bld.path.ant_glob('pics/*.png'):
 		bld(rule='cp ${SRC} ${TGT}', source=x, target=x.name)
@@ -58,7 +67,7 @@ def build(bld):
 		source='waf.txt', target='single.html', ext_in=['.eps'], name='single', scan=ascii_doc_scan)
 
 	bld(rule='${A2X} -L -a toc --icons-dir=. -v -v --stylesheet=waf.css --icons -D ${gen.path.get_bld().abspath()} -d book -f pdf ${SRC}',
-		source='waf.txt', target='waf.pdf', ext_in=['.eps'], name='single', scan=ascii_doc_scan)
+		source='waf.txt', target='waf.pdf', ext_in=['.png'], name='single', scan=ascii_doc_scan)
 
 	if Options.options.exe:
 		def exe(ctx):
