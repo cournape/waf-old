@@ -311,7 +311,7 @@ class Context(ctx):
 			self.line_just = max(self.line_just, len(msg))
 		except AttributeError:
 			self.line_just = max(40, len(msg))
-		for x in ('\n', self.line_just * '-', '\n', msg, '\n'):
+		for x in (self.line_just * '-', msg):
 			self.to_log(x)
 		Logs.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
