@@ -213,8 +213,10 @@ class Context(ctx):
 		execute a command, return the exit status
 		if the context has the attribute 'log', capture and log the process stderr/stdout
 
-		@param s: args for subprocess.Popen
-		@param log: flag for logging the output
+		this method should be used whenever possible for proper logging
+
+		@param cmd: args for subprocess.Popen
+		@param kw: keyword arguments for subprocess.Popen
 		"""
 		subprocess = Utils.subprocess
 		kw['shell'] = isinstance(cmd, str)
@@ -246,7 +248,10 @@ class Context(ctx):
 	def cmd_and_log(self, cmd, **kw):
 		"""
 		execute a command, return the stdout
-		if the context has the attribute 'log', log the process stderr/stdout
+		this method should be used whenever possible for proper logging
+
+		@param cmd: args for subprocess.Popen
+		@param kw: keyword arguments for subprocess.Popen
 		"""
 		subprocess = Utils.subprocess
 		kw['shell'] = isinstance(cmd, str)
