@@ -227,15 +227,15 @@ class Context(ctx):
 			kw['startupinfo'] = startupinfo
 
 		try:
-			if getattr(self, 'log', None):
+			if self.logger:
 				# warning: may deadlock with a lot of output (subprocess limitation)
 				kw['stdout'] = kw['stderr'] = subprocess.PIPE
 				p = subprocess.Popen(cmd, **kw)
 				(err, out) = p.communicate()
 				if out:
-					self.to_log('out: %s\n' % out.decode())
+					self.logger.debug('out: %s' % out.decode())
 				if err:
-					self.to_log('err: %s\n' % err.decode())
+					self.logger.error('err: %s' % err.decode())
 				return p.returncode
 			else:
 				p = subprocess.Popen(cmd, **kw)
@@ -270,9 +270,9 @@ class Context(ctx):
 			raise Errors.WafError('execution failure %r' % e)
 
 		if out:
-			self.to_log('out: %s\n' % out.decode())
+			self.to_log('out: %s' % out.decode())
 		if err:
-			self.to_log('err: %s\n' % err.decode())
+			self.to_log('err: %s' % err.decode())
 
 		if not isinstance(out, str):
 			out = out.decode()

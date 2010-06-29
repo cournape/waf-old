@@ -185,7 +185,7 @@ def make_logger(path, name):
 	formatter = logging.Formatter('%(message)s')
 	hdlr.setFormatter(formatter)
 	logger.addHandler(hdlr)
-	logger.setLevel(logging.INFO)
+	logger.setLevel(logging.DEBUG)
 	return logger
 
 def pprint(col, str, label='', sep='\n'):

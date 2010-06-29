@@ -20,12 +20,8 @@ def configure(conf):
 def build(bld):
 	bld.program(source='main.cpp', target='app')
 	if bld.cmd != 'clean':
-		bld.log = open('test.log', 'w')
-		try:
-			bld.check(header_name='sadlib.h', features='cxx cprogram')
-		except bld.errors.ConfigurationError:
-			pass
-		finally:
-			bld.log.close() # always close the file or it may be empty
-			bld.log = None
+		from waflib import Logs
+		bld.logger = Logs.make_logger('test.log', 'cfg')
+		bld.check(header_name='sadlib.h', features='cxx cprogram')
+		bld.logger = None
 

@@ -44,8 +44,7 @@ autoconfig = False
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
 # using %(args)s
-#
-'''
+#'''
 
 def download_check(path):
 	"""
@@ -158,7 +157,6 @@ class ConfigurationContext(Context.Context):
 		wafver = Context.WAFVERSION
 		abi = Context.ABI
 		self.to_log(conf_template % vars())
-
 
 	def execute(self):
 		"""See Context.prepare"""
