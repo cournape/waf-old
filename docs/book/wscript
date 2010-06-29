@@ -32,7 +32,7 @@ def ascii_doc_scan(self):
 					node_lst.append(k)
 	return [depnodes, ()]
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(conf):
