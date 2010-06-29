@@ -432,7 +432,7 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 
 	filename = Utils.to_list(filename)
 	self.msg('Checking for program ' + ','.join(filename), ret or False)
-	self.to_log('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
+	self.to_log('find program=%r paths=%r var=%r -> %r' % (filename, path_list, var, ret))
 
 	if not ret and mandatory:
 		self.fatal('The program %r could not be found' % filename)

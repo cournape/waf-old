@@ -486,7 +486,7 @@ def run_c_code(self, *k, **kw):
 	for k, v in kw.items():
 		setattr(o, k, v)
 
-	self.to_log("==>\n%s\n<==\n" % kw['code'])
+	self.to_log("==>\n%s\n<==" % kw['code'])
 
 	# compile the program
 	bld.targets = '*'
@@ -498,10 +498,10 @@ def run_c_code(self, *k, **kw):
 		ret = 0
 
 	if ret:
-		self.to_log('command returned: %s\n' % ret)
+		self.to_log('command returned: %s' % ret)
 		self.fatal(str(ret))
 	else:
-		self.to_log('config test compiles\n')
+		self.to_log('config test compiles')
 
 	# keep the name of the program to execute
 	if kw['execute']:
@@ -668,7 +668,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		conf.fatal('could not determine the compiler version %r' % cmd)
 
 	if not isinstance(out, str):
-		out = out.decode('utf-8')
+		out = out.decode()
 
 	if gcc:
 		if out.find('__INTEL_COMPILER') >= 0:

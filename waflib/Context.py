@@ -331,7 +331,6 @@ class Context(ctx):
 			msg = str(result)
 
 		self.to_log(msg)
-		self.to_log('\n')
 		Logs.pprint(color or defcolor, msg)
 
 
