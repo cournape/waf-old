@@ -243,8 +243,10 @@ def check_dir(path):
 def def_attrs(cls, **kw):
 	'''
 	set attributes for class.
-	@param cls [any class]: the class to update the given attributes in.
-	@param kw [dictionary]: dictionary of attributes names and values.
+	@type cls: class
+	@param cls: the class to update the given attributes in.
+	@type kw: dict
+	@param kw: dictionary of attributes names and values.
 
 	if the given class hasn't one (or more) of these attributes, add the attribute with its value to the class.
 	'''
