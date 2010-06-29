@@ -208,16 +208,19 @@ class Context(ctx):
 		else:
 			sys.stderr.write(var)
 
-	def exec_command(self, s, **kw):
+	def exec_command(self, cmd, **kw):
 		"""
+		execute a command, return the exit status
+		if the context has the attribute 'log', capture and log the process stderr/stdout
+
 		@param s: args for subprocess.Popen
 		@param log: flag for logging the output
 		"""
 		subprocess = Utils.subprocess
-		kw['shell'] = isinstance(s, str)
-		Logs.debug('runner: %r' % s)
+		kw['shell'] = isinstance(cmd, str)
+		Logs.debug('runner: %r' % cmd)
 
-		if Utils.is_win32 and isinstance(s, str) and len(s) > 2000:
+		if Utils.is_win32 and isinstance(cmd, str) and len(cmd) > 2000:
 			# win32 stuff
 			startupinfo = subprocess.STARTUPINFO()
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -227,7 +230,7 @@ class Context(ctx):
 			if getattr(self, 'log', None):
 				# warning: may deadlock with a lot of output (subprocess limitation)
 				kw['stdout'] = kw['stderr'] = subprocess.PIPE
-				p = subprocess.Popen(s, **kw)
+				p = subprocess.Popen(cmd, **kw)
 				(err, out) = p.communicate()
 				if out:
 					self.to_log('out: %s\n' % out.decode())
@@ -235,66 +238,50 @@ class Context(ctx):
 					self.to_log('err: %s\n' % err.decode())
 				return p.returncode
 			else:
-				proc = subprocess.Popen(s, **kw)
-				return proc.wait()
+				p = subprocess.Popen(cmd, **kw)
+				return p.wait()
 		except OSError:
 			return -1
 
 	def cmd_and_log(self, cmd, **kw):
-		"""the problem with executing commands is how to log the outputs"""
-
+		"""
+		execute a command, return the stdout
+		if the context has the attribute 'log', log the process stderr/stdout
+		"""
 		subprocess = Utils.subprocess
-		Logs.debug('runner: %s\n' % cmd)
-		log = getattr(self, 'log', None)
-		if log:
-			kw['log'] = log
+		kw['shell'] = isinstance(cmd, str)
+		Logs.debug('runner: %r' % cmd)
 
+		if Utils.is_win32 and isinstance(cmd, str) and len(cmd) > 2000:
+			# win32 stuff
+			startupinfo = subprocess.STARTUPINFO()
+			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			kw['startupinfo'] = startupinfo
+
+		kw['stdout'] = kw['stderr'] = subprocess.PIPE
 		try:
-			args = {}
-			args['shell'] = isinstance(cmd, str)
-			args['stderr'] = args['stdout'] = subprocess.PIPE
-			if 'env' in kw:
-				args['env'] = kw['env']
-
+			p = subprocess.Popen(cmd, **kw)
+			(err, out) = p.communicate()
+		except Exception as e:
 			try:
-				p = subprocess.Popen(cmd, **args)
-				(out, err) = p.communicate()
-			except Exception as e:
-				try:
-					kw['log'].write(str(err))
-				except:
-					pass
-				raise Errors.WafError('execution failure %r' % e)
+				self.to_log(str(err))
+			except:
+				pass
+			raise Errors.WafError('execution failure %r' % e)
 
-			if 'log' in kw:
-				if out:
-					kw['log'].write('out: %r\n' % out.decode())
-				if err:
-					kw['log'].write('err: %r\n' % err.decode())
+		if out:
+			self.to_log('out: %s\n' % out.decode())
+		if err:
+			self.to_log('err: %s\n' % err.decode())
 
-			if not isinstance(out, str):
-				out = out.decode()
+		if not isinstance(out, str):
+			out = out.decode()
 
-			if p.returncode:
-				e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))
-				e.returncode = p.returncode
-				raise e
-			return out
-
-			#return Utils.cmd_output(cmd, **kw)
-		except self.errors.WafError as e:
-			retcode = getattr(e, 'returncode', None)
-			if retcode:
-				self.to_log('command exit code: %r\n' % retcode)
-			else:
-				self.to_log('error: ' % e)
-
-			if not kw.get('errmsg', ''):
-				if kw.get('mandatory', False):
-					kw['errmsg'] = out.strip()
-				else:
-					kw['errmsg'] = 'failure (%r)' % retcode
-			self.fatal(kw['errmsg'])
+		if p.returncode:
+			e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))
+			e.returncode = p.returncode
+			raise e
+		return out
 
 	def msg(self, msg, result, color=None):
 		"""Prints a configuration message 'Checking for xxx: ok'"""
