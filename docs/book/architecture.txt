@@ -5,16 +5,16 @@ A very open architecture is provided, in which all classes are open for extensio
 
 === The core library
 
-Waf is based on only 12 modules which constitute the core library. They are located in the directory `waflib/`. The modules located under `waflib/Tools` add support for programming languages and more tools, but are not essential for the Waf core.
+Waf consists of the following modules which constitute the core library. They are located in the directory `waflib/`. The modules located under `waflib/Tools` and `waflib/extras` are only extension and are not part of the Waf core.
 
 .The core library
 [options="header"]
 |=================
 |Module    | Role
-|Build     | Defines the build context class, which holds the data for one build (paths, configuration data)
-|Configure | Contains the configuration context class, which is used for launching configuration tests, and the extension system
+|Build     | Defines the build context classes (build, clean, install, uninstall), which holds the data for one build (paths, configuration data)
+|Configure | Contains the configuration context class, which is used for launching configuration tests and writing the configuration settings for the build
 |ConfigSet | Contains a dictionary class which supports a lightweight copy scheme and provides persistence services
-|Context   | Contains the base class for all waf commands (context parameters)
+|Context   | Contains the base class for all waf commands (context parameters of the Waf commands)
 |Errors    | Exceptions used in the Waf code
 |Logs        | Loggging system
 |Node        | Contains the file system representation class
@@ -22,28 +22,31 @@ Waf is based on only 12 modules which constitute the core library. They are loca
 |Runner      | Contains the task execution system (thread-based producer-consumer)
 |Scripting   | Constitutes the entry point of the Waf application, executes the user commands such as build, configuration and installation
 |TaskGen     | Provides the task generator system, and its extension system based on method addition
-|Task        | Contains the task classes, and the task containers
-|Utils       | Contains the support functions and classes re-used in other Waf modules
+|Task        | Contains the task class definitions, and factory functions for creating new task classes
+|Utils       | Contains support functions and classes used by other Waf modules
 |=================
 
-When using Waf as a library, some modules may be more important than others. The main dependencies are represented on the following diagram:
+Not all modules are required for using Waf as a library, and the following diagram is provided to help including the required modules. For each module represented depends on all other modules below, for example, the module 'Node' requires both modules 'Utils' and 'Errors'. If the module 'Build' is used, then the modules 'Scripting' and 'Configure' are not necessary.
 
-image::core{PIC}["Main classes"{backend@docbook:,height=500:}]
+image::core{PIC}["Module dependencies"{backend@docbook:,height=500:}]
 
-=== Classes
+=== The context classes
 
 The essential classes and methods from the core library are represented on the following diagram:
 
-image::classes{PIC}["Main classes"{backend@docbook:,width=500:}]
+image::classes{PIC}["Context classes"{backend@docbook:,width=500:}]
 
-=== Build context instances
+The 'Context' class is the base for all Waf commands, and derives from a metaclass which is used to store the new context classes. Likewise, the 'TaskBase' classes are also stored.
 
-Executing tasks, accessing the file system and consulting the results of a previous build are very different concerns which have to be encapsulated properly. The core class representing a build is a build context.
+=== Build classes
+
+The structure of the build classes is represented on the following diagram:
+
+image::classes_build{PIC}["Build classes"{backend@docbook:,width=500:}]
 
 ==== Build context and persistence
 
 The build context holds all the information necessary for a build. To accelerate the start-up, a part of the information is stored and loaded between the runs. The persistent attributes are the following:
-
 
 .Build context persistence
 [options="header"]
@@ -52,18 +55,16 @@ The build context holds all the information necessary for a build. To accelerate
 |root| Node representing the root of the file system
 |srcnode| Node representing the source directory
 |bldnode| Node representing the build directory (rarely used)
-|node_sigs| File hashes (dict mapping Node ids to hashes)
 |node_deps| Implicit dependencies (dict mapping Node ids)
 |raw_deps| Implicit file dependencies which could not be resolved (dict mapping Node ids to lists of strings)
 |task_sigs| Signature of the tasks previously run (dict mapping a Task id to a hash)
-|id_nodes| Sequence for generating unique node instance ids (id of the last Node created)
 |=================
 
 ==== Parallelization concerns
 
-Build contexts perform an 'os.chdir' call before starting to execute the tasks. When running build contexts within build contexts (tasks), the current working directory may cause various problems. To work around them, it may be necessary to change the compilation rules (compile from the file system root) and to inject code (replace bld.compile).
-
 Direct 'Node' instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
+
+The TaskBase methods 'run' and 'post_run' are executed by threads ('TaskConsumer'). It is therefore discouraged to search for files and folder in these methods unless the nodes have already been created. For processing tasks dynamically during the build, it is recommended to use the TaskBase method 'runnable_status' which is executed by the main thread.
 
 ==== Threading concerns
 
