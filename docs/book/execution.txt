@@ -1,6 +1,6 @@
 == The scripting system
 
-This chapter provides a practical overview of the waf usage in a software project.
+This chapter provides a hands-on overview of the Waf usage in a software project.
 
 === Setting up a project
 
