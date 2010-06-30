@@ -54,7 +54,8 @@ def build(bld):
 
 	for x in bld.path.ant_glob('*.eps'):
 		nd = bld.path.get_bld().make_node(x.name)
-		tg = bld(rule='cp ${SRC} ${TGT}', source=x, target=nd)
+		bld(rule='cp ${SRC} ${TGT}', source=x, target=nd, ext_out=['.eps'])
+		bld(rule='${CONVERT} -thumbnail "600x600>" ${SRC} ${TGT}', source=x, target=x.change_ext('.png'), ext_out=['.png'])
 
 	for x in bld.path.ant_glob('*.dot'):
 		tg = bld(rule='dot -Teps -o${TGT} ${SRC}', source=x, target=x.change_ext('.eps'), ext_out=['.eps'])
