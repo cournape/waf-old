@@ -1,7 +1,7 @@
 
 == Overview of the Waf architecture
 
-A very open architecture is provided, in which all classes are open for extensions.
+The following chapter provides a description of the Waf components and of their interaction.
 
 === The core library
 
@@ -68,6 +68,8 @@ The TaskBase methods 'run' and 'post_run' are executed by threads ('TaskConsumer
 
 Should this be insuficient, the Task method method 'get_out' of the class Parallel should be overridden to execute methods in an event-like manner (data is attached to the task, and the method get_out executes the code).
 
+////
+
 === Execution overview
 
 ==== File system access
@@ -83,8 +85,6 @@ The whole process of generating tasks through Waf is performed by methods added 
 The task generators automatically inherit the build context attribute 'bld' when created from bld(...). Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instantiation may result in problems when running Waf as a library.
 
 The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method 'install'.
-
-
 
 === Performance and build accuracy
 
@@ -112,4 +112,5 @@ The Waf hashing scheme uses the md5 algorithm provided by the Python distributio
 If more than 100Mb of data is present in the project, it may be necessary to use a faster hashing algorithm. An implementation of the fnv algorithm is present in the Waf distribution, and can replace md5 without really degrading accuracy.
 
 If more than 10000 files are present, it may be necessary to replace the hashing system by a 'file name+size+timestamp hash scheme'. An example is provided in the comment section of the module `Utils.py`. That scheme is more efficient but less accurate: the Waf cache should not be used with this scheme.
+////
 
