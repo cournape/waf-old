@@ -37,8 +37,9 @@ class valac_task(Task.Task):
 			output_dir = self.outputs[0].bld_dir()
 			cmd.append('--library ' + self.target)
 			if env['VALAC_VERSION'] >= (0, 7, 0):
-				cmd.append('--header ' + os.path.join(output_dir, self.target + '.h'))
-				self.outputs.append(self.generator.path.find_or_declare(self.target + '.h'))
+				for x in self.outputs:
+					if x.name.endswith('.h'):
+						cmd.append('--header ' + x.bldpath())
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
 			if env['VALAC_VERSION'] > (0, 7, 2) and hasattr(self, 'gir'):
