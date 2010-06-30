@@ -38,6 +38,11 @@ else:
 		def __init__(self):
 			self.hconsole = windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 			self.cursor_history = []
+			self.orig_sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
+			self.orig_csinfo = CONSOLE_CURSOR_INFO()
+			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole, byref(self.orig_sbinfo))
+			windll.kernel32.GetConsoleCursorInfo(hconsole, byref(self.orig_csinfo))
+
 
 		def screen_buffer_info(self):
 			sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
@@ -159,13 +164,21 @@ else:
 						   }
 
 		def set_color(self, param):
-			intensity, sep, color = param.partition(';')
-			intensity = to_int(intensity, 0)
-			color = to_int(color, 0)
-			if intensity and not color:
-				color, intensity = intensity, color
-			attrib = self.escape_to_color.get((intensity, color), 0x7)
-			windll.kernel32.SetConsoleTextAttribute(self.hconsole, attrib)
+			cols = param.split(';')
+			attr = self.orig_sbinfo.Attributes
+			for c in cols:
+				c = to_int(c, 0)
+				if c in range(30,38):
+					attr = (attr & 0xf0) | (self.escape_to_color.get((0,c), 0x7))
+				elif c in range(40,48):
+					attr = (attr & 0x0f) | (self.escape_to_color.get((0,c), 0x7) << 8)
+				elif c in range(90,98):
+					attr = (attr & 0xf0) | (self.escape_to_color.get((1,c-60), 0x7))
+				elif c in range(100,108):
+					attr = (attr & 0x0f) | (self.escape_to_color.get((1,c-60), 0x7) << 8)
+				elif c == 1:
+					attr |= 0x08
+			windll.kernel32.SetConsoleTextAttribute(self.hconsole, attr)
 
 		def show_cursor(self,param):
 			csinfo.bVisible = 1
