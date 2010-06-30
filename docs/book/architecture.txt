@@ -32,11 +32,9 @@ image::core{PIC}["Module dependencies"{backend@docbook:,height=500:}]
 
 === The context classes
 
-The essential classes and methods from the core library are represented on the following diagram:
+The context classes (which inherit from the class 'Context') are used by the Waf commands. The base class 'Context' may be used directly for the Waf commands that do not have an associated context subclass. The metaclass 'store_context' is used for recording any context subclass created.
 
 image::classes{PIC}["Context classes"{backend@docbook:,width=500:}]
-
-The 'Context' class is the base for all Waf commands, and derives from a metaclass which is used to store the new context classes. Likewise, the 'TaskBase' classes are also stored.
 
 === Build classes
 
@@ -62,18 +60,13 @@ The build context holds all the information necessary for a build. To accelerate
 
 ==== Parallelization concerns
 
-Direct 'Node' instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
+Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods 'run' and 'install' from the task instances. As a consequence, such methods should contain as little code as possible, and access the BuildContext in a read-only manner. If such tasks must declare new nodes while executing the build (find_dir, find_resource, ..), then locks must be used to prevent concurrent access (concurrent directory and node creation).
+
+In particular, direct 'Node' instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
 
 The TaskBase methods 'run' and 'post_run' are executed by threads ('TaskConsumer'). It is therefore discouraged to search for files and folder in these methods unless the nodes have already been created. For processing tasks dynamically during the build, it is recommended to use the TaskBase method 'runnable_status' which is executed by the main thread.
 
-==== Threading concerns
-
-Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods 'run' and 'install' from the task instances. As a consequence, such methods should contain as little code as possible, and access the BuildContext in a read-only manner. If such tasks must declare new nodes while executing the build (find_dir, find_resource, ..), then locks must be used to prevent concurrent access (concurrent directory and node creation).
-
-If the run methods have to modify the build context, it is recommended to overload the method 'get_out' of the scheduler and to execute methods in an event-like manner (data is attached to the task, and the method get_out executes the code). Adding more tasks from a running task is demonstrated <xref linkend="runtime_discovered_outputs"/>.
-
-
-
+Should this be insuficient, the Task method method 'get_out' of the class Parallel should be overridden to execute methods in an event-like manner (data is attached to the task, and the method get_out executes the code).
 
 === Execution overview
 
