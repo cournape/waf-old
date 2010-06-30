@@ -344,7 +344,7 @@ def process_rule(self):
 		return
 
 	# create the task class
-	name = getattr(self, 'name', None) or self.target or self.rule
+	name = getattr(self, 'name', None) or str(self.target) or self.rule
 	cls = Task.task_factory(name, self.rule,
 		getattr(self, 'vars', []), quiet=True,
 		shell=getattr(self, 'shell', True), color=getattr(self, 'color', 'BLUE'))
@@ -355,7 +355,12 @@ def process_rule(self):
 	if getattr(self, 'target', None):
 		if not isinstance(self.target, list):
 			self.target = [self.target]
-		tsk.outputs = [isinstance(x, str) and self.path.find_or_declare(x) or x for x in self.target]
+		for x in self.target:
+			if isinstance(x, str):
+				tsk.outputs.append(self.path.find_or_declare(x))
+			else:
+				x.parent.mkdir() # if a node was given, create the required folders
+				tsk.outputs.append(x)
 
 	if getattr(self, 'source', None):
 		tsk.inputs = self.to_nodes(self.source)

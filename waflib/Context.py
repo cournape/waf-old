@@ -64,6 +64,10 @@ g_module = None
 wscript file representing the entry point of the project
 """
 
+STDOUT = 1
+STDERR = -1
+BOTH   = 0
+
 classes = []
 def create_context(cmd_name, *k, **kw):
 	"""TODO warn if more than one context is provided for a given command?"""
@@ -250,6 +254,9 @@ class Context(ctx):
 		execute a command, return the stdout
 		this method should be used whenever possible for proper logging
 
+		to obtain stdout+stderr, pass output=BOTH in the arguments (or output=0)
+		to obtain just stderr, pass output=STDERR in the arguments (or output=-1)
+
 		@param cmd: args for subprocess.Popen
 		@param kw: keyword arguments for subprocess.Popen
 		"""
@@ -263,6 +270,12 @@ class Context(ctx):
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			kw['startupinfo'] = startupinfo
 
+		if 'output' in kw:
+			to_ret = kw['output']
+			del kw['output']
+		else:
+			to_ret = STDOUT
+
 		kw['stdout'] = kw['stderr'] = subprocess.PIPE
 		try:
 			p = subprocess.Popen(cmd, **kw)
@@ -274,18 +287,25 @@ class Context(ctx):
 				pass
 			raise Errors.WafError('execution failure %r' % e)
 
-		if out:
-			self.to_log('out: %s' % out.decode())
-		if err:
-			self.to_log('err: %s' % err.decode())
-
 		if not isinstance(out, str):
 			out = out.decode()
+		if not isinstance(err, str):
+			err = err.decode()
+
+		if out:
+			self.to_log('out: %s' % out)
+		if err:
+			self.to_log('err: %s' % err)
 
 		if p.returncode:
 			e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))
 			e.returncode = p.returncode
 			raise e
+
+		if to_ret == BOTH:
+			return (out, err)
+		elif to_ret == STDERR:
+			return err
 		return out
 
 	def msg(self, msg, result, color=None):
