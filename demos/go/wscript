@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Tom Wambold tom5760 gmail
+# Thomas Nagy, 2010 (ita)
 
 """
 if libgmp is present, try building with 'waf --exe'
