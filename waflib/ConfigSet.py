@@ -130,29 +130,32 @@ class ConfigSet(object):
 		self.table[key] = value
 		return value
 
-	def append_value(self, var, value):
+	def append_value(self, var, val):
 		"""The value must be a list or a tuple"""
 		current_value = self._get_list_value_for_modification(var)
-		try:
-			current_value.extend(value)
-		except:
-			current_value.append(value)
+		if isinstance(val, str): # if there were string everywhere we could optimize this
+			val = [val]
+		current_value.extend(val)
 
-	def prepend_value(self, var, value):
+	def prepend_value(self, var, val):
 		"""The value must be a list or a tuple"""
-		self.table[var] =  value + self._get_list_value_for_modification(var)
+		if isinstance(val, str):
+			val = [val]
+		self.table[var] =  val + self._get_list_value_for_modification(var)
 
-	def append_unique(self, var, value):
+	def append_unique(self, var, val):
 		"""
 		The value must be a list or a tuple
 
 		Note that there is no prepend_unique
 		"""
+		if isinstance(val, str):
+			val = [val]
 		current_value = self._get_list_value_for_modification(var)
 
-		for value_item in value:
-			if value_item not in current_value:
-				current_value.append(value_item)
+		for x in val:
+			if x not in current_value:
+				current_value.append(x)
 
 	def get_merged_dict(self):
 		"""compute a merged table"""

@@ -90,3 +90,6 @@ def waf_version(*k, **kw):
 	Logs.warn('wrong version (waf_version was removed in waf 1.6)')
 Utils.waf_version = waf_version
 
+
+
+
