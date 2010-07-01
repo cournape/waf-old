@@ -314,6 +314,14 @@ class ConfigurationContext(Utils.Context):
 		self.check_message_1(sr)
 		self.check_message_2(custom, color)
 
+	def msg(self, msg, result, color=None):
+		"""Prints a configuration message 'Checking for xxx: ok'"""
+		self.start_msg('Checking for ' + msg)
+
+		if not isinstance(color, str):
+			color = result and 'GREEN' or 'YELLOW'
+
+		self.end_msg(result, color)
 
 	def start_msg(self, msg):
 		try:
@@ -328,12 +336,13 @@ class ConfigurationContext(Utils.Context):
 			self.log.write(x)
 		Utils.pprint('NORMAL', "%s :" % msg.ljust(self.line_just), sep='')
 
-	def end_msg(self, result):
+	def end_msg(self, result, color):
 		self.in_msg -= 1
 		if self.in_msg:
 			return
 
-		color = 'GREEN'
+		if not color:
+			color = 'GREEN'
 		if result == True:
 			msg = 'ok'
 		elif result == False:
