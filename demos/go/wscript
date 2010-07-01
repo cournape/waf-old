@@ -8,6 +8,14 @@ out = 'build'
 def configure(ctx):
 	ctx.check_tool('go')
 
+	try:
+		ctx.check_tool('gcc')
+		ctx.check_cc(fragment='#include <gmp.h>\nint main() {return 0;}\n', uselib_store='GMP', lib='gmp')
+	except ctx.errors.ConfigurationError:
+		ctx.env.TRY_CGO = False
+	else:
+		ctx.env.TRY_CGO = True
+
 def build(ctx):
 	ctx(
 		features = 'go gopackage',
@@ -25,4 +33,7 @@ def build(ctx):
 		source   = 'main.go',
 		includes = '.',
 	)
+
+	if ctx.env.TRY_CGO:
+		pass
 
