@@ -235,6 +235,9 @@ class Context(ctx):
 		try:
 			if self.logger:
 				# warning: may deadlock with a lot of output (subprocess limitation)
+
+				self.logger.info(cmd)
+
 				kw['stdout'] = kw['stderr'] = subprocess.PIPE
 				p = subprocess.Popen(cmd, **kw)
 				(err, out) = p.communicate()
