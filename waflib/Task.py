@@ -632,6 +632,7 @@ def compile_fun_noshell(line):
 
 	line2 = reg_act.sub(repl, line)
 	params = line2.split('<<|@|>>')
+	assert(extr)
 
 	buf = []
 	dvars = []
