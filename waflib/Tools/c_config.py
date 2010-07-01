@@ -138,7 +138,7 @@ def validate_cfg(self, kw):
 	if not 'msg' in kw:
 		kw['msg'] = 'Checking for %s' % kw['package']
 	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
+		kw['okmsg'] = 'yes'
 	if not 'errmsg' in kw:
 		kw['errmsg'] = 'not found'
 
@@ -150,7 +150,7 @@ def exec_cfg(self, kw):
 		cmd = '%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version'])
 		self.cmd_and_log(cmd, **kw)
 		if not 'okmsg' in kw:
-			kw['okmsg'] = 'ok'
+			kw['okmsg'] = 'yes'
 		return
 
 	# checking for the version of a module
@@ -159,7 +159,7 @@ def exec_cfg(self, kw):
 		if y in kw:
 			self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']), **kw)
 			if not 'okmsg' in kw:
-				kw['okmsg'] = 'ok'
+				kw['okmsg'] = 'yes'
 			self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
 			break
 
@@ -180,7 +180,7 @@ def exec_cfg(self, kw):
 	cmd = ' '.join(lst)
 	ret = self.cmd_and_log(cmd, **kw)
 	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
+		kw['okmsg'] = 'yes'
 
 	self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
 	parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
@@ -372,7 +372,7 @@ def validate_c(self, kw):
 		kw['errmsg'] = 'not found'
 
 	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
+		kw['okmsg'] = 'yes'
 
 	if not 'code' in kw:
 		kw['code'] = SNIP_EMPTY_PROGRAM
