@@ -957,7 +957,7 @@ def compile_fun_shell(name, line):
 		elif g('subst'): extr.append((g('var'), g('code'))); return "%s"
 		return None
 
-	line = reg_act.sub(repl, line)
+	line = reg_act.sub(repl, line) or line
 
 	parm = []
 	dvars = []
