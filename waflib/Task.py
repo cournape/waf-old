@@ -592,7 +592,7 @@ def compile_fun_shell(line):
 		elif g('subst'): extr.append((g('var'), g('code'))); return "%s"
 		return None
 
-	line = reg_act.sub(repl, line)
+	line = reg_act.sub(repl, line) or line
 
 	parm = []
 	dvars = []
@@ -686,6 +686,7 @@ def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[],
 		'ext_out': Utils.to_list(ext_out),
 		'before': Utils.to_list(before),
 		'after': Utils.to_list(after),
+		'shell': shell,
 		'quiet': quiet,
 		'scan': scan,
 	}
