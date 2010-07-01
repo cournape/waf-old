@@ -353,6 +353,8 @@ def process_rule(self):
 	tsk = self.create_task(name)
 
 	if getattr(self, 'target', None):
+		if isinstance(self.target, str):
+			self.target = self.target.split()
 		if not isinstance(self.target, list):
 			self.target = [self.target]
 		for x in self.target:
