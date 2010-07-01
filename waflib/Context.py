@@ -420,10 +420,13 @@ def load_tool(tool, tooldir=None):
 		global waf_dir
 		try:
 			os.stat(os.path.join(waf_dir, 'waflib', 'Tools', tool + '.py'))
-		except:
-			d = 'waflib.extras.%s' % tool
-		else:
 			d = 'waflib.Tools.%s' % tool
+		except:
+			try:
+				os.stat(os.path.join(waf_dir, 'waflib', 'extras', tool + '.py'))
+				d = 'waflib.extras.%s' % tool
+			except:
+				d = tool # user has messed with sys.path
 
 		__import__(d)
 		return sys.modules[d]
