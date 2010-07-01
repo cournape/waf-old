@@ -54,12 +54,12 @@ def check_features(self):
 
 	if is_big: strbig = 'big endian'
 	else: strbig = 'little endian'
-	self.check_message_custom('endianness', '', strbig)
+	self.msg('endianness', strbig)
 
-	self.check_message_custom('int size', '', t['int_size'])
-	self.check_message_custom('long int size', '', t['long_int_size'])
-	self.check_message_custom('long long int size', '', t['long_long_int_size'])
-	self.check_message_custom('double size', '', t['double_size'])
+	self.msg('int size', t['int_size'])
+	self.msg('long int size', t['long_int_size'])
+	self.msg('long long int size', t['long_long_int_size'])
+	self.msg('double size', t['double_size'])
 
 	self.define_cond('IS_BIGENDIAN', is_big)
 	self.define_cond('INT_SIZE', int(t['int_size']))
