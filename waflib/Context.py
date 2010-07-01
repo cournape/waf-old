@@ -240,7 +240,7 @@ class Context(ctx):
 
 				kw['stdout'] = kw['stderr'] = subprocess.PIPE
 				p = subprocess.Popen(cmd, **kw)
-				(err, out) = p.communicate()
+				(out, err) = p.communicate()
 				if out:
 					self.logger.debug('out: %s' % out.decode())
 				if err:
@@ -282,7 +282,7 @@ class Context(ctx):
 		kw['stdout'] = kw['stderr'] = subprocess.PIPE
 		try:
 			p = subprocess.Popen(cmd, **kw)
-			(err, out) = p.communicate()
+			(out, err) = p.communicate()
 		except Exception as e:
 			try:
 				self.to_log(str(err))

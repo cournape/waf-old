@@ -42,6 +42,7 @@ Options.OptionsContext.sub_options = Options.OptionsContext.recurse
 Options.Handler = Options.OptionsContext
 
 Task.simple_task_type = Task.task_type_from_func = Task.task_factory
+Task.TaskBase.classes = Task.classes
 
 @TaskGen.feature('d')
 @TaskGen.before('apply_incpaths')
