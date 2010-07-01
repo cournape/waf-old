@@ -84,6 +84,8 @@ def build(bld):
 	bld(rule='${A2X} -L -a toc --icons-dir=. -v -v --stylesheet=waf.css --icons -D ${gen.path.get_bld().abspath()} -d article -f pdf ${SRC}',
 		source='intro_waf_1.6.txt', target='intro_waf_1.6.pdf', name='single', scan=ascii_doc_scan)
 
+	bld(rule='ln -sf single.html index.html', shell=True)
+
 	if Options.options.exe:
 		def exe(ctx):
 			p = Utils.subprocess.Popen('firefox build/single.html', shell=True)
