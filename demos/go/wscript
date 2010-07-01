@@ -22,7 +22,7 @@ def build(ctx):
 		target   = 'other',
 		source   = [
 			'other/a.go',
-			'other/b.go',
+			#'other/b.go', # using two source files for gopack does not seem to work anymore
 		],
 	)
 
@@ -35,5 +35,27 @@ def build(ctx):
 	)
 
 	if ctx.env.TRY_CGO:
-		pass
+		# uh, that mv line looks bad indeed
+		ctx(name='cgo', rule='${CGO} ${SRC}',
+			target=['gmp.cgo1.go', '_cgo_gotypes.go'],
+			source='gmp.go')
+		#ctx(after='cgo', rule='${}')
+
+"""
+CGOPKGPATH= /home/waf/bin/cgo  gmp.go
+
+/home/waf/bin/6g -o _go_.6 gmp.cgo1.go _cgo_gotypes.go
+
+/home/waf/bin/6c -FVw -I"/home/waf/go/src/pkg/runtime" -D_64BIT _cgo_defun.c
+rm -f _obj/gmp.a
+
+/home/waf/bin/gopack grc _obj/gmp.a _go_.6 _cgo_defun.6
+
+cp _obj/gmp.a "/home/waf/go/pkg/linux_amd64/gmp.a"
+gcc -m64 -fPIC -O2 -o gmp.cgo2.o -c  gmp.cgo2.c
+gcc -m64 -o _cgo_.so gmp.cgo2.o -lgmp  -shared -lpthread -lm
+cp _cgo_.so "/home/waf/go/pkg/linux_amd64/cgo_gmp.so"
+6g pi.go
+6l -o pi pi.6
+"""
 
