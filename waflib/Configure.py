@@ -261,15 +261,14 @@ class ConfigurationContext(Context.Context):
 			try:
 				module = Context.load_tool(tool, tooldir)
 			except Exception as e:
-				ex = e
 				if Options.options.download:
 					module = download_tool(tool)
 					if not module:
 						Logs.error('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
-						raise ex
+						raise e
 				else:
 					Logs.error('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
-					raise ex
+					raise e
 
 			if funs is not None:
 				self.eval_rules(funs)
