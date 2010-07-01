@@ -1,5 +1,5 @@
-Upgrade to Waf 1.6 (draft)
-=========================
+Introduction to Waf 1.6 (draft)
+===============================
 :author: Thomas Nagy
 :quotes.++:
 
