@@ -39,6 +39,7 @@ Configure.conftest = Configure.conf
 Configure.ConfigurationError = Errors.ConfigurationError
 
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
+Options.Handler = Options.OptionsContext
 
 Task.simple_task_type = Task.task_type_from_func = Task.task_factory
 
@@ -89,7 +90,4 @@ TaskGen.task_gen.apply = apply
 def waf_version(*k, **kw):
 	Logs.warn('wrong version (waf_version was removed in waf 1.6)')
 Utils.waf_version = waf_version
-
-
-
 
