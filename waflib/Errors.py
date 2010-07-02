@@ -30,6 +30,8 @@ class WafError(Exception):
 		self.verbose_msg = ''.join(traceback.format_list(self.stack))
 
 	def __str__(self):
+		if self.pyfile: # TODO
+			return "in %s: %s" % (pyfile, str(self.msg))
 		return str(self.msg)
 
 class BuildError(WafError):
