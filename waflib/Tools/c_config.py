@@ -508,7 +508,10 @@ def run_c_code(self, *k, **kw):
 		lastprog = o.link_task.outputs[0].abspath()
 
 		args = Utils.to_list(kw.get('exec_args', []))
-		ret = self.cmd_and_log([lastprog] + args).strip()
+		try:
+			ret = self.cmd_and_log([lastprog] + args).strip()
+		except Errors.WafError as e:
+			conf.fatal('command exited %r' % e)
 
 	return ret
 
