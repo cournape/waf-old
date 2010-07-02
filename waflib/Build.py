@@ -566,6 +566,8 @@ class BuildContext(Context.Context):
 			Task.set_precedence_constraints(tasks)
 
 			self.cur += 1
+			if not tasks: # return something else the build will stop
+				continue
 			yield tasks
 		while 1:
 			yield []
