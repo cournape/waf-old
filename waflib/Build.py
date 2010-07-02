@@ -471,7 +471,7 @@ class BuildContext(Context.Context):
 	def set_group(self, idx):
 		"""set the current group to be idx: now new task generators will be added to this group by default"""
 		if isinstance(idx, str):
-			g = self.groups_names[idx]
+			g = self.group_names[idx]
 			for i in range(len(self.groups)):
 				if id(g) == id(self.groups[i]):
 					self.current_group = i
@@ -569,6 +569,13 @@ class BuildContext(Context.Context):
 			yield tasks
 		while 1:
 			yield []
+
+
+	def install_dir(self, path, env=None):
+		"""
+		create empty folders for the installation (very rarely used) TODO
+		"""
+		return
 
 class inst_task(Task.Task):
 	"""
