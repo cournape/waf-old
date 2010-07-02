@@ -9,6 +9,7 @@ class WafError(Exception):
 	def __init__(self, msg, pyfile=None):
 		"""the parameter msg can be an error message or an exception"""
 		self.msg = msg
+		self.pyfile = pyfile
 
 		if isinstance(msg, Exception):
 			self.msg = str(msg)
@@ -30,8 +31,8 @@ class WafError(Exception):
 		self.verbose_msg = ''.join(traceback.format_list(self.stack))
 
 	def __str__(self):
-		if self.pyfile: # TODO
-			return "in %s: %s" % (pyfile, str(self.msg))
+		if self.pyfile:
+			return "in %s: %s" % (self.pyfile, str(self.msg))
 		return str(self.msg)
 
 class BuildError(WafError):
