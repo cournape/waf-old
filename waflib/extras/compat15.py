@@ -34,6 +34,7 @@ Build.BuildContext.add_subdirs = Build.BuildContext.recurse
 Build.BuildContext.new_task_gen = Build.BuildContext.__call__
 
 def name_to_obj(self, s, env=None):
+	Logs.warn('compat: change "name_to_obj(name, env)" by "get_tgen_by_name(name)"')
 	return self.get_tgen_by_name(s)
 Build.BuildContext.name_to_obj = name_to_obj
 
