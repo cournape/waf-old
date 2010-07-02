@@ -31,8 +31,11 @@ ConfigSet.ConfigSet.copy = ConfigSet.ConfigSet.derive
 ConfigSet.ConfigSet.set_variant = Utils.nada
 
 Build.BuildContext.add_subdirs = Build.BuildContext.recurse
-Build.BuildContext.name_to_obj = Build.BuildContext.get_tgen_by_name
 Build.BuildContext.new_task_gen = Build.BuildContext.__call__
+
+def name_to_obj(self, s, env=None):
+	return self.get_tgen_by_name(s)
+Build.BuildContext.name_to_obj = name_to_obj
 
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
 Configure.conftest = Configure.conf
