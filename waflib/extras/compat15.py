@@ -32,6 +32,8 @@ ConfigSet.ConfigSet.set_variant = Utils.nada
 
 Build.BuildContext.add_subdirs = Build.BuildContext.recurse
 Build.BuildContext.new_task_gen = Build.BuildContext.__call__
+Build.BuildContext.is_install = 0
+Node.Node.relpath_gen = Node.Node.path_from
 
 def name_to_obj(self, s, env=None):
 	Logs.warn('compat: change "name_to_obj(name, env)" by "get_tgen_by_name(name)"')
