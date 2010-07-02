@@ -596,11 +596,16 @@ def have_define(self, name):
 
 @conf
 def write_config_header(self, configfile='', guard='', top=False, env=None):
-	"save the defines into a file"
+	"""
+	save the defines into a file
+	with configfile=foo/bar.h and a script in folder xyz
+	top -> build/foo/bar.h
+	!top -> build/xyz/foo/bar.h
+	"""
 	if not configfile: configfile = WAF_CONFIG_H
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
 
-	node = top and self.path or self.bldnode
+	node = top and self.bldnode or self.path.get_bld()
 	node = node.make_node(configfile)
 	node.parent.mkdir()
 
