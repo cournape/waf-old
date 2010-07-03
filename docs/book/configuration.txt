@@ -4,7 +4,7 @@ The configuration step is used to check if the requiremements for working on a p
 
 === Storing configuration sets
 
-Configuration sets are instances of the class 'ConfigSet'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
+Configuration sets are instances of the class 'ConfigSet'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within Waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
 
 [source,python]
 ---------------
@@ -73,7 +73,6 @@ def configure(conf):
 	from waflib import ConfigSet
 	env = ConfigSet.ConfigSet()
 	env.load('/tmp/env.txt') <10>
-
 ---------------
 
 <1> Initialize and set the given value by using the key-based notation

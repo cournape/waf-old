@@ -87,15 +87,15 @@ The command-line (output by `waf -v`) will have the following form:
 
 [source,shishell]
 ---------------
-cc -Idefault -I.. -Idefault/src -I../src ../src/main.c -c -o default/src/main_1.o
+cc -I. -I.. -Isrc -I../src ../src/main.c -c -o src/main_1.o
 ---------------
 
 Because commands are executed from the build directory, the folders have been converted to include flags in the following way:
 
 [source,shishell]
 ---------------
-.. -> -I..      -Idefault
-.  -> -I../src  -Idefault/src
+.. -> -I..      -I.
+.  -> -I../src  -Isrc
 ---------------
 
 There are the important points to remember:
@@ -385,7 +385,7 @@ boobah = 1
 booeah = '4'
 defines = {'booeah': '"4"', 'boobah': 1, 'HAVE_TIME_H': 1, 'HAVE_PRINTF': 1}
 dep_files = ['config.h']
-waf_config_files = ['/compilation/waf/demos/adv/build/default/config.h']
+waf_config_files = ['/compilation/waf/demos/adv/build/config.h']
 ---------------
 
 NOTE: The methods 'conf.check' all use task generators internally. This means that the attributes 'includes', 'defines', 'cxxflags' may be used (not all shown here).
@@ -417,8 +417,7 @@ build/
 |   |-- build.config.py
 |   `-- default.cache.py
 |-- config.log
-`-- default
-    `-- config.h
+`-- config.h
 ---------------
 
 The contents of the config.h for this example are

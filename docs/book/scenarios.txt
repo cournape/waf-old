@@ -83,16 +83,16 @@ Checking for program ar                  : ok /usr/bin/ar
 Checking for program ranlib              : ok /usr/bin/ranlib
 'configure' finished successfully (0.034s)
 Waf: Entering directory `/tmp/comp/build'
-[1/5] cxx: comp.cpp -> build/default/comp_1.o
-16:22:50 runner system command -> ['/usr/bin/g++', '../comp.cpp', '-c', '-o', 'default/comp_1.o']
-[2/5] cxx_link: build/default/comp_1.o -> build/default/comp <1>
-16:22:50 runner system command -> ['/usr/bin/g++', 'default/comp_1.o', '-o', '/tmp/comp/build/default/comp']
-[3/5] src2cpp: a.src -> build/default/a.cpp
-16:22:50 runner system command ->  /tmp/comp/build/default/comp ../a.src default/a.cpp <2>
-[4/5] cxx: main.cpp -> build/default/main_2.o
-16:22:50 runner system command -> ['/usr/bin/g++', '../main.cpp', '-c', '-o', 'default/main_2.o']
-[5/5] cxx_link: build/default/main_2.o -> build/default/foo
-16:22:50 runner system command -> ['/usr/bin/g++', 'default/main_2.o', '-o', '/tmp/comp/build/default/foo'] <3>
+[1/5] cxx: comp.cpp -> build/comp_1.o
+16:22:50 runner system command -> ['/usr/bin/g++', '../comp.cpp', '-c', '-o', 'comp_1.o']
+[2/5] cxx_link: build/comp_1.o -> build/comp <1>
+16:22:50 runner system command -> ['/usr/bin/g++', 'comp_1.o', '-o', '/tmp/comp/build/comp']
+[3/5] src2cpp: a.src -> build/a.cpp
+16:22:50 runner system command ->  /tmp/comp/build/comp ../a.src a.cpp <2>
+[4/5] cxx: main.cpp -> build/main_2.o
+16:22:50 runner system command -> ['/usr/bin/g++', '../main.cpp', '-c', '-o', 'main_2.o']
+[5/5] cxx_link: build/main_2.o -> build/foo
+16:22:50 runner system command -> ['/usr/bin/g++', 'main_2.o', '-o', '/tmp/comp/build/foo'] <3>
 Waf: Leaving directory `/tmp/comp/build'
 'build' finished successfully (0.194s)
 ---------------
@@ -161,10 +161,10 @@ Checking for program ar                  : ok /usr/bin/ar
 Checking for program ranlib              : ok /usr/bin/ranlib
 'configure' finished successfully (0.033s)
 Waf: Entering directory `/tmp/idl/build'
-[1/4] idl: foo.idl -> build/default/foo.cc
-[2/4] cxx: build/default/foo.cc -> build/default/foo_1.o
-[3/4] cxx: main.cpp -> build/default/main_1.o
-[4/4] cxx_link: build/default/main_1.o build/default/foo_1.o -> build/default/myapp
+[1/4] idl: foo.idl -> build/foo.cc
+[2/4] cxx: build/foo.cc -> build/foo_1.o
+[3/4] cxx: main.cpp -> build/main_1.o
+[4/4] cxx_link: build/main_1.o build/foo_1.o -> build/myapp
 Waf: Leaving directory `/tmp/idl/build'
 'build' finished successfully (0.119s)
 ---------------
@@ -248,10 +248,10 @@ Checking for program ar                  : ok /usr/bin/ar
 Checking for program ranlib              : ok /usr/bin/ranlib
 'configure' finished successfully (0.041s)
 Waf: Entering directory `/home/waf/Descargas/blah/out'
-[1/4] idl: notify.idl -> out/default/notify.cpp
-[2/4] cxx: out/default/notify.cpp -> out/default/notify_2.o
-[3/4] cxx: main.cpp -> out/default/main_2.o
-[4/4] cxx_link: out/default/notify_2.o out/default/main_2.o -> out/default/testprog
+[1/4] idl: notify.idl -> out/notify.cpp
+[2/4] cxx: out/notify.cpp -> out/notify_2.o
+[3/4] cxx: main.cpp -> out/main_2.o
+[4/4] cxx_link: out/notify_2.o out/main_2.o -> out/testprog
 Waf: Leaving directory `/home/waf/Descargas/blah/out'
 'build' finished successfully (0.124s)
 ---------------

@@ -41,7 +41,7 @@ $ waf distclean configure build build clean
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/smallproject/build'
   class 'TaskGen.task_gen' <1>
-[1/1] test.txt:  -> build/default/test.txt <2>
+[1/1] test.txt:  -> build/test.txt <2>
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.011s)
 Waf: Entering directory `/tmp/smallproject/build'
