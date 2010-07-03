@@ -157,7 +157,7 @@ class BuildContext(Context.Context):
 		"""Initializes the project directory and the build directory"""
 
 		if not (os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir)):
-			raise Errors.WafError('cannot build: the project is not configured')
+			raise Errors.WafError('The project was not configured: run "waf configure" first!')
 
 		if not self.root:
 			self.root = self.node_class('', None)
