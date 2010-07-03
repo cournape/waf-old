@@ -35,8 +35,6 @@ def scan(self):
 	return (nodes, names)
 
 re_o = re.compile("\.o$")
-re_src = re.compile("^(\.\.)[\\/](.*)$")
-
 def post_run(self):
 	# The following code is executed by threads, it is not safe, so a lock is needed...
 
@@ -72,23 +70,12 @@ def post_run(self):
 			finally:
 				lock.release()
 		else:
-			g = re.search(re_src, x)
-			if g:
-				x = g.group(2)
+			#x = os.path.normpath(x)
+			try:
 				lock.acquire()
-				try:
-					node = bld.bldnode.parent.find_resource(x)
-				finally:
-					lock.release()
-			else:
-				g = re.search(f, x)
-				if g:
-					x = g.group(2)
-					lock.acquire()
-					try:
-						node = bld.srcnode.find_resource(x)
-					finally:
-						lock.release()
+				node = bld.bldnode.find_resource(x)
+			finally:
+				lock.release()
 
 		if not node:
 			raise ValueError('could not find %r for %r' % (x, self))
