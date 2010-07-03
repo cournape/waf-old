@@ -156,7 +156,8 @@ class BuildContext(Context.Context):
 	def init_dirs(self):
 		"""Initializes the project directory and the build directory"""
 
-		assert(os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir))
+		if not (os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir)):
+			raise Errors.WafError('cannot build: the project is not configured')
 
 		if not self.root:
 			self.root = self.node_class('', None)
