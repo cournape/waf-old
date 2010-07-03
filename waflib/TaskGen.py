@@ -369,9 +369,6 @@ def process_rule(self):
 		# bypass the execution of process_source by setting the source to an empty list
 		self.source = []
 
-	if getattr(self, 'always', None):
-		Task.always_run(cls)
-
 	if getattr(self, 'scan', None):
 		cls.scan = self.scan
 
@@ -381,6 +378,9 @@ def process_rule(self):
 	# TODO remove on_results in waf 1.7
 	if getattr(self, 'update_outputs', None) or getattr(self, 'on_results', None):
 		Task.update_outputs(cls)
+
+	if getattr(self, 'always', None):
+		Task.always_run(cls)
 
 	for x in ['after', 'before', 'ext_in', 'ext_out']:
 		setattr(cls, x, getattr(self, x, []))
