@@ -271,8 +271,8 @@ class Node(object):
 			for x in lst:
 				if x == '..':
 					cur = cur.parent
-					continue
-				cur = cur.children[x]
+				else:
+					cur = cur.children[x]
 			return cur
 		except:
 			pass
