@@ -737,9 +737,31 @@ def update_outputs(cls):
 		for node in self.outputs:
 			node.sig = Utils.h_file(node.abspath())
 	cls.post_run = post_run
+
+
+	old_runnable_status = cls.runnable_status
+	def runnable_status(self):
+		status = old_runnable_status(self)
+		if status != RUN_ME:
+			return status
+
+		try:
+			bld = self.generator.bld
+			new_sig  = self.signature()
+			prev_sig = bld.task_sigs[self.unique_id()]
+			if prev_sig == new_sig:
+				for x in self.outputs:
+					if not x.sig:
+						return RUN_ME
+				return SKIP_ME
+		except KeyError:
+			pass
+		except IndexError:
+			pass
+		return RUN_ME
+	cls.runnable_status = runnable_status
+
 	return cls
-
-
 
 
 
