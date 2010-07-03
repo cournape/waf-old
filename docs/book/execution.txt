@@ -29,7 +29,7 @@ def configure(ctx):
 	print('→ configuring the project')
 ---------------
 
-To use a Waf project for the first time, it is necessary to initialize it. Waf will then validate the project file, and create the cache files for later use (lock file, build directory, store the project options):
+To use a project for the first time, it is necessary to initialize it. Waf will then validate the project file and create cache files for later use (lock file, build directory, store the project options):
 
 [source,shishell]
 ---------------
@@ -48,25 +48,23 @@ $ tree
 |   |-- c4che/ <4>
 |   |   |-- build.config.py <5>
 |   |   `-- default.cache.py <6>
-|   |-- config.log <7>
-|   `-- default/ <8>
-|--.lock-wscript <9>
+|   `-- config.log <7>
+|--.lock-wscript <8>
 `-- wscript
 ---------------
 
-<1> To configure the project, go to the folder containing the top-level project file
+<1> To configure the project, change to the directory containing the top-level project file
 <2> The execution is called by calling `waf configure`
 <3> The build directory was created
 <4> The configuration data is stored in the folder 'c4che/'
 <5> The command-line options and environment variables in use are stored in this file
 <6> The user configuration set is stored in this file
 <7> Configuration log (duplicate of the output generated during the configuration)
-<8> Directory for the generated files (none so far)
-<9> Lock file pointing at the relevant project file and build directory
+<8> Lock file pointing at the relevant project file and build directory
 
 === Adding project commands
 
-In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by `waf commandname`. Let us create two new commands _print_ping_ and _print_pong_ in the project created previously ('/tmp/smallproject/')
+In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by `waf commandname`. Let us create two new commands _ping_ and _pong_ in the project created previously ('/tmp/smallproject/')
 
 [source,python]
 ---------------
@@ -76,10 +74,10 @@ out = 'build_directory'
 def configure(ctx):
 	print('→ configuring the project')
 
-def print_ping(ctx):
+def ping(ctx):
 	print(' ping!')
 
-def print_pong(ctx):
+def pong(ctx):
 	print(' pong!')
 ---------------
 
@@ -93,39 +91,39 @@ $ waf configure
 → configuring the project
 'configure' finished successfully (0.001s)
 
-$ waf print_ping
+$ waf ping
  ping!
-'print_ping' finished successfully (0.000s)
+'ping' finished successfully (0.000s)
 
-$ waf print_pong
+$ waf pong
  pong!
-'print_pong' finished successfully (0.000s)
+'pong' finished successfully (0.000s)
 ---------------
 
 Waf commands may also be executed at once by chaining them:
 
 [source,shishell]
 ---------------
-$ waf print_ping print_pong print_ping
+$ waf ping pong ping
  ping!
-'print_ping' finished successfully (0.000s)
+'ping' finished successfully (0.000s)
  pong!
-'print_pong' finished successfully (0.000s)
+'pong' finished successfully (0.000s)
  ping!
-'print_ping' finished successfully (0.000s)
+'ping' finished successfully (0.000s)
 ---------------
 
 Waf commands may be repeated several times too:
 
 [source,shishell]
 ---------------
-$ waf print_ping print_ping print_ping
+$ waf ping ping ping
  ping!
-'print_ping' finished successfully (0.000s)
+'ping' finished successfully (0.000s)
  pong!
-'print_ping' finished successfully (0.000s)
+'ping' finished successfully (0.000s)
  ping!
-'print_ping' finished successfully (0.000s)
+'ping' finished successfully (0.000s)
 ---------------
 
 === Cleaning up a project
@@ -138,14 +136,14 @@ $ waf configure
 → configuring the project
 'configure' finished successfully (0.001s)
 
-$ waf print_ping
+$ waf ping
  ping!
-'print_ping' finished successfully (0.000s)
+'ping' finished successfully (0.000s)
 
 $ waf distclean
 'distclean' finished successfully (0.001s)
 
-$ waf print_ping
+$ waf ping
 Project not configured (run 'waf configure' first)
 ---------------
 
@@ -260,7 +258,7 @@ def configure(ctx):
 	print('→ configure from the top-level')
 	ctx.recurse('src')
 
-def print_ping(ctx):
+def ping(ctx):
 	print('→ ping from the top-level')
 	ctx.recurse('src')
 ---------------
@@ -272,7 +270,7 @@ Since the folder 'src' is not a redistributable project, it is not necessary to 
 def configure(ctx):
 	print('→ configure from src')
 
-def print_ping(ctx):
+def ping(ctx):
 	print('→ ping from src')
 ---------------
 
@@ -282,13 +280,13 @@ Upon execution, the results will be:
 ---------------
 $ cd /tmp/smallproject
 
-$ waf configure print_ping
+$ waf configure ping
 → configure from the top-level
 → configure from src
 'configure' finished successfully (0.080s)
 → ping from the top-level
 → ping from src
-'print_ping' finished successfully (0.009s)
+'ping' finished successfully (0.009s)
 ---------------
 
 === Building, cleaning, installing and uninstalling a project
@@ -364,6 +362,8 @@ The meaning of the commands is the following:
 . +clean:+ remove the object files that were created during a build (unlike distclean, do not remove the configuration)
 . +install:+ check that all object files have been generated and copy them on the system (programs, libraries, data files, etc)
 . +uninstall:+ undo the installation, remove the object files from the system without touching the ones in the build directory
+. +list:+ list the task generators in the build section (to use with waf --targets=name)
+. +step:+ force the rebuild of particular files for debugging purposes
 
 Object file creation and installation will be detailed in the next chapters.
 
