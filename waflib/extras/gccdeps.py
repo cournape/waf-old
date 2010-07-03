@@ -59,6 +59,8 @@ def post_run(self):
 
 	f = re.compile("^(\.\.)[\\/](.*)$")
 	for x in val:
+
+		node = None
 		if os.path.isabs(x):
 
 			if not c_preproc.go_absolute:
@@ -88,14 +90,14 @@ def post_run(self):
 					finally:
 						lock.release()
 
-		if id(node) == id(self.inputs[0]):
-			# ignore the source file, it is already in the dependencies
-			# this way, successful config tests may be retrieved from the cache
-			continue
-
 		if not node:
 			raise ValueError('could not find %r for %r' % (x, self))
 		else:
+			if id(node) == id(self.inputs[0]):
+				# ignore the source file, it is already in the dependencies
+				# this way, successful config tests may be retrieved from the cache
+				continue
+
 			nodes.append(node)
 
 	Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
