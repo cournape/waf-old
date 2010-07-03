@@ -70,10 +70,16 @@ def post_run(self):
 			finally:
 				lock.release()
 		else:
-			#x = os.path.normpath(x)
+			path = bld.bldnode
+			x = [k for k in Utils.split_path(x) if k and k != '.']
+			while lst and x[0] == '..':
+				x = x[1:]
+				path = path.parent
+
+			# when calling find_resource, make sure the path does not begin by '..'
 			try:
 				lock.acquire()
-				node = bld.bldnode.find_resource(x)
+				node = path.find_resource(x)
 			finally:
 				lock.release()
 
