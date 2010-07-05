@@ -207,7 +207,7 @@ def check_cfg(self, *k, **kw):
 			if Logs.verbose > 1:
 				raise
 			else:
-				self.fatal('the configuration failed (see %r)' % self.log.name)
+				self.fatal('the configuration failed')
 	else:
 		kw['success'] = ret
 		if 'okmsg' in kw:
@@ -438,7 +438,7 @@ def check(self, *k, **kw):
 			if Logs.verbose > 1:
 				raise
 			else:
-				self.fatal('the configuration failed (see %r)' % self.log.name)
+				self.fatal('the configuration failed')
 	else:
 		kw['success'] = ret
 		self.end_msg(self.ret_msg(kw['okmsg'], kw))

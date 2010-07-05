@@ -134,16 +134,6 @@ class ConfigurationContext(Context.Context):
 		logger.setLevel(logging.INFO)
 		self.logger = logger
 		"""
-		"""
-		try: os.unlink(path)
-		except (OSError, IOError): pass
-
-		try:
-			self.log = open(path, 'w')
-		except (OSError, IOError):
-			self.fatal('could not open %r for writing' % path)
-		"""
-
 		app = getattr(Context.g_module, 'APPNAME', '')
 		if app:
 			ver = getattr(Context.g_module, 'VERSION', '')
@@ -375,6 +365,10 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 @conf
 def fatal(self, msg):
 	"""raise a configuration error"""
+	try:
+		msg = '%s\n(read %s for more information)' % (msg, self.logger.handlers[0].baseFilename)
+	except:
+		pass
 	raise self.errors.ConfigurationError(msg)
 
 @conf

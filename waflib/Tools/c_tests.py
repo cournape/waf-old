@@ -64,6 +64,7 @@ def check_largefile(self, **kw):
 		kw['define_name'] = 'HAVE_LARGEFILE'
 	if not 'execute' in kw:
 		kw['execute'] = True
+	kw['mandatory'] = True
 
 	if not 'features' in kw:
 		if self.env.CXX:
