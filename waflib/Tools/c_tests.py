@@ -30,7 +30,10 @@ def check_inline(self, **kw):
 	if not 'define_name' in kw:
 		kw['define_name'] = 'INLINE_MACRO'
 	if not 'features' in kw:
-		kw['features'] = ['cc']
+		if self.env.CXX:
+			kw['features'] = ['cxx']
+		else:
+			kw['features'] = ['cc']
 	kw['mandatory'] = True
 
 	for x in INLINE_VALUES:
