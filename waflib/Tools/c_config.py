@@ -203,11 +203,10 @@ def check_cfg(self, *k, **kw):
 	except self.errors.WafError as e:
 		if 'errmsg' in kw:
 			self.end_msg(kw['errmsg'], 'YELLOW')
-		if 'mandatory' in kw and kw['mandatory']:
-			if Logs.verbose > 1:
-				raise
-			else:
-				self.fatal('the configuration failed')
+		if Logs.verbose > 1:
+			raise
+		else:
+			self.fatal('The configuration failed')
 	else:
 		kw['success'] = ret
 		if 'okmsg' in kw:
@@ -434,11 +433,10 @@ def check(self, *k, **kw):
 		ret = self.run_c_code(*k, **kw)
 	except self.errors.ConfigurationError as e:
 		self.end_msg(kw['errmsg'], 'YELLOW')
-		if 'mandatory' in kw and kw['mandatory']:
-			if Logs.verbose > 1:
-				raise
-			else:
-				self.fatal('the configuration failed')
+		if Logs.verbose > 1:
+			raise
+		else:
+			self.fatal('The configuration failed')
 	else:
 		kw['success'] = ret
 		self.end_msg(self.ret_msg(kw['okmsg'], kw))

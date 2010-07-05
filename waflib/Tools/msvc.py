@@ -12,7 +12,7 @@
 # conf.check_tool('msvc')
 # OR conf.check_tool('msvc', funs='no_autodetect')
 # conf.check_lib_msvc('gdi32')
-# conf.check_libs_msvc('kernel32 user32', mandatory=true)
+# conf.check_libs_msvc('kernel32 user32')
 # ...
 # obj.uselib = 'KERNEL32 USER32 GDI32'
 #
@@ -351,7 +351,7 @@ def find_lt_names_msvc(self, libname, is_static=False):
 	return (None, None, None)
 
 @conf
-def libname_msvc(self, libname, is_static=False, mandatory=False):
+def libname_msvc(self, libname, is_static=False):
 	lib = libname.lower()
 	lib = re.sub('\.lib$','',lib)
 
@@ -403,14 +403,13 @@ def libname_msvc(self, libname, is_static=False, mandatory=False):
 				return re.sub('\.lib$', '',libn)
 
 	#if no lib can be found, just return the libname as msvc expects it
-	if mandatory:
-		self.fatal("The library %r could not be found" % libname)
+	self.fatal("The library %r could not be found" % libname)
 	return re.sub('\.lib$', '', libname)
 
 @conf
-def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=False):
+def check_lib_msvc(self, libname, is_static=False, uselib_store=None):
 	"This is the api to use"
-	libn = self.libname_msvc(libname, is_static, mandatory)
+	libn = self.libname_msvc(libname, is_static)
 
 	if not uselib_store:
 		uselib_store = libname.upper()
@@ -424,9 +423,9 @@ def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=
 		self.env['LIB_' + uselib_store] = [libn]
 
 @conf
-def check_libs_msvc(self, libnames, is_static=False, mandatory=False):
+def check_libs_msvc(self, libnames, is_static=False):
 	for libname in Utils.to_list(libnames):
-		self.check_lib_msvc(libname, is_static, mandatory=mandatory)
+		self.check_lib_msvc(libname, is_static)
 
 @conf
 def no_autodetect(conf):

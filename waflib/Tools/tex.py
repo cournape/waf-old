@@ -223,8 +223,10 @@ def apply_tex(self):
 def configure(conf):
 	v = conf.env
 	for p in 'tex latex pdflatex bibtex dvips dvipdf ps2pdf makeindex pdf2ps'.split():
-		conf.find_program(p, var=p.upper(), mandatory=False)
-		v[p.upper()+'FLAGS'] = ''
+		try:
+			conf.find_program(p, var=p.upper())
+		except self.errors.ConfigurationError:
+			pass
 	v['DVIPSFLAGS'] = '-Ppdf'
 
 b = Task.task_factory

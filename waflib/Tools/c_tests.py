@@ -34,7 +34,6 @@ def check_inline(self, **kw):
 			kw['features'] = ['cxx']
 		else:
 			kw['features'] = ['cc']
-	kw['mandatory'] = True
 
 	for x in INLINE_VALUES:
 		kw['fragment'] = INLINE_CODE % (x, x)
@@ -64,7 +63,6 @@ def check_largefile(self, **kw):
 		kw['define_name'] = 'HAVE_LARGEFILE'
 	if not 'execute' in kw:
 		kw['execute'] = True
-	kw['mandatory'] = True
 
 	if not 'features' in kw:
 		if self.env.CXX:

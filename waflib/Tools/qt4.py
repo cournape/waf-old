@@ -333,8 +333,11 @@ def configure(self):
 	cand = None
 	prev_ver = ['4', '0', '0']
 	for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
-		qmake = self.find_program(qmk, path_list=paths, mandatory=False)
-		if qmake:
+		try:
+			qmake = self.find_program(qmk, path_list=paths)
+		except self.errors.ConfigurationError:
+			pass
+		else:
 			try:
 				version = self.cmd_and_log([qmake, '-query', 'QT_VERSION']).strip()
 			except self.errors.ConfigurationError:
@@ -363,8 +366,11 @@ def configure(self):
 
 	def find_bin(lst, var):
 		for f in lst:
-			ret = self.find_program(f, path_list=paths, mandatory=False)
-			if ret:
+			try:
+				ret = self.find_program(f, path_list=paths)
+			except self.errors.ConfigurationError:
+				pass
+			else:
 				env[var]=ret
 				break
 
