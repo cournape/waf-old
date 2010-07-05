@@ -458,6 +458,7 @@ runonce_ret = {}
 def runonce(fun):
 	"""decorator, make a function cache its results"""
 	def wrap(*k, **kw):
+		global runonce_ret
 		key = hash((h_rec(k), h_rec(kw)))
 		try:
 			return runonce_ret[key]
