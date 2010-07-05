@@ -384,7 +384,7 @@ def find_file(self, filename, path_list):
 	return ''
 
 @conf
-def find_program(self, filename, path_list=[], var=None, mandatory=True, environ=None, exts=''):
+def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 	"""Search for a program on the operating system"""
 
 	if not environ:
@@ -427,7 +427,7 @@ def find_program(self, filename, path_list=[], var=None, mandatory=True, environ
 	self.msg('Checking for program ' + ','.join(filename), ret or False)
 	self.to_log('find program=%r paths=%r var=%r -> %r' % (filename, path_list, var, ret))
 
-	if not ret and mandatory:
+	if not ret:
 		self.fatal('The program %r could not be found' % filename)
 
 	if var:
