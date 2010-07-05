@@ -40,7 +40,7 @@ def check_inline(self, **kw):
 		kw['fragment'] = INLINE_CODE % (x, x)
 
 		try:
-			self.check_cc(**kw)
+			self.check(**kw)
 		except self.errors.ConfigurationError:
 			continue
 		else:
@@ -48,5 +48,47 @@ def check_inline(self, **kw):
 			if x != 'inline':
 				self.define('inline', i, quote=False)
 			return x
-	raise self.errors.ConfigurationError('could not use inline functions')
+	self.fatal('could not use inline functions')
+
+########################################################################################
+
+LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8); };'
+
+@conf
+def check_largefile(self, **kw):
+	'''
+	see if large files are supported and define the macro HAVE_LARGEFILE
+	'''
+
+	if not 'define_name' in kw:
+		kw['define_name'] = 'HAVE_LARGEFILE'
+	if not 'execute' in kw:
+		kw['execute'] = True
+
+	if not 'features' in kw:
+		if self.env.CXX:
+			kw['features'] = ['cxx', 'cxxprogram']
+		else:
+			kw['features'] = ['cc', 'cprogram']
+
+	kw['fragment'] = LARGE_FRAGMENT
+	kw['msg'] = 'Checking for large file support'
+	try:
+		self.check(**kw)
+	except self.errors.ConfigurationError:
+		pass
+	else:
+		return True
+
+	kw['msg'] = 'Checking for -D_FILE_OFFSET_BITS=64'
+	kw['defines'] = ['_FILE_OFFSET_BITS=64']
+	try:
+		self.check(**kw)
+	except self.errors.ConfigurationError:
+		pass
+	else:
+		self.define('_FILE_OFFSET_BITS', 64)
+		return True
+
+	self.fatal('There is no support for large files')
 
