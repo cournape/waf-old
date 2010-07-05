@@ -437,19 +437,19 @@ def nogc(fun):
 
 
 def h_rec(obj):
-	"""compute the hash of a complex object (dict of lists, sets, etc)"""
+	"""compute the hash of a complex object (dict of lists, etc)"""
 	if isinstance(obj, dict):
 		keys = list(obj.keys())
 		keys.sort()
 		h = h_rec(keys)
 		for x in keys:
-			h = hash(h, h_rec(obj[x]))
+			h = hash((h, h_rec(obj[x])))
 	elif getattr(obj, '__iter__', False):
 		h = 0
 		lst = list(obj)
-		lst.sort()
+		#lst.sort() warning, will not hash sets
 		for x in lst:
-			h = hash(h, h_rec(x))
+			h = hash((h, h_rec(x)))
 	else:
 		h = hash(obj)
 	return h
@@ -457,13 +457,13 @@ def h_rec(obj):
 runonce_ret = {}
 def runonce(fun):
 	"""decorator, make a function cache its results"""
-    def wrap(*k, **kw):
-		key = hash(h_rec(k), h_rec(kw))
+	def wrap(*k, **kw):
+		key = hash((h_rec(k), h_rec(kw)))
 		try:
 			return runonce_ret[key]
 		except KeyError:
 			ret = fun(*k, **kw)
-            runonce_ret[key] = ret
-            return ret
-    return wrap
+			runonce_ret[key] = ret
+			return ret
+	return wrap
 
