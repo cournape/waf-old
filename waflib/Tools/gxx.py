@@ -46,12 +46,12 @@ def gxx_common_flags(conf):
 	v['cxxprogram_PATTERN']     = '%s'
 
 	# shared library
-	v['cxxshlib_CXXFLAGS']      = ['-fPIC']
-	v['cxxshlib_LINKFLAGS']     = ['-shared']
-	v['cxxshlib_PATTERN']       = 'lib%s.so'
+	v['CXXFLAGS_cxxshlib']      = ['-fPIC']
+	v['LINKFLAGS_cxxshlib']     = ['-shared']
+	v['cxxshlib_PATTERN_cxxshlib']       = 'lib%s.so'
 
 	# static lib
-	v['cxxstlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['LINKFLAGS_cxxstlib'] = ['-Wl,-Bstatic']
 	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
@@ -83,18 +83,18 @@ def gxx_modifier_cygwin(conf):
 	gxx_modifier_win32(conf)
 	v = conf.env
 	v['cxxshlib_PATTERN']       = 'cyg%s.dll'
-	v.append_value('cxxshlib_LINKFLAGS', ['-Wl,--enable-auto-image-base'])
+	v.append_value('LINKFLAGS_cxxshlib', ['-Wl,--enable-auto-image-base'])
 
 @conf
 def gxx_modifier_darwin(conf):
 	v = conf.env
-	v['cxxshlib_CXXFLAGS']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
-	v['cxxshlib_LINKFLAGS']     = ['-dynamiclib']
+	v['CXXFLAGS_cxxshlib']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
+	v['LINKFLAGS_cxxshlib']     = ['-dynamiclib']
 	v['cxxshlib_PATTERN']       = 'lib%s.dylib'
 	v['FRAMEWORKPATH_ST'] = '-F%s'
 	v['FRAMEWORK_ST'] = '-framework %s'
 
-	v['cxxstlib_LINKFLAGS'] = []
+	v['LINKFLAGS_cxxstlib'] = []
 
 	v['SHLIB_MARKER']        = ''
 	v['STLIB_MARKER']    = ''
@@ -103,9 +103,9 @@ def gxx_modifier_darwin(conf):
 @conf
 def gxx_modifier_aix(conf):
 	v = conf.env
-	v['cxxprogram_LINKFLAGS']   = ['-Wl,-brtl']
+	v['LINKFLAGS_cxxprogram']   = ['-Wl,-brtl']
 
-	v['cxxshlib_LINKFLAGS']     = ['-shared', '-Wl,-brtl,-bexpfull']
+	v['LINKFLAGS_cxxshlib']     = ['-shared', '-Wl,-brtl,-bexpfull']
 
 	v['SHLIB_MARKER']        = ''
 

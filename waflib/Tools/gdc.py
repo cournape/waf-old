@@ -31,7 +31,7 @@ def common_flags_gdc(conf):
 	v['STLIB_ST'] = v['LIB_ST']           = '-l%s'
 	v['STLIBPATH_ST'] = v['LIBPATH_ST']       = '-L%s'
 
-	v['dshlib_LINKFLAGS'] = ['-shared']
+	v['LINKFLAGS_dshlib'] = ['-shared']
 
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = '-fintfc -fintfc-file='

@@ -580,15 +580,15 @@ def msvc_common_flags(conf):
 	v['LINKFLAGS']            = ['/NOLOGO', '/MANIFEST']
 
 	# shared library
-	v['shlib_CCFLAGS']  = ['']
-	v['shlib_CXXFLAGS'] = ['']
-	v['shlib_LINKFLAGS']= ['/DLL']
+	v['CCFLAGS_cshlib']  = ['']
+	v['CXXFLAGS_cxxshlib'] = ['']
+	v['LINKFLAGS_cshlib'] = v['LINKFLAGS_cxxshlib'] = ['/DLL']
 	v['cshlib_PATTERN'] = v['cxxshlib_PATTERN'] = '%s.dll'
 	v['implib_PATTERN'] = '%s.lib'
 	v['IMPLIB_ST']      = '/IMPLIB:%s'
 
 	# static library
-	v['stlib_LINKFLAGS'] = ['']
+	v['LINKFLAGS_cstlib'] = ['']
 	v['cstlib_PATTERN']  = v['cxxstlib_PATTERN'] = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 
 	# program
@@ -652,7 +652,7 @@ def exec_mf(self):
 		# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
 		if 'cprogram' in self.generator.features:
 			mode = '1'
-		elif 'cshlib' in self.generator.features:
+		elif 'cshlib' in self.generator.features or 'cxxshlib' in self.generator.features:
 			mode = '2'
 
 		debug('msvc: embedding manifest')

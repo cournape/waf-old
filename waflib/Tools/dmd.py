@@ -42,8 +42,8 @@ def common_flags_dmd(conf):
 
 	v['LINKFLAGS']        = ['-quiet']
 
-	v['dshlib_DFLAGS']    = ['-fPIC']
-	v['dshlib_LINKFLAGS'] = ['-L-shared']
+	v['DFLAGS_dshlib']    = ['-fPIC']
+	v['LINKFLAGS_dshlib'] = ['-L-shared']
 
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = ['-H', '-Hf']

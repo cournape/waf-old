@@ -255,11 +255,12 @@ def propagate_uselib_vars(self):
 		y = x.lower()
 		env.append_unique(x, self.to_list(getattr(self, y, [])))
 
-	# 2. each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
+	# 2. each compiler defines variables like 'CXXFLAGS_cshlib', 'LINKFLAGS_cshlib', etc
 	# so when we make a task generator of the type cshlib, CXXFLAGS are modified accordingly
+	# the order was reversed compared to waf 1.5: cshlib_LINKFLAGS -> LINKFLAGS_cshlib
 	for x in self.features:
 		for var in _vars:
-			compvar = '%s_%s' % (x, var)
+			compvar = '%s_%s' % (var, x)
 			env.append_value(var, env[compvar])
 
 	# 3. the case of the libs defined outside

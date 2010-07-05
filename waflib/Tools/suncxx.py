@@ -53,12 +53,12 @@ def sxx_common_flags(conf):
 	v['cxxprogram_PATTERN']     = '%s'
 
 	# shared library
-	v['shlib_CXXFLAGS']      = ['-Kpic', '-DPIC']
-	v['shlib_LINKFLAGS']     = ['-G']
+	v['CXXFLAGS_cxxshlib']      = ['-Kpic', '-DPIC']
+	v['LINKFLAGS_cxxshlib']     = ['-G']
 	v['cxxshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
-	v['stlib_LINKFLAGS'] = ['-Bstatic']
+	v['LINKFLAGS_cxxstlib'] = ['-Bstatic']
 	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
 configure = '''

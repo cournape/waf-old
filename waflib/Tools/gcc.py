@@ -46,12 +46,12 @@ def gcc_common_flags(conf):
 	v['cprogram_PATTERN']     = '%s'
 
 	# shared library
-	v['cshlib_CCFLAGS']       = ['-fPIC']
-	v['cshlib_LINKFLAGS']     = ['-shared']
+	v['CCFLAGS_cshlib']       = ['-fPIC']
+	v['LINKFLAGS_cshlib']     = ['-shared']
 	v['cshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
-	v['cstlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['LINKFLAGS_cstlib'] = ['-Wl,-Bstatic']
 	v['cstlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
@@ -83,18 +83,18 @@ def gcc_modifier_cygwin(conf):
 	gcc_modifier_win32(conf)
 	v = conf.env
 	v['cshlib_PATTERN']       = 'cyg%s.dll'
-	v.append_value('cshlib_LINKFLAGS', ['-Wl,--enable-auto-image-base'])
+	v.append_value('LINKFLAGS_cshlib', ['-Wl,--enable-auto-image-base'])
 
 @conf
 def gcc_modifier_darwin(conf):
 	v = conf.env
-	v['cshlib_CCFLAGS']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
-	v['cshlib_LINKFLAGS']     = ['-dynamiclib']
+	v['CCFLAGS_cshlib']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
+	v['LINKFLAGS_cshlib']     = ['-dynamiclib']
 	v['cshlib_PATTERN']       = 'lib%s.dylib'
 	v['FRAMEWORKPATH_ST'] = '-F%s'
 	v['FRAMEWORK_ST'] = '-framework %s'
 
-	v['cstlib_LINKFLAGS'] = []
+	v['LINKFLAGS_cstlib'] = []
 
 	v['SHLIB_MARKER']        = ''
 	v['STLIB_MARKER']    = ''
@@ -103,9 +103,9 @@ def gcc_modifier_darwin(conf):
 @conf
 def gcc_modifier_aix(conf):
 	v = conf.env
-	v['cprogram_LINKFLAGS']   = ['-Wl,-brtl']
+	v['LINKFLAGS_cprogram']   = ['-Wl,-brtl']
 
-	v['cshlib_LINKFLAGS']     = ['-shared','-Wl,-brtl,-bexpfull']
+	v['LINKFLAGS_cshlib']     = ['-shared','-Wl,-brtl,-bexpfull']
 
 	v['SHLIB_MARKER']        = ''
 
