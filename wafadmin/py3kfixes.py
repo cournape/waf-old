@@ -118,7 +118,7 @@ def r10(code):
 
 @subst('Tools/d.py')
 def r11(code):
-	code = code.replace('ret.strip()', 'ret.strip.decode("utf-8")')
+	code = code.replace('ret.strip()', 'ret.strip().decode("utf-8")')
 	return code
 
 def fixdir(dir):
