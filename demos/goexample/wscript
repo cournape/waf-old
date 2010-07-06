@@ -41,9 +41,10 @@ def build(ctx):
 	if ctx.env.TRY_CGO:
 		# see http://code.google.com/p/go/issues/detail?id=533
 		# so we have to move the files, grrrrr
-		ctx(name='cgo', rule='${CGO} ${SRC} && mv ${TGT[0].srcpath()} ${TGT[1].srcpath()} ${TGT[0].parent.abspath(env)}',
+		ctx(name='cgo', rule='${CGO} ${SRC[0].abspath(env)} && mv ../../gmp.cgo1.go ../../gmp.cgo2.c ${TGT[0].parent.abspath(env)}',
 			target='gmp.cgo1.go gmp.cgo2.c   gmp.cgo2.c _cgo_gotypes.go _cgo_defun.c',
 			source='gmp.go',
+			cwd = ctx.path.abspath(ctx.env),
 			shell=True)
 		ctx.add_group()
 		ctx(features='cc cshlib', source='gmp.cgo2.c', target='cgo_gmp.so', uselib='GMP')
