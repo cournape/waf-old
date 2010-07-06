@@ -22,24 +22,3 @@ def configure(conf):
 def build(bld):
 	bld.add_subdirs('src')
 
-
-	#######################
-	# note: to distribute precompiled c files as in the project libdesktop-agnostic
-	# one should use something like this:
-	#
-	#import shutil
-	#import Task
-	#cls = Task.TaskBase.classes['valac']
-	#old = cls.run
-	#
-	#def run(self):
-	#	self.env.VALAC = ''
-	#	if self.env.VALAC:
-	#		return old(self)
-	#	else:
-	#		print("restoring from pre-cache")
-	#		d = bld.path.abspath()
-	#		for x in self.outputs:
-	#			shutil.copy2(d + '/novala/' + x.name, x.abspath(self.env))
-	#cls.run = run
-

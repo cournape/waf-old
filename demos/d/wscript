@@ -13,10 +13,6 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('compiler_d')
-
-	if not conf.env.D_COMPILER:
-		conf.fatal("either dmd or gdc is required (d compilers)")
-
 	conf.env.LIB_PTHREAD = ['pthread']
 	conf.check_dlibrary()
 
@@ -25,68 +21,30 @@ def build(bld):
 		bld.add_subdirs('src')
 
 		# here is how to use the object-oriented notation
-		obj = bld(features='d dstaticlib')
-		obj.source = '''
-		testlib/code.d
-		'''
-		obj.importpaths = '.'
-		obj.name        = 'testlib'
-		obj.target      = 'testlib'
+		bld(
+			features     = 'd dstlib',
+			source       = 'testlib/code.d',
+			includes     = '.',
+			name         = 'testlib',
+			target       = 'testlib')
 
-		"""
-	compiling with d, linking with gcc:
-	* in the configuration, add conf.check_tool('gcc')
-	* in the object creation, add 3 lines
-
-	obj = bld('d')
-	obj.source = '''
-	testlib/code.d
-	'''
-	obj.features.append('cc')
-	obj.features.append('cshlib')
-	obj.name   = 'testlib'
-	obj.target = 'testlib'
-	"""
-
-		obj = bld(features='d dprogram')
-		obj.source = '''
-		example.d
-		'''
-		obj.target       = 'd_test'
-		obj.uselib_local = 'testlib'
-		obj.uselib       = 'PTHREAD'
-		obj.importpaths  = '.'
+		bld(features     = 'd dprogram',
+			source       = 'example.d',
+			target       = 'd_test',
+			uselib_local = 'testlib',
+			uselib       = 'PTHREAD',
+			includes     = '.')
 
 	else:
-		bld(features='d dprogram', source='foo.d', target='bar')
+		# bad pun hidden
+		bld(features='d dprogram', source='foo.d', target='bar', uselib_local='hmm', includes=[bld.path])
+		bld(features='d dstlib', source='hmm.d', target='hmm')
 
-	# ---------------------------------------
-	# to use in the development phase:
-	# raise the syntax errors on the most dependent files first
+		#bld(features='d dshlib', source='shared.d', target='sha')
+		# shared libs do not work here:
+		# ldc -relocation-model=pic -L-shared shared.d -offoo
+		# /usr/lib64/gcc/x86_64-suse-linux/4.5/../../../../x86_64-suse-linux/bin/ld:
+		# /disk/comp/ldc/bin/../lib/libtango.a(tango-core-rt-compiler-ldc-object_-O2.o):
+		# relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
 
-	from Constants import RUN_ME
-	from Task import Task, TaskBase
-
-	def runnable_status(self):
-		ret = Task.runnable_status(self)
-
-		# do this processing once
-		if ret != RUN_ME or getattr(self, 'deps_done', None):
-			return ret
-
-		# get the sibling d tasks
-		for t in self.generator.tasks:
-			if id(t) == id(self) or t.name != 'd':
-				continue
-
-			task_input_id = id(t.inputs[0])
-			for node in self.generator.bld.node_deps[self.unique_id()]:
-				if task_input_id == id(node):
-					# if the input match, execute after the other
-					self.set_run_after(t)
-
-		self.deps_done = True
-		return self.runnable_status()
-
-	TaskBase.classes['d'].runnable_status = runnable_status
 

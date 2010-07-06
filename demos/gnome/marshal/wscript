@@ -1,9 +1,0 @@
-#! /usr/bin/env python
-
-def build(bld):
-	o = bld(features='cc cprogram')
-	o.source = 'main.c'
-	o.target = 'blah'
-	o.uselib = 'GOBJECT'
-	o.add_marshal_file('marshal.list', 'test_prefix')
-

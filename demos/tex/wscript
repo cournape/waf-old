@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005, 2006 (ita)
+# Thomas Nagy, 2005, 2010 (ita)
 
-VERSION='0.0.9'
+VERSION='1.0.0'
 APPNAME='tex_test'
 
 top = '.'
@@ -15,32 +15,4 @@ def configure(conf):
 
 def build(bld):
 	bld.add_subdirs('src')
-
-# Using variants for building ps and pdf at the same time
-# assuming that all files are in the current directory
-
-#def build(bld):
-#	# the ps and pdf files cannot share their intermediate files
-#	# separate build dirs are necessary
-#
-#	# build a pdf file in the default directory
-#	obj = bld('tex', type='pdflatex')
-#	obj.source = 'document.ltx'
-#	obj.outs = 'pdf'
-#
-#	# build a ps file in the variant
-#	psenv = bld.env_of_name('psdir')
-#	obj = bld('tex', type='latex')
-#	obj.source = 'document.ltx'
-#	obj.outs = 'ps'
-#	obj.env = psenv
-
-#def configure(conf):
-#	conf.check_tool('Tex')
-#
-#	# set a variant called "psdir"
-#	env_variant2 = conf.env.copy()
-#	conf.set_env_name('psdir', env_variant2)
-#	env_variant2.set_variant('psdir')
-#	conf.setenv('psdir')
 

@@ -1,76 +1,27 @@
-Waf 1.5
+Waf 1.6
 -------
 
-remove the call to perl for editing the files in "waf --make-waf"
+General
 
-docs:
+- how to force a full compilation for the configuration?
+- broken conf.check_cfg and problems with default uselib (capital letters)
+- better apis for shell compilation in Task.py and remove misc.py
+- refactor the environment thing ?
 
+Low priority
 
-- the different levels of coupling
+- refactor the c and d preprocessor functions
+- detect potential deadlocks in the task scheduler
+- detect user typos (the checks have been removed)
+- enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
-task generator -> task generator (--targets)
-task -> other task (build order)
-task -> other task (mere existence)
+Potential sub-projects (contributions will be welcome)
 
++ IDE file generator (msvc, codeblocks)
++ CMake file interpreter
++ multiprocess for distributed compilation (vs threads?)
++ autoconf-like configuration library?
 
-
-# enforce the after= ordering constraints in the javac task generators
-from TaskGen import after, feature
-@feature('*')
-@after('apply_core', 'apply_java', 'apply_subst')
-def process_after(self):
-	lst = self.to_list(getattr(self, 'after', []))
-	print(self.name)
-	for x in lst:
-		obj = self.bld.name_to_obj(x,self.bld.env)
-		if not obj: break
-		obj.post()
-		for a in obj.tasks:
-			for b in self.tasks:
-				b.set_run_after(a)
-
-
-
-
-
-import Node, Environment
-
-def vari(self):
-        return "default"
-Environment.Environment.variant = vari
-
-def variant(self, env):
-        if not env: return 0
-        elif self.id & 3 == Node.FILE: return 0
-        else: return "default"
-Node.Node.variant = variant
-
-
-import TaskGen, Task
-
-def create_task(self, name, src=None, tgt=None):
-    task = Task.TaskBase.classes[name](self.env, generator=self)
-    if src:
-        task.set_inputs(src)
-    if tgt:
-        task.set_outputs(tgt)
-    return task
-TaskGen.task_gen.create_task = create_task
-
-def hash_constraints(self):
-        a = self.attr
-        sum = hash((str(a('before', '')),
-            str(a('after', '')),
-            str(a('ext_in', '')),
-            str(a('ext_out', '')),
-            self.__class__.maxjobs))
-        return sum
-Task.TaskBase.hash_constraints = hash_constraints
-
-
-
-
---------------------------------------
-Last update: 19/03/2010
-Contact -> http://code.google.com/p/waf
+Docs
+- show a complete example of c compilation with rules vs task generator code (procedural vs object-oriented)
 

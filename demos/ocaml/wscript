@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005-2008 (ita)
+# Thomas Nagy, 2005-2010 (ita)
 
 # the following two variables are used by the target "waf dist"
 VERSION = '0.0.1'
@@ -10,30 +10,15 @@ APPNAME = 'ocaml_test'
 top = '.'
 out = 'build'
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	conf.check_tool('ocaml')
-
-from TaskGen import feature, after
-@feature('filefix')
-@after('apply_core')
-def filefixmeth(self):
-	"""just an example to show how to modify the flags for one specific task"""
-	for x in self.to_list(self.filefix):
-		node = self.path.find_resource(x)
-		for tsk in self.tasks:
-			if node in tsk.inputs:
-				tsk.env.append_value('OCAMLPATH', ['-I', '/dev'])
 
 def build(bld):
 
 	bld(
-		features = 'ocaml filefix',
+		features = 'ocaml',
 		kind     = 'all',
 		includes = '.',
 		target   = 'camlprog',
-		filefix  = 'somemodule.ml',
 		source   = bld.path.ant_glob('*.ml'))
 

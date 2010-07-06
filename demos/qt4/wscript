@@ -9,12 +9,20 @@ top = '.'
 out = 'build'
 
 def set_options(opt):
-	opt.tool_options('qt4')
+	opt.tool_options('compiler_cxx qt4')
 
 def configure(conf):
-	conf.check_tool('g++ qt4')
-	conf.env.append_value('CXXFLAGS', '-g -D_REENTRANT  -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED'.split())
+	conf.check_tool('compiler_cxx qt4')
+	conf.env.append_value('CXXFLAGS', ['-g']) # test
 
 def build(bld):
-	bld.add_subdirs('src')
+	bld(
+		features = 'qt4 cxx cprogram',
+		uselib   = 'QTCORE QTGUI QTOPENGL QTSVG',
+		source   = 'window.cpp glwidget.cpp main.cpp textures.qrc aboutDialog.ui',
+		target   = 'window',
+		includes = 'test .',
+		defines  = 'WAF=1', # test
+		#langname = 'langs',
+	)
 

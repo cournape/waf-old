@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005, 2006, 2007, 2008
+# Thomas Nagy, 2005-2010
 
-VERSION="1.5.18"
+VERSION="1.6.0"
 APPNAME='waf'
 REVISION=''
+
 top = '.'
 out = 'build'
 
@@ -14,15 +15,12 @@ zip_types = ['bz2', 'gz']
 #from tokenize import *
 import tokenize
 
-import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
-import Utils, Options, Build
-try: from hashlib import md5
-except ImportError: from md5 import md5
+import os, sys, base64, shutil, re, random, io, optparse, tempfile
+from waflib import Utils, Options, Build
+from hashlib import md5
 
-import Configure
+from waflib import Configure
 Configure.autoconfig = 1
-
-print ("------> Executing code from the top-level wscript <-----")
 
 def sub_file(fname, lst):
 
@@ -38,7 +36,8 @@ def sub_file(fname, lst):
 	f.write(txt)
 	f.close()
 
-def init():
+print("------> Executing code from the top-level wscript <-----")
+def init(*k, **kw):
 	if Options.options.setver: # maintainer only (ita)
 		ver = Options.options.setver
 		hexver = '0x'+ver.replace('.','0')
@@ -56,21 +55,24 @@ def init():
 		except:
 			pass
 
-		sub_file('wafadmin/Constants.py', pats)
+		sub_file('waflib/Context.py', pats)
+
 		sys.exit(0)
 	elif Options.options.waf:
 		create_waf()
-	elif Options.commands['check']:
-		# i have never used this (ita)
-		sys.path.insert(0,'')
-		import test.Test
-		test.Test.run_tests()
-	else:
-		return
-	sys.exit(0)
+		sys.exit(0)
+
+def check(ctx):
+	sys.path.insert(0,'')
+	# some tests clobber g_module. We must preserve it here, otherwise we get an error
+	# about an undefined shutdown function
+	mod = Utils.g_module
+	import test.Test
+	test.Test.run_tests()
+	Utils.g_module = mod
 
 # this function is called before any other for parsing the command-line
-def set_options(opt):
+def options(opt):
 
 	# generate waf
 	opt.add_option('--make-waf', action='store_true', default=False,
@@ -92,12 +94,12 @@ def set_options(opt):
 		help='sets the version number for waf releases (for the maintainer)', dest='setver')
 
 	opt.add_option('--strip', action='store_true', default=True,
-		help='shrinks waf (strip docstrings, saves ~33kb)',
+		help='shrinks waf (strip docstrings, saves 33kb)',
 		dest='strip_comments')
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
-	opt.add_option('--tools', action='store', help='3rd party tools to add [Default: "boost,fluid,rvds"]',
-		dest='add3rdparty', default='boost,fluid,rvds')
+	opt.add_option('--tools', action='store', help='Comma-separated 3rd party tools to add, eg: "compat,ocaml" [Default: "compat15"]',
+		dest='add3rdparty', default='compat15')
 	opt.tool_options('python')
 
 def compute_revision():
@@ -110,7 +112,7 @@ def compute_revision():
 			elif name.endswith('.py'):
 				arg.append(os.path.join(dirname, name))
 	sources = []
-	os.path.walk('wafadmin', visit, sources)
+	os.path.walk('waflib', visit, sources)
 	sources.sort()
 	m = md5()
 	for source in sources:
@@ -122,38 +124,6 @@ def compute_revision():
 			readBytes = len(readString)
 		f.close()
 	REVISION = m.hexdigest()
-
-#deco_re = re.compile('def\\s+([a-zA-Z_]+)\\(')
-deco_re = re.compile('(def|class)\\s+(\w+)\\(.*')
-def process_decorators(body):
-	lst = body.split('\n')
-	accu = []
-	all_deco = []
-	buf = [] # put the decorator lines
-	for line in lst:
-		if line.startswith('@'):
-			buf.append(line[1:])
-		elif buf:
-			name = deco_re.sub('\\2', line)
-			if not name:
-				raise IOError, "decorator not followed by a function!"+line
-			for x in buf:
-				all_deco.append("%s(%s)" % (x, name))
-			accu.append(line)
-			buf = []
-		else:
-			accu.append(line)
-	return "\n".join(accu+all_deco)
-
-def process_imports(body):
-	header = '#! /usr/bin/env python\n# encoding: utf-8'
-	impo = ''
-	deco = ''
-
-	if body.find('set(') > -1:
-		impo += 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set'
-
-	return "\n".join([header, impo, body, deco])
 
 def process_tokens(tokens):
 	accu = []
@@ -200,6 +170,27 @@ def process_tokens(tokens):
 	body = "".join(accu)
 	return body
 
+deco_re = re.compile('(def|class)\\s+(\w+)\\(.*')
+def process_decorators(body):
+	lst = body.split('\n')
+	accu = []
+	all_deco = []
+	buf = [] # put the decorator lines
+	for line in lst:
+		if line.startswith('@'):
+			buf.append(line[1:])
+		elif buf:
+			name = deco_re.sub('\\2', line)
+			if not name:
+				raise IOError("decorator not followed by a function!" + line)
+			for x in buf:
+				all_deco.append("%s(%s)" % (x, name))
+			accu.append(line)
+			buf = []
+		else:
+			accu.append(line)
+	return "\n".join(accu+all_deco)
+
 def sfilter(path):
 	f = open(path, "r")
 	if Options.options.strip_comments:
@@ -208,15 +199,18 @@ def sfilter(path):
 		cnt = f.read()
 	f.close()
 
+	if path.endswith('Scripting.py'):
+		cnt = cnt.replace("if sys.hexversion<0x206000f:\n\traise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')", '')
 	cnt = process_decorators(cnt)
-	cnt = process_imports(cnt)
-	if path.endswith('Options.py') or path.endswith('Scripting.py'):
-		cnt = cnt.replace('Utils.python_24_guard()', '')
 
-	return (StringIO.StringIO(cnt), len(cnt), cnt)
+	if cnt.find('set(') > -1:
+                cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
+	cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
 
-def create_waf():
-	print "-> preparing waf"
+	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
+
+def create_waf(*k, **kw):
+	print ("-> preparing waf")
 	mw = 'tmp-waf-'+VERSION
 
 	import tarfile, re
@@ -227,22 +221,25 @@ def create_waf():
 
 	#open a file as tar.[extension] for writing
 	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
-	tarFiles=[]
+	tarFiles = []
 
 	files = []
 	add3rdparty = [x + '.py' for x in Options.options.add3rdparty.split(',')]
-	for d in '. Tools 3rdparty'.split():
-		dd = os.path.join('wafadmin', d)
+	for d in '. Tools extras'.split():
+		dd = os.path.join('waflib', d)
 		for k in os.listdir(dd):
-			if d == '3rdparty':
+			if k == '__init__.py':
+				files.append(os.path.join(dd, k))
+				continue
+			if d == 'extras':
 				if not k in add3rdparty:
 					continue
 			if k.endswith('.py'):
 				files.append(os.path.join(dd, k))
 	for x in files:
 		tarinfo = tar.gettarinfo(x, x)
-		tarinfo.uid = tarinfo.gid = 0
-		tarinfo.uname = tarinfo.gname = "root"
+		tarinfo.uid   = tarinfo.gid   = 0
+		tarinfo.uname = tarinfo.gname = 'root'
 		(code, size, cnt) = sfilter(x)
 		tarinfo.size = size
 		tar.addfile(tarinfo, code)
@@ -258,16 +255,11 @@ def create_waf():
 	#code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
 	prefix = ''
-	if Build.bld:
-		prefix = Build.bld.env['PREFIX'] or ''
-
 	reg = re.compile('^INSTALL=(.*)', re.M)
-	code1 = reg.sub(r'INSTALL=%r' % prefix, code1)
+	code1 = reg.sub(r'INSTALL=%r' % prefix, code1.decode())
 	#change the tarfile extension in the waf script
 	reg = re.compile('bz2', re.M)
 	code1 = reg.sub(zipType, code1)
-	if zipType == 'gz':
-		code1 = code1.replace('bunzip2', 'gzip -d')
 
 	f = open('%s.tar.%s' % (mw, zipType), 'rb')
 	cnt = f.read()
@@ -281,26 +273,29 @@ def create_waf():
 	code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
 	def find_unused(kd, ch):
-		for i in xrange(35, 125):
-			for j in xrange(35, 125):
+		for i in range(35, 125):
+			for j in range(35, 125):
 				if i==j: continue
 				if i == 39 or j == 39: continue
 				if i == 92 or j == 92: continue
 				s = chr(i) + chr(j)
-				if -1 == kd.find(s):
-					return (kd.replace(ch, s), s)
+				if -1 == kd.find(s.encode()):
+					return (kd.replace(ch.encode(), s.encode()), s)
 		raise
 
 	# The reverse order prevent collisions
 	(cnt, C2) = find_unused(cnt, '\r')
 	(cnt, C1) = find_unused(cnt, '\n')
 	f = open('waf', 'wb')
-	f.write(code1.replace("C1='x'", "C1='%s'" % C1).replace("C2='x'", "C2='%s'" % C2))
-	f.write('#==>\n')
-	f.write('#')
+
+	ccc = code1.replace("C1='x'", "C1='%s'" % C1).replace("C2='x'", "C2='%s'" % C2)
+
+	f.write(ccc.encode())
+	f.write(b'#==>\n')
+	f.write(b'#')
 	f.write(cnt)
-	f.write('\n')
-	f.write('#<==\n')
+	f.write(b'\n')
+	f.write(b'#<==\n')
 	f.close()
 
 	if sys.platform == 'win32' or Options.options.make_batch:
@@ -309,7 +304,7 @@ def create_waf():
 		f.close()
 
 	if sys.platform != 'win32':
-		os.chmod('waf', 0755)
+		os.chmod('waf', Utils.O755)
 	os.unlink('%s.tar.%s' % (mw, zipType))
 
 def make_copy(inf, outf):
@@ -324,37 +319,8 @@ def configure(conf):
 
 
 def build(bld):
-
-	import shutil, re
-
-	if Options.commands['install']:
-		if sys.platform == 'win32':
-			print "Installing Waf on Windows is not possible."
-			sys.exit(0)
-
-	if Options.is_install:
-		compute_revision()
-
-	if Options.commands['install']:
-		val = Options.options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
-		if val != True and val != "y": sys.exit(1)
-		create_waf()
-
-	dir = os.path.join('lib', 'waf-%s-%s' % (VERSION, REVISION), 'wafadmin')
-
-	wafadmin = bld(features = 'py')
-	wafadmin.find_sources_in_dirs('wafadmin', exts=['.py'])
-	wafadmin.install_path = os.path.join('${PREFIX}', dir)
-
-	tools = bld(features = 'py')
-	tools.find_sources_in_dirs('wafadmin/Tools', exts=['.py'])
-	tools.install_path = os.path.join('${PREFIX}', dir, 'Tools')
-
-	bld.install_files('${PREFIX}/bin', 'waf', chmod=0755)
-
-	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
-	#print "make sure the PATH contains %s/bin:$PATH" % prefix
-
+	waf = bld.path.make_node('waf') # create the node right here
+	bld(name='create_waf', rule=create_waf, target=waf, always=True, color='PINK', update_outputs=True)
 
 #def dist():
 #	import Scripting

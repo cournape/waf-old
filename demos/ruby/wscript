@@ -9,25 +9,25 @@ APPNAME='ruby_test'
 top = '.'
 out = 'build'
 
-def set_options(opt):
-    opt.tool_options('ruby')
-    opt.tool_options('compiler_cc')
+def options(opt):
+	opt.tool_options('compiler_cc')
+	opt.tool_options('ruby')
 
 def configure(conf):
-    conf.check_tool('compiler_cc')
-    conf.check_tool('ruby')
+	conf.check_tool('compiler_cc')
+	conf.check_tool('ruby')
 
-    # check for ruby
-    conf.check_ruby_version((1,8,0))
-    conf.check_ruby_ext_devel()
+	# check for ruby
+	conf.check_ruby_version((1,8,0))
+	conf.check_ruby_ext_devel()
 
 def build(bld):
 
-    # Build a ruby extension module
-    obj = bld(
-        features = 'cc cshlib rubyext',
-        source = 'rb_mytest.c',
-        target = 'mytest_ext',
-        install_path = '${ARCHDIR_RUBY}')
+	# Build a ruby extension module
+	bld(
+		features = 'cc cshlib rubyext',
+		source = 'rb_mytest.c',
+		target = 'mytest_ext',
+		install_path = '${ARCHDIR_RUBY}')
 
-    bld.install_files('${LIBDIR_RUBY}', 'Mytest.rb')
+	bld.install_files('${LIBDIR_RUBY}', 'Mytest.rb')

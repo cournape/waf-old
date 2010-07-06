@@ -1,9 +1,0 @@
-#! /usr/bin/env python
-# encoding: utf-8
-# Thomas Nagy, 2006 (ita)
-
-obj = bld(features='gnome_sgml2man', appname='gnome-hello')
-
-#todo
-#docbook2man foo.sgml
-#cp foo.1 /usr/share/man/man1/
