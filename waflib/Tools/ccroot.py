@@ -11,7 +11,7 @@ from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_objects, c_osx, c_tests
 
 USELIB_VARS = Utils.defaultdict(set)
-USELIB_VARS['cc']  = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
+USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 
@@ -38,7 +38,7 @@ def scan(self):
 @taskgen_method
 def create_compiled_task(self, name, node):
 	"""
-	creates the compilation task: cc, cxx, asm, ...
+	creates the compilation task: c, cxx, asm, ...
 	the task is appended to the list 'compiled_tasks' which is used by
 	'apply_link'
 	"""
@@ -61,7 +61,7 @@ def get_dest_binfmt(self):
 			self.env.DEST_OS or Utils.unversioned_sys_platform())
 	return self.env.DEST_BINFMT
 
-@feature('cc', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
+@feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
 @after('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
 	"""used by the scanner
@@ -127,7 +127,7 @@ class static_link(link_task):
 			pass
 		return Task.Task.run(self)
 
-@feature('cc', 'cxx', 'd', 'go', 'fc')
+@feature('c', 'cxx', 'd', 'go', 'fc')
 @after('process_source')
 def apply_link(self):
 	"""executes after process_source for collecting 'compiled_tasks' and creating a 'link_task'"""
@@ -158,7 +158,7 @@ def apply_link(self):
 		if inst_to:
 			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env, chmod=self.link_task.chmod)
 
-@feature('cc', 'cxx', 'd')
+@feature('c', 'cxx', 'd')
 @before('apply_incpaths')
 @after('apply_link')
 def apply_uselib_local(self):
@@ -242,7 +242,7 @@ def get_uselib_vars(self):
 			_vars |= USELIB_VARS[x]
 	return _vars
 
-@feature('cc', 'cxx', 'd', 'fc', 'cs', 'uselib')
+@feature('c', 'cxx', 'd', 'fc', 'cs', 'uselib')
 @after('apply_uselib_local')
 def propagate_uselib_vars(self):
 	_vars = self.get_uselib_vars()

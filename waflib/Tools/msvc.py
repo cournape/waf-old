@@ -598,7 +598,7 @@ def msvc_common_flags(conf):
 ##### conf above, build below
 
 @after('apply_link')
-@feature('cc', 'cxx')
+@feature('c', 'cxx')
 def apply_flags_msvc(self):
 	if self.env.CC_NAME != 'msvc' or not self.link_task:
 		return
@@ -621,7 +621,7 @@ def apply_flags_msvc(self):
 
 # split the manifest file processing from the link task, like for the rc processing
 
-@feature('cprogram', 'cshlib')
+@feature('cprogram', 'cshlib', 'cxxprogram', 'cxxshlib')
 @after('apply_link')
 def apply_manifest(self):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
@@ -695,7 +695,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return Task.Task.exec_command(self, *k, **kw)
 
-for k in 'cc cxx winrc cprogram cxxprogram cshlib cxxshlib static_link qxx'.split():
+for k in 'c cc cxx winrc cprogram cxxprogram cshlib cxxshlib static_link qxx'.split():
 	cls = Task.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc

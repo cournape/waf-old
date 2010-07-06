@@ -87,8 +87,12 @@ Context.load_module = load_module
 old_apply = TaskGen.task_gen.apply
 def apply(self):
 	self.features = self.to_list(self.features)
+	if 'cc' in self.features:
+		Logs.warn('compat: the feature cc does not exist anymore (use "c")')
+		self.features.remove('cc')
+		self.features.append('c')
 	if 'cstaticlib' in self.features:
-		Logs.warn('compat: the feature cstaticlib does not exist anymore (use cstlib or cxxstlib)')
+		Logs.warn('compat: the feature cstaticlib does not exist anymore (use "cstlib" or "cxxstlib")')
 		self.features.remove('cstaticlib')
 		self.features.append(('cxx' in self.features) and 'cxxstlib' or 'cstlib')
 	old_apply(self)

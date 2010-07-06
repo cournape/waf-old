@@ -37,7 +37,7 @@ app_info = '''
 
 # see WAF issue 285
 # and also http://trac.macports.org/ticket/17059
-@feature('cc', 'cxx')
+@feature('c', 'cxx')
 @before('apply_lib_vars')
 def set_macosx_deployment_target(self):
 	if self.env['MACOSX_DEPLOYMENT_TARGET']:
@@ -130,7 +130,7 @@ def apply_link_osx(self):
 		if '-dynamiclib' in self.env['LINKFLAGS']:
 			self.env.append_value('LINKFLAGS', ['-install_name', path])
 
-@feature('cc', 'cxx')
+@feature('c', 'cxx')
 @before('apply_link', 'propagate_uselib_vars')
 def apply_bundle(self):
 	"""use env['MACBUNDLE'] to force all shlibs into mac bundles

@@ -33,7 +33,7 @@ def check_inline(self, **kw):
 		if self.env.CXX:
 			kw['features'] = ['cxx']
 		else:
-			kw['features'] = ['cc']
+			kw['features'] = ['c']
 
 	for x in INLINE_VALUES:
 		kw['fragment'] = INLINE_CODE % (x, x)
@@ -68,7 +68,7 @@ def check_largefile(self, **kw):
 		if self.env.CXX:
 			kw['features'] = ['cxx', 'cxxprogram']
 		else:
-			kw['features'] = ['cc', 'cprogram']
+			kw['features'] = ['c', 'cprogram']
 
 	kw['fragment'] = LARGE_FRAGMENT
 	kw['msg'] = 'Checking for large file support'

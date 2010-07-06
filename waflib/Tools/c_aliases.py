@@ -41,12 +41,12 @@ def sniff_features(**kw):
 
 	if 'vala' in exts or 'c' in exts:
 		if type == 'program':
-			return 'cc cprogram'
+			return 'c cprogram'
 		if type == 'shlib':
-			return 'cc cshlib'
+			return 'c cshlib'
 		if type == 'stlib':
-			return 'cc cstlib'
-		return 'cc'
+			return 'c cstlib'
+		return 'c'
 
 	if 'java' in exts:
 		return 'java'

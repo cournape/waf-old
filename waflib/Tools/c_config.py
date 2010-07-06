@@ -238,7 +238,7 @@ def validate_c(self, kw):
 
 	env = kw['env']
 	if not 'compiler' in kw:
-		kw['compiler'] = 'cc'
+		kw['compiler'] = 'c'
 		if env['CXX_NAME'] and Task.classes.get('cxx', None):
 			kw['compiler'] = 'cxx'
 			if not self.env['CXX']:
@@ -264,13 +264,13 @@ def validate_c(self, kw):
 
 	# set the file name
 	if not 'compile_mode' in kw:
-		kw['compile_mode'] = (kw['compiler'] == 'cxx') and 'cxx' or 'cc'
+		kw['compile_mode'] = (kw['compiler'] == 'cxx') and 'cxx' or 'c'
 
 	if not 'compile_filename' in kw:
 		kw['compile_filename'] = 'test.c' + ((kw['compile_mode'] == 'cxx') and 'pp' or '')
 
 	if not 'features' in kw:
-		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram cc"
+		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram c"
 
 	#OSX
 	if 'framework_name' in kw:
@@ -520,7 +520,7 @@ def check_cxx(self, *k, **kw):
 
 @conf
 def check_cc(self, *k, **kw):
-	kw['compiler'] = 'cc'
+	kw['compiler'] = 'c'
 	return self.check(*k, **kw)
 
 @conf
@@ -656,7 +656,7 @@ def link_add_flags(conf):
 
 @conf
 def cc_load_tools(conf):
-	conf.check_tool('cc')
+	conf.check_tool('c')
 
 @conf
 def cxx_load_tools(conf):
