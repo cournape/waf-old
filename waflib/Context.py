@@ -313,7 +313,7 @@ class Context(ctx):
 
 	def msg(self, msg, result, color=None):
 		"""Prints a configuration message 'Checking for xxx: ok'"""
-		self.start_msg('Checking for ' + msg)
+		self.start_msg(msg)
 
 		if not isinstance(color, str):
 			color = result and 'GREEN' or 'YELLOW'
