@@ -40,7 +40,7 @@ from waflib.Logs import debug, info, warn, error
 from waflib.TaskGen import after, before, feature
 
 from waflib.Configure import conf
-from waflib.Tools import ccroot, cc, cxx, ar, winres
+from waflib.Tools import ccroot, c, cxx, ar, winres
 
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
