@@ -37,7 +37,8 @@ for pyfile in sys.argv[1:]:
 @extension('.py')
 def process_py(self, node):
 	try:
-		self.bld.is_install
+		if not self.bld.is_install:
+			return
 	except:
 		return
 
