@@ -54,7 +54,7 @@ def check_ruby_version(self, minver=()):
 	if minver:
 		if ver < minver:
 			self.fatal('ruby is too old %r' % ver)
-		cver = '.'.join(str(x) for x in minver)
+		cver = '.'.join([str(x) for x in minver])
 
 	self.msg('ruby', cver)
 
