@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, shlex, sys, time
-from waflib import ConfigSet, Utils, Options, Logs, Context, Build
+from waflib import ConfigSet, Utils, Options, Logs, Context, Build, Errors
 
 try:
 	from urllib import request
@@ -338,8 +338,20 @@ class ConfigurationContext(Context.Context):
 
 def conf(f):
 	"decorator: attach new configuration functions"
-	setattr(ConfigurationContext, f.__name__, f)
-	setattr(Build.BuildContext, f.__name__, f)
+	def fun(*k, **kw):
+		mandatory = True
+		if 'mandatory' in kw:
+			mandatory = kw['mandatory']
+			del kw['mandatory']
+
+		try:
+			return f(*k, **kw)
+		except Errors.ConfigurationError as e:
+			if mandatory:
+				raise e
+
+	setattr(ConfigurationContext, f.__name__, fun)
+	setattr(Build.BuildContext, f.__name__, fun)
 	return f
 
 @conf
