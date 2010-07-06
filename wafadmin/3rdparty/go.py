@@ -52,6 +52,7 @@ def detect(conf):
 	conf.find_program(conf.env.GO_COMPILER, var='GOC', mandatory=True)
 	conf.find_program(conf.env.GO_LINKER,   var='GOL', mandatory=True)
 	conf.find_program(conf.env.GO_PACK,     var='GOP', mandatory=True)
+	conf.find_program('cgo',                var='CGO', mandatory=True)
 
 @extension('.go')
 def compile_go(self, node):
