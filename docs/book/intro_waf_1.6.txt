@@ -18,9 +18,9 @@ The Waf build system was first created to provide an alternative for the autotoo
 
 - in some projects, files are generated in the source directory and are kept in the source control system
 - there may be more than one kind of build command
-- some configuration apis may be useful in the build section
+- some configuration API may be useful in the build section
 - it may be interesting to use Waf as a library in another system
-- some apis were private (node objects)
+- some API was private (node objects)
 
 === Goals of Waf 1.6
 
@@ -28,11 +28,11 @@ The main goals of Waf 1.6 are:
 
 . to remove most assumptions/restrictions present in Waf 1.5 (nodes, build directory, reduce the coupling between the modules)
 . to optimize the code base (execution time, source code size, compatibility with different python versions)
-. to improve the apis and the user experience (make the apis more intuitive, expose more classes and functions, improve the error handling)
+. to improve the user experience (make the API more intuitive, expose more classes and functions, improve the error handling)
 
 === Purpose of this document
 
-The apis had to be changed to make the changes described in the previous section, the apis (modules, classes. functions).
+The Waf API (modules, classes. functions) had to be changed to make the changes described previously.
 This document describes the main changes compared to the previous version, Waf 1.5.
 The Waf book for Waf 1.6 should be the reference for new users and for projects upgrading from previous Waf versions such as Waf 1.4.
 
@@ -476,10 +476,10 @@ def build(ctx):
 
 In this case, the '.h' extension is used to indicate that the unique task produced by this rule-based task generator must be processed before the c/cxx compilation (the c and cxx tasks have ext_in=['.h']).
 
-=== Configuration apis
+=== Configuration API
 
 The configuration methods bound to the ConfigurationContext by the decorator '@conf' are now bound to the BuildContext class too.
-This means that the configuration apis may be used during the build phase.
+This means that the configuration API may be used during the build phase.
 
 [source,python]
 ---------------
@@ -515,7 +515,7 @@ def build(bld):
 		bld.logger = None
 ---------------
 
-Note that the logger must be removed after the configuration apis are used, else the build output will be redirected as well.
+Note that the logger must be removed after the configuration API is used, else the build output will be redirected as well.
 
 === Downloading Waf tools
 
