@@ -140,7 +140,9 @@ class fcpp(Task.Task):
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
-	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}'
+	# FIXME: reusing the c tasks lib/shlib/etc... stuff is not good
+	# (think g77 + msvc)
+	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
 
 class fcshlib(fcprogram):
