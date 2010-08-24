@@ -18,6 +18,14 @@ def gfortran_flags(conf):
 	v['FORTRANMODFLAG']  = ['-M', ''] # template for module path
 	v['FCFLAGS_DEBUG'] = ['-Werror'] # why not
 
+	v['FCLIB_ST']        = '-l%s'
+	v['FCLIBPATH_ST']    = '-L%s'
+	v['FCSTLIB_ST']        = '-l%s'
+	v['FCSTLIBPATH_ST']    = '-L%s'
+
+	v['FCSTLIB_MARKER'] = '-Wl,-Bstatic'
+	v['FCSHLIB_MARKER'] = '-Wl,-Bdynamic'
+
 def configure(conf):
 	conf.find_gfortran()
 	conf.find_ar()
