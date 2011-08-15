@@ -113,6 +113,10 @@ def gxx_modifier_darwin(conf):
 	v['STLIB_MARKER']        = []
 	v['SONAME_ST']           = []
 
+	v['CXXFLAGS_cxxloadable']	= ['-fPIC']
+	v['LINKFLAGS_cxxloadable']	= ['-bundle', '-undefined', 'dynamic_lookup']
+	v['cxxloadable_PATTERN']	= '%s.bundle'
+
 @conf
 def gxx_modifier_aix(conf):
 	"""Configuration flags for executing g++ on AIX"""

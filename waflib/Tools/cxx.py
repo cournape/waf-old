@@ -35,6 +35,12 @@ class cxxshlib(cxxprogram):
 	"Link object files into a c++ shared library"
 	inst_to = '${LIBDIR}'
 
+class cxxloadable(cxxshlib):
+	"""Link object files into a c++ library that can be loaded through dlopen.
+
+	Note: this is generally the same as cxxshlib, except on MAC OX X."""
+	pass
+
 class cxxstlib(stlink_task):
 	"Link object files into a c++ static library"
 	pass # do not remove
