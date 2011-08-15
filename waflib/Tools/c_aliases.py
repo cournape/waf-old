@@ -59,7 +59,7 @@ def sniff_features(**kw):
 	if 'java' in exts:
 		return 'java'
 
-	if type in ['program', 'shlib', 'stlib']:
+	if type in ['program', 'shlib', 'stlib', 'loadable']:
 		for x in feats:
 			if x in ['cxx', 'd', 'c']:
 				feats.append(x + type)
@@ -96,6 +96,20 @@ def shlib(bld, *k, **kw):
 
 	"""
 	set_features(kw, 'shlib')
+	return bld(*k, **kw)
+
+@conf
+def loadable(bld, *k, **kw):
+	"""
+	Alias for creating loadable modules by looking at the file extensions::
+
+		def build(bld):
+			bld.shlib(source='foo.c', target='app')
+			# equivalent to:
+			# bld(features='c cloadable', source='foo.c', target='app')
+
+	"""
+	set_features(kw, 'loadable')
 	return bld(*k, **kw)
 
 @conf

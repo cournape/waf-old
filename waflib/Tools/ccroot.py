@@ -25,6 +25,7 @@ USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 
 USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH', 'ARCH'])
 USELIB_VARS['cshlib']   = USELIB_VARS['cxxshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH', 'ARCH'])
+USELIB_VARS['cloadable']   = USELIB_VARS['cxxloadable']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH', 'ARCH'])
 USELIB_VARS['cstlib']   = USELIB_VARS['cxxstlib']   = set(['ARFLAGS', 'LINKDEPS'])
 
 USELIB_VARS['dprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
@@ -191,6 +192,8 @@ def apply_link(self):
 			x = 'cxxprogram'
 		elif x == 'cshlib' and 'cxx' in self.features:
 			x = 'cxxshlib'
+		elif x == 'cloadable' and 'cxx' in self.features:
+			x = 'cxxloadable'
 
 		if x in Task.classes:
 			if issubclass(Task.classes[x], link_task):
@@ -402,7 +405,7 @@ def propagate_uselib_vars(self):
 
 # ============ the code above must not know anything about import libs ==========
 
-@feature('cshlib', 'cxxshlib', 'fcshlib')
+@feature('cloadable', 'cxxloadable', 'cshlib', 'cxxshlib', 'fcshlib')
 @after_method('apply_link')
 def apply_implib(self):
 	"""
@@ -446,7 +449,7 @@ def apply_implib(self):
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
-@feature('cshlib', 'cxxshlib', 'dshlib', 'fcshlib', 'vnum')
+@feature('cloadblae', 'cxxloadable', 'cshlib', 'cxxshlib', 'dshlib', 'fcshlib', 'vnum')
 @after_method('apply_link')
 def apply_vnum(self):
 	"""

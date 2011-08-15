@@ -34,6 +34,12 @@ class cshlib(cprogram):
 	"Link object files into a c shared library"
 	inst_to = '${LIBDIR}'
 
+class cloadable(cshlib):
+	"""Link object files into a c library that can be loaded through dlopen.
+
+	Note: this is generally the same as cshlib, except on MAC OX X."""
+	pass
+
 class cstlib(stlink_task):
 	"Link object files into a c static library"
 	pass # do not remove

@@ -68,6 +68,10 @@ def gcc_common_flags(conf):
 	v['CFLAGS_MACBUNDLE']    = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
+	v['CFLAGS_cloadable']    = ['-fPIC']
+	v['LINKFLAGS_cloadable'] = ['-bundle', '-undefined', 'dynamic_lookup']
+	v['cloadable_PATTERN']   = '%s.bundle'
+
 @conf
 def gcc_modifier_win32(conf):
 	"""Configuration flags for executing gcc on Windows"""
