@@ -258,6 +258,22 @@ def use_rec(self, name, **kw):
 			p[x] = [name]
 		self.use_rec(x, objects=objects, stlib=stlib)
 
+@feature('cloadable', 'cxxloadable')
+@before_method('apply_link')
+def apply_default_loadable_flags(self):
+	v = self.env
+
+	for f in ['CFLAGS', 'LINKFLAGS']:
+		for load_suffix, shlib_suffix in [('_cloadable', '_cshlib'), ('_cxxloadable', '_cxxshlib')]:
+			flag = f + load_suffix
+			if not flag in v:
+				v[flag] = v[f + shlib_suffix]
+
+	for load_prefix, shlib_prefix in [('cloadable', 'cshlib'), ('cxxloadable', 'cxxshlib')]:
+		flag = load_prefix + '_' + 'PATTERN'
+		if not flag in v:
+			v[flag] = v[shlib_prefix + '_' + 'PATTERN']
+
 @feature('c', 'cxx', 'd', 'use', 'fc')
 @before_method('apply_incpaths', 'propagate_uselib_vars')
 @after_method('apply_link', 'process_source')
