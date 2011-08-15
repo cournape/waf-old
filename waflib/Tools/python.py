@@ -141,7 +141,7 @@ def init_pyext(self):
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
 	# override shlib_PATTERN set by the osx module
-	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['pyext_PATTERN']
+	self.env['cloadable_PATTERN'] = self.env['cxxloadable_PATTERN'] = self.env['pyext_PATTERN']
 
 @before_method('propagate_uselib_vars')
 @feature('pyembed')
@@ -235,8 +235,10 @@ def check_python_headers(conf):
 
 	# Check for python libraries for embedding
 
-	all_flags = dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS']
+	all_flags = dct['LDFLAGS'] + ' ' + dct['CFLAGS']
 	conf.parse_flags(all_flags, 'PYEMBED')
+
+	all_flags = dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS']
 	conf.parse_flags(all_flags, 'PYEXT')
 
 	result = None
@@ -278,7 +280,7 @@ def check_python_headers(conf):
 	# under certain conditions, python extensions must link to
 	# python libraries, not just python embedding programs.
 	if (Utils.is_win32 or sys.platform.startswith('os2')
-		or sys.platform == 'darwin' or dct['Py_ENABLE_SHARED']):
+		or dct['Py_ENABLE_SHARED']):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
