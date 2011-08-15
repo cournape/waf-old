@@ -449,7 +449,7 @@ def apply_implib(self):
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
-@feature('cloadblae', 'cxxloadable', 'cshlib', 'cxxshlib', 'dshlib', 'fcshlib', 'vnum')
+@feature('cloadable', 'cxxloadable', 'cshlib', 'cxxshlib', 'dshlib', 'fcshlib', 'vnum')
 @after_method('apply_link')
 def apply_vnum(self):
 	"""
