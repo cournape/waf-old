@@ -798,7 +798,7 @@ def apply_flags_msvc(self):
 
 # split the manifest file processing from the link task, like for the rc processing
 
-@feature('cprogram', 'cshlib', 'cxxprogram', 'cxxshlib')
+@feature('cprogram', 'cshlib', 'cxxprogram', 'cxxshlib', 'cloadable', 'cxxloadable')
 @after_method('apply_link')
 def apply_manifest(self):
 	"""
@@ -843,7 +843,8 @@ def exec_mf(self):
 	mode = ''
 	if 'cprogram' in self.generator.features or 'cxxprogram' in self.generator.features:
 		mode = '1'
-	elif 'cshlib' in self.generator.features or 'cxxshlib' in self.generator.features:
+	elif 'cshlib' in self.generator.features or 'cxxshlib' in self.generator.features or \
+		'cloadable' in self.generator.features or 'cxxloadable' in self.generator.features:
 		mode = '2'
 
 	debug('msvc: embedding manifest in mode %r' % mode)
@@ -924,7 +925,7 @@ def exec_command_msvc(self, *k, **kw):
 		ret = self.exec_mf()
 	return ret
 
-for k in 'c cxx cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib'.split():
+for k in 'c cxx cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib cloadable cxxloadable'.split():
 	cls = Task.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
