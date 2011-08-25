@@ -200,6 +200,19 @@ def get_python_variables(conf, variables, imports=['import sys']):
 		else: break
 	return return_values
 
+def set_win32_flags(conf):
+	"""
+	Win32-specific flags settings from distutils.
+	"""
+	if conf.env["CC_NAME"] == "msvc":
+		from distutils.msvccompiler import MSVCCompiler
+		dist_compiler = MSVCCompiler()
+		dist_compiler.initialize()
+		conf.env.append_value("CFLAGS_PYEXT", dist_compiler.compile_options)
+		conf.env.append_value("LINKFLAGS_PYEXT", dist_compiler.ldflags_shared)
+	else:
+		return
+
 @conf
 def check_python_headers(conf):
 	"""
@@ -322,6 +335,9 @@ def check_python_headers(conf):
 	if env['CXX_NAME'] == 'gcc':
 		env.append_value('CXXFLAGS_PYEMBED', ['-fno-strict-aliasing'])
 		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])
+
+	if Utils.is_win32:
+		set_win32_flags(conf)
 
 	# See if it compiles
 	try:
