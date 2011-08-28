@@ -258,16 +258,29 @@ def use_rec(self, name, **kw):
 			p[x] = [name]
 		self.use_rec(x, objects=objects, stlib=stlib)
 
-@feature('cloadable', 'cxxloadable')
+@feature('c', 'cxx')
 @before_method('apply_link')
 def apply_default_loadable_flags(self):
+	"""
+	Set-up default values for *_cloadable flags from *_cshlib when they are not
+	defined.
+	"""
 	v = self.env
 
-	for f in ['CFLAGS', 'LINKFLAGS']:
-		for load_suffix, shlib_suffix in [('_cloadable', '_cshlib'), ('_cxxloadable', '_cxxshlib')]:
-			flag = f + load_suffix
+	def set_flags_from_feature(flags, from_feature, to_feature):
+		for f in flags:
+			flag = f + '_' + to_feature
 			if not flag in v:
-				v[flag] = v[f + shlib_suffix]
+				v[flag] = v[f + '_' + from_feature]
+
+	def set_flags_from_feature(flags, from_feature, to_feature):
+		for f in flags:
+			flag = f + '_' + to_feature
+			if not flag in v:
+				v[flag] = v[f + '_' + from_feature]
+
+	set_flags_from_feature(['CFLAGS', 'LINKFLAGS'], "cshlib", "cloadable")
+	set_flags_from_feature(['CXXFLAGS'], "cxxshlib", "cxxloadable")
 
 	for load_prefix, shlib_prefix in [('cloadable', 'cshlib'), ('cxxloadable', 'cxxshlib')]:
 		flag = load_prefix + '_' + 'PATTERN'
