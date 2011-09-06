@@ -242,8 +242,10 @@ def check_python_headers(conf):
 
 	# Check for python libraries for embedding
 
-	all_flags = dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS']
+	all_flags = dct['LDFLAGS'] + ' ' + dct['CFLAGS']
 	conf.parse_flags(all_flags, 'PYEMBED')
+
+	all_flags = dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS']
 	conf.parse_flags(all_flags, 'PYEXT')
 
 	result = None
