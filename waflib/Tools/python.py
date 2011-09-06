@@ -130,6 +130,7 @@ def feature_py(self):
 
 @feature('pyext')
 @before_method('propagate_uselib_vars', 'apply_link')
+@after_method('apply_bundle')
 def init_pyext(self):
 	"""
 	Change the values of *cshlib_PATTERN* and *cxxshlib_PATTERN* to remove the
@@ -141,7 +142,7 @@ def init_pyext(self):
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
 	# override shlib_PATTERN set by the osx module
-	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['pyext_PATTERN']
+	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['macbundle_PATTERN'] = self.env['pyext_PATTERN']
 
 @feature('pyext')
 @before_method('apply_link', 'apply_bundle')
