@@ -143,6 +143,12 @@ def init_pyext(self):
 	# override shlib_PATTERN set by the osx module
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['pyext_PATTERN']
 
+@feature('pyext')
+@before_method('apply_link', 'apply_bundle')
+def set_bundle(self):
+	if sys.platform.startswith('darwin'):
+		self.mac_bundle = True
+
 @before_method('propagate_uselib_vars')
 @feature('pyembed')
 def init_pyembed(self):
